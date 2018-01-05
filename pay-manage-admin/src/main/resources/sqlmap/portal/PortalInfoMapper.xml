@@ -1,0 +1,419 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sys.admin.modules.portal.mapper.PortalInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.sys.admin.modules.portal.dmo.PortalInfo" >
+    <id column="office_id" property="officeId" jdbcType="BIGINT" />
+    <result column="type" property="type" jdbcType="CHAR" />
+    <result column="status" property="status" jdbcType="CHAR" />
+    <result column="company_logo" property="companyLogo" jdbcType="VARCHAR" />
+    <result column="company_icon" property="companyIcon" jdbcType="VARCHAR" />
+    <result column="domain_address" property="domainAddress" jdbcType="VARCHAR" />
+    <result column="customer_service_phone" property="customerServicePhone" jdbcType="VARCHAR" />
+    <result column="customer_service_email" property="customerServiceEmail" jdbcType="VARCHAR" />
+    <result column="sms_template_id" property="smsTemplateId" jdbcType="VARCHAR" />
+    <result column="joint_account_login" property="jointAccountLogin" jdbcType="VARCHAR" />
+    <result column="financial_account_info" property="financialAccountInfo" jdbcType="VARCHAR" />
+    <result column="business_investment_info" property="businessInvestmentInfo" jdbcType="VARCHAR" />
+    <result column="wechat_account" property="wechatAccount" jdbcType="VARCHAR" />
+    <result column="wechat_barcode" property="wechatBarcode" jdbcType="VARCHAR" />
+    <result column="star_level" property="starLevel" jdbcType="CHAR" />
+    <result column="description" property="description" jdbcType="VARCHAR" />
+    <result column="about" property="about" jdbcType="VARCHAR" />
+    <result column="remarks" property="remarks" jdbcType="VARCHAR" />
+  </resultMap>
+  <sql id="Example_Where_Clause" >
+    <where >
+      <foreach collection="oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Update_By_Example_Where_Clause" >
+    <where >
+      <foreach collection="example.oredCriteria" item="criteria" separator="or" >
+        <if test="criteria.valid" >
+          <trim prefix="(" suffix=")" prefixOverrides="and" >
+            <foreach collection="criteria.criteria" item="criterion" >
+              <choose >
+                <when test="criterion.noValue" >
+                  and ${criterion.condition}
+                </when>
+                <when test="criterion.singleValue" >
+                  and ${criterion.condition} #{criterion.value}
+                </when>
+                <when test="criterion.betweenValue" >
+                  and ${criterion.condition} #{criterion.value} and #{criterion.secondValue}
+                </when>
+                <when test="criterion.listValue" >
+                  and ${criterion.condition}
+                  <foreach collection="criterion.value" item="listItem" open="(" close=")" separator="," >
+                    #{listItem}
+                  </foreach>
+                </when>
+              </choose>
+            </foreach>
+          </trim>
+        </if>
+      </foreach>
+    </where>
+  </sql>
+  <sql id="Base_Column_List" >
+    office_id, type, status, company_logo, company_icon, domain_address, customer_service_phone, 
+    customer_service_email, sms_template_id, joint_account_login, financial_account_info, 
+    business_investment_info, wechat_account, wechat_barcode, star_level, description, 
+    about, remarks
+  </sql>
+  <select id="selectByExample" resultMap="BaseResultMap" parameterType="com.sys.admin.modules.portal.dmo.PortalInfoExample" >
+    select
+    <if test="distinct" >
+      distinct
+    </if>
+    <include refid="Base_Column_List" />
+    from portal_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+    <if test="orderByClause != null" >
+      order by ${orderByClause}
+    </if>
+  </select>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select 
+    <include refid="Base_Column_List" />
+    from portal_info
+    where office_id = #{officeId,jdbcType=BIGINT}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Long" >
+    delete from portal_info
+    where office_id = #{officeId,jdbcType=BIGINT}
+  </delete>
+  <delete id="deleteByExample" parameterType="com.sys.admin.modules.portal.dmo.PortalInfoExample" >
+    delete from portal_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </delete>
+  <insert id="insert" parameterType="com.sys.admin.modules.portal.dmo.PortalInfo" >
+    insert into portal_info (office_id, type, status, 
+      company_logo, company_icon, domain_address, 
+      customer_service_phone, customer_service_email, 
+      sms_template_id, joint_account_login, financial_account_info, 
+      business_investment_info, wechat_account, 
+      wechat_barcode, star_level, description, 
+      about, remarks)
+    values (#{officeId,jdbcType=BIGINT}, #{type,jdbcType=CHAR}, #{status,jdbcType=CHAR}, 
+      #{companyLogo,jdbcType=VARCHAR}, #{companyIcon,jdbcType=VARCHAR}, #{domainAddress,jdbcType=VARCHAR}, 
+      #{customerServicePhone,jdbcType=VARCHAR}, #{customerServiceEmail,jdbcType=VARCHAR}, 
+      #{smsTemplateId,jdbcType=VARCHAR}, #{jointAccountLogin,jdbcType=VARCHAR}, #{financialAccountInfo,jdbcType=VARCHAR}, 
+      #{businessInvestmentInfo,jdbcType=VARCHAR}, #{wechatAccount,jdbcType=VARCHAR}, 
+      #{wechatBarcode,jdbcType=VARCHAR}, #{starLevel,jdbcType=CHAR}, #{description,jdbcType=VARCHAR}, 
+      #{about,jdbcType=VARCHAR}, #{remarks,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.sys.admin.modules.portal.dmo.PortalInfo" >
+    insert into portal_info
+    <trim prefix="(" suffix=")" suffixOverrides="," >
+      <if test="officeId != null" >
+        office_id,
+      </if>
+      <if test="type != null" >
+        type,
+      </if>
+      <if test="status != null" >
+        status,
+      </if>
+      <if test="companyLogo != null" >
+        company_logo,
+      </if>
+      <if test="companyIcon != null" >
+        company_icon,
+      </if>
+      <if test="domainAddress != null" >
+        domain_address,
+      </if>
+      <if test="customerServicePhone != null" >
+        customer_service_phone,
+      </if>
+      <if test="customerServiceEmail != null" >
+        customer_service_email,
+      </if>
+      <if test="smsTemplateId != null" >
+        sms_template_id,
+      </if>
+      <if test="jointAccountLogin != null" >
+        joint_account_login,
+      </if>
+      <if test="financialAccountInfo != null" >
+        financial_account_info,
+      </if>
+      <if test="businessInvestmentInfo != null" >
+        business_investment_info,
+      </if>
+      <if test="wechatAccount != null" >
+        wechat_account,
+      </if>
+      <if test="wechatBarcode != null" >
+        wechat_barcode,
+      </if>
+      <if test="starLevel != null" >
+        star_level,
+      </if>
+      <if test="description != null" >
+        description,
+      </if>
+      <if test="about != null" >
+        about,
+      </if>
+      <if test="remarks != null" >
+        remarks,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides="," >
+      <if test="officeId != null" >
+        #{officeId,jdbcType=BIGINT},
+      </if>
+      <if test="type != null" >
+        #{type,jdbcType=CHAR},
+      </if>
+      <if test="status != null" >
+        #{status,jdbcType=CHAR},
+      </if>
+      <if test="companyLogo != null" >
+        #{companyLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="companyIcon != null" >
+        #{companyIcon,jdbcType=VARCHAR},
+      </if>
+      <if test="domainAddress != null" >
+        #{domainAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="customerServicePhone != null" >
+        #{customerServicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="customerServiceEmail != null" >
+        #{customerServiceEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="smsTemplateId != null" >
+        #{smsTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="jointAccountLogin != null" >
+        #{jointAccountLogin,jdbcType=VARCHAR},
+      </if>
+      <if test="financialAccountInfo != null" >
+        #{financialAccountInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="businessInvestmentInfo != null" >
+        #{businessInvestmentInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatAccount != null" >
+        #{wechatAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatBarcode != null" >
+        #{wechatBarcode,jdbcType=VARCHAR},
+      </if>
+      <if test="starLevel != null" >
+        #{starLevel,jdbcType=CHAR},
+      </if>
+      <if test="description != null" >
+        #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="about != null" >
+        #{about,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        #{remarks,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <select id="countByExample" parameterType="com.sys.admin.modules.portal.dmo.PortalInfoExample" resultType="java.lang.Integer" >
+    select count(*) from portal_info
+    <if test="_parameter != null" >
+      <include refid="Example_Where_Clause" />
+    </if>
+  </select>
+  <update id="updateByExampleSelective" parameterType="map" >
+    update portal_info
+    <set >
+      <if test="record.officeId != null" >
+        office_id = #{record.officeId,jdbcType=BIGINT},
+      </if>
+      <if test="record.type != null" >
+        type = #{record.type,jdbcType=CHAR},
+      </if>
+      <if test="record.status != null" >
+        status = #{record.status,jdbcType=CHAR},
+      </if>
+      <if test="record.companyLogo != null" >
+        company_logo = #{record.companyLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.companyIcon != null" >
+        company_icon = #{record.companyIcon,jdbcType=VARCHAR},
+      </if>
+      <if test="record.domainAddress != null" >
+        domain_address = #{record.domainAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerServicePhone != null" >
+        customer_service_phone = #{record.customerServicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="record.customerServiceEmail != null" >
+        customer_service_email = #{record.customerServiceEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="record.smsTemplateId != null" >
+        sms_template_id = #{record.smsTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="record.jointAccountLogin != null" >
+        joint_account_login = #{record.jointAccountLogin,jdbcType=VARCHAR},
+      </if>
+      <if test="record.financialAccountInfo != null" >
+        financial_account_info = #{record.financialAccountInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.businessInvestmentInfo != null" >
+        business_investment_info = #{record.businessInvestmentInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="record.wechatAccount != null" >
+        wechat_account = #{record.wechatAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="record.wechatBarcode != null" >
+        wechat_barcode = #{record.wechatBarcode,jdbcType=VARCHAR},
+      </if>
+      <if test="record.starLevel != null" >
+        star_level = #{record.starLevel,jdbcType=CHAR},
+      </if>
+      <if test="record.description != null" >
+        description = #{record.description,jdbcType=VARCHAR},
+      </if>
+      <if test="record.about != null" >
+        about = #{record.about,jdbcType=VARCHAR},
+      </if>
+      <if test="record.remarks != null" >
+        remarks = #{record.remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByExample" parameterType="map" >
+    update portal_info
+    set office_id = #{record.officeId,jdbcType=BIGINT},
+      type = #{record.type,jdbcType=CHAR},
+      status = #{record.status,jdbcType=CHAR},
+      company_logo = #{record.companyLogo,jdbcType=VARCHAR},
+      company_icon = #{record.companyIcon,jdbcType=VARCHAR},
+      domain_address = #{record.domainAddress,jdbcType=VARCHAR},
+      customer_service_phone = #{record.customerServicePhone,jdbcType=VARCHAR},
+      customer_service_email = #{record.customerServiceEmail,jdbcType=VARCHAR},
+      sms_template_id = #{record.smsTemplateId,jdbcType=VARCHAR},
+      joint_account_login = #{record.jointAccountLogin,jdbcType=VARCHAR},
+      financial_account_info = #{record.financialAccountInfo,jdbcType=VARCHAR},
+      business_investment_info = #{record.businessInvestmentInfo,jdbcType=VARCHAR},
+      wechat_account = #{record.wechatAccount,jdbcType=VARCHAR},
+      wechat_barcode = #{record.wechatBarcode,jdbcType=VARCHAR},
+      star_level = #{record.starLevel,jdbcType=CHAR},
+      description = #{record.description,jdbcType=VARCHAR},
+      about = #{record.about,jdbcType=VARCHAR},
+      remarks = #{record.remarks,jdbcType=VARCHAR}
+    <if test="_parameter != null" >
+      <include refid="Update_By_Example_Where_Clause" />
+    </if>
+  </update>
+  <update id="updateByPrimaryKeySelective" parameterType="com.sys.admin.modules.portal.dmo.PortalInfo" >
+    update portal_info
+    <set >
+      <if test="type != null" >
+        type = #{type,jdbcType=CHAR},
+      </if>
+      <if test="status != null" >
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="companyLogo != null" >
+        company_logo = #{companyLogo,jdbcType=VARCHAR},
+      </if>
+      <if test="companyIcon != null" >
+        company_icon = #{companyIcon,jdbcType=VARCHAR},
+      </if>
+      <if test="domainAddress != null" >
+        domain_address = #{domainAddress,jdbcType=VARCHAR},
+      </if>
+      <if test="customerServicePhone != null" >
+        customer_service_phone = #{customerServicePhone,jdbcType=VARCHAR},
+      </if>
+      <if test="customerServiceEmail != null" >
+        customer_service_email = #{customerServiceEmail,jdbcType=VARCHAR},
+      </if>
+      <if test="smsTemplateId != null" >
+        sms_template_id = #{smsTemplateId,jdbcType=VARCHAR},
+      </if>
+      <if test="jointAccountLogin != null" >
+        joint_account_login = #{jointAccountLogin,jdbcType=VARCHAR},
+      </if>
+      <if test="financialAccountInfo != null" >
+        financial_account_info = #{financialAccountInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="businessInvestmentInfo != null" >
+        business_investment_info = #{businessInvestmentInfo,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatAccount != null" >
+        wechat_account = #{wechatAccount,jdbcType=VARCHAR},
+      </if>
+      <if test="wechatBarcode != null" >
+        wechat_barcode = #{wechatBarcode,jdbcType=VARCHAR},
+      </if>
+      <if test="starLevel != null" >
+        star_level = #{starLevel,jdbcType=CHAR},
+      </if>
+      <if test="description != null" >
+        description = #{description,jdbcType=VARCHAR},
+      </if>
+      <if test="about != null" >
+        about = #{about,jdbcType=VARCHAR},
+      </if>
+      <if test="remarks != null" >
+        remarks = #{remarks,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where office_id = #{officeId,jdbcType=BIGINT}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.sys.admin.modules.portal.dmo.PortalInfo" >
+    update portal_info
+    set type = #{type,jdbcType=CHAR},
+      status = #{status,jdbcType=CHAR},
+      company_logo = #{companyLogo,jdbcType=VARCHAR},
+      company_icon = #{companyIcon,jdbcType=VARCHAR},
+      domain_address = #{domainAddress,jdbcType=VARCHAR},
+      customer_service_phone = #{customerServicePhone,jdbcType=VARCHAR},
+      customer_service_email = #{customerServiceEmail,jdbcType=VARCHAR},
+      sms_template_id = #{smsTemplateId,jdbcType=VARCHAR},
+      joint_account_login = #{jointAccountLogin,jdbcType=VARCHAR},
+      financial_account_info = #{financialAccountInfo,jdbcType=VARCHAR},
+      business_investment_info = #{businessInvestmentInfo,jdbcType=VARCHAR},
+      wechat_account = #{wechatAccount,jdbcType=VARCHAR},
+      wechat_barcode = #{wechatBarcode,jdbcType=VARCHAR},
+      star_level = #{starLevel,jdbcType=CHAR},
+      description = #{description,jdbcType=VARCHAR},
+      about = #{about,jdbcType=VARCHAR},
+      remarks = #{remarks,jdbcType=VARCHAR}
+    where office_id = #{officeId,jdbcType=BIGINT}
+  </update>
+</mapper>

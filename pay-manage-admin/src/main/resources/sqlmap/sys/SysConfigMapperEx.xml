@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.sys.admin.modules.sys.mapper.SysConfigMapper">
+    <update id="gainTimerLock">
+    update sys_config
+    set config_value = '1'
+    where config_name = 'timer.scheduler.lock'
+    and category = 'timer'
+    and config_value = '0'
+  </update>
+
+    <update id="releaseTimerLock">
+    update sys_config
+    set config_value = '0'
+    where config_name = 'timer.scheduler.lock'
+    and category = 'timer'
+    and config_value = '1'
+  </update>
+
+    <select id="getAll" resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from sys_config
+        where 1=1
+        order by config_name asc
+    </select>
+
+    <select id="getCategorys" resultType="java.lang.String">
+        select distinct category from sys_config
+    </select>
+
+    <update id="updateByConfigName">
+        update sys_config
+        set config_name = #{record.configName,jdbcType=VARCHAR},
+        config_value = #{record.configValue,jdbcType=VARCHAR},
+        description = #{record.description,jdbcType=VARCHAR},
+        category = #{record.category,jdbcType=VARCHAR}
+        where config_name = #{oldConfigName,jdbcType=VARCHAR}
+    </update>
+</mapper>

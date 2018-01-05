@@ -1,0 +1,586 @@
+
+body {
+	/*border:1px solid red;*/
+	background-color: #F5F5F5;
+	position: absolute;
+	top: 0;
+	right: 0;
+	left: 0;
+	bottom: 0;
+}
+.bgF{
+	background-color: #FFF!important;
+}
+
+/*支付中心*/
+.orderInfo{
+	width: 100%;
+	height: 3rem;
+	margin-bottom: .5rem;
+	line-height: 3rem;
+	padding: 0 1rem;
+}
+.orderInfo .total{
+	float: right;
+	font-size: 1rem;
+	color: red;
+}
+
+.aui-list .aui-list-header{
+  background-color:#FFF;
+  color: #666;
+  height: 3rem;	
+  line-height: 3rem;
+  /*border: 1px solid red;*/
+ font-size: .85rem;
+}
+
+.label{
+	color:#666;
+}
+.aui-list-item .aui-list-item-label-icon{
+	/*border: 1px solid red;*/
+	/*padding-right: 0.75rem;*/
+	
+}
+.aui-list-item{
+	height: 3.5rem;
+	line-height: 3.5rem;
+}
+.aui-list-item img{
+	display: block;
+	/*width: 2.5rem;*/
+	height: 2.5rem;
+	max-width:none!important;
+}
+.aui-list-item a{
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.aui-list-item-inner{
+	/*border: 1px solid red;*/
+	display: block!important;
+	height: 3.5rem;
+}
+.aui-list-item .aui-list-item-inner{
+	padding: 0;
+}
+.aui-list-item-inner p{
+	display: block;
+	width: 100%;
+	/*height: 50%;*/
+	/*border: 1px solid red;*/
+}
+.wayName{
+	color: #000;
+	height: 60%;
+	line-height: 2.5rem;
+	font-size: .85rem;
+}
+.wayIntro{
+	color: #666;
+	height: 40%;
+	line-height:1rem;
+	font-size:.6rem;
+}
+
+.aui-list-item-inner,.aui-list-header{
+	border-bottom:1px solid #F0F0F0;
+}
+
+.aui-list .aui-list-item-title{
+	height: 60%;
+	/*border: 1px solid red;*/
+	font-size: .85rem;
+	line-height: 2.1rem;
+}
+.aui-list-item-text{
+	font-size: .6rem;
+	height: 1.4rem;
+	line-height: 1rem;
+}
+.aui-list .aui-list-item-text{
+	display: block;
+}
+.aui-list-item-text span:last-child{
+	display: inline-block;
+	
+}
+.verticalLine{
+	display: inline-block;
+	vertical-align: middle;
+	width: 1px;
+	height: .7rem;
+	background: #979797;
+	margin:0 .5rem;
+	
+}
+
+.unbind{
+	position: absolute;
+	right: 1rem;
+	/*line-height: 3.5rem;*/
+	z-index: 9999;
+}
+
+.addCard .aui-list-item-inner,.addCard .aui-list-item{
+	height: 3rem;
+	line-height: 3rem;
+	border: none;
+	vertical-align: middle;
+}
+
+.cardList .aui-list-item{
+	height: 4.5rem;
+	line-height: 4.5rem;
+	padding-top: .5rem;
+}
+.cardList .aui-list-item-inner{
+	border:none;
+}
+.plus{
+	display: inline-block!important;
+	width: .8rem!important;
+	height: .8rem!important;
+	vertical-align: middle!important;
+
+}
+#fastPay .aui-margin-b-15 {
+    margin-bottom: 0.5rem !important;
+ }
+ 
+.tipbox {
+	width: 100%;
+	position: absolute;
+	left: 50%;
+	margin-left: -50%;
+	bottom: 2rem;
+	
+}
+.tipbox p{
+	/*border: 1px solid red;*/
+	width: 8rem;
+	font-size: 13px;
+	color: #333;
+	margin:.15rem auto;
+	padding-left: .25rem;
+}
+.tipbox p .tag{
+	color: #666;
+}
+.aui-dialog-body {
+	font-size: .7rem;
+}
+.aui-dialog-body  img{
+	display: inline-block;
+	width: 1rem;
+	height: 1rem;
+	vertical-align: middle;
+	margin-right: .5rem;
+}
+
+.aui-dialog-footer div.aui-dialog-btn{
+	height: 1.5rem;
+
+	border-radius: 1.5rem;
+	line-height: 1.5rem;
+	width: 5rem;
+}
+.aui-dialog-footer div:first-child{
+	background: #62B900;
+	color: #FFF;
+}
+.aui-dialog-footer div:nth-child(2){
+		border: 1px solid #999;
+		color: #757575;
+}
+.aui-dialog-footer{
+	justify-content: space-around;
+}
+
+.unbindTip{
+	font-size: .9rem;
+	color: #62B900;
+	text-align: center;
+	width: 90%;
+	margin: 3rem auto 0;
+	display: none;
+}
+
+.infoHeader{
+	height: 3rem;
+	line-height: 3rem;
+	padding:0 1rem;
+	font-size: .7rem;
+}
+.infoHeader span{
+	margin-left: 1.5rem;
+	color: red;
+	font-size: .9rem;
+	vertical-align: middle;
+}
+
+/*addCard*/
+
+#addCard  .aui-list-item-inner{
+	/*border: 1px solid red;*/
+	display: flex!important;
+	height: 3rem;
+	line-height: 3rem;
+}
+
+#addCard  .aui-list-item-inner  .aui-list-item-label,#addCard  .aui-list-item-inner  .aui-list-item-input{
+	height: 100%;
+	width: 30%;
+	
+}
+#addCard  .aui-list-item-inner  .aui-list-item-input {
+	width: 70%;
+	position: relative;
+}
+#addCard  .aui-list-item-inner  .aui-list-item-input  input{
+	height: 100%;
+	/*border: 1px solid red;*/
+}
+#addCard #box{
+	height: 100%;
+	width: 100%;
+}
+
+
+
+#addCard .aui-list-item{
+	height: 3rem;
+	line-height: 3rem;
+} 
+
+
+.selectdiv {
+	display: none;
+	position: absolute;
+	height: 14rem;
+	overflow-y: scroll;
+	overflow-x: hidden;
+	background: #FFF;
+	opacity: 1;
+	z-index: 1000;
+	/*bottom: -14rem;*/
+	width: 100%;
+	box-shadow: 0px 0px 10px #ddd;
+}
+.selectdiv div {
+	background: #FFF;
+	width: 100%;
+	height: 2rem;
+	font-size: .75rem;
+	line-height: 2rem;
+	padding-left: .85rem;
+	color: #475669;
+}
+.select {
+	position: relative;
+}
+.selectdiv div:hover {
+	background: #E5E9F2;
+	color: #FFF;
+}
+
+.submitBox {
+	width: 100%;
+	margin-top: 0rem;
+}
+
+.submitBox input[type="submit"],.submitBox input[type="button"]{
+	width: 80%;
+	height: 1.8rem;
+	line-height: 1.8rem;
+	margin: 0 auto;
+	display: block;
+	-webkit-appearance: none;
+	 background: #62B900;
+	border-radius: 100px;
+	font-family: PingFangSC-Medium;
+	font-size: 16px;
+	color: #FFFFFF;
+	letter-spacing: 0;
+}
+
+#addCard .getConfirmCode {
+	width: 5rem;
+	height: 100%;
+	text-align: right;
+	line-height: 3rem;
+	background: transparent;
+	/*border-left:1px solid #999;*/
+	padding-left: .25rem;
+	position: absolute;
+	right:.75rem;
+	/*border: 1px solid red;*/
+	top: 0;
+	color: #62B900;
+}
+
+#addCard .tipbox{
+	position: initial;
+	margin-left: 0;
+	margin: 2rem auto;
+}
+
+.protocal{
+	font-size: .6rem;
+	color: #999;
+	/*padding-left: 1rem;*/
+	margin:.5rem .75rem 1rem ;
+}
+.protocal img{
+	display: inline-block;
+	width: .65rem;
+	height: .65rem;
+	vertical-align: middle;
+	margin-right: .25rem;
+	
+}
+.protocal a{
+	color: #62B900;
+}
+#addCard .cardtypeDiv{
+	height: 4rem;
+}
+
+
+/*infoError*/
+#Error .item{
+	margin-top: 4rem;
+}
+#Error .resultBox{
+	/*border: 1px solid red;*/
+}
+#Error .resultBox img{
+	display: block;
+	width: 2.5rem;
+	height: 2.5rem;
+	margin: 2rem auto 0;
+}
+.tipText{
+	width: 80%;
+	margin:2rem auto;
+	text-align: center;
+	
+}
+.tipText .lamp{
+	display: inline-block;
+	vertical-align: middle;
+	height: .95rem;
+	width: .95rem;
+	margin-right: .25rem;
+} 
+.warnTip{
+	font-size: .9rem;
+	color: #000;
+	font-weight: bolder;
+	margin-top: 9rem;
+	margin-bottom: 1rem;
+}
+
+/*支付失败成功 带订单信息*/
+.payResult{
+	/*border: 1px solid red;*/
+	width: 80%;
+	margin: 2rem auto 0;
+}
+.payResult .resultHeader img{
+	display: inline-block;
+	vertical-align: middle;
+	width: 1.5rem;
+	height: 1.5rem;
+	margin-right: .5rem;
+}
+.payResult .resultHeader{
+	font-size: .9rem;
+	color: #000;
+	font-weight: bolder;
+	text-align: center;
+	padding: .75rem 0;
+}
+.payResult .resultBody{
+	border-top: 1px solid #E7E7E7;
+	border-bottom: 1px solid #E7E7E7;
+	padding: .5rem 0;
+}
+.payResult .resultBody p{
+	margin: .5rem 0;
+}
+.payResult .resultBody p span:last-child{
+	float: right;
+	color: #000;
+	width: 75%;
+	text-align: right;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	overflow: hidden;
+}
+
+.payResult .resultBody p span:first-child{
+	color: #6C6C6C;
+}
+.payfail {
+	width: 80%!important;
+	display: block;
+	margin: 1rem auto 0;
+	/*border: 1px solid red;*/
+}
+.payfail a{
+	width: 50%;
+	/*border: 1px solid red;*/
+	float: left;
+}
+.leave{
+	color: #62B900!important;
+	background-color: #FFF!important;
+	border: 1px solid #62B900;
+}
+.repay{
+	background-color: #62B900;
+	color: #FFF;
+}
+.paysuccess{
+	margin-top: 2rem;
+}
+
+
+@media screen and (orientation: landscape) {
+  /*横屏 css*/
+ .tipbox{
+ 	position: initial;
+ 	margin-left: 0;
+ 	margin-top: 2rem;
+ 	margin-bottom: 2rem;
+ }
+ #Error .item {
+ 	margin-top: 3rem;
+ }
+ .warnTip{
+ 	margin-top: 3rem;
+ }
+ .payResult{
+   margin-top: -2rem;	
+ }
+ #Error .findError {
+    margin-top: 3rem!important;
+  }
+}
+
+
+.clearfix { 
+  *zoom: 1; 
+} 
+ 
+.clearfix:before, 
+.clearfix:after { 
+  display: table; 
+  line-height: 0; 
+  content: ""; 
+} 
+ 
+.clearfix:after { 
+  clear: both; 
+} 
+
+
+.aui-bar-nav{
+	background-color: #62B900;
+}
+
+.aui-pull-left.aui-btn img{
+	height: 1rem;
+}
+#Error .findError{
+	margin-top: 8rem;
+}
+#addCard .payhide{
+	display: none;
+}
+#addCard .selectIcon{
+	position: absolute;
+	top: 1rem;
+	right: 1rem;
+	width: 1rem;
+	height: auto;
+	display: inline-block;
+	line-height: 3rem;
+}
+.date{	padding-right: 0!important;}
+.date input{
+	display: inline-block;
+
+	width: 44%;
+}
+
+.aui-toast {
+	width: auto;
+	height: auto;
+	min-height: auto;
+}
+
+.aui-toast-content {
+	white-space: nowrap;
+	margin: 0.25rem 0.5rem;
+}
+
+#addCard .verticalLine{
+	position: absolute;
+	/*border: 1px solid red;*/
+	top: 1.15rem;
+	right: 5rem;
+}
+
+/*#fastPay  .aui-dialog-footer div:last-child{
+border: none;
+}*/
+
+#fastPay .fastpop{
+	/*border: 1px solid red;*/
+	border-bottom: 1px solid #999 ;
+	height: 2rem;
+	padding-top: .25rem;
+}
+#fastPay .fastpop input{
+	width: 50%;
+}
+#fastPay .fastpop input,#fastPay .fastpop div{
+	display: block;
+	float: left;
+	height: 1.5rem;
+	line-height: 1.5rem;
+}
+#fastPay .fastpop div{
+	float: right;
+	padding: 0 .5rem;
+	background:#62B900;
+	border-radius: .75rem;
+	width: 5rem;
+	text-align: center;
+}
+
+#fastPay .aui-dialog-footer div.aui-dialog-btn{
+	/*width: 80%;*/
+	margin-bottom: .75rem;
+}
+.aui-dialog-header{
+	padding: 0;
+}
+#fastPay .tiptext{
+	border: 1px solid transparent;
+	font-size: .6rem;
+}
+
+#addCard .aui-content{
+	    overflow: visible
+}
+#addCard .aui-list-item-label{
+  text-align: justify;	
+ text-justify: distribute-all-lines;
+  
+}

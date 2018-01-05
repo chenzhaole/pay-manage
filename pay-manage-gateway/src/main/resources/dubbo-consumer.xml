@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+	        http://www.springframework.org/schema/beans/spring-beans.xsd
+	        http://code.alibabatech.com/schema/dubbo
+	        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<dubbo:application name="myepay-boss-gateway-consumer" />
+	
+	<dubbo:registry address="zookeeper://127.0.0.1:2181" />
+
+	<!--关闭所有服务的启动时检查：(没有提供者时报错)-->
+	<dubbo:consumer check="false"/>
+
+ 	<dubbo:reference id="applicationInfoService" interface="com.sys.boss.api.service.trade.TradeApplicationInfoService" timeout="30000"/>
+ 	<dubbo:reference id="orderService" interface="com.sys.boss.api.service.order.OrderService" timeout="30000"/>
+ 	<dubbo:reference id="platSDKService" interface="com.sys.boss.api.service.config.PlatSDKService" timeout="30000"/>
+ 	<dubbo:reference id="tradeService" interface="com.sys.boss.api.service.trade.TradeService" timeout="30000"/>
+	<dubbo:reference id="tradeCheckDataService" interface="com.sys.boss.api.service.trade.TradeCheckDataService" timeout="30000"/>
+ 	
+ 	<dubbo:reference id="platBankcardValidService" interface="com.sys.boss.api.service.config.PlatBankcardValidService" timeout="30000"/>
+ 	<dubbo:reference id="chanBankcardValidService" interface="com.sys.boss.api.service.config.ChanBankcardValidService" timeout="30000"/>
+	<dubbo:reference id="tradeCashierService" interface="com.sys.boss.api.service.trade.TradeCashierService" timeout="30000"/>
+	<dubbo:reference id="tradeOrderService" interface="com.sys.boss.api.service.trade.TradeOrderService" timeout="30000"/>
+ 
+ 	<!-- 银行卡归属地，卡BIN查询 -->
+ 	<dubbo:reference id="tradeBankCardOwnershipHandler" interface="com.sys.boss.api.service.trade.handler.ITradeBankCardOwnershipHandler" timeout="30000"/>
+	
+ 	<!-- 统一扫码，下单支付处理句柄 -->
+ 	<dubbo:reference id="tradeCommPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCommPayHandler" timeout="30000"/>
+ 	
+</beans>

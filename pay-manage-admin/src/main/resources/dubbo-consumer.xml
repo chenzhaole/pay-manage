@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns:dubbo="http://code.alibabatech.com/schema/dubbo"
+	xsi:schemaLocation="
+			http://www.springframework.org/schema/beans
+	        http://www.springframework.org/schema/beans/spring-beans.xsd
+	        http://code.alibabatech.com/schema/dubbo
+	        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
+
+	<dubbo:application name="myepay-manage-admin-consumer" />
+
+
+	<dubbo:registry address="zookeeper://127.0.0.1:2181" />
+
+	<!--关闭所有服务的启动时检查：(没有提供者时报错)-->
+	<dubbo:consumer check="false"/>
+
+	<dubbo:reference id="chanMchtPaytypeService" interface="com.sys.boss.api.service.config.ChanMchtPaytypeService" />
+ 	<dubbo:reference id="platSDKService" interface="com.sys.boss.api.service.config.PlatSDKService" />
+ 	<dubbo:reference id="mchtChanService" interface="com.sys.boss.api.service.config.MchtChanService" />
+ 	<dubbo:reference id="mchtProductService" interface="com.sys.boss.api.service.config.MchtProductService" />
+	<dubbo:reference id="ProductService" interface="com.sys.boss.api.service.config.ProductService" />
+ 	<dubbo:reference id="productRelaService" interface="com.sys.boss.api.service.config.ProductRelaService" />
+ 	<dubbo:reference id="merchantService" interface="com.sys.boss.api.service.config.MerchantService" />
+	<dubbo:reference id="channelService" interface="com.sys.boss.api.service.config.ChannelService" />
+	<dubbo:reference id="configSysService" interface="com.sys.boss.api.service.config.ConfigSysService" />
+	<dubbo:reference id="platFeerateService" interface="com.sys.boss.api.service.config.PlatFeerateService" />
+	<dubbo:reference id="mchtGwOrderService" interface="com.sys.boss.api.service.config.MchtGwOrderService" />
+	<dubbo:reference id="orderProxypay4ManageService" interface="com.sys.boss.api.service.order.OrderProxypay4ManageService"/>
+	<dubbo:reference id="areaService" interface="com.sys.boss.api.service.config.AreaService" />
+	<dubbo:reference id="statReportService" interface="com.sys.boss.api.service.stat.StatReportService" />
+	<dubbo:reference id="chanPaytypeBankService" interface="com.sys.boss.api.service.config.ChanPaytypeBankService" />
+	<dubbo:reference id="platBankService" interface="com.sys.boss.api.service.config.PlatBankService" />
+	<dubbo:reference id="platCardBinService" interface="com.sys.boss.api.service.config.PlatCardBinService" />
+</beans>
