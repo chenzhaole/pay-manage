@@ -40,7 +40,7 @@ import java.util.List;
 @Transactional
 @Service
 public class ProductAdminServiceImpl implements ProductAdminService {
-	private static final Logger log = LoggerFactory.getLogger(ProductAdminServiceImpl.class);
+	private final Logger log = LoggerFactory.getLogger(ProductAdminServiceImpl.class);
 
 	@Autowired
 	private ProductService productService;
