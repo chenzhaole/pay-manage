@@ -8,7 +8,6 @@ import com.sys.boss.api.entry.trade.request.cashier.CashierRequestBody;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.gateway.service.CashierGwService;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

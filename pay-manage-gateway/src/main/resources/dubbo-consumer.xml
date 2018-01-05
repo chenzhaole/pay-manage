@@ -17,12 +17,12 @@
 
  	<dubbo:reference id="applicationInfoService" interface="com.sys.boss.api.service.trade.TradeApplicationInfoService" timeout="30000"/>
  	<dubbo:reference id="orderService" interface="com.sys.boss.api.service.order.OrderService" timeout="30000"/>
- 	<dubbo:reference id="platSDKService" interface="com.sys.boss.api.service.config.PlatSDKService" timeout="30000"/>
+ 	<dubbo:reference id="platSDKService" interface="com.sys.core.service.PlatSDKService" timeout="30000"/>
  	<dubbo:reference id="tradeService" interface="com.sys.boss.api.service.trade.TradeService" timeout="30000"/>
 	<dubbo:reference id="tradeCheckDataService" interface="com.sys.boss.api.service.trade.TradeCheckDataService" timeout="30000"/>
  	
- 	<dubbo:reference id="platBankcardValidService" interface="com.sys.boss.api.service.config.PlatBankcardValidService" timeout="30000"/>
- 	<dubbo:reference id="chanBankcardValidService" interface="com.sys.boss.api.service.config.ChanBankcardValidService" timeout="30000"/>
+ 	<dubbo:reference id="platBankcardValidService" interface="com.sys.core.service.PlatBankcardValidService" timeout="30000"/>
+ 	<dubbo:reference id="chanBankcardValidService" interface="com.sys.core.service.ChanBankcardValidService" timeout="30000"/>
 	<dubbo:reference id="tradeCashierService" interface="com.sys.boss.api.service.trade.TradeCashierService" timeout="30000"/>
 	<dubbo:reference id="tradeOrderService" interface="com.sys.boss.api.service.trade.TradeOrderService" timeout="30000"/>
  

@@ -1,9 +1,6 @@
 package com.sys.gateway.service.impl;
 
-import java.util.List;
 import java.util.Map;
-
-import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -15,21 +12,16 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.TradeReqHead;
-import com.sys.boss.api.entry.trade.request.cashier.CashierRequestBody;
-import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
 import com.sys.boss.api.entry.trade.request.ownership.OwnershipRequestBody;
 import com.sys.boss.api.entry.trade.request.ownership.TradeOwnershipRequest;
-import com.sys.boss.api.entry.trade.request.wappay.TradeWapRequest;
 import com.sys.boss.api.entry.trade.response.ownership.OwnershipResponse;
 import com.sys.boss.api.entry.trade.response.ownership.OwnershipResponse.OwnershipResponseBody;
 import com.sys.boss.api.entry.trade.response.ownership.OwnershipResponse.OwnershipResponseHead;
 import com.sys.boss.api.service.trade.handler.ITradeBankCardOwnershipHandler;
-import com.sys.boss.dao.dmo.MchtInfo;
-import com.sys.boss.dao.dmo.PlatCardBin;
+import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.SignUtil;
-import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.BankCardOwnershipGwService;
 
 @Service
@@ -48,14 +40,14 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 		OwnershipResponseHead head = new OwnershipResponseHead();
 		OwnershipResponseBody body = new OwnershipResponseBody();
 		String sign = "";
-		
+
 		try {
 			if(paramStr.endsWith("=")){
 				paramStr = paramStr.substring(0,paramStr.length()-1);
 			}
 			//解析请求参数
 			TradeOwnershipRequest ownershipRequest = JSON.parseObject(paramStr, TradeOwnershipRequest.class);
-			
+
 			CommonResult checkResp = check(ownershipRequest);
 			if(!ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
 				head.setRespCode(checkResp.getRespCode());
@@ -63,7 +55,7 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 				ownershipResponse.setHead(head);
 				return ownershipResponse;
 			}
-			
+
 			TradeOwnershipRequest tradeRequest = (TradeOwnershipRequest) checkResp.getData();
 			CommonResult tradeResult = tradeBankCardOwnershipHandler.process(tradeRequest, "");
 			logger.info(BIZ_NAME+"调用Trade返回tradeResult="+JSON.toJSONString(tradeResult));
@@ -78,10 +70,10 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 				body.setBankCode(map.get("bankCode"));
 				body.setBankName(map.get("bankName"));
 				body.setParam(map.get("param"));
-				
+
 				MchtInfo merchant = (MchtInfo) data[1];
 				sign = SignUtil.md5Sign(map, merchant.getMchtKey());
-				
+
 			}else{
 				head.setRespCode(tradeResult.getRespCode());
 				head.setRespMsg(tradeResult.getRespMsg());
@@ -89,11 +81,11 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 			ownershipResponse.setHead(head);
 			ownershipResponse.setBody(body);
 			if(StringUtils.isNotBlank(sign)) ownershipResponse.setSign(sign);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 		return ownershipResponse;
 	}
 
@@ -110,7 +102,7 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 				logger.info(BIZ_NAME+"[biz]请求参数值不是银行卡归属信息查询的支付类型CODE 入参biz=" + tradeRequest.getHead().getBiz() +" 正确的biz=" + PayTypeEnum.OWNERSHIP.getCode());
 				return checkResp;
 			}
-			
+
 			if (tradeRequest.getHead() == null
 					|| tradeRequest.getBody() == null
 					|| tradeRequest.getSign() == null) {
@@ -142,7 +134,7 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 			checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
 			checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
 			checkResp.setData(tradeRequest);
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(BIZ_NAME+"系统异常：" + e.getMessage());

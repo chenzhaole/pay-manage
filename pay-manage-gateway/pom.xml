@@ -19,18 +19,8 @@
 	<dependencies>
 
 		<dependency>
-			<groupId>com.myepay.boss</groupId>
-			<artifactId>myepay-boss-api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.myepay.common</groupId>
-			<artifactId>myepay-common-util</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.myepay.tran</groupId>
-			<artifactId>myepay-tran-api</artifactId>
+			<groupId>com.sys.boss</groupId>
+			<artifactId>pay-boss-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 
@@ -216,6 +206,21 @@
 		<dependency>
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.sys.common</groupId>
+			<artifactId>pay-common-util</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sys.common</groupId>
+			<artifactId>pay-common-core-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sys.trans</groupId>
+			<artifactId>pay-trans-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
 		<!-- TEST end -->
 	</dependencies>

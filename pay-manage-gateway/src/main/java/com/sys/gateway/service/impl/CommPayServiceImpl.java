@@ -8,39 +8,20 @@ import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.TradeBaseRequest;
 import com.sys.boss.api.entry.trade.request.TradeReqHead;
-import com.sys.boss.api.entry.trade.request.authcardelement.AuthCardElementRequestBody;
-import com.sys.boss.api.entry.trade.request.authcardelement.TradeAuthCardElementRequest;
-import com.sys.boss.api.entry.trade.request.quickpay.*;
 import com.sys.boss.api.entry.trade.request.wappay.TradeWapRequest;
 import com.sys.boss.api.entry.trade.request.wappay.WapRequestBody;
-import com.sys.boss.api.entry.trade.response.TradeBaseResponse;
-import com.sys.boss.api.entry.trade.response.authcardelement.AuthCardeLElementCreateResponse;
-import com.sys.boss.api.entry.trade.response.quickpay.QuickPrePayOrderCreateResponse;
-import com.sys.boss.api.entry.trade.response.quickpay.QuickUnbundOrderCreateResponse;
-import com.sys.boss.api.entry.trade.response.quickpay.QuickValidPayOrderCreateResponse;
-import com.sys.boss.api.entry.trade.response.selectpay.SelectOrderCreateResponse;
 import com.sys.boss.api.entry.trade.response.wappay.WapOrderCreateResponse;
-import com.sys.boss.api.service.config.ChanBankcardValidService;
-import com.sys.boss.api.service.config.PlatBankcardValidService;
-import com.sys.boss.api.service.trade.TradeService;
 import com.sys.boss.api.service.trade.handler.ITradeCommPayHandler;
-import com.sys.boss.dao.dmo.ChanBankcardValid;
-import com.sys.boss.dao.dmo.PlatBankcardValid;
 import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.service.CommPayService;
-import com.sys.gateway.service.PayGwService;
-
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Map;
-import java.util.UUID;
 
 /**
  * 
