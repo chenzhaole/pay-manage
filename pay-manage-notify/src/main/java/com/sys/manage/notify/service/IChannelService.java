@@ -1,6 +1,5 @@
 package com.sys.manage.notify.service;
 
-import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.Result;
 import com.sys.trans.api.entry.Trade;
 import com.sys.trans.exception.TranException;
@@ -58,6 +57,9 @@ public interface IChannelService {
      * 查询信用和余额
      */
     Result queryCreditBalance(Trade trade) throws TranException ;
-    
-    
+
+    /**
+     * 更新交易状态并通知下游商户
+     */
+    Result reciveNotify(Trade trade) throws TranException;
 }

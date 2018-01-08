@@ -2,6 +2,7 @@ package com.sys.manage.notify.control;
 
 
 import com.sys.common.enums.PayChannelEnum;
+import com.sys.manage.notify.service.IChannelQuickPayService;
 import com.sys.manage.notify.service.IChannelService;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.Result;
@@ -20,8 +21,36 @@ import java.util.Date;
 public abstract class BaseController {
 	//des解密密钥
 	protected static final String password = "aaadd29cc97c68d1";
-	
-	
+
+	/**
+	 * 根据支付通道Code，选择服务实现service--
+	 *
+	 * 这里处理快捷支付
+	 *
+	 * @param trade
+	 * @return
+	 */
+	public IChannelQuickPayService getChannelQuickPayService(Trade trade) {
+		Config config = trade.getConfig();
+
+		//底层调用相同最上游通道的中介通道，用”#“链接
+		String channelNo = config.getChannelCode().split("#")[0];
+
+		if (PayChannelEnum.VBILL.getCode().equals(channelNo)) {
+			// 随行付支付
+			return null;//vbillpayService;
+		}else if(PayChannelEnum.MOBAOPAY.getCode().equals(channelNo)) {
+			// 摩宝快捷支付
+			return null;//moBaoPayService;
+		}else if(PayChannelEnum.JixinAuth.getCode().equals(channelNo)) {
+			// 吉信鉴权四要素
+			return null;//auto4ElementService;
+		}else {
+			return null;
+		}
+
+	}
+
 	/**
 	 * 根据支付通道Code，选择服务实现service
 	 * 

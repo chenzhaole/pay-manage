@@ -5,10 +5,12 @@
 	<artifactId>pay-manage</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>pom</packaging>
+
 	<modules>
 		<module>pay-manage-admin</module>
-    <module>pay-manage-gateway</module>
-  </modules>
+		<module>pay-manage-gateway</module>
+		<module>pay-manage-notify</module>
+	</modules>
 
 	<!-- 项目属性 -->
 	<properties>
