@@ -1,9 +1,6 @@
 package com.sys.gateway.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.myepay.tran.api.entry.Order;
-import com.myepay.tran.api.entry.Result;
-import com.myepay.tran.api.entry.Trade;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.response.cashier.TradeCashierResponse;
 import com.sys.boss.api.service.trade.TradeCashierService;
@@ -13,7 +10,9 @@ import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.CashierGwService;
-
+import com.sys.trans.api.entry.Order;
+import com.sys.trans.api.entry.Result;
+import com.sys.trans.api.entry.Trade;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,7 +24,6 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
-
 import java.util.HashMap;
 import java.util.Map;
 
