@@ -11,14 +11,12 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.util.UUID;
 
 /**
  * @Description:
@@ -99,4 +97,48 @@ public class ConfigGwController {
 		byte[] code = CryptoEncode.ZCryptoEncode(USER_KEY.getBytes(), code0); //加密
 		return Base64.encodeBase64String(code); //base64编码
 	}
+
+	/**
+	 * http://127.0.0.1:8580/myepay-manage-gateway/config/platAuthAndroid/{mchappid}
+	 * 2018-01-13 老sdk取不到userid,导致接口请求超时，影响支付
+	 * http://gw.zpaychina.com/config/platAuthAndroid
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	@RequestMapping(value = "config/platAuthAndroid/{mchappid}", method = RequestMethod.POST)
+	@ResponseBody
+	public Object platAuthAndroid(@PathVariable String mchappid, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) throws java.io.IOException {
+		logger.info("platAuthAndroid收到客户端请求参数：mchappid=" + mchappid);
+		String userId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+		String result = "{\"code\":\"0\",\"data\":{\"appId\":\"wxfe1848d43cdbb2eb\",\"appSign\":\"82c1abdec9d32dc9e4e23cb2663712e1\",\"code\":\"0\",\"data\":\"1f63bc09cd5984a3d6357c82e38d583c0\",\"mchId\":\"\",\"orderId\":\"8023637022391584594\",\"payConfigList\":{\"consumerConf\":{\"consumerQQ\":\"2845189775\",\"consumerTel\":\"\"},\"domainList\":[{\"type\":\"1\",\"url\":\"http:\\/\\/thirdpay.zpaychina.com:80\"},{\"type\":\"3\",\"url\":\"http:\\/\\/gw.zpaychina.com\\/config\"}],\"payConfigList\":[{\"isShowPayPage\":\"0\",\"isShowPayResultPage\":\"0\",\"paymentTypeList\":[{\"alipay\":\"0\",\"wxpay\":\"1\"}]}]},\"payConfigUpdateTime\":\"\",\"payWay\":\"app\",\"providerNickname\":\"zxbank_sz\",\"sdkType\":\"swiftpass\"},\"phoneNumber\":\"11125458952\",\"userId\":\""+ userId+"\"}\n";
+		JSON json2 = JSON.parseObject(result);
+		System.out.println(json2.toString());
+		return json2.toString(); //base64编码
+	}
+
+	/**
+	 * http://127.0.0.1:8580/myepay-manage-gateway/config/platAuthIOS/{mchappid}
+	 * 2018-01-13 老sdk取不到userid,导致接口请求超时，影响支付
+	 * http://gw.zpaychina.com/config/platAuthIOS
+	 *
+	 * @param request
+	 * @param response
+	 * @param redirectAttributes
+	 * @return
+	 * @throws java.io.IOException
+	 */
+	@RequestMapping(value = "config/platAuthIOS/{mchappid}", method = RequestMethod.POST)
+	@ResponseBody
+	public Object platAuthIOS(@PathVariable String mchappid, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) throws java.io.IOException {
+		logger.info("platAuthIOS收到客户端请求参数：mchappid=" + mchappid);
+		String userId = UUID.randomUUID().toString().replace("-", "").substring(0, 16);
+		String result = "{\"code\":\"0\",\"data\":{\"appId\":\"wxfe1848d43cdbb2eb\",\"appSign\":\"82c1abdec9d32dc9e4e23cb2663712e1\",\"code\":\"0\",\"data\":\"1f63bc09cd5984a3d6357c82e38d583c0\",\"mchId\":\"\",\"orderId\":\"8023637022391584594\",\"payConfigList\":{\"consumerConf\":{\"consumerQQ\":\"2845189775\",\"consumerTel\":\"\"},\"domainList\":[{\"type\":\"1\",\"url\":\"http:\\/\\/thirdpay.zpaychina.com:80\"},{\"type\":\"3\",\"url\":\"http:\\/\\/gw.zpaychina.com\\/config\"}],\"payConfigList\":[{\"isShowPayPage\":\"0\",\"isShowPayResultPage\":\"0\",\"paymentTypeList\":[{\"alipay\":\"0\",\"wxpay\":\"1\"}]}]},\"payConfigUpdateTime\":\"\",\"payWay\":\"app\",\"providerNickname\":\"zxbank_sz\",\"sdkType\":\"swiftpass\"},\"phoneNumber\":\"11125458952\",\"userId\":\""+userId+"\"}\n";
+		JSON json2 = JSON.parseObject(result);
+		System.out.println(json2.toString());
+		return json2.toString(); //base64编码
+	}
+
 }
