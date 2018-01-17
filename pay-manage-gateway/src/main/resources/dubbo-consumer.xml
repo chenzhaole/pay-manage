@@ -23,7 +23,7 @@
  	
  	<dubbo:reference id="platBankcardValidService" interface="com.sys.core.service.PlatBankcardValidService" timeout="30000"/>
  	<dubbo:reference id="chanBankcardValidService" interface="com.sys.core.service.ChanBankcardValidService" timeout="30000"/>
-	<dubbo:reference id="tradeCashierService" interface="com.sys.boss.api.service.trade.TradeCashierService" timeout="30000"/>
+	<!--<dubbo:reference id="tradeCashierService" interface="com.sys.boss.api.service.trade.TradeCashierService" timeout="30000"/>-->
 	<dubbo:reference id="tradeOrderService" interface="com.sys.boss.api.service.trade.TradeOrderService" timeout="30000"/>
  
  	<!-- 银行卡归属地，卡BIN查询 -->
@@ -31,5 +31,8 @@
 	
  	<!-- 统一扫码，下单支付处理句柄 -->
  	<dubbo:reference id="tradeCommPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCommPayHandler" timeout="30000"/>
+
+	<!-- 收银台处理句柄 -->
+	<dubbo:reference id="tradeCashierHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierHandler" timeout="30000"/>
  	
 </beans>
