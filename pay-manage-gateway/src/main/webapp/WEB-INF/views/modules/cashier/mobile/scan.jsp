@@ -74,8 +74,8 @@
                 //返回支付
                 $(el).removeClass("can_not_use");
             }else{
-                //拒绝操作
-
+                //拒绝操作 todo
+                location.href = "http://www.baidu.com";
             }
         });
     }

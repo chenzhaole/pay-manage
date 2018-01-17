@@ -225,7 +225,7 @@ public class CashierGwController {
 //        Trade trade = (Trade) tradeOrderService.query(platOrderId);
         //todo 测试代码
         Map<String,String> resultMap = new HashMap<>();
-        resultMap.put("status","2");
+        resultMap.put("status","1");
         resultMap.put("callbackUrl","https://www.baidu.com");
         return JSON.toJSONString(resultMap);
     }
