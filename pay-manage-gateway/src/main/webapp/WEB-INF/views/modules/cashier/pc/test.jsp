@@ -10,8 +10,8 @@
         mchtId: <input type="text" value="17f2b3c4" name="mchtId"/><br>
         version: <input type="text" value="20" name="version"/><br>
         amount: <input type="text" value="100" name="amount"/><br>
-        desc: <input type="text" value="测试商品1元" name="desc"/><br>
-        goods: <input type="text" value="测试商品" name="goods"/><br>
+        desc: <input type="text" value="test" name="desc"/><br>
+        goods: <input type="text" value="test" name="goods"/><br>
         notifyUrl: <input type="text" value="http://www.baidu.com" name="notifyUrl"/><br>
         orderId: <input type="text" value="20171104-014" name="orderId"/><br>
         operator: <input type="text" value="001" name="operator"/><br>

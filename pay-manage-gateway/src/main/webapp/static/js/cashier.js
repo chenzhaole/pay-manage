@@ -2,30 +2,26 @@ var countDownStatusWx = "0"; //微信支付倒计时状态 0 初始值; 1 计时
 var countDownStatusAli = "0";//支付宝倒计时状态 0 初始值; 1 计时中; 2 计时结束
 var countDownStatusQQWallet = "0";//qq钱包倒计时状态
 var countDownStatusUnionQrCode = "0";//银联二维码倒计时状态
-var wxPlatOrderId = "";//微信支付平台订单号
-var aliPlatOrderId = "";//支付宝支付平台订单号
-var qqPlatOrderId = "";
-var unionPlatOrderId = "";
+var platOrderId = "";
 
 /**
  *  获取二维码
  **/
 function getQrCode(tab) {
-    console.log(tab+"******************");
-    var paytype = tab=="wxTab"?"24": tab=="aliTab"?"31":tab=="qqWalletTab"?"26":tab=="unionQrCodeTab"?"58":"";
+    var paytype = tab.split("_")[1];
+    var supportPay = tab.split("_")[0];
 
-    var ajax = paytype=="24"? (countDownStatusWx=="0"?true:false) :
-            paytype=="31"?(countDownStatusAli=="0"?true:false) :
-            paytype=="26"?(countDownStatusQQWallet=="0"?true:false) :
-            paytype=="58"?(countDownStatusUnionQrCode=="0"?true:false):false;
+    var ajax = supportPay=="wxpay"? (countDownStatusWx=="0"?true:false) :
+               supportPay=="alipay"?(countDownStatusAli=="0"?true:false) :
+                 supportPay=="qqpay"?(countDownStatusQQWallet=="0"?true:false) :
+                supportPay=="unionpay"?(countDownStatusUnionQrCode=="0"?true:false):false;
 
-    console.log(ajax+"******************");
     if(ajax){
         //表单序列化处理，开始请求支付
         $.ajax({
             type:"POST",
-            url: "ajaxPay",
-            data:{"payType":paytype,"sign":sign},
+            url: "/gateway/cashier/ajaxPay",
+            data:{"payType":paytype,"sign":sign,"orderId":orderId},
             dataType:'text' ,
             async:true,
 
@@ -36,37 +32,29 @@ function getQrCode(tab) {
                 console.log(jsonData);
 
                 if(jsonData.respCode == "0000"){
-                    if(paytype == '24'){
-                        wxPlatOrderId = jsonData.data.platOrderId;
+                    platOrderId = jsonData.data.platOrderId;
+                    if(supportPay == 'wxpay'){
                         $("#wxqrcode").attr("src",jsonData.payUrl);
                         $(".wxpay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="wxTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
-                        countDown(countDownTime,"wxTimeout");
-
-                        queryResult(wxPlatOrderId);
-                    }else if(paytype == '31'){
-                        aliPlatOrderId = jsonData.data.platOrderId;
+                        countDown(countDownTime,"wxTimeout",tab);
+                    }else if(supportPay == 'alipay'){
                         $("#aliqrcode").attr("src",jsonData.payUrl);
                         $(".alipay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="aliTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
-                        countDown(countDownTime,"aliTimeout");
-
-                        queryResult(aliPlatOrderId);
-                    }else if(paytype == "26"){
-                        qqPlatOrderId = jsonData.data.platOrderId;
+                        countDown(countDownTime,"aliTimeout",tab);
+                    }else if(supportPay == 'qqpay'){
                         $("#qqWalletQrcode").attr("src",jsonData.payUrl);
                         $(".tenpay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="qqTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
-                        countDown(countDownTime,"qqTimeout");
-                        queryResult(qqPlatOrderId);
-                    }else if(paytype == "58"){
-                        unionPlatOrderId = jsonData.data.platOrderId;
+                        countDown(countDownTime,"qqTimeout",tab);
+                    }else if(supportPay == 'unionpay'){
                         $("#unionQrCode").attr("src",jsonData.payUrl);
                         $(".unionpay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="unionTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
-                        countDown(countDownTime,"unionTimeout");
-                        queryResult(unionPlatOrderId);
+                        countDown(countDownTime,"unionTimeout",tab);
                     }
+                    queryResult(platOrderId);
                 }else{
                     console.log(jsonData.respMsg);
                     $("#errorMsg").text(jsonData.respMsg);
@@ -86,19 +74,20 @@ function getQrCode(tab) {
  *  刷新二维码
  **/
 function reGetQrCode(tab){
-    if(tab == "wxTab"){
+    var supportPay = tab.split("_")[0];
+    if(supportPay == "wxpay"){
         countDownStatusWx = "0";
     }
 
-    if(tab == "aliTab"){
+    if(supportPay == "alipay"){
         countDownStatusAli = "0";
     }
 
-    if(tab == "qqWalletTab"){
+    if(supportPay == "qqpay"){
         countDownStatusQQWallet = "0";
     }
 
-    if(tab == "unionQrCodeTab"){
+    if(supportPay == "unionpay"){
         countDownStatusUnionQrCode = "0";
     }
     getQrCode(tab);
@@ -111,7 +100,7 @@ function queryResult(platOrderId){
     if(platOrderId != null && platOrderId != ""){
         $.ajax({
             type:"POST",
-            url: "queryResult",
+            url: "/gateway/cashier/queryResult",
             data:{"platOrderId":platOrderId},
             dataType:'text' ,
             async:true,
@@ -122,7 +111,7 @@ function queryResult(platOrderId){
                 if(jsonData.status == "2"){
                     window.location.href = jsonData.callbackUrl;
                 }else{
-                    setTimeout("queryResult('"+platOrderId+"')",2000);
+                    setTimeout("queryResult('"+platOrderId+"')",5000);
                 }
             },
             error:function(){
@@ -135,14 +124,14 @@ function queryResult(platOrderId){
 /**
  *  倒计时
  **/
-function countDown(countDownTime,attr){
+function countDown(countDownTime,attr,tab){
     //获取当前时间戳
     var nowTime = Date.parse(new Date())/1000;
     //用预设时间戳-当前时间戳获得倒计时时间
     var cdTime = countDownTime-nowTime;
     if (cdTime >= 1) {
         $("#"+attr).html(formatDate(cdTime));
-        setTimeout("countDown("+countDownTime+",'"+attr+"')",1000);
+        setTimeout("countDown("+countDownTime+",'"+attr+"','"+tab+"')",1000);
 
         if(attr == "wxTimeout"){
             countDownStatusWx = "1";
@@ -160,23 +149,77 @@ function countDown(countDownTime,attr){
             countDownStatusUnionQrCode = "1";
         }
     }else {
+        var html = '二维码已过期，<a href="javascript:reGetQrCode(\''+tab+'\')">刷新 </a>页面重新获取二维码';
+
         if(attr == "wxTimeout"){
             countDownStatusWx = "2";
-            $("#wxTimeout").parent().html('二维码已过期，<a href="javascript:reGetQrCode(\'wxTab\')">刷新 </a>页面重新获取二维码');
+            $("#wxTimeout").parent().html(html);
         }
         if(attr == "aliTimeout"){
             countDownStatusAli = "2";
-            $("#aliTimeout").parent().html('二维码已过期，<a href="javascript:reGetQrCode(\'aliTab\')">刷新 </a>页面重新获取二维码');
+            $("#aliTimeout").parent().html(html);
         }
 
         if(attr == "qqTimeout"){
             countDownStatusQQWallet = "2";
-            $("#qqTimeout").parent().html('二维码已过期，<a href="javascript:reGetQrCode(\'qqWalletTab\')">刷新 </a>页面重新获取二维码');
+            $("#qqTimeout").parent().html(html);
         }
         if(attr == "unionTimeout"){
             countDownStatusUnionQrCode = "2";
-            $("#unionTimeout").parent().html('二维码已过期，<a href="javascript:reGetQrCode(\'unionQrCodeTab\')">刷新 </a>页面重新获取二维码');
+            $("#unionTimeout").parent().html(html);
         }
+    }
+}
+
+
+//---------start------------原生js公众号支付------------
+function wechat_public_pay(pub_payInfo, paymentType, orderId){
+    //公众号原生支付
+    var pub_payInfo_json = $.parseJSON(pub_payInfo);
+    //解析参数
+    var appId = pub_payInfo_json.appId;
+    var timeStamp = pub_payInfo_json.timeStamp;
+    var nonceStr = pub_payInfo_json.nonceStr;
+    var packageStr = pub_payInfo_json.package;
+    var signType = pub_payInfo_json.signType;
+    var paySign = pub_payInfo_json.paySign;
+
+    function onBridgeReady(){
+        WeixinJSBridge.invoke(
+            'getBrandWCPayRequest', {
+                "appId" : appId, //公众号名称，由商户传入
+                "timeStamp" : timeStamp, //时间戳，自1970年以来的秒数
+                "nonceStr" : nonceStr, //随机串
+                "package" : packageStr,
+                "signType" : signType,//微信签名方式：
+                "paySign" : paySign //微信签名
+            },
+            function(res){//20170619--运营提需求公众号支付失败不需要扫码
+                if(res.err_msg != "get_brand_wcpay_request:cancel"){
+                    // location.href = "/platcallback/order/"+gatewayId+"/"+paymentType+"/"+orderId; todo 平台callback地址
+                }
+                /*  if(res.err_msg == "get_brand_wcpay_request:ok" ) {
+                 //支付成功，直接跳回到结果页面
+                 redirectResultPageJs(paymentType, orderId);
+                 }else{
+                 if(res.err_msg != "get_brand_wcpay_request:cancel"){
+                 //异步请求后台去下单
+                 failPubToScanPay(paymentType, orderId, uuid, isRaw);
+                 }
+                 }    */
+                // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
+            }
+        );
+    }
+    if (typeof WeixinJSBridge == "undefined"){
+        if( document.addEventListener ){
+            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+        }else if (document.attachEvent){
+            document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+        }
+    }else{
+        onBridgeReady();
     }
 }
 

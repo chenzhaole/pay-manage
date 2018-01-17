@@ -49,8 +49,12 @@ body {
 }
 .aui-list-item img{
 	display: block;
-	/*width: 2.5rem;*/
-	height: 2.5rem;
+	
+	/*2018-1-11 @ljy-s*/
+	width: 2.5rem;
+	/*height: 2.5rem;*/
+	/*2018-1-11 @ljy-e*/
+	
 	max-width:none!important;
 }
 .aui-list-item a{
@@ -584,3 +588,69 @@ border: none;
  text-justify: distribute-all-lines;
   
 }
+
+
+
+
+/*2018-1-11  @ljy-s*/
+	.qr_img_box{
+		background-color: #FFF;
+		padding: 1rem 0;
+	}
+	.qr_box .qr_img{
+		max-width: 64%;
+		height: auto;
+		margin:0 auto .5rem;
+	}
+	.pay_tip1,.pay_tip2{
+		margin: 0 1rem;
+		font-size: 12px;
+	}
+	
+	.guide_tip{
+		text-align: center;
+		font-size: 12px;
+		
+	}
+	.main_font_color{
+		color: #62B900;
+	}
+	
+	.aui-btn-define1,.aui-btn-define1:active{
+		width: 80%;
+		background-color: #62B900;
+		color: #FFF;
+		display: block;
+		font-size: 15px;
+		margin:1rem auto 0;
+		height: auto;
+		padding: 1% 0;
+	}
+	#qrcode .tipbox{
+		position: static;
+		margin-left: 0;
+		margin-bottom: 1rem;
+	}
+	.can_not_use{
+		background-color: gray;
+	}
+	
+	.default_pop .aui-dialog-footer div.aui-dialog-btn{
+		width: 100%;
+		border-radius: 0;
+		border: none;
+		background: none;
+		color:#62b900;
+		height: 2rem;
+		line-height: 2rem;
+		border-top: 1px solid #ddd;
+	}
+	.default_pop .aui-dialog{
+		padding-bottom: 0;
+	}
+	
+	.default_pop .aui-dialog-footer div:first-child{
+		border-right: 1px solid #ddd;
+	}
+	
+/*2018-1-11  @ljy-e*/

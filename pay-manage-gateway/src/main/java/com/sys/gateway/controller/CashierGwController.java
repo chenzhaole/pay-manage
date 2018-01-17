@@ -6,7 +6,9 @@ import com.sys.boss.api.entry.trade.response.cashier.TradeCashierResponse;
 import com.sys.boss.api.service.trade.TradeCashierService;
 import com.sys.boss.api.service.trade.TradeOrderService;
 import com.sys.boss.api.service.trade.handler.ITradeCashierHandler;
+import com.sys.common.enums.CallModeEnum;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.IpUtil;
@@ -129,7 +131,6 @@ public class CashierGwController {
             result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
         }
         model.addAttribute("commonResult",result);
-        page="modules/cashier/pc/index";
         return page;
     }
 
@@ -137,20 +138,40 @@ public class CashierGwController {
     /**
      * 移动端：H5收银台页面请求支付，重定向到支付链接，即可调用手机端app进行支付
      */
-    @RequestMapping("pay/{payType}/{sign}")
-    public String pay(@PathVariable String payType,@PathVariable String sign, HttpServletRequest request){
-        logger.info("收银台移动端支付请求参数 payType="+payType+" sign="+sign);
+    @RequestMapping("pay/{orderId}/{payType}/{sign}")
+    public String pay(@PathVariable String orderId, @PathVariable String payType, @PathVariable String sign
+            ,Model model, HttpServletRequest request){
+        logger.info("收银台移动端支付请求参数 orderId="+orderId+" payType="+payType+" sign="+sign);
         CommonResult commonResult = new CommonResult();
         String page = "modules/cashier/mobile/error";
         try {
             String ip = IpUtil.getRemoteHost(request);//请求ip
-            commonResult = tradeCashierHandler.pay(payType,sign,ip);
+            commonResult = tradeCashierHandler.pay(orderId,payType,sign,ip);
 
-//            if(ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())){
-                //todo: 待boss-trade模块可以下单，再组装返回值
-                Result tranResult = (Result) commonResult.getData();
-                page = "redirect: https://statecheck.swiftpass.cn/pay/wappay?token_id=155e943b0c78277f2580fd34c278f2d3f&service=pay.weixin.wappayv2";
-//            }
+            //todo: 待boss-trade模块可以下单，再组装返回值
+            if(ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())){
+//                Result tranResult = (Result) commonResult.getData();
+//                page = "redirect: https://statecheck.swiftpass.cn/pay/wappay?token_id=155e943b0c78277f2580fd34c278f2d3f&service=pay.weixin.wappayv2";
+                Result tranResult = new Result();
+                if(isScanPayment(payType)){
+                    //todo 测试代码
+                    tranResult.setImgUrl("http://newpay.kspay.net:8181/ks_smpay/pay/qrcode?codeuuid=https%3A%2F%2Fqr.95516.com%2F00010001%2F62022390590317281610848771221053");
+                    tranResult.setPaymentType(PayTypeEnum.UNIONPAY_QRCODE.getCode());
+                    tranResult.setOrderNo("123");
+                    page = "modules/cashier/mobile/scan";
+                }else{
+                    //todo 测试代码 payInfo里存储支付链接；callMode存储唤起方式；
+                    tranResult.setPayInfo("http://www.baidu.com");
+                    tranResult.setPaymentType(PayTypeEnum.WX_WAP.getCode());
+                    tranResult.setCallMode(CallModeEnum.H5_LINK_MODE.getCode());
+                    tranResult.setOrderNo("123");
+                    page = "modules/cashier/mobile/center";
+                }
+
+                model.addAttribute("result",tranResult);
+                model.addAttribute("supportPayment",tradeCashierHandler.recognisePayment(payType));
+
+            }
         } catch (Exception e) {
             e.printStackTrace();
             logger.error("收银台支付异常："+e.getMessage());
@@ -165,19 +186,21 @@ public class CashierGwController {
      */
     @RequestMapping("ajaxPay")
     @ResponseBody
-    public String ajaxPay(String payType,String sign, HttpServletRequest request){
-        logger.info("收银台PC支付请求参数 payType="+payType+" sign="+sign);
+    public String ajaxPay(String orderId,String payType,String sign, HttpServletRequest request){
+        logger.info("收银台PC支付请求参数 orderId="+orderId+" payType="+payType+" sign="+sign);
         CommonResult commonResult = new CommonResult();
         commonResult.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
         TradeCashierResponse response = new TradeCashierResponse();
         try {
             String ip = IpUtil.getRemoteHost(request);//请求ip
-            commonResult = tradeCashierHandler.pay(payType,sign,ip);
+            commonResult = tradeCashierHandler.pay(orderId,payType,sign,ip);
             //todo: 待boss-trade模块可以下单，再组装返回值
-//            if(ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())){
-               response.setPayUrl("http://newpay.kspay.net:8181/ks_smpay/pay/qrcode?codeuuid=https%3A%2F%2Fqr.95516.com%2F00010001%2F62792205567773205232715092016565");
-               response.setPlatOrderId("P5654645");
-//            }
+            if(ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())){
+
+                //todo 测试代码
+                response.setPayUrl("http://newpay.kspay.net:8181/ks_smpay/pay/qrcode?codeuuid=https%3A%2F%2Fqr.95516.com%2F00010001%2F62022390590317281610848771221053");
+                response.setPlatOrderId("P5654645");
+            }
             commonResult.setData(response);
         } catch (Exception e) {
             e.printStackTrace();
@@ -190,20 +213,6 @@ public class CashierGwController {
 
 
     /**
-     * 支付完成后，跳转到商家页面
-     */
-    @RequestMapping("payResult/{platOrderId}/{sign}")
-    public String payResult(@PathVariable String platOrderId,@PathVariable String sign){
-        //todo: 向上游下单时，callback值为 http://ip:port/gateway/cashier/payResult/{platOrderId}/{sign}
-        //1、校验签名
-
-        //2、缓存里查询订单
-        Trade trade = (Trade) tradeOrderService.query(platOrderId);
-        Order order = trade.getOrder();
-        return "redirect:"+order.getFrontNotifyUrl();
-    }
-
-    /**
      * 查单接口
      * <p>
      *     pc端页面定时查询订单状态，当订单支付完成，跳转到商户页面
@@ -212,10 +221,11 @@ public class CashierGwController {
     @RequestMapping("queryResult")
     @ResponseBody
     public String queryResult(String platOrderId){
+        //todo:  缓存里trade对象没有存订单的最终状态
 //        Trade trade = (Trade) tradeOrderService.query(platOrderId);
-        //todo: 缓存里trade对象没有存订单的最终状态
+        //todo 测试代码
         Map<String,String> resultMap = new HashMap<>();
-        resultMap.put("status","1");
+        resultMap.put("status","2");
         resultMap.put("callbackUrl","https://www.baidu.com");
         return JSON.toJSONString(resultMap);
     }
@@ -249,5 +259,18 @@ public class CashierGwController {
             e.printStackTrace();
         }
         return sign;
+    }
+
+    private boolean isScanPayment(String payType){
+        if(StringUtils.equals(payType, PayTypeEnum.WX_WAP.getCode())
+                || StringUtils.equals(payType, PayTypeEnum.WX_APP.getCode())
+                || StringUtils.equals(payType, PayTypeEnum.WX_PUBLIC.getCode())
+                || StringUtils.equals(payType, PayTypeEnum.WX_SMALL_APP.getCode())
+                || StringUtils.equals(payType, PayTypeEnum.ALIPAY_SERVICE_WINDOW.getCode())
+                ){
+            return false;
+        }else{
+            return true;
+        }
     }
 }

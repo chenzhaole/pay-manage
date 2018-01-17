@@ -30,154 +30,163 @@
         <div class="layui-tab layui-tab-brief" lay-filter="pay">
             <p class="paytitle">请选择支付方式</p>
             <ul class="layui-tab-title">
-                <c:if test="${tradeCashierResponse.supportWeiXinPay=='1'}">
-                    <li id="wxTab">
-                        <div class="wxpay"><img class="timg" src="${ctxStatic}/images/wechat.png" alt="" />微信支付 <i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
-                    </li>
-                </c:if>
-                <c:if test="${tradeCashierResponse.supportAliPay=='1'}">
-                    <li id="aliTab">
-                        <div class="alipay"><img class="timg" src="${ctxStatic}/images/alipay.png" alt="" />支付宝支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
-                    </li>
-                </c:if>
-                <c:if test="${tradeCashierResponse.supportQuickPay=='1'}">
-                    <li id="cardTab">
-                        <div class="cardpay"><img class="timg" src="${ctxStatic}/images/bank.png" alt="" />银行卡支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
-                    </li>
-                </c:if>
-                <c:if test="${tradeCashierResponse.supportQQWalletPay=='1'}">
-                    <li id="qqWalletTab">
-                        <div class="tenpay"><img class="timg" src="${ctxStatic}/images/qq.png" alt="" />QQ钱包<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
-                    </li>
-                </c:if>
-               <c:if test="${tradeCashierResponse.supportUnionQrcodePay=='1'}">
-                   <li id="unionQrCodeTab">
-                       <div class="unionpay"><img class="timg" src="${ctxStatic}/images/union.png" alt="" />银联二维码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
-                   </li>
-               </c:if>
+                <c:forEach items="${tradeCashierResponse.supportPaymentList}" var="supportPayType">
+                    <c:if test="${supportPayType.supportPayment == 'wxpay'}">
+                        <li id="${supportPayType.supportPayment}_${supportPayType.payType}">
+                            <div class="wxpay"><img class="timg" src="${ctxStatic}/images/wechat.png" alt="" />微信支付 <i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                        </li>
+                    </c:if>
+                    <c:if test="${supportPayType.supportPayment=='alipay'}">
+                        <li id="${supportPayType.supportPayment}_${supportPayType.payType}">
+                            <div class="alipay"><img class="timg" src="${ctxStatic}/images/alipay.png" alt="" />支付宝支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                        </li>
+                    </c:if>
+                    <c:if test="${supportPayType.supportPayment=='cardpay'}">
+                        <li id="${supportPayType.supportPayment}_${supportPayType.payType}">
+                            <div class="cardpay"><img class="timg" src="${ctxStatic}/images/bank.png" alt="" />银行卡支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                        </li>
+                    </c:if>
+                    <c:if test="${supportPayType.supportPayment=='qqpay'}">
+                        <li id="${supportPayType.supportPayment}_${supportPayType.payType}">
+                            <div class="tenpay"><img class="timg" src="${ctxStatic}/images/qq.png" alt="" />QQ钱包<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                        </li>
+                    </c:if>
+                    <c:if test="${supportPayType.supportPayment=='unionpay'}">
+                        <li id="${supportPayType.supportPayment}_${supportPayType.payType}">
+                            <div class="unionpay"><img class="timg" src="${ctxStatic}/images/union.png" alt="" />银联二维码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                        </li>
+                    </c:if>
+                </c:forEach>
             </ul>
 
             <div class="layui-tab-content">
-                <!--layui-show-->
-                <c:if test="${tradeCashierResponse.supportWeiXinPay=='1'}">
-                    <div class="layui-tab-item ">
-                        <div class="wxpay-content">
-                            <p>距离二维码过期还剩<span class="timeout" id="wxTimeout"></span>秒，过期后请刷新页面重新获取二维码</p>
-                            <div class="layui-row">
-                                <div class="layui-col-xs6 layui-col-md6 layui-col-sm6">
-                                    <div class="qrcode">
-                                        <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="wxqrcode"/>
-                                        <div class="wx-tip clearfix">
-                                            <img src="${ctxStatic}/images/scan.png" alt="" />
-                                            <span>微信扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
+                <c:forEach items="${tradeCashierResponse.supportPaymentList}" var="supportPayType">
+                    <!--layui-show-->
+                    <c:if test="${supportPayType.supportPayment == 'wxpay'}">
+                        <div class="layui-tab-item ">
+                            <div class="wxpay-content">
+                                <p>距离二维码过期还剩<span class="timeout" id="wxTimeout"></span>秒，过期后请刷新页面重新获取二维码</p>
+                                <div class="layui-row">
+                                    <div class="layui-col-xs6 layui-col-md6 layui-col-sm6">
+                                        <div class="qrcode">
+                                            <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="wxqrcode"/>
+                                            <div class="wx-tip clearfix">
+                                                <img src="${ctxStatic}/images/scan.png" alt="" />
+                                                <span>微信扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
+                                            </div>
+                                            <div class="btn">查看支付结果</div>
                                         </div>
-                                        <div class="btn">查看支付结果</div>
+
+                                    </div>
+                                    <div class="layui-col-xs6 layui-col-md6 layui-col-sm6">
+                                        <div class="wxtip">
+                                            <img src="${ctxStatic}/images/iphone.png" alt="" />
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:if>
+
+                    <c:if test="${supportPayType.supportPayment=='alipay'}">
+                        <div class="layui-tab-item">
+                            <div class="alipay-content">
+
+                                <p>距离二维码过期还剩<span class="timeout" id="aliTimeout"></span>秒，过期后请刷新页面重新获取二维码</p>
+                                <div class="qrcode">
+                                    <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="aliqrcode"/>
+                                    <div class="wx-tip clearfix">
+                                        <img src="${ctxStatic}/images/scan.png" alt="" />
+                                        <span>支付宝扫一扫进行支付，支付完成后，请点击查看支付结果</span>
+                                    </div>
+                                    <div class="btn">查看支付结果</div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:if>
+
+                    <c:if test="${supportPayType.supportPayment=='quickpay'}">
+                        <div class="layui-tab-item card">
+                            <div class="cardpay-content">
+                                <!--银行卡部分-->
+                                <div class="cardlist">
+                                    <ul class="list-container">
+                                        <li class="clearfix  active">
+                                            <div class="flag">
+                                                <div class="dotbox">
+                                                    <div></div>
+                                                </div>
+                                            </div>
+                                            <div class="cardinfo" cid="0000">
+                                                <img src="${ctxStatic}/images/logo/北京银行.svg" alt="北京银行" />
+                                                <span> <b>北京银行</b> 尾号4994  储蓄卡 | 快捷支付</span>
+                                                <span class="unbind" onclick="unbind(event,this)">解绑</span>
+                                            </div>
+                                        </li>
+
+                                        <li class="clearfix">
+                                            <div class="flag">
+                                                <div class="dotbox">
+                                                    <div></div>
+                                                </div>
+                                            </div>
+                                            <div class="cardinfo" cid="0001">
+                                                <img src="${ctxStatic}/images/logo/工商银行.svg" alt="工商银行" />
+                                                <span> <b>工商银行</b> 尾号4994  储蓄卡 | 快捷支付</span>
+                                                <span class="unbind" onclick="unbind(event,this)">解绑</span>
+                                            </div>
+                                        </li>
+                                    </ul>
+
+                                    <div class="morebtn">
+                                        <button class="layui-btn morecard">更多银行卡</button>
+                                        <button class="layui-btn newcard">添加新卡</button>
+                                        <button class="layui-btn speedpay">网银支付</button>
                                     </div>
 
+                                    <button class="layui-btn paybtn">立即支付</button>
+
+                                    <p class="nobind">解绑成功！</p>
+
                                 </div>
-                                <div class="layui-col-xs6 layui-col-md6 layui-col-sm6">
-                                    <div class="wxtip">
-                                        <img src="${ctxStatic}/images/iphone.png" alt="" />
+
+                            </div>
+                        </div>
+                    </c:if>
+
+                    <c:if test="${supportPayType.supportPayment=='qqpay'}">
+                        <div class="layui-tab-item">
+                            <div class="tenpay-content">
+                                <p>距离二维码过期还剩<span class="timeout" id="qqTimeout">31</span>秒，过期后请刷新页面重新获取二维码</p>
+                                <div class="qrcode">
+                                    <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="qqWalletQrcode"/>
+                                    <div class="wx-tip clearfix">
+                                        <img src="${ctxStatic}/images/scan.png" alt="" />
+                                        <span>手机QQ扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
                                     </div>
+                                    <div class="btn">查看支付结果</div>
                                 </div>
                             </div>
                         </div>
-                    </div>
-                </c:if>
-                <c:if test="${tradeCashierResponse.supportAliPay=='1'}">
-                    <div class="layui-tab-item">
-                        <div class="alipay-content">
+                    </c:if>
 
-                            <p>距离二维码过期还剩<span class="timeout" id="aliTimeout"></span>秒，过期后请刷新页面重新获取二维码</p>
-                            <div class="qrcode">
-                                <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="aliqrcode"/>
-                                <div class="wx-tip clearfix">
-                                    <img src="${ctxStatic}/images/scan.png" alt="" />
-                                    <span>支付宝扫一扫进行支付，支付完成后，请点击查看支付结果</span>
+                    <c:if test="${supportPayType.supportPayment=='unionpay'}">
+                        <div class="layui-tab-item">
+                            <div class="unionpay-content">
+                                <p>距离二维码过期还剩<span class="timeout" id="unionTimeout">31</span>秒，过期后请刷新页面重新获取二维码</p>
+                                <div class="qrcode">
+                                    <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="unionQrCode"/>
+                                    <div class="wx-tip clearfix">
+                                        <img src="${ctxStatic}/images/scan.png" alt="" />
+                                        <span>银联二维码进行支付，支付完成后，请点击查看支付结果	</span>
+                                    </div>
+                                    <div class="btn">查看支付结果</div>
                                 </div>
-                                <div class="btn">查看支付结果</div>
                             </div>
                         </div>
-                    </div>
-                </c:if>
-                <c:if test="${tradeCashierResponse.supportQuickPay=='1'}">
-                    <div class="layui-tab-item card">
-                        <div class="cardpay-content">
-                            <!--银行卡部分-->
-                            <div class="cardlist">
-                                <ul class="list-container">
-                                    <li class="clearfix  active">
-                                        <div class="flag">
-                                            <div class="dotbox">
-                                                <div></div>
-                                            </div>
-                                        </div>
-                                        <div class="cardinfo" cid="0000">
-                                            <img src="${ctxStatic}/images/logo/北京银行.svg" alt="北京银行" />
-                                            <span> <b>北京银行</b> 尾号4994  储蓄卡 | 快捷支付</span>
-                                            <span class="unbind" onclick="unbind(event,this)">解绑</span>
-                                        </div>
-                                    </li>
+                    </c:if>
 
-                                    <li class="clearfix">
-                                        <div class="flag">
-                                            <div class="dotbox">
-                                                <div></div>
-                                            </div>
-                                        </div>
-                                        <div class="cardinfo" cid="0001">
-                                            <img src="${ctxStatic}/images/logo/工商银行.svg" alt="工商银行" />
-                                            <span> <b>工商银行</b> 尾号4994  储蓄卡 | 快捷支付</span>
-                                            <span class="unbind" onclick="unbind(event,this)">解绑</span>
-                                        </div>
-                                    </li>
-                                </ul>
-
-                                <div class="morebtn">
-                                    <button class="layui-btn morecard">更多银行卡</button>
-                                    <button class="layui-btn newcard">添加新卡</button>
-                                    <button class="layui-btn speedpay">网银支付</button>
-                                </div>
-
-                                <button class="layui-btn paybtn">立即支付</button>
-
-                                <p class="nobind">解绑成功！</p>
-
-                            </div>
-
-                        </div>
-                    </div>
-                </c:if>
-                <c:if test="${tradeCashierResponse.supportQQWalletPay=='1'}">
-                    <div class="layui-tab-item">
-                        <div class="tenpay-content">
-                            <p>距离二维码过期还剩<span class="timeout" id="qqTimeout">31</span>秒，过期后请刷新页面重新获取二维码</p>
-                            <div class="qrcode">
-                                <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="qqWalletQrcode"/>
-                                <div class="wx-tip clearfix">
-                                    <img src="${ctxStatic}/images/scan.png" alt="" />
-                                    <span>手机QQ扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
-                                </div>
-                                <div class="btn">查看支付结果</div>
-                            </div>
-                        </div>
-                    </div>
-                </c:if>
-                <c:if test="${tradeCashierResponse.supportUnionQrcodePay=='1'}">
-                    <div class="layui-tab-item">
-                        <div class="unionpay-content">
-                            <p>距离二维码过期还剩<span class="timeout" id="unionTimeout">31</span>秒，过期后请刷新页面重新获取二维码</p>
-                            <div class="qrcode">
-                                <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="unionQrCode"/>
-                                <div class="wx-tip clearfix">
-                                    <img src="${ctxStatic}/images/scan.png" alt="" />
-                                    <span>银联二维码进行支付，支付完成后，请点击查看支付结果	</span>
-                                </div>
-                                <div class="btn">查看支付结果</div>
-                            </div>
-                        </div>
-                    </div>
-                </c:if>
+                </c:forEach>
                 <!--提示-->
                 <div class="layui-tab-item nouse layui-show" id="alipay">
                     <div class="warn-content" id="errorMsg">
@@ -209,11 +218,12 @@
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
 <script src="${ctxStatic}/layui/layui.js"></script>
-<script src="${ctxStatic}/js/cashier-pc.js?v=1.0"></script>
+<script src="${ctxStatic}/js/cashier.js?v=1.0"></script>
 <script>
     //获取价格
     var price = $(".totalprice").text();
     var sign = '${tradeCashierResponse.sign}';//签名
+    var orderId = '${tradeCashierResponse.orderId}';//商户订单号
 
     layui.config({});
     layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element'], function() {
@@ -227,7 +237,7 @@
         element.on('tab(pay)', function(data) {
             $("div[class='layui-tab-content']").show();
             var tab = $(this).attr("id");
-            if(tab == "cardTab"){return;}    //银行卡的时候退出
+            if(tab.indexOf("cardpay") == 0){return;}    //银行卡的时候退出
             //发送请求操作,调用下边request函数
             getQrCode(tab);
         });

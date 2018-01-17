@@ -23,45 +23,51 @@
 <div class="aui-content aui-margin-b-15 bgF">
     <ul class="aui-list aui-list-in">
         <li class="aui-list-header">请选择支付方式</li>
-        <c:if test="${tradeCashierResponse.supportAliPay=='1'}">
-            <a href="${ctx}/gateway/cashier/pay/alipay/${tradeCashierResponse.sign}">
-                <li class="aui-list-item">
-                    <div class="aui-list-item-label-icon">
-                        <img src="${ctxStatic}/images/alipay.png" alt="支付宝支付" />
-                    </div>
-                    <div class="aui-list-item-inner aui-list-item-arrow">
-                        <p class="wayName">支付宝</p>
-                        <p class="wayIntro">推荐拥有支付宝账户的用户使用</p>
-                    </div>
-                </li>
-            </a>
-        </c:if>
 
-        <c:if test="${tradeCashierResponse.supportWeiXinPay=='1'}">
-            <a href="${ctx}/gateway/cashier/pay/weixinpay/${tradeCashierResponse.sign}">
-                <li class="aui-list-item">
-                    <div class="aui-list-item-label-icon">
-                        <img src="${ctxStatic}/images/wechat.png" alt="微信支付" />
-                    </div>
-                    <div class="aui-list-item-inner aui-list-item-arrow">
-                        <p class="wayName">微信支付</p>
-                        <p class="wayIntro">推荐安装微信5.0以上版本的用户使用</p>
-                    </div>
-                </li>
-            </a>
-        </c:if>
+        <c:forEach items="${tradeCashierResponse.supportPaymentList}" var="supportPayType">
+            <c:if test="${supportPayType.supportPayment=='alipay'}">
+                <a href="${ctx}/gateway/cashier/pay/${tradeCashierResponse.orderId}/${supportPayType.payType}/${tradeCashierResponse.sign}">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <img src="${ctxStatic}/images/alipay.png" alt="支付宝支付" />
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <p class="wayName">支付宝</p>
+                            <p class="wayIntro">推荐拥有支付宝账户的用户使用</p>
+                        </div>
+                    </li>
+                </a>
+            </c:if>
 
-        <a href="./fastpay.html">
-            <li class="aui-list-item">
-                <div class="aui-list-item-label-icon">
-                    <img src="${ctxStatic}/images/bank.png" alt="快捷支付" />
-                </div>
-                <div class="aui-list-item-inner aui-list-item-arrow" >
-                    <p class="wayName">快捷支付</p>
-                    <p class="wayIntro">直接使用银行卡进行支付</p>
-                </div>
-            </li>
-        </a>
+            <c:if test="${supportPayType.supportPayment=='wxpay'}">
+                <a href="${ctx}/gateway/cashier/pay/${tradeCashierResponse.orderId}/${supportPayType.payType}/${tradeCashierResponse.sign}">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <img src="${ctxStatic}/images/wechat.png" alt="微信支付" />
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <p class="wayName">微信支付</p>
+                            <p class="wayIntro">推荐安装微信5.0以上版本的用户使用</p>
+                        </div>
+                    </li>
+                </a>
+            </c:if>
+
+            <c:if test="${supportPayType.supportPayment=='quickpay'}">
+                <a href="./fastpay.html">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <img src="${ctxStatic}/images/bank.png" alt="快捷支付" />
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow" >
+                            <p class="wayName">快捷支付</p>
+                            <p class="wayIntro">直接使用银行卡进行支付</p>
+                        </div>
+                    </li>
+                </a>
+            </c:if>
+
+        </c:forEach>
     </ul>
 </div>
 
