@@ -24,11 +24,6 @@
 			<artifactId>pay-boss-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-        <dependency>
-            <groupId>com.sys.boss</groupId>
-            <artifactId>pay-boss-trade</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
 		<dependency>
 			<groupId>com.sys.common</groupId>
 			<artifactId>pay-common-util</artifactId>
