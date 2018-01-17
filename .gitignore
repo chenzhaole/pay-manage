@@ -1,0 +1,20 @@
+target/
+
+*.iml
+*.class
+*.tar
+*.tar.gzi*.jar
+*.war
+*.zip
+*.tar
+*.tar.gz*.jar
+*.war
+*.zip
+*.tar
+*.tar.gz
+
+# eclipse ignore
+.settings/
+.project
+.classpath
+/bin/*
