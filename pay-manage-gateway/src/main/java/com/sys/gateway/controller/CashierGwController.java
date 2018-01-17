@@ -5,6 +5,7 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.response.cashier.TradeCashierResponse;
 import com.sys.boss.api.service.trade.TradeCashierService;
 import com.sys.boss.api.service.trade.TradeOrderService;
+import com.sys.boss.api.service.trade.handler.ITradeCashierHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
@@ -13,6 +14,7 @@ import com.sys.gateway.service.CashierGwService;
 import com.sys.trans.api.entry.Order;
 import com.sys.trans.api.entry.Result;
 import com.sys.trans.api.entry.Trade;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +24,12 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -37,15 +43,69 @@ public class CashierGwController {
     @Autowired
     private CashierGwService cashierGwService;
     @Autowired
-    private TradeCashierService tradeCashierService;
+    private ITradeCashierHandler tradeCashierHandler;
     @Autowired
     private TradeOrderService tradeOrderService;
 
     /**
      * 请求收银台页面
+     * 老支付网关将老商户的入参校验后转发至新支付网关，以调起新收银台页面
      */
-    @RequestMapping(value="call",method = RequestMethod.POST)
-    public String call(HttpServletRequest request, Model model){
+    @RequestMapping(value="call4oldGW")
+    public String call4oldGW(HttpServletRequest request, RedirectAttributes attributes, Model model){
+
+        CommonResult result = new CommonResult();
+        boolean isMobileTerminal = HttpUtil.isMobileTerminal(request.getHeader("user-agent").toLowerCase());
+
+
+        String data = URLDecoder.decode(request.getParameter("data"));
+        logger.info("老网关转发过来的请求参数 data="+data);
+
+        Map<String,Object> map = JSON.parseObject(data, Map.class);
+
+        String mchAppId = (String)map.get("mchAppId");
+        String service = (String)map.get("service");
+        String deviceType = (String)map.get("deviceType");
+        String body = (String)map.get("body");
+        int totalFee = (int)map.get("totalFee");
+        String serialId = (String)map.get("serialId");
+        String callBackUrl = (String)map.get("callBackUrl");
+        String notifyUrl = (String)map.get("notifyUrl");
+        String openId = (String)map.get("openId");
+
+        String code = (String)map.get("code");
+        String desc = (String)map.get("desc");
+        String ip = (String)map.get("ip");
+        String userId = (String)map.get("userId");
+        String sign = (String)map.get("sign");//签名由老网管校验，并且不传给新网关，暂时为空值
+
+
+        if( !"30".equals(service)){
+            logger.info("老网管的service参数不是30收银台");
+            return "redirect:/error";
+        }
+
+        attributes.addAttribute("oldGwData",URLEncoder.encode(data));
+
+        return "redirect:"+"/gateway/cashier/call";
+    }
+
+    /**
+     * 请求收银台页面
+     */
+    @RequestMapping(value="call")
+    public String call(HttpServletRequest request,  Model model) throws Exception {
+
+        String aaa = request.getParameter("attr");
+        request.setCharacterEncoding("UTF-8");
+
+        String oldGwData = request.getParameter("oldGwData");
+        if(StringUtils.isNotBlank(oldGwData)){
+            //TODO:老网管重定向过来的请求
+            String data = URLDecoder.decode(oldGwData);
+        }
+
+
         CommonResult result = new CommonResult();
         boolean isMobileTerminal = HttpUtil.isMobileTerminal(request.getHeader("user-agent").toLowerCase());
         String page = isMobileTerminal? "modules/cashier/mobile/error":"modules/cashier/pc/error";
@@ -55,7 +115,7 @@ public class CashierGwController {
 
             result = cashierGwService.checkParam(request);
             if(ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
-                result = tradeCashierService.call(result.getData(),ip);
+                result = tradeCashierHandler.call(result.getData(),ip);
             }
 
             if(ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
@@ -69,8 +129,10 @@ public class CashierGwController {
             result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
         }
         model.addAttribute("commonResult",result);
+        page="modules/cashier/pc/index";
         return page;
     }
+
 
     /**
      * 移动端：H5收银台页面请求支付，重定向到支付链接，即可调用手机端app进行支付
@@ -82,7 +144,7 @@ public class CashierGwController {
         String page = "modules/cashier/mobile/error";
         try {
             String ip = IpUtil.getRemoteHost(request);//请求ip
-            commonResult = tradeCashierService.pay(payType,sign,ip);
+            commonResult = tradeCashierHandler.pay(payType,sign,ip);
 
 //            if(ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())){
                 //todo: 待boss-trade模块可以下单，再组装返回值
@@ -110,7 +172,7 @@ public class CashierGwController {
         TradeCashierResponse response = new TradeCashierResponse();
         try {
             String ip = IpUtil.getRemoteHost(request);//请求ip
-            commonResult = tradeCashierService.pay(payType,sign,ip);
+            commonResult = tradeCashierHandler.pay(payType,sign,ip);
             //todo: 待boss-trade模块可以下单，再组装返回值
 //            if(ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())){
                response.setPayUrl("http://newpay.kspay.net:8181/ks_smpay/pay/qrcode?codeuuid=https%3A%2F%2Fqr.95516.com%2F00010001%2F62792205567773205232715092016565");
