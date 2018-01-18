@@ -35,22 +35,18 @@ function getQrCode(tab) {
                     platOrderId = jsonData.data.platOrderId;
                     if(supportPay == 'wxpay'){
                         $("#wxqrcode").attr("src",jsonData.payUrl);
-                        $(".wxpay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="wxTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
                         countDown(countDownTime,"wxTimeout",tab);
                     }else if(supportPay == 'alipay'){
                         $("#aliqrcode").attr("src",jsonData.payUrl);
-                        $(".alipay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="aliTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
                         countDown(countDownTime,"aliTimeout",tab);
                     }else if(supportPay == 'qqpay'){
                         $("#qqWalletQrcode").attr("src",jsonData.payUrl);
-                        $(".tenpay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="qqTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
                         countDown(countDownTime,"qqTimeout",tab);
                     }else if(supportPay == 'unionpay'){
                         $("#unionQrCode").attr("src",jsonData.payUrl);
-                        $(".unionpay-content").children().first().html('距离二维码过期还剩<span class="timeout" id="unionTimeout"></span>秒，过期后请刷新页面重新获取二维码');
                         var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
                         countDown(countDownTime,"unionTimeout",tab);
                     }
@@ -73,7 +69,8 @@ function getQrCode(tab) {
 /**
  *  刷新二维码
  **/
-function reGetQrCode(tab){
+function reGetQrCode(tab,obj){
+    $(obj).hide();
     var supportPay = tab.split("_")[0];
     if(supportPay == "wxpay"){
         countDownStatusWx = "0";
@@ -149,24 +146,21 @@ function countDown(countDownTime,attr,tab){
             countDownStatusUnionQrCode = "1";
         }
     }else {
-        var html = '二维码已过期，<a href="javascript:reGetQrCode(\''+tab+'\')">刷新 </a>页面重新获取二维码';
+        // var html = '二维码已过期，<a href="javascript:reGetQrCode(\''+tab+'\')">刷新 </a>页面重新获取二维码';
+        $("#"+attr).parent().parent().find(".overdue").show();
 
         if(attr == "wxTimeout"){
             countDownStatusWx = "2";
-            $("#wxTimeout").parent().html(html);
         }
         if(attr == "aliTimeout"){
             countDownStatusAli = "2";
-            $("#aliTimeout").parent().html(html);
         }
 
         if(attr == "qqTimeout"){
             countDownStatusQQWallet = "2";
-            $("#qqTimeout").parent().html(html);
         }
         if(attr == "unionTimeout"){
             countDownStatusUnionQrCode = "2";
-            $("#unionTimeout").parent().html(html);
         }
     }
 }

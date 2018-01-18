@@ -65,10 +65,15 @@
                     <c:if test="${supportPayType.supportPayment == 'wxpay'}">
                         <div class="layui-tab-item ">
                             <div class="wxpay-content">
-                                <p>距离二维码过期还剩<span class="timeout" id="wxTimeout"></span>秒，过期后请刷新页面重新获取二维码</p>
+
                                 <div class="layui-row">
                                     <div class="layui-col-xs6 layui-col-md6 layui-col-sm6">
+                                        <p>二维码有效时间：<span class="timeout" id="wxTimeout"></span></p>
                                         <div class="qrcode">
+                                            <div class="overdue" onclick="javascript:reGetQrCode('${supportPayType.supportPayment}_${supportPayType.payType}',this)">
+                                                二维码已过期,请重新获取
+                                            </div>
+
                                             <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="wxqrcode"/>
                                             <div class="wx-tip clearfix">
                                                 <img src="${ctxStatic}/images/scan.png" alt="" />
@@ -91,9 +96,11 @@
                     <c:if test="${supportPayType.supportPayment=='alipay'}">
                         <div class="layui-tab-item">
                             <div class="alipay-content">
-
-                                <p>距离二维码过期还剩<span class="timeout" id="aliTimeout"></span>秒，过期后请刷新页面重新获取二维码</p>
                                 <div class="qrcode">
+                                    <p>二维码有效时间：<span class="timeout" id="aliTimeout"></span></p>
+                                    <div class="overdue" onclick="javascript:reGetQrCode('${supportPayType.supportPayment}_${supportPayType.payType}',this)">
+                                        二维码已过期,请重新获取
+                                    </div>
                                     <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="aliqrcode"/>
                                     <div class="wx-tip clearfix">
                                         <img src="${ctxStatic}/images/scan.png" alt="" />
@@ -157,8 +164,12 @@
                     <c:if test="${supportPayType.supportPayment=='qqpay'}">
                         <div class="layui-tab-item">
                             <div class="tenpay-content">
-                                <p>距离二维码过期还剩<span class="timeout" id="qqTimeout">31</span>秒，过期后请刷新页面重新获取二维码</p>
                                 <div class="qrcode">
+                                    <p>二维码有效时间：<span class="timeout" id="qqTimeout"></span></p>
+                                    <div class="overdue" onclick="javascript:reGetQrCode('${supportPayType.supportPayment}_${supportPayType.payType}',this)">
+                                        二维码已过期,请重新获取
+                                    </div>
+
                                     <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="qqWalletQrcode"/>
                                     <div class="wx-tip clearfix">
                                         <img src="${ctxStatic}/images/scan.png" alt="" />
@@ -173,8 +184,11 @@
                     <c:if test="${supportPayType.supportPayment=='unionpay'}">
                         <div class="layui-tab-item">
                             <div class="unionpay-content">
-                                <p>距离二维码过期还剩<span class="timeout" id="unionTimeout">31</span>秒，过期后请刷新页面重新获取二维码</p>
                                 <div class="qrcode">
+                                    <p>二维码有效时间：<span class="timeout" id="unionTimeout"></span></p>
+                                    <div class="overdue" onclick="javascript:reGetQrCode('${supportPayType.supportPayment}_${supportPayType.payType}',this)">
+                                        二维码已过期,请重新获取
+                                    </div>
                                     <img src="${ctxStatic}/images/qr.png" alt="" class="photo" id="unionQrCode"/>
                                     <div class="wx-tip clearfix">
                                         <img src="${ctxStatic}/images/scan.png" alt="" />

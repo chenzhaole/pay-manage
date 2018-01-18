@@ -155,10 +155,11 @@
   	.wxpay-content p,
   	.alipay-content p,
   	.tenpay-content p,.unionpay-content p{
-  		font-size: 14px;
-  		color: #666666;
+  		font-size: 16px;
+  		/*color: #666666;*/
   		/*letter-spacing: 1px;*/
-  		margin: 48px 0 17px 22px;
+		margin: 48px 0 17px 0px;
+		text-align: center;
   	}
   	.wxpay-content p{
   		margin-top: 17px;
@@ -843,7 +844,21 @@
 #layui-layer2 .layui-layer-setwin .layui-layer-close1{
 	margin-top: 8px;
 }
+	.qrcode {
+		position: relative;
+	}
 
+	.overdue {
+		display: none;
+		background-color: #F2F2F2;
+		text-align: center;
+		padding: 8px 5px;
+		position: absolute;
+		width: 200px;
+		top: 30%;
+		box-sizing: border-box;
+		box-shadow: 0 2px 5px rgba(0, 0, 0, .5);
+	}
 /*滚动条*/
 /*.bar{
 	position:relative;
