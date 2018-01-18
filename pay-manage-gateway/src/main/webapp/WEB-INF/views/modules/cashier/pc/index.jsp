@@ -41,7 +41,12 @@
                             <div class="alipay"><img class="timg" src="${ctxStatic}/images/alipay.png" alt="" />支付宝支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
                         </li>
                     </c:if>
-                    <c:if test="${supportPayType.supportPayment=='cardpay'}">
+                    <c:if test="${supportPayType.supportPayment=='owner_cardpay'}">
+                        <li id="${supportPayType.supportPayment}_${supportPayType.payType}">
+                            <div class="cardpay"><img class="timg" src="${ctxStatic}/images/bank.png" alt="" />银行卡支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                        </li>
+                    </c:if>
+                    <c:if test="${supportPayType.supportPayment=='other_cardpay'}">
                         <li id="${supportPayType.supportPayment}_${supportPayType.payType}">
                             <div class="cardpay"><img class="timg" src="${ctxStatic}/images/bank.png" alt="" />银行卡支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
                         </li>
@@ -112,7 +117,7 @@
                         </div>
                     </c:if>
 
-                    <c:if test="${supportPayType.supportPayment=='quickpay'}">
+                    <c:if test="${supportPayType.supportPayment=='owner_cardpay'}">
                         <div class="layui-tab-item card">
                             <div class="cardpay-content">
                                 <!--银行卡部分-->
@@ -158,6 +163,12 @@
                                 </div>
 
                             </div>
+                        </div>
+                    </c:if>
+
+                    <c:if test="${supportPayType.supportPayment=='other_cardpay'}">
+                        <div style="display: none" id="other_cardpay">
+
                         </div>
                     </c:if>
 

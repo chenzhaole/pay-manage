@@ -14,8 +14,8 @@ function getQrCode(tab) {
     var ajax = supportPay=="wxpay"? (countDownStatusWx=="0"?true:false) :
                supportPay=="alipay"?(countDownStatusAli=="0"?true:false) :
                  supportPay=="qqpay"?(countDownStatusQQWallet=="0"?true:false) :
-                supportPay=="unionpay"?(countDownStatusUnionQrCode=="0"?true:false):false;
-
+                supportPay=="unionpay"?(countDownStatusUnionQrCode=="0"?true:false):
+                  supportPay=="other_cardpay"?true:false;
     if(ajax){
         //表单序列化处理，开始请求支付
         $.ajax({
@@ -28,27 +28,24 @@ function getQrCode(tab) {
             success:function(data){
                 //返回值转换成json
                 var jsonData = JSON.parse(data);
-
-                console.log(jsonData);
-
                 if(jsonData.respCode == "0000"){
                     platOrderId = jsonData.data.platOrderId;
+                    var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
                     if(supportPay == 'wxpay'){
-                        $("#wxqrcode").attr("src",jsonData.payUrl);
-                        var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
+                        $("#wxqrcode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"wxTimeout",tab);
                     }else if(supportPay == 'alipay'){
-                        $("#aliqrcode").attr("src",jsonData.payUrl);
-                        var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
+                        $("#aliqrcode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"aliTimeout",tab);
                     }else if(supportPay == 'qqpay'){
-                        $("#qqWalletQrcode").attr("src",jsonData.payUrl);
-                        var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
+                        $("#qqWalletQrcode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"qqTimeout",tab);
                     }else if(supportPay == 'unionpay'){
-                        $("#unionQrCode").attr("src",jsonData.payUrl);
-                        var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
+                        $("#unionQrCode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"unionTimeout",tab);
+                    }else if(supportPay == 'other_cardpay'){
+                        $("#other_cardpay").html(jsonData.data.payInfo);
+                        //form表单提交
                     }
                     queryResult(platOrderId);
                 }else{
