@@ -93,30 +93,28 @@
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<input id="paging" name="paging" type="hidden" value="0"/>
 		<table>
-		<%-- 
 			<tr>
 	            <td>
 	                <div class="control-group">
 	                    <label class="control-label">商户名称：</label>
 	                    <div class="controls">
 	                        <select name="mchtId" id="mchtId">
-								<option value=""></option>
+								<option value="">---请选择---</option>
 								<c:forEach var="mcht" items="${mchtList}">
-									<option value="${mcht.id}" <c:if test="${paramMap.mchtId eq mcht.id}">selected</c:if> >${mcht.name}</option>
+									<option value="${mcht.mchtCode}" <c:if test="${paramMap.mchtId eq mcht.id}">selected</c:if> >${mcht.name}</option>
 								</c:forEach>
 							</select>
 	                    </div>
 	                </div>
 	            </td>
-	            
 	            <td>
 	                <div class="control-group">
 	                    <label class="control-label">上游通道：</label>
 	                    <div class="controls">
 	                        <select name="chanId" id="chanId">
-								<option value=""></option>
+								<option value="">---请选择---</option>
 								<c:forEach var="chanInfo" items="${chanInfoList}">
-									<option value="${chanInfo.id}" <c:if test="${paramMap.chanId eq chanInfo.id}">selected</c:if> >${chanInfo.name}</option>
+									<option value="${chanInfo.chanCode}" <c:if test="${paramMap.chanId eq chanInfo.id}">selected</c:if> >${chanInfo.name}</option>
 								</c:forEach>
 							</select>
 	                    </div>
@@ -127,7 +125,7 @@
 	                    <label class="control-label">支付产品：</label>
 	                    <div class="controls">
 	                       <select name="platProductId" id="platProductId">
-								<option value=""></option>
+								<option value="">---请选择---</option>
 								<c:forEach var="product" items="${productList}">
 									<option value="${product.id}" <c:if test="${paramMap.platProductId eq product.id}">selected</c:if> >${product.name}</option>
 								</c:forEach>
@@ -141,7 +139,7 @@
 	                    <label class="control-label">支付方式：</label>
 	                    <div class="controls">
 	                        <select name="payType" id="payType">
-								<option value=""></option>
+								<option value="">---请选择---</option>
 								<c:forEach var="dict" items="${fns:getDictList('pay_type')}">
 									<option value="${dict.value}" <c:if test="${paramMap.payType eq dict.value}">selected</c:if>>${dict.label}</option>
 								</c:forEach>
@@ -149,9 +147,7 @@
 	                    </div>
 	                </div>
 	            </td>
-	            
 	        </tr>
-	         --%>
 	        <tr>
 	            
 	            <td>
@@ -195,7 +191,7 @@
 	                    <label class="control-label">通道商户支付方式：</label>
 	                    <div class="controls">
 	                        <select name="chanMchtPaytypeId" id="chanMchtPaytypeId">
-								<option value=""></option>
+								<option value="">---请选择---</option>
 								<c:forEach var="chanMchtPayType" items="${chanMchtPaytypeList}">
 									<option value="${chanMchtPayType.id}" <c:if test="${paramMap.chanMchtPaytypeId eq chanMchtPayType.id}">selected</c:if> >${chanMchtPayType.name}</option>
 								</c:forEach>
@@ -209,7 +205,7 @@
 	                    <label class="control-label">订单状态：</label>
 	                    <div class="controls">
 	                      <select id="status" name="status">
-								<option value=""></option>
+								<option value="">---请选择---</option>
 								<c:forEach var="dict" items="${fns:getDictList('pay_status')}">
 									<option value="${dict.value}" <c:if test="${paramMap.status eq dict.value}">selected</c:if>>${dict.label}</option>
 								</c:forEach>
@@ -217,23 +213,22 @@
 	                    </div>
 	                </div>
 	            </td>
-	            
-	           <%--  <td>
+	            <td>
 	                <div class="control-group">
 	                    <label class="control-label">补单状态：</label>
 	                    <div class="controls">
-	                        <select id="supplyStatus" name="supplyStatus">
-								<option value=""></option>
+	                        <select id="supplyStatus" namefa="supplyStatus">
+								<option value="">---请选择---</option>
 								<c:forEach var="dict" items="${fns:getDictList('supply_status')}">
-									<option value="${dict.value}" <c:if test="${paramMap.supplyStatus eq dict.value}">selected</c:if>>${dict.label}</option>
+									<<option value="${dict.value}"> <c:if test="${paramMap.supplyStatus eq dict.value}">selected</c:if>>${dict.label}</option>
 								</c:forEach>
 							</select>
 	                    </div>
 	                </div>
-	            </td> --%>
-	         <!--  </tr>
+	            </td>
+	        </tr>
 	        
-	        <tr> -->
+	        <tr>
 	         	<td colspan="2">
 	         		<div class="control-group">
 	                    <label class="control-label">交易时间：</label>
@@ -246,15 +241,13 @@
 	               		 </div>
 	               	</div>
 	         	</td>
-	        </tr>
-	        <tr>
-	         	<td colspan="2" align="left">
-	                <div class="btn-group">
-	                	<input id="clearButton" class="btn btn-primary pull-right" type="button" value="重置" onclick="reSet()" />
-	                </div>
+	         	<td colspan="2" align="right">
 	         		<div class="btn-group">
 	           	    	<input id="btnSubmit" class="btn btn-primary pull-right" type="submit" value="查询">
 	               	</div>
+	                <div class="btn-group">
+	                	<input id="clearButton" class="btn btn-primary pull-right" type="button" value="重置" onclick="reSet()" />
+	                </div>
 					<div class="btn-group">
 					<input id="btnExport" class="btn btn-primary" type="button" value="导出"/>
 					</div>
@@ -264,65 +257,61 @@
 		</table>
 	</form>
 	<label>| 总笔数：${orderCount} | </label>
-	<label>总金额：${amount} | </label>
+	<label>总金额：${amount} 元| </label>
 	<label>成功笔数：${successCount} | </label>
-	<label>成功金额：${successAmount} | </label>
+	<label>成功金额：${successAmount} 元| </label>
 	<tags:message content="${message}"/>
 	
 	<table id="contentTable" class="table table-striped table-bordered table-condensed table-hover" style="word-wrap:break-word; word-break:break-all;">
 		<thead>
 			<tr >
 				<th >商户名称</th>
-				<!-- <th >上游通道</th> -->
-				<!-- <th>产品名称</th> -->
+				<th >上游通道</th>
+				<th>产品名称</th>
 				<th>支付类型</th>
 				<th>商户订单号</th>
 				<th>平台订单号</th>
-				<th>官方订单号</th>
+				<th>上游通道订单号</th>
 				<th>交易金额</th>
 				<th>订单状态</th>
-				<!-- <th>补发状态</th> -->
+				<th>补单状态</th>
 				<th>创建时间</th>
-				<th>更新时间</th>
+				<th>支付时间</th>
 				<shiro:hasPermission name="order:list:op">
-				<!-- <th>操作</th> -->
+				<th>&nbsp;操&nbsp;作&nbsp;&nbsp;</th>
 				</shiro:hasPermission>
 			</tr>
 		</thead>
 		<tbody>
 		<c:forEach items="${page.list}" var="orderInfo">
 			<tr>
-				<td>${orderInfo.mchtId}</td>
-				<%-- <td>${orderInfo.chanId}</td> --%>
-				<%-- <td>${orderInfo.platProductId}</td> --%>
+				<td>${orderInfo.mchtCode}</td>
+				<td>${orderInfo.chanCode}</td>
+				<td>${orderInfo.platProductId}</td>
 				<td>${fns:getDictLabel(orderInfo.payType, "pay_type","" )}</td>
 				<td>${orderInfo.mchtOrderId}</td>
 				<td><a href="${ctx}/order/detail?id=${orderInfo.id}
 				&beginDate=<fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>">
 						${orderInfo.platOrderId}</a></td>
-				<td>${orderInfo.officialOrderId}</td>
-				<td><fmt:formatNumber type="number" value="${orderInfo.amount/100}" pattern="0.00" maxFractionDigits="2"/></td>
+				<td>${orderInfo.chanOrderId}</td>
+				<td><fmt:formatNumber type="number" value="${orderInfo.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
 				<td>
 					${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}
 				</td>
-				<%-- 
 				<td>
 						${fns:getDictLabel(orderInfo.supplyStatus,'supply_status' ,'' )}
 				</td>
-				 --%>
 				<td><fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 				<td><fmt:formatDate value="${orderInfo.updateTime}"  pattern="yyyy-MM-dd  HH:mm:ss"/></td>
-				<%-- 
 				<shiro:hasPermission name="order:list:op">
 				<td>
 					<a href="javascript:void(0);" onclick="supplyNotify('${orderInfo.id}','<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>')">补发通知</a>
 					|
-					<a href="${ctx}/process/question/form?orderId=${orderInfo.id}">申请退款</a>
-					|
-					<a href="${ctx}/process/question/form?orderId=${orderInfo.id}">同步状态</a> 
+					<a href="${ctx}/order/querySupply?orderId=${orderInfo.id}">查单</a>
+						<%--|
+                        <a href="${ctx}/process/question/form?orderId=${orderInfo.id}">同步状态</a>  --%>
 				</td>
 				</shiro:hasPermission>	
-				 --%>
 			</tr>
 		</c:forEach>
 		</tbody>

@@ -12,15 +12,15 @@ import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
 import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.core.service.ConfigSysService;
-import com.sys.core.service.PlatFeerateService;
+import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.StatusEnum;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.MerchantTypeEnum;
-import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.enums.StatusEnum;
+import com.sys.core.service.ConfigSysService;
+import com.sys.core.service.PlatFeerateService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -278,12 +278,14 @@ public class ChannelController extends BaseController {
 		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
 		List<MerchantForm> mchtInfosResult = new ArrayList<>();
 		for (MerchantForm mchtInfo : mchtInfos) {
-			if(StringUtils.isBlank(mchtInfo.getSignType())) {
+			if (StringUtils.isBlank(mchtInfo.getSignType())) {
 				continue;
 			}
-			if (mchtInfo.getSignType().contains(MerchantTypeEnum.SIGN_MCHT.getCode())
-					|| mchtInfo.getSignType().contains(MerchantTypeEnum.SERVER_MCHT.getCode())){
-				mchtInfosResult.add(mchtInfo);
+			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
+				if (mchtInfo.getSignType().contains(SignTypeEnum.SIGN_MCHT.getCode())
+						|| mchtInfo.getSignType().contains(SignTypeEnum.SERVER_MCHT.getCode())) {
+					mchtInfosResult.add(mchtInfo);
+				}
 			}
 		}
 		model.addAttribute("mchtInfos", mchtInfosResult);
@@ -369,16 +371,16 @@ public class ChannelController extends BaseController {
 		ChanMchtFormInfo chanMchtFormInfo = chanMchtAdminService.getChanMchtPaytypeById(searchInfo.getId());
 
 		boolean active = false;
-		if (StatusEnum.VALID.getCode().equals(chanMchtFormInfo.getStatus())){
+		if (StatusEnum.VALID.getCode().equals(chanMchtFormInfo.getStatus())) {
 			active = true;
 		}
 
 		List<String> productIdsTemp = productAdminService.getProductIdByRela(productRelaFormInfo);
 
-		if (active){
+		if (active) {
 			message = "该通道商户支付方式已启用，无法删除";
 			messageType = "error";
-		}else {
+		} else {
 			if (CollectionUtils.isEmpty(productIdsTemp)) {
 				int result = chanMchtAdminService.deleteChanMchtPaytype(searchInfo);
 

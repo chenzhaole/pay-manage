@@ -1,5 +1,6 @@
 package com.sys.admin.modules.merchant.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
@@ -11,12 +12,12 @@ import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
 import com.sys.admin.modules.sys.service.SysAreaService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.common.enums.CertTypeEnum;
 import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.MerchantTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.util.IdUtil;
+import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.MchtInfo;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -54,7 +56,7 @@ public class MerchantController extends BaseController {
 
 		model.addAttribute("op", "add");
 		//获取商户类型枚举类
-		MerchantTypeEnum[] merchantTypList =  MerchantTypeEnum.values();
+		SignTypeEnum[] merchantTypList =  SignTypeEnum.values();
 		model.addAttribute("merchantTypList", merchantTypList);
 		//获取证件类型枚举类
 		CertTypeEnum[] certTypeList = CertTypeEnum.values();
@@ -64,7 +66,10 @@ public class MerchantController extends BaseController {
 		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
 		List<MerchantForm> mchtInfosResult = new ArrayList<>();
 		for (MerchantForm mchtInfo : mchtInfos) {
-			if (mchtInfo.getSignType().contains(MerchantTypeEnum.CLIENT_MCHT.getCode())){
+			if(StringUtils.isBlank(mchtInfo.getSignType())){
+				continue;
+			}
+			if (mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
 				mchtInfosResult.add(mchtInfo);
 			}
 		}
@@ -79,7 +84,7 @@ public class MerchantController extends BaseController {
 	public String edit(MerchantForm mcht,Model model) {
 		try {
 			//获取商户类型枚举类
-			MerchantTypeEnum[] merchantTypList =  MerchantTypeEnum.values();
+			SignTypeEnum[] merchantTypList =  SignTypeEnum.values();
 			model.addAttribute("merchantTypList", merchantTypList);
 			//获取证件类型枚举类
 			CertTypeEnum[] certTypeList = CertTypeEnum.values();
@@ -96,7 +101,7 @@ public class MerchantController extends BaseController {
 				if (mchtInfoTemp.getId().equals(id)) {
 					continue;
 				}
-				if (mchtInfo.getSignType().contains(MerchantTypeEnum.CLIENT_MCHT.getCode())){
+				if (mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
 					mchtInfoResults.add(mchtInfoTemp);
 				}
 			}
@@ -298,36 +303,43 @@ public class MerchantController extends BaseController {
 		return "modules/merchant/merchantList";
 	}
 	
-//	/**
-//	 * 商户查询
-//	 */
-//	@RequestMapping(value = {"select", ""})
-//	public String select(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {
-//        try {
-//        	User user = UserUtils.getUser();
-//        	String url = GlobalConfig.getConfig("boss.url")+"merchant/getMchtList";
-//        	String mchtNo = paramMap.get("mchtNo");
-//        	String mchtName = paramMap.get("mchtName");
-//
-//        	Map<String,String> params = new HashMap<String, String>();
-//        	params.put("mchtNo", mchtNo);
-//        	params.put("mchtName", mchtName);
-//        	String resp = HttpUtil.post(url, params);
-////        	DataResponse dataResponse = JSONObject.parseObject(resp, DataResponse.class);
-////        	List<MchtInfo> list = new ArrayList<MchtInfo>();
-////        	if(ErrorCodeEnum.SUCCESS.getCode().equalsIgnoreCase(dataResponse.getCode())){
-////        		String data = JSONObject.toJSONString(dataResponse.getData());
-////        		list = JSONObject.parseObject(data,List.class);
-////        	}
-////            model.addAttribute("list", list);
-//
-//            Thread.sleep(1000*5);
-//        } catch (Exception e) {
-//        	e.printStackTrace();
-//            logger.error(e.getMessage(), e);
-//        }
-//        return "modules/merchant/merchantList";
-//	}
+	/**
+	 * 商户简称查询
+	 */
+	@ResponseBody
+	@RequestMapping(value = {"checkShortName", ""})
+	public String select(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {
+
+		JSONObject result = new JSONObject();
+
+		MchtInfo mchtInfo = new MchtInfo();
+		mchtInfo.setShortName(paramMap.get("shortName"));
+		List<MerchantForm> mchtInfoList = merchantAdminService.getMchtInfoList(mchtInfo);
+		int count = 0;
+		if (mchtInfoList != null){
+			count = mchtInfoList.size();
+		}
+
+		String op = paramMap.get("op");
+		if ("add".equals(op)) {
+			result.put("count", count);
+		} else {
+
+			if (count == 1){
+				MerchantForm merchantForm = merchantAdminService.getMerchantById(paramMap.get("id"));
+				if (mchtInfo.getShortName().equals(merchantForm.getShortName())){
+					result.put("count", 0);
+				}else {
+					result.put("count", count);
+				}
+			}else{
+				result.put("count", count);
+			}
+
+		}
+
+        return result.toJSONString();
+	}
 
 	/**
 	 * 商户删除

@@ -6,6 +6,12 @@
 	<meta name="decorator" content="default"/>
 
 	<script type="text/javascript">
+
+        //下拉搜索框初始化
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({});
+        });
+
         function add(){
             document.forms[0].action="${ctx}/platform/addPlatConfMchtProductPage?op=add";
             document.forms[0].submit();
@@ -31,40 +37,28 @@
  	<form id="searchForm" action="${ctx}/platform/platConfMchtProductList" method="post" class="breadcrumb form-search">
  		<table>
  		<tr>
- 			<td>
- 				<label>商户名称：</label><input value="${paramMap.mchtName}" name="mchtName" type="text" maxlength="64" class="input-medium"/>
- 			</td>
 			<td>
-				<label>商户编码：</label><input value="${paramMap.mchtCode}" name="mchtCode" type="text" maxlength="64" class="input-medium"/>
+				<label>商户名称：</label>
+				<select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
+					<option value="">--请选择--</option>
+					<c:forEach items="${mchtInfos}" var="mchtInfo">
+						<option value="${mchtInfo.id}"
+								<c:if test="${paramMap.mchtId == mchtInfo.id}">selected</c:if>
+						>${mchtInfo.name}</option>
+					</c:forEach>
+				</select>
 			</td>
-
- 			<td>
-				<label>产品名称：</label><input value="${paramMap.productName}" name="productName" type="text" maxlength="64" class="input-medium"/>
- 			</td>
- 			<td>
-				<label>产品编码：</label><input value="${paramMap.productCode}" name="productCode" type="text" maxlength="64" class="input-medium"/>
- 			</td>
- 		<%--</tr>--%>
- 		<%--<tr>--%>
-			<%--<td>--%>
-				<%--<label>结算方式：</label>--%>
-				<%--<select name="settleMode" class="input-medium" id="fund_settle_mode">--%>
-					<%--<option value="">--请选择--</option>--%>
-					<%--<option value="1">收单对公</option>--%>
-					<%--<option value="2">收单对私</option>--%>
-					<%--<option value="3">代付</option>--%>
-					<%--<option value="4">银行直清</option>--%>
-				<%--</select>--%>
-			<%--</td>--%>
-			<%--<td>--%>
-				<%--<label>结算周期：</label>--%>
-				<%--<select name="settleCycle" class="input-medium" id="fund_settle_day">--%>
-					<%--<option value="">--请选择--</option>--%>
-					<%--<option value="1">S0</option>--%>
-					<%--<option value="2">D0</option>--%>
-					<%--<option value="3">T1</option>--%>
-				<%--</select>--%>
-			<%--</td>--%>
+			<td>
+				<label>产品名称：</label>
+				<select name="productId" class="selectpicker bla bla bli" data-live-search="true">
+					<option value="">--请选择--</option>
+					<c:forEach items="${productInfos}" var="productInfo">
+						<option value="${productInfo.id}"
+								<c:if test="${paramMap.productId == productInfo.id}">selected</c:if>
+						>${productInfo.name}</option>
+					</c:forEach>
+				</select>
+			</td>
 	 		<td>
 				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
@@ -107,9 +101,11 @@
 					<c:when test="${productInfo.settleMode == 4}"><td>银行直清</td></c:when>
 					<c:otherwise><td></td></c:otherwise></c:choose>
 
-				<c:choose><c:when test="${productInfo.settleCycle == 1}"><td>D0</td></c:when>
-					<c:when test="${productInfo.settleCycle == 2}"><td>T0</td></c:when>
-					<c:when test="${productInfo.settleCycle == 3}"><td>T1</td></c:when>
+				<c:choose>
+					<c:when test="${productInfo.settleCycle == D0}"><td>D0</td></c:when>
+					<c:when test="${productInfo.settleCycle == D1}"><td>D1</td></c:when>
+					<c:when test="${productInfo.settleCycle == T0}"><td>T0</td></c:when>
+					<c:when test="${productInfo.settleCycle == T1}"><td>T1</td></c:when>
 					<c:otherwise><td></td></c:otherwise></c:choose>
 
 				<c:choose><c:when test="${productInfo.isValid == 1}"><td>启用</td></c:when>

@@ -6,16 +6,15 @@
 	<meta name="decorator" content="default"/>
 	
 	<script type="text/javascript">
+
+        //下拉搜索框初始化
+		$(window).on('load', function () {
+			$('.selectpicker').selectpicker({});
+		 });
+
         function add(){
         	document.forms[0].action="${ctx}/platform/getPayType";
         	document.forms[0].submit();
-        }
-
-        function del(id){
-        	if(confirm("是否确认删除ID为“"+id+"”的记录？")){
-        		document.forms[0].action="${ctx}/channel/repaymentDel?id="+id;
-        		document.forms[0].submit();
-        	}
         }
 
         function page(n,s){
@@ -40,24 +39,46 @@
  				<td>
 					<label>产品名称：</label><input value="${paramMap.name}" name="productName" type="text" maxlength="64" class="input-medium"/>
  				</td>
- 				<td>
-					<label>产品编码：</label><input value="${paramMap.code}" name="code" type="text" maxlength="64" class="input-medium"/>
- 				</td>
- 				<td>
-					<label>通道名称：</label><input value="${paramMap.chanName}" name="chanName" type="text" maxlength="64" class="input-medium"/>
- 				</td>
-				<%--<td>--%>
-					<%--<label>支付方式：</label><input value="${paramMap.paytype}" name="paytype" type="text" maxlength="64" class="input-medium"/>--%>
- 				<%--</td>--%>
+
 				<td>
-					<label>状态：</label>
+					<label>支付方式：</label>
+					<select name="paymentType"  class="selectpicker bla bla bli" data-live-search="true">
+						<option value="">--请选择--</option>
+						<c:forEach items="${paymentTypeInfos}" var="paymentTypeInfo">
+							<option value="${paymentTypeInfo.code}"
+									<c:if test="${paramMap.paymentType == paymentTypeInfo.code}">selected</c:if>
+							>${paymentTypeInfo.desc}</option>
+						</c:forEach>
+					</select>
+				</td>
+
+				<td>
+					<label>通道商户支付方式：</label>
+					<select name="chanMchtPaytypeId"  class="selectpicker bla bla bli" data-live-search="true">
+						<option value="">--请选择--</option>
+						<c:forEach items="${chanMchtPaytypes}" var="chanMchtPaytype">
+							<option value="${chanMchtPaytype.id}"
+									<c:if test="${paramMap.chanMchtPaytypeId == chanMchtPaytype.id}">selected</c:if>
+							>${chanMchtPaytype.name}</option>
+						</c:forEach>
+					</select>
+				</td>
+			</tr>
+			<tr>
+				<td>
+					<label>产品编码：</label><input value="${paramMap.code}" name="code" type="text" maxlength="64" class="input-medium"/>
+				</td>
+				<td>
+					<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;状 态： </label>
 					<select  value=""  name="status" type="text" maxlength="64" class="input-medium">
 						<option value="">--请选择--</option>
 						<option value="1">启用</option>
 						<option value="2">停用</option>
 						<option value="3">待审核</option>
 					</select>
- 				</td>
+				</td>
+
+
  				<td>
 					&nbsp;&nbsp;&nbsp;
 					<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
@@ -76,6 +97,7 @@
 				<th>NO</th>
 	        	<th>产品名称</th>
 	        	<th>产品编码</th>
+				<th>支付方式</th>
 	        	<th>状态</th>
 	        	<th>通道商户支付方式总数</th>
 				<th>已禁用通道数</th>
@@ -85,12 +107,13 @@
 		</thead>
 		<tbody>
 		<%int i=0; %>
-		<c:forEach items="${productInfos}" var="productInfo">
+		<c:forEach items="${page.list}" var="productInfo">
 			<%i++; %>
 			<tr>
 				<td><%=i%></td>
 				<td>${productInfo.name}</td>
 				<td>${productInfo.code}</td>
+				<td>${fns:getDictLabel(productInfo.payType, "pay_type","" )}</td>
 				<td><c:if test="${productInfo.status == 1}">启用</c:if>
 					<c:if test="${productInfo.status == 2}">停用</c:if>
 					<c:if test="${productInfo.status == 3}">待审核</c:if></td>
@@ -105,6 +128,6 @@
 		</c:forEach>
 		</tbody>
 		</table>
-
+<div class="pagination">${page}</div>
 </body>
 </html>

@@ -3,18 +3,15 @@ package com.sys.admin.modules.platform.service.impl;
 import com.sys.admin.modules.platform.bo.ProductFormInfo;
 import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
 import com.sys.admin.modules.platform.service.ProductAdminService;
-import com.sys.core.service.ChanMchtPaytypeService;
-import com.sys.core.service.PlatFeerateService;
-import com.sys.core.service.ProductRelaService;
-import com.sys.core.service.ProductService;
-import com.sys.core.dao.dmo.ChanMchtPaytype;
-import com.sys.core.dao.dmo.PlatFeerate;
-import com.sys.core.dao.dmo.PlatProduct;
-import com.sys.core.dao.dmo.PlatProductRela;
 import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.DateUtils2;
 import com.sys.common.util.RandomNumberUtil;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.ChanMchtPaytypeService;
+import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductRelaService;
+import com.sys.core.service.ProductService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
@@ -40,7 +37,7 @@ import java.util.List;
 @Transactional
 @Service
 public class ProductAdminServiceImpl implements ProductAdminService {
-	private final Logger log = LoggerFactory.getLogger(ProductAdminServiceImpl.class);
+	private static final Logger log = LoggerFactory.getLogger(ProductAdminServiceImpl.class);
 
 	@Autowired
 	private ProductService productService;
@@ -57,10 +54,10 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 	@Override
 	public List<ProductFormInfo> getProductList(ProductFormInfo productFormInfo) {
 
-		PlatProduct productInfo = new PlatProduct();
+		PlatProductSearch productInfo = new PlatProductSearch();
 		BeanUtils.copyProperties(productFormInfo, productInfo);
 
-		List<PlatProduct> platProducts = productService.list(productInfo);
+		List<PlatProduct> platProducts = productService.search(productInfo);
 		if (CollectionUtils.isEmpty(platProducts)) {
 			return null;
 		}
@@ -265,6 +262,11 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 		PlatProduct platProduct = new PlatProduct();
 		BeanUtils.copyProperties(productFormInfo, platProduct);
 		return productService.productCount(platProduct);
+	}
+
+	@Override
+	public int searchCount(PlatProductSearch productSearch) {
+		return productService.searchCount(productSearch);
 	}
 
 }

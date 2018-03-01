@@ -5,20 +5,18 @@ import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.bo.ChanBankFormInfo;
 import com.sys.admin.modules.channel.service.ChanBankAdminService;
-import com.sys.admin.modules.channel.service.ChanMchtAdminService;
 import com.sys.admin.modules.channel.service.ChannelAdminService;
 import com.sys.admin.modules.merchant.bo.MerchantForm;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
-import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.core.service.PlatBankService;
+import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.util.Collections3;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatBank;
-import com.sys.common.enums.MerchantTypeEnum;
-import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.util.Collections3;
+import com.sys.core.service.PlatBankService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -47,17 +45,10 @@ public class ChanBankController extends BaseController {
 	private MerchantAdminService merchantAdminService;
 
 	@Autowired
-	private ChanMchtAdminService chanMchtAdminService;
-
-	@Autowired
-	private ProductAdminService productAdminService;
-
-	@Autowired
 	private ChanBankAdminService chanBankAdminService;
 
 	@Autowired
 	private PlatBankService platBankService;
-
 
 	/**
 	 * 通道银行列表
@@ -79,14 +70,18 @@ public class ChanBankController extends BaseController {
 		searchInfo.setPageInfo(pageInfo);
 
 		List<ChanBankFormInfo> chanInfoList = chanBankAdminService.search(searchInfo);
+		//银行列表
+		List<PlatBank> platBanks = platBankService.list(new PlatBank());
+		Map<String,String> platBankMap = Collections3.extractToMap(platBanks,"bankCode","bankName");
 
 		//通道商户支付方式列表
 		List<ChanInfo> chanInfos = channelAdminService.getChannelList(new ChanInfo());
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfos, "chanCode", "name");
 		for (ChanBankFormInfo chanBankFormInfo : chanInfoList) {
 			chanBankFormInfo.setChanName(channelMap.get(chanBankFormInfo.getChanCode()));
+			chanBankFormInfo.setBankName(platBankMap.get(chanBankFormInfo.getPlatBankCode()));
 		}
-		
+
 //		model.addAttribute("list", chanInfoList);
 		int chanCount = chanBankAdminService.chanBankCount(searchInfo);
 		Page page = new Page(pageNo, pageInfo.getPageSize(), chanCount, chanInfoList, true);
@@ -96,12 +91,11 @@ public class ChanBankController extends BaseController {
 		PayTypeEnum[] payTypeList = PayTypeEnum.values();
 		model.addAttribute("paymentTypeInfos", payTypeList);
 
-		//银行列表
-		List<PlatBank> platBanks = platBankService.list(new PlatBank());
+
 		model.addAttribute("platBanks", platBanks);
 
 		model.addAttribute("paramMap", paramMap);
-		return "modules/channel/chanBankList";
+		return "modules/channel/chanPaytypeBankList";
 	}
 
 	/**
@@ -131,9 +125,11 @@ public class ChanBankController extends BaseController {
 			if (StringUtils.isBlank(mchtInfo.getSignType())) {
 				continue;
 			}
-			if (mchtInfo.getSignType().contains(MerchantTypeEnum.SIGN_MCHT.getCode())
-					|| mchtInfo.getSignType().contains(MerchantTypeEnum.SERVER_MCHT.getCode())) {
-				mchtInfosResult.add(mchtInfo);
+			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
+				if (mchtInfo.getSignType().contains(SignTypeEnum.SIGN_MCHT.getCode())
+						|| mchtInfo.getSignType().contains(SignTypeEnum.SERVER_MCHT.getCode())) {
+					mchtInfosResult.add(mchtInfo);
+				}
 			}
 		}
 		model.addAttribute("mchtInfos", mchtInfosResult);
@@ -146,7 +142,7 @@ public class ChanBankController extends BaseController {
 		List<PlatBank> platBanks = platBankService.list(new PlatBank());
 		model.addAttribute("platBanks", platBanks);
 
-		return "modules/channel/chanBankEdit";
+		return "modules/channel/chanPaytypeBankEdit";
 	}
 
 	/**
@@ -163,7 +159,7 @@ public class ChanBankController extends BaseController {
 
 			if ("add".equals(paramMap.get("op"))) {
 
-				if (StringUtils.isBlank(searchInfo.getPlatBankCode())){
+				if (StringUtils.isBlank(searchInfo.getPlatBankCode())) {
 					message = "未选择银行";
 					messageType = "error";
 					redirectAttributes.addFlashAttribute("messageType", messageType);
@@ -220,7 +216,7 @@ public class ChanBankController extends BaseController {
 	 */
 	@RequestMapping(value = {"deleteChanPaytypeBank"})
 	public String deleteChanPaytypeBank(HttpServletRequest request, HttpServletResponse response, Model model,
-									   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
+										@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
 
 		ChanBankFormInfo searchInfo = new ChanBankFormInfo(request);
 
@@ -234,12 +230,12 @@ public class ChanBankController extends BaseController {
 		}
 
 		if (result == 1) {
-				message = "删除成功";
-				messageType = "success";
-			} else {
-				message = "删除失败";
-				messageType = "error";
-			}
+			message = "删除成功";
+			messageType = "success";
+		} else {
+			message = "删除失败";
+			messageType = "error";
+		}
 
 		redirectAttributes.addFlashAttribute("messageType", messageType);
 		redirectAttributes.addFlashAttribute("message", message);

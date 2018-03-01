@@ -7,17 +7,17 @@ import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.platform.bo.ReportBO;
 import com.sys.admin.modules.platform.bo.ReportFormInfo;
 import com.sys.admin.modules.sys.entity.Dict;
-import com.sys.core.service.ChannelService;
-import com.sys.core.service.MerchantService;
 import com.sys.boss.api.service.stat.StatReportService;
-import com.sys.core.dao.dmo.AccAcqFlow;
-import com.sys.core.dao.dmo.ChanInfo;
-import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.common.enums.FeeTypeEnum;
-import com.sys.common.enums.MerchantTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.ReportTypeEnum;
 import com.sys.common.util.DateUtils;
+import com.sys.core.dao.dmo.AccAcqFlow;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.service.ChannelService;
+import com.sys.core.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -115,10 +115,10 @@ public class ReportController extends BaseController {
         if(model!=null){
             model.addAttribute("reportList", reportList);
             model.addAttribute("reportFormInfo", reportFormInfo);
-            model.addAttribute("payMchtList", assembleMchtList(mchtList, MerchantTypeEnum.COMMON_MCHT.getCode()));
-            model.addAttribute("declareMchtList",assembleMchtList(mchtList, MerchantTypeEnum.SIGN_MCHT.getCode()));
-            model.addAttribute("serviceMchtList",assembleMchtList(mchtList, MerchantTypeEnum.SERVER_MCHT.getCode()));
-            model.addAttribute("agentMchtList",assembleMchtList(mchtList, MerchantTypeEnum.CLIENT_MCHT.getCode()));
+            model.addAttribute("payMchtList", assembleMchtList(mchtList, SignTypeEnum.COMMON_MCHT.getCode()));
+            model.addAttribute("declareMchtList",assembleMchtList(mchtList, SignTypeEnum.SIGN_MCHT.getCode()));
+            model.addAttribute("serviceMchtList",assembleMchtList(mchtList, SignTypeEnum.SERVER_MCHT.getCode()));
+            model.addAttribute("agentMchtList",assembleMchtList(mchtList, SignTypeEnum.CLIENT_MCHT.getCode()));
             model.addAttribute("chanList", chanList);
             model.addAttribute("payTypeList", payTypeList);
         }

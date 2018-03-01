@@ -83,12 +83,12 @@
                 submitHandler: function (form) {   //表单提交句柄,为一回调函数，带一个参数：form
                     showShadow();
 
-                    if ( $("#chanCount").val() == "1" ){
+                    if ($("#chanCount").val() == "1") {
                         if (!($("#requestMcht").attr("checked") == 'checked')
-                        && !($("#serverMcht").attr("checked") == 'checked')) {
-                           alert("该商户已配置通道商户支付方式，必须勾选申报商户或服务商");
-                           hideShadow();
-                           return;
+                            && !($("#serverMcht").attr("checked") == 'checked')) {
+                            alert("该商户已配置通道商户支付方式，必须勾选申报商户或服务商");
+                            hideShadow();
+                            return;
                         }
                     }
 
@@ -162,27 +162,27 @@
             });
         });
 
-        function edit(id) {
-            document.forms[0].action = "${ctx}/bowei/repaymentEdit?id=" + id;
-            document.forms[0].submit();
-        }
-
-        function del(id) {
-            if (confirm("是否确认删除ID为“" + id + "”的记录？")) {
-                document.forms[0].action = "${ctx}/bowei/repaymentDel?id=" + id;
-                document.forms[0].submit();
-            }
-        }
-
-        function ok() {
-            var op = $("#op").attr("value");
-            url = "${ctx}/merchant/addSave";
-            if (op == "edit") {
-                url = "${ctx}/merchant/editSave";
-            }
-            alert('op=' + op + ' url=' + url);
-            document.forms[0].action = url;
-            document.forms[0].submit();
+        function checkShortName() {
+            var mcht = {};
+            mcht.shortName = $('#shortName').val();
+            mcht.op = $('#op').val();
+            mcht.id = $('#id').val();
+            var checkUrl = "/admin/merchant/checkShortName";
+            $.ajax({
+                url: checkUrl, //服务器端请求地址
+                data: mcht,
+                dataType: 'json', //返回值类型 一般设置为json
+                type: "post",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                success: function (data) {  //服务器成功响应处理函数
+                    if (data.count > 0) {
+                        alert("商户简称重复");
+                    }
+                },
+                error: function (data, e) {//服务器响应失败处理函数
+                    console.log(data);
+                }
+            })
         }
 
     </script>
@@ -195,7 +195,7 @@
     </label>
 </div>
 
-<div class="shadow"  style="display:block;">
+<div class="shadow" style="display:block;">
     <div id="tbl_brand_processing" class="dataProcessing">
         <img src="${ctxStatic}/images/loading.gif"><span>&nbsp;&nbsp;处理中...</span>
     </div>
@@ -240,8 +240,9 @@
                 <div class="control-group">
                     <label class="control-label">商户简称<span style="color: red;"><span style="color: red;">*</span></span></label>
                     <div class="controls">
-                        <input name="shortName" value="${merchant.shortName}" placeholder="" class="input-xlarge"
-                               type="text">
+                        <input name="shortName" id="shortName" value="${merchant.shortName}" placeholder=""
+                               class="input-xlarge"
+                               type="text" onblur="checkShortName()">
                     </div>
                 </div>
             </td>
@@ -720,7 +721,8 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">银行账户身份证正面照<span style="color: red;"><span style="color: red;"></span></span></label>
+                    <label class="control-label">银行账户身份证正面照<span style="color: red;"><span
+                            style="color: red;"></span></span></label>
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
@@ -783,7 +785,7 @@
                     <label class="control-label">上级商户</label>
                     <div class="controls">
                         <select id="parentId" name="parentId">
-                            <option value="0">请选择</option>
+                            <option value="0">无</option>
                             <c:forEach items="${mchts}" var="mchtInfo">
                                 <option data-mchtStatus="${mchtInfo.status}" data-mchtCode="${mchtInfo.mchtCode}"
                                         data-mchtDescription="${mchtInfo.description}"
@@ -798,20 +800,48 @@
                 <div class="control-group">
                     <label class="control-label">商户类别<span style="color: red;"><span style="color: red;">*</span></span></label>
                     <div class="controls">
-                        <label><input name="signType" type="checkbox" value="1" id="payMcht" onclick="checkPayMcht()"
-                                      <c:if test="${fn:contains(merchant.signType, '1')}">checked="checked"
-                                      <c:if test="${productCount == 1}"> disabled </c:if>
-                        </c:if> />支付商户
-                        </label>
-                        <label><input name="signType" type="checkbox" value="2" id="requestMcht"
-                                      <c:if test="${fn:contains(merchant.signType, '2')}">checked="checked"</c:if> />申报商户
-                        </label>
-                        <label><input name="signType" type="checkbox" value="3" id="serverMcht"
-                                      <c:if test="${fn:contains(merchant.signType, '3')}">checked="checked"</c:if> />服务商
-                        </label>
-                        <label><input name="signType" type="checkbox" value="4" onclick="checkType()" id="agent"
-                                      <c:if test="${fn:contains(merchant.signType, '4')}">checked="checked"</c:if> />代理商
-                        </label>
+                        <c:choose>
+                            <c:when test="${fn:contains(merchant.signType, '5')}">
+                                <label><input name="signType" type="checkbox" value="1" id="payMcht"
+                                              onclick="checkPayMcht()"
+                                              <c:if test="${fn:contains(merchant.signType, '1')}">checked="checked"
+                                        <c:if test="${productCount == 1}"> disabled </c:if>
+                                </c:if> />支付商户
+                                </label>
+                                <label><input name="signType" type="checkbox" value="2" id="requestMcht"
+                                              <c:if test="${fn:contains(merchant.signType, '2')}">checked="checked"</c:if> />申报商户
+                                </label>
+                                <label><input name="signType" type="checkbox" value="3" id="serverMcht"
+                                              <c:if test="${fn:contains(merchant.signType, '3')}">checked="checked"</c:if> />服务商
+                                </label>
+                                <label><input name="signType" type="checkbox" value="4" onclick="checkType()" id="agent"
+                                              <c:if test="${fn:contains(merchant.signType, '4')}">checked="checked"</c:if> />代理商
+                                </label>
+
+                            </c:when>
+                            <c:otherwise>
+                                <c:if test="${fn:contains(merchant.signType, '51')}">
+                                    <label><input name="signType" type="hidden" value="51">
+                                        个人
+                                    </label>
+                                </c:if>
+                                <c:if test="${fn:contains(merchant.signType, '52')}">
+                                    <label><input name="signType" type="hidden" value="52">
+                                        个体商户
+                                    </label>
+                                </c:if>
+                                <c:if test="${fn:contains(merchant.signType, '53')}">
+                                    <label><input name="signType" type="hidden" value="53">
+                                        企业
+                                    </label>
+                                </c:if>
+                                <c:if test="${fn:contains(merchant.signType, '54')}">
+                                    <label><input name="signType" type="hidden" value="54">
+                                        事业单位
+                                    </label>
+                                </c:if>
+
+                            </c:otherwise></c:choose>
                     </div>
                 </div>
             </td>

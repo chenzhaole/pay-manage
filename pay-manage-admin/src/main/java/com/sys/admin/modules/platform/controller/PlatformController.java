@@ -10,20 +10,19 @@ import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.MchtChanFormInfo;
 import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.bo.ProductFormInfo;
-import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
 import com.sys.admin.modules.platform.service.MchtChanAdminService;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
 import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.core.service.ChanMchtPaytypeService;
-import com.sys.core.service.ConfigSysService;
-import com.sys.core.service.PlatSDKService;
-import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
-import com.sys.common.enums.MerchantTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
+import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.ChanMchtPaytypeService;
+import com.sys.core.service.ConfigSysService;
+import com.sys.core.service.PlatSDKService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -35,7 +34,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @ClassName: PlatformController
@@ -71,6 +72,9 @@ public class PlatformController {
 	@Autowired
 	ConfigSysService configSysService;
 
+	@Autowired
+	ChanMchtPaytypeService chanMchtPaytypeService;
+
 	/**
 	 * @param request
 	 * @param response
@@ -87,77 +91,31 @@ public class PlatformController {
 		ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
 		productFormInfo.setId("");
 
-		//通道搜索
-		List<ChanInfo> chanInfos = null;
-		if (StringUtils.isNotBlank(paramMap.get("chanName"))){
-			ChanInfo chanInfo = new ChanInfo();
-			chanInfo.setName(paramMap.get("chanName"));
-			chanInfos = channelAdminService.getChannelList(chanInfo);
+		//分页
+		String pageNoString = paramMap.get("pageNo");
+		int pageNo = 1;
+		if (StringUtils.isNotBlank(pageNoString)) {
+			pageNo = Integer.parseInt(pageNoString);
 		}
+		PageInfo pageInfo = new PageInfo();
+		pageInfo.setPageNo(pageNo);
+		productFormInfo.setPageInfo(pageInfo);
 
-		//含这些通道的通道商户支付方式
-		List<ChanMchtFormInfo> chanMchtFormInfos = new ArrayList<>();
-		List<ChanMchtFormInfo> chanMchtTemp;
-		if (!CollectionUtils.isEmpty(chanInfos)){
-			for (ChanInfo chanInfo : chanInfos) {
-				ChanMchtFormInfo chanMchtFormInfo = new ChanMchtFormInfo();
-				chanMchtFormInfo.setChanId(chanInfo.getId());
-				chanMchtTemp = chanMchtAdminService.getChannelListSimple(chanMchtFormInfo);
-				if (!CollectionUtils.isEmpty(chanMchtTemp)) {
-					chanMchtFormInfos.addAll(chanMchtTemp);
-				}
-			}
-		}
+		List<ProductFormInfo> productInfos = productAdminService.getProductList(productFormInfo);
 
-		//含这些通道支付方式的产品
-		List<ProductFormInfo> productByChan = new ArrayList<>();
-		Set<String> productIds = new HashSet<>();
-		List<String> productIdsTemp;
-		if (!CollectionUtils.isEmpty(chanMchtFormInfos)){
-			ProductRelaFormInfo productRelaFormInfo;
-			for (ChanMchtFormInfo chanMchtFormInfo : chanMchtFormInfos) {
-				productRelaFormInfo = new ProductRelaFormInfo();
-				productRelaFormInfo.setChanMchtPaytypeId(chanMchtFormInfo.getId());
-				productIdsTemp = productAdminService.getProductIdByRela(productRelaFormInfo);
-				if (!CollectionUtils.isEmpty(productIdsTemp)) {
-					productIds.addAll(productIdsTemp);
-				}
-			}
-			if (!CollectionUtils.isEmpty(productIds)){
-				ProductFormInfo productFormInfoTemp;
-				for (String productId : productIds) {
-					productFormInfoTemp = productAdminService.getPlatProductById(productId);
-					if (productFormInfoTemp == null) {
-						continue;
-					}
-					productByChan.add(productFormInfoTemp);
-				}
-			}
-		}
+		int chanCount = productAdminService.productCount(productFormInfo);
+		Page page = new Page(pageNo, pageInfo.getPageSize(), chanCount, productInfos, true);
+		model.addAttribute("page", page);
 
-		List<ProductFormInfo> productResult = new ArrayList<>();
-		//其他搜索条件
-		List<ProductFormInfo> productFormInfos = productAdminService.getProductList(productFormInfo);
+		//所有支付方式
+		PayTypeEnum[] payTypeList = PayTypeEnum.values();
+		model.addAttribute("paymentTypeInfos", payTypeList);
 
-		if (CollectionUtils.isEmpty(productFormInfos)){
-			model.addAttribute("productInfos", productByChan);
-		}else if (CollectionUtils.isEmpty(productByChan) && StringUtils.isNotBlank(paramMap.get("chanName"))){
-			//搜了通道又什么都没有
-		}else if (CollectionUtils.isEmpty(productByChan) && !CollectionUtils.isEmpty(productFormInfos)){
-			model.addAttribute("productInfos", productFormInfos);
-		}else {
-			//交集
-			for (ProductFormInfo formInfo : productFormInfos) {
-				for (ProductFormInfo info : productByChan) {
-					if (formInfo.getId().equals(info.getId())) {
-						productResult.add(info);
-					}
-				}
-			}
-			model.addAttribute("productInfos", productResult);
-		}
+		//所有通道商户支付方式
+		List<ChanMchtPaytype> chanMchtPaytypes = chanMchtPaytypeService.list(new ChanMchtPaytype());
+		model.addAttribute("chanMchtPaytypes", chanMchtPaytypes);
 
-		if (StringUtils.isNotBlank(paramMap.get("messageType"))){
+		if (StringUtils.isNotBlank(paramMap.get("messageType"))) {
 			model.addAttribute("message", paramMap.get("message"));
 			model.addAttribute("messageType", paramMap.get("messageType"));
 		}
@@ -178,14 +136,14 @@ public class PlatformController {
 	 */
 	@RequestMapping(value = {"addPlatProductPage", ""})
 	public String addPlatProductPage(HttpServletRequest request, HttpServletResponse response, Model model,
-								 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+									 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 
 		ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
 		String payType = "";
-		if (paramMap.get("op") != null && "add".equals(paramMap.get("op"))){
+		if (paramMap.get("op") != null && "add".equals(paramMap.get("op"))) {
 			model.addAttribute("op", "add");
 			payType = paramMap.get("paymentType");
-		}else if (!StringUtils.isBlank(productFormInfo.getId())){
+		} else if (!StringUtils.isBlank(productFormInfo.getId())) {
 			ProductFormInfo productFormInfoQuery = productAdminService.getPlatProductById(productFormInfo.getId());
 			model.addAttribute("productInfo", productFormInfoQuery);
 			model.addAttribute("op", "edit");
@@ -195,16 +153,16 @@ public class PlatformController {
 		List<ChanMchtFormInfo> chanInfoList = chanMchtAdminService.getChannelListSimple(new ChanMchtFormInfo());
 		List<ChanMchtFormInfo> chanMchtFormInfos = new ArrayList<>();
 		for (ChanMchtFormInfo chanMchtFormInfo : chanInfoList) {
-			if (chanMchtFormInfo.getPayType().equals(payType)){
+			if (chanMchtFormInfo.getPayType().equals(payType)) {
 				chanMchtFormInfos.add(chanMchtFormInfo);
 			}
 		}
 
-		if (CollectionUtils.isEmpty(chanMchtFormInfos)){
+		if (CollectionUtils.isEmpty(chanMchtFormInfos)) {
 			redirectAttributes.addFlashAttribute("messageType", "error");
 			redirectAttributes.addFlashAttribute("message", "该支付方式未配置");
 			response.setCharacterEncoding("UTF-8");
-			return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/getPayType";
+			return "redirect:" + GlobalConfig.getAdminPath() + "/platform/getPayType";
 		}
 
 		model.addAttribute("chanInfoList", chanMchtFormInfos);
@@ -247,19 +205,19 @@ public class PlatformController {
 
 		String message;
 		String messageType;
-        try {
-            ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
-            if (!CollectionUtils.isEmpty(productFormInfo.getProductRelas())){
+		try {
+			ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
+			if (!CollectionUtils.isEmpty(productFormInfo.getProductRelas())) {
 
 				if (StringUtils.isBlank(productFormInfo.getCode())) {
 					productFormInfo.setCode(IdUtil.createCode());
 				}
 
-            	if ("add".equals(paramMap.get("op"))){
+				if ("add".equals(paramMap.get("op"))) {
 					result = productAdminService.addPlatProduct(productFormInfo);
 				}
 
-            	if ("edit".equals(paramMap.get("op"))){
+				if ("edit".equals(paramMap.get("op"))) {
 					result = productAdminService.updatePlatProduct(productFormInfo);
 
 					//刷新商户通道
@@ -267,7 +225,7 @@ public class PlatformController {
 					mchtProductFormInfo.setProductId(productFormInfo.getId());
 					List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(mchtProductFormInfo);
 
-					if (!CollectionUtils.isEmpty(mchtProductFormInfos)){
+					if (!CollectionUtils.isEmpty(mchtProductFormInfos)) {
 
 						List<String> mchtIds = new ArrayList<>();
 						for (MchtProductFormInfo formInfo : mchtProductFormInfos) {
@@ -276,23 +234,23 @@ public class PlatformController {
 						mchtChanAdminService.refresh(mchtIds);
 					}
 				}
-            }
-            if (result == 1){
-            	message = "保存成功";
-            	messageType="success";
-            }else {
-            	message = "保存失败";
-            	messageType="error";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            message = "保存失败";
-            messageType="error";
-        }
+			}
+			if (result == 1) {
+				message = "保存成功";
+				messageType = "success";
+			} else {
+				message = "保存失败";
+				messageType = "error";
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			message = "保存失败";
+			messageType = "error";
+		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platProductList";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platProductList";
 	}
 
 	/**
@@ -306,37 +264,38 @@ public class PlatformController {
 	 */
 	@RequestMapping(value = {"deletePlatProduct", ""})
 	public String deletePlatProduct(HttpServletRequest request, HttpServletResponse response, Model model,
-								 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+									@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 
 		int result;
 
 		ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
 
 		MchtProductFormInfo mchtProductFormInfo = new MchtProductFormInfo();
+		mchtProductFormInfo.setProductId(productFormInfo.getId());
 		mchtProductFormInfo.setProductCode(productFormInfo.getCode());
 		List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(mchtProductFormInfo);
 
-		if (CollectionUtils.isEmpty(mchtProductFormInfos)){
+		if (CollectionUtils.isEmpty(mchtProductFormInfos)) {
 			result = productAdminService.deletePlatProduct(productFormInfo);
-		}else {
+		} else {
 			result = 99;
 		}
 
 		String message, messageType;
-		if (result == 1){
+		if (result == 1) {
 			message = "删除成功";
 			messageType = "success";
-		}else if (result == 99){
+		} else if (result == 99) {
 			message = "该产品已配置商户产品，无法删除";
 			messageType = "error";
-		}else {
+		} else {
 			message = "删除失败";
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platProductList";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platProductList";
 	}
 
 	/**
@@ -368,9 +327,9 @@ public class PlatformController {
 //		int orderCount = mchtChanAdminService.mchtChanCount(mchtChanFormInfo);
 
 		Page page;
-		if (mchtChanFormInfos !=null && mchtChanFormInfos.size() != 0){
-			page = new Page(pageNo, mchtChanFormInfos.size(), mchtChanFormInfos.size(), mchtChanFormInfos,true);
-		}else {
+		if (mchtChanFormInfos != null && mchtChanFormInfos.size() != 0) {
+			page = new Page(pageNo, mchtChanFormInfos.size(), mchtChanFormInfos.size(), mchtChanFormInfos, true);
+		} else {
 			page = new Page();
 		}
 
@@ -386,20 +345,20 @@ public class PlatformController {
 	 */
 	@RequestMapping(value = {"refreshMchtChan", ""})
 	public String refreshMchtChan(HttpServletRequest request, HttpServletResponse response, Model model,
-									   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+								  @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 		Integer result;
 		result = mchtChanAdminService.refresh(new ArrayList<String>());
 
 		String message;
-		if (result == 1){
+		if (result == 1) {
 			message = "刷新成功";
-		}else {
+		} else {
 			message = "刷新失败";
 		}
 		redirectAttributes.addFlashAttribute("messageType", message);
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platConfMchtChanList";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtChanList";
 	}
 
 	/**
@@ -415,7 +374,7 @@ public class PlatformController {
 	 */
 	@RequestMapping(value = {"editPlatConfMchtChanPage", ""})
 	public String editPlatConfMchtChanPage(HttpServletRequest request, HttpServletResponse response, Model model,
-									   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+										   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 
 		MchtChanFormInfo mchtChanFormInfo = new MchtChanFormInfo(paramMap);
 		MchtChanFormInfo mchtChanFormInfos = mchtChanAdminService.getChanByMcht(mchtChanFormInfo);
@@ -450,7 +409,7 @@ public class PlatformController {
 		redirectAttributes.addFlashAttribute("messageType", message);
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platConfMchtChanList";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtChanList";
 	}
 
 	/**
@@ -483,13 +442,34 @@ public class PlatformController {
 		int orderCount = mchtProductAdminService.mchtProductCount(productFormInfo);
 
 		Page page;
-		if (mchtProductFormInfos != null && mchtProductFormInfos.size() != 0){
-			page = new Page(pageNo, mchtProductFormInfos.size(), mchtProductFormInfos.size(), mchtProductFormInfos,true);
-		}else {
+		if (mchtProductFormInfos != null && mchtProductFormInfos.size() != 0) {
+			page = new Page(pageNo, pageInfo.getPageSize(), orderCount, mchtProductFormInfos, true);
+		} else {
 			page = new Page();
 		}
 
 		model.addAttribute("page", page);
+
+		//所有可配商户
+		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
+		List<MerchantForm> mchtInfosResult = new ArrayList<>();
+		for (MerchantForm mchtInfo : mchtInfos) {
+			if (StringUtils.isBlank(mchtInfo.getSignType())) {
+				continue;
+			}
+			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
+				if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
+						|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
+					mchtInfosResult.add(mchtInfo);
+				}
+			}
+		}
+		model.addAttribute("mchtInfos", mchtInfosResult);
+
+		//所有产品
+		List<ProductFormInfo> productFormInfos = productAdminService.getProductList(new ProductFormInfo());
+		model.addAttribute("productInfos", productFormInfos);
+
 		model.addAttribute("paramMap", paramMap);
 		return "modules/platform/platConfMchtProductList";
 	}
@@ -507,23 +487,25 @@ public class PlatformController {
 	 */
 	@RequestMapping(value = {"addPlatConfMchtProductPage", ""})
 	public String addPlatConfMchtProductPage(HttpServletRequest request, HttpServletResponse response, Model model,
-										 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+											 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 
 		MchtProductFormInfo productFormInfo = new MchtProductFormInfo(paramMap);
-		if (StringUtils.isNotBlank(productFormInfo.getMchtId())){
+		if (StringUtils.isNotBlank(productFormInfo.getMchtId())) {
 			MchtProductFormInfo mchtProductById = mchtProductAdminService.getMchtProductById(productFormInfo);
 			model.addAttribute("productInfo", mchtProductById);
 		}
 
-		List<MerchantForm> mchtInfos  = merchantAdminService.getMchtInfoList(new MchtInfo());
+		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
 		List<MerchantForm> mchtInfosResult = new ArrayList<>();
 		for (MerchantForm mchtInfo : mchtInfos) {
-			if(StringUtils.isBlank(mchtInfo.getSignType())) {
+			if (StringUtils.isBlank(mchtInfo.getSignType())) {
 				continue;
 			}
-			if (mchtInfo.getSignType().contains(MerchantTypeEnum.COMMON_MCHT.getCode())
-					|| mchtInfo.getSignType().contains(MerchantTypeEnum.CLIENT_MCHT.getCode())){
-				mchtInfosResult.add(mchtInfo);
+			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
+				if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
+						|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
+					mchtInfosResult.add(mchtInfo);
+				}
 			}
 		}
 		model.addAttribute("mchtInfos", mchtInfosResult);
@@ -534,12 +516,12 @@ public class PlatformController {
 		List<ProductFormInfo> productFormInfos = productAdminService.getProductList(new ProductFormInfo());
 		model.addAttribute("productFormInfos", productFormInfos);
 
-		if (StringUtils.isNotBlank(productFormInfo.getMchtId()) && StringUtils.isNotBlank(productFormInfo.getProductId())){
+		if (StringUtils.isNotBlank(productFormInfo.getMchtId()) && StringUtils.isNotBlank(productFormInfo.getProductId())) {
 			model.addAttribute("op", "edit");
-		}else {
+		} else {
 			model.addAttribute("op", "add");
 		}
-		
+
 		return "modules/platform/platConfMchtProductEdit";
 	}
 
@@ -562,32 +544,32 @@ public class PlatformController {
 
 		String message;
 		String messageType;
-        try {
-            MchtProductFormInfo productFormInfo = new MchtProductFormInfo(paramMap);
+		try {
+			MchtProductFormInfo productFormInfo = new MchtProductFormInfo(paramMap);
 
-            if ("add".equals(paramMap.get("op"))){
+			if ("add".equals(paramMap.get("op"))) {
 
-            	//校验重复
+				//校验重复
 				MchtProductFormInfo mchtProductById = mchtProductAdminService.getMchtProductById(productFormInfo);
-				if (mchtProductById != null && !"".equals(mchtProductById.getMchtId())){
+				if (mchtProductById != null && !"".equals(mchtProductById.getMchtId())) {
 					redirectAttributes.addFlashAttribute("messageType", "error");
 					redirectAttributes.addFlashAttribute("message", "存在相同商户产品");
 					response.setCharacterEncoding("UTF-8");
-					return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platConfMchtProductList";
+					return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtProductList";
 				}
 				//校验同一种支付类型的支付产品，只能选择一个
 				boolean isExist = this.byMchtIdAndPayType(productFormInfo);
-				if (isExist){
+				if (isExist) {
 					redirectAttributes.addFlashAttribute("messageType", "error");
 					redirectAttributes.addFlashAttribute("message", "同一种支付类型的支付产品，商户只能选择一个");
 					response.setCharacterEncoding("UTF-8");
-					return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platConfMchtProductList";
+					return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtProductList";
 				}
 
 				result = mchtProductAdminService.addMchtProduct(productFormInfo);
 			}
 
-            if ("edit".equals(paramMap.get("op"))) {
+			if ("edit".equals(paramMap.get("op"))) {
 				result = mchtProductAdminService.
 						updateMchtProduct(productFormInfo);
 			}
@@ -596,43 +578,46 @@ public class PlatformController {
 			List<String> mchtIds = new ArrayList<String>();
 			mchtIds.add(productFormInfo.getMchtId());
 			mchtChanAdminService.refresh(mchtIds);
-            
-            if (result == 1){
-            	message = "保存成功";
-            	messageType = "success";
-            }else {
-            	message = "保存失败";
-            	messageType = "error";
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-            message="保存失败";
-            messageType = "error";
-        }
+
+			if (result == 1) {
+				message = "保存成功";
+				messageType = "success";
+			} else {
+				message = "保存失败";
+				messageType = "error";
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			message = "保存失败";
+			messageType = "error";
+		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platConfMchtProductList";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtProductList";
 	}
-	/**校验同一种支付类型的支付产品，只能选择一个*/
+
+	/**
+	 * 校验同一种支付类型的支付产品，只能选择一个
+	 */
 	private boolean byMchtIdAndPayType(MchtProductFormInfo productFormInfo) {
 		//1. 根据支付产品id查出支付类型
 		ProductFormInfo selectProductFormInfo = productAdminService.getPlatProductById(productFormInfo.getProductId());
 		String payTypeCode = "";
-		if(null != selectProductFormInfo){
+		if (null != selectProductFormInfo) {
 			payTypeCode = selectProductFormInfo.getPayType();
 		}
 		//2. 根据商户id查出该商户下的所有支付产品--
-		List<MchtProduct>  listMchtProduct  = mchtProductAdminService.getProductListByMchtId(productFormInfo);
+		List<MchtProduct> listMchtProduct = mchtProductAdminService.getProductListByMchtId(productFormInfo);
 		String tempProductId = "";
 		ProductFormInfo tempProductFormInfo = null;
-		if(listMchtProduct!=null && listMchtProduct.size() > 0){
-			for(MchtProduct info : listMchtProduct ){
+		if (listMchtProduct != null && listMchtProduct.size() > 0) {
+			for (MchtProduct info : listMchtProduct) {
 				tempProductId = info.getProductId(); //商户产品下配置的平台支付产品的主键
 				tempProductFormInfo = productAdminService.getPlatProductById(tempProductId);
-				if(StringUtils.isNotBlank(tempProductId) && StringUtils.isNotBlank(tempProductFormInfo.getPayType()) //
-						&& payTypeCode.equals(tempProductFormInfo.getPayType())){
-					System.out.println("页面提交过来的商户id为："+productFormInfo.getMchtId()+"，支付产品为："+productFormInfo.getProductId()+"，支付类型为："+payTypeCode+", 校验出已经存在该支付类型对应的支付产品，即支付产品id为："+tempProductId);
+				if (StringUtils.isNotBlank(tempProductId) && StringUtils.isNotBlank(tempProductFormInfo.getPayType()) //
+						&& payTypeCode.equals(tempProductFormInfo.getPayType())) {
+					System.out.println("页面提交过来的商户id为：" + productFormInfo.getMchtId() + "，支付产品为：" + productFormInfo.getProductId() + "，支付类型为：" + payTypeCode + ", 校验出已经存在该支付类型对应的支付产品，即支付产品id为：" + tempProductId);
 					return true;
 				}
 			}
@@ -665,17 +650,17 @@ public class PlatformController {
 		result = mchtChanAdminService.refresh(mchtIds);
 
 		String message, messageType;
-		if (result == 1){
+		if (result == 1) {
 			message = "删除成功";
 			messageType = "success";
-		}else {
+		} else {
 			message = "删除失败";
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/platConfMchtProductList";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtProductList";
 	}
 
 	/**
@@ -910,19 +895,16 @@ public class PlatformController {
 	}
 
 	/**
-	 * @Title: editPlatConfProxyBatchSplit
-	 * @Description: 批量拆包编辑
 	 * @param request
 	 * @param response
 	 * @param model
 	 * @param paramMap
 	 * @param redirectAttributes
 	 * @return
+	 * @Title: editPlatConfProxyBatchSplit
+	 * @Description: 批量拆包编辑
 	 * @return: String
 	 */
-	@Autowired
-	ChanMchtPaytypeService chanMchtPaytypeService;
-
 	@RequestMapping(value = {"editPlatConfProxyBatchSplit", ""})
 	public String editPlatConfProxyBatchSplit(HttpServletRequest request, HttpServletResponse response, Model model,
 											  @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {

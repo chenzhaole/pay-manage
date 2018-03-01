@@ -1,9 +1,10 @@
 package com.sys.admin.modules.trade.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.modules.trade.service.OrderAdminService;
-import com.sys.core.dao.dmo.MchtGatewayOrder;
 import com.sys.common.util.HttpUtil;
+import com.sys.core.dao.dmo.MchtGatewayOrder;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +26,7 @@ import java.util.Map;
 public class OrderAdminServiceImpl implements OrderAdminService {
 	private static final Logger log = LoggerFactory.getLogger(OrderAdminServiceImpl.class);
 
-	private static final String CONFIG_URL = "http://127.0.0.1:28081/";
+	private static final String CONFIG_URL = ConfigUtil.getValue("order.url");
 
 	@Override
 	public List<MchtGatewayOrder> list(MchtGatewayOrder order) {

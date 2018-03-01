@@ -2,20 +2,16 @@ package com.sys.admin.modules.platform.service.impl;
 
 import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
-import com.sys.core.service.MchtProductService;
-import com.sys.core.service.MerchantService;
-import com.sys.core.service.PlatFeerateService;
-import com.sys.core.service.ProductService;
-import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.MchtProduct;
-import com.sys.core.dao.dmo.MchtProductKey;
-import com.sys.core.dao.dmo.PlatFeerate;
-import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.util.DateUtils2;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.RandomNumberUtil;
 
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.MchtProductService;
+import com.sys.core.service.MerchantService;
+import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -56,165 +52,10 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 	@Override
 	public List<MchtProductFormInfo> getProductList(MchtProductFormInfo productFormInfo) {
 
-		//查找商户
-		MchtInfo mchtSearch = new MchtInfo();
-		List<MchtInfo> mchtResult = null;
-		boolean mchtQuery = false;
-		if (StringUtils.isNotBlank(productFormInfo.getMchtName()) ||
-				StringUtils.isNotBlank(productFormInfo.getMchtCode())) {
-			mchtQuery = true;
-			mchtSearch.setMchtCode(productFormInfo.getMchtCode());
-			mchtSearch.setName(productFormInfo.getMchtName());
-			mchtResult = merchantService.list(mchtSearch);
-			if (CollectionUtils.isEmpty(mchtResult)) {
-				return null;
-			}
-		}
-
-		//查找产品
-		PlatProduct platProductQuery = new PlatProduct();
-		List<PlatProduct> platProductResults = null;
-		boolean productQuery = false;
-		if (StringUtils.isNotBlank(productFormInfo.getProductName()) ||
-				StringUtils.isNotBlank(productFormInfo.getProductCode())) {
-			productQuery = true;
-			platProductQuery.setName(productFormInfo.getProductName());
-			platProductQuery.setCode(productFormInfo.getProductCode());
-			platProductResults = productService.list(platProductQuery);
-			if (CollectionUtils.isEmpty(platProductResults)) {
-				return null;
-			}
-		}
-
-		//查找费率
-		PlatFeerate platFeerateQuery = new PlatFeerate();
-		boolean feeQuery = false;
-		List<PlatFeerate> platFeerateResults = null;
-		if (StringUtils.isNotBlank(productFormInfo.getSettleCycle()) ||
-				StringUtils.isNotBlank(productFormInfo.getSettleMode()) ||
-				StringUtils.isNotBlank(productFormInfo.getSettleType())) {
-			if (	!"0".equals(productFormInfo.getSettleCycle()) ||
-					!"0".equals(productFormInfo.getSettleMode()) ||
-					!"0".equals(productFormInfo.getSettleType())) {
-			feeQuery = true;
-			platFeerateQuery.setBizType(FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode());
-			platFeerateQuery.setSettleCycle(productFormInfo.getSettleCycle());
-			platFeerateQuery.setSettleMode(productFormInfo.getSettleMode());
-			platFeerateQuery.setSettleType(productFormInfo.getSettleType());
-			platFeerateResults = platFeerateService.list(platFeerateQuery);
-			if (CollectionUtils.isEmpty(platFeerateResults)) {
-				return null;
-			}
-			}
-		}
-
-
 		MchtProduct mchtProduct = new MchtProduct();
 		BeanUtils.copyProperties(productFormInfo, mchtProduct);
 
-		List<MchtProduct> mchtProductsTemp;
-		//根据商户查找商户产品
-		List<MchtProduct> mchtProductsByMcht = new ArrayList<>();
-		Set<String> keyByMcht = new HashSet<>();
-		if (mchtQuery) {
-			for (MchtInfo mchtInfo : mchtResult) {
-				mchtProduct.setMchtId(mchtInfo.getId());
-				mchtProductsTemp = mchtProductService.list(mchtProduct);
-				if (!CollectionUtils.isEmpty(mchtProductsTemp)) {
-					mchtProductsByMcht.addAll(mchtProductsTemp);
-				}
-			}
-			if (mchtProductsByMcht.isEmpty()) {
-				return null;
-			}
-			keyByMcht = getUnDuplicatedId(mchtProductsByMcht);
-		}
-
-		//根据产品查找商户产品
-		List<MchtProduct> mchtProductsByProduct = new ArrayList<>();
-		Set<String> keyByProduct = new HashSet<>();
-		if (productQuery) {
-			for (PlatProduct product : platProductResults) {
-				mchtProduct.setProductId(product.getId());
-				mchtProductsTemp = mchtProductService.list(mchtProduct);
-				if (!CollectionUtils.isEmpty(mchtProductsTemp)) {
-					mchtProductsByProduct.addAll(mchtProductsTemp);
-				}
-			}
-			if (mchtProductsByProduct.isEmpty()) {
-				return null;
-			}
-			keyByProduct = getUnDuplicatedId(mchtProductsByProduct);
-		}
-
-		//根据费率查找商户产品
-		List<MchtProduct> mchtProductsByFee = new ArrayList<>();
-		Set<String> keyByFee = new HashSet<>();
-		MchtProduct mchtProductTemp;
-		MchtProductKey mchtProductKey;
-		if (feeQuery) {
-			for (PlatFeerate fee : platFeerateResults) {
-				if (!fee.getBizRefId().contains("&")) {
-					continue;
-				}
-				String[] key = fee.getBizRefId().split("&");
-				mchtProductKey = new MchtProduct();
-				mchtProductKey.setMchtId(key[0]);
-				mchtProductKey.setProductId(key[1]);
-				mchtProductTemp = mchtProductService.queryByKey(mchtProductKey);
-				if (mchtProductTemp != null) {
-					mchtProductsByFee.add(mchtProductTemp);
-				}
-			}
-			if (mchtProductsByFee.isEmpty()) {
-				return null;
-			}
-			keyByFee = getUnDuplicatedId(mchtProductsByFee);
-		}
-
-
-		List<MchtProduct> mchtProducts = new ArrayList<>();
-		List<String> mchtProductIDs = new ArrayList<>();
-
-		if (mchtQuery) {
-			mchtProductIDs.addAll(keyByMcht);
-			if (productQuery) {
-				mchtProductIDs.retainAll(keyByProduct);
-			}
-			if (feeQuery) {
-				mchtProductIDs.retainAll(keyByFee);
-			}
-			for (MchtProduct product : mchtProductsByMcht) {
-				for (String mchtProductID : mchtProductIDs) {
-					String[] key = mchtProductID.split("&");
-					if (product.getMchtId().equals(key[0]) &&
-							product.getProductId().equals(key[1])) {
-						mchtProducts.add(product);
-					}
-				}
-
-			}
-
-		} else if (productQuery) {
-			mchtProductIDs.addAll(keyByProduct);
-			if (feeQuery) {
-				mchtProductIDs.retainAll(keyByFee);
-			}
-			for (MchtProduct product : mchtProductsByProduct) {
-				for (String mchtProductID : mchtProductIDs) {
-					String[] key = mchtProductID.split("&");
-					if (product.getMchtId().equals(key[0]) &&
-							product.getProductId().equals(key[1])) {
-						mchtProducts.add(product);
-					}
-				}
-
-			}
-		} else if (feeQuery) {
-			mchtProducts.addAll(mchtProductsByFee);
-		} else {
-			mchtProducts = mchtProductService.list(new MchtProduct());
-		}
+		List<MchtProduct> mchtProducts = mchtProductService.list(mchtProduct);
 
 		if (CollectionUtils.isEmpty(mchtProducts)) {
 			return null;

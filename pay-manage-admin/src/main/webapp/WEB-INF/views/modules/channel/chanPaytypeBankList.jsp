@@ -58,7 +58,7 @@
                 </select>
             </td>
             <td>
-                <label>银行名称：</label>
+                <label>平台银行名称：</label>
                 <select name="platBankCode" class="selectpicker bla bla bli" data-live-search="true">
                     <option value="">--请选择--</option>
                     <c:forEach items="${platBanks}" var="platBank">
@@ -88,9 +88,12 @@
         <th>NO</th>
         <th>通道名称</th>
         <th>通道编号</th>
-        <th>支付方式</th>
-        <th>平台银行编号</th>
         <th>通道银行编号</th>
+        <th>通道银行</th>
+        <th>支付方式</th>
+        <th>平台银行名称</th>
+        <th>平台银行编号</th>
+
         <th>状态</th>
         <th>创建日期</th>
         <th>操作</th>
@@ -105,9 +108,12 @@
             </td>
             <td>${chanBank.chanName}</td>
             <td>${chanBank.chanCode}</td>
-            <td>${fns:getDictLabel(chanBank.payType, "pay_type","" )}</td>
-            <td>${chanBank.platBankCode}</td>
             <td>${chanBank.chanBankCode}</td>
+            <td>${chanBank.chanBankName}</td>
+            <td>${fns:getDictLabel(chanBank.payType, "pay_type","" )}</td>
+            <td>${chanBank.bankName}</td>
+            <td>${chanBank.platBankCode}</td>
+
             <td>
                 <c:if test="${chanBank.status == 1}">有效</c:if>
                 <c:if test="${chanBank.status == 2}">无效</c:if>

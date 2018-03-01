@@ -2,6 +2,7 @@ package com.sys.admin.modules.platform.service;
 
 import com.sys.admin.modules.platform.bo.ProductFormInfo;
 import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
+import com.sys.core.dao.dmo.PlatProductSearch;
 
 import java.util.List;
 
@@ -67,4 +68,6 @@ public interface ProductAdminService {
 	List<String> getProductIdByRela(ProductRelaFormInfo productRelaFormInfo);
 
 	int productCount(ProductFormInfo productFormInfo);
+
+	int searchCount(PlatProductSearch productSearch);
 }

@@ -207,7 +207,7 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">银行名称<span style="color: red;">*</span></label>
+                    <label class="control-label">平台银行名称<span style="color: red;">*</span></label>
                     <div class="controls">
                         <select name="platBankCode" class="selectpicker bla bla bli" data-live-search="true"
                                 <c:if test="${op == 'edit'}">disabled="disabled"</c:if>>
@@ -215,7 +215,7 @@
                             <c:forEach items="${platBanks}" var="platBank">
                                 <option data-platBankCode="${platBank.bankCode }"
                                         <c:if test="${chanBank.platBankCode == platBank.bankCode}">selected</c:if>
-                                        value="${platBank.bankCode}">${platBank.bankName}</option>
+                                        value="${platBank.bankCode}">${platBank.bankName}-${platBank.bankCode}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -231,6 +231,28 @@
                     </div>
                 </div>
             </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div class="control-group">
+                    <label class="control-label" for="chanBankName">通道银行名称<span style="color: red;">*</span></label>
+                    <div class="controls">
+                        <input name="chanBankName" value="${chanBank.chanBankName }" placeholder=""
+                               type="text" id="chanBankName" class=" input">
+                    </div>
+                </div>
+            </td>
+
+            <td colspan="2">
+                <div class="control-group">
+                    <label class="control-label" for="chanLineCode">通道银行联行号<span style="color: red;">*</span></label>
+                    <div class="controls">
+                        <input name="chanLineCode" value="${chanBank.chanLineCode }" placeholder=""
+                               type="text" id="chanLineCode" class=" input">
+                    </div>
+                </div>
+            </td>
+
         </tr>
         <tr>
             <td colspan="2">

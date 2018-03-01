@@ -2,21 +2,11 @@ package com.sys.admin.modules.platform.service.impl;
 
 import com.sys.admin.modules.platform.bo.MchtChanFormInfo;
 import com.sys.admin.modules.platform.service.MchtChanAdminService;
-import com.sys.core.service.ChanMchtPaytypeService;
-import com.sys.core.service.ChannelService;
-import com.sys.core.service.MchtChanService;
-import com.sys.core.service.MchtProductService;
-import com.sys.core.service.MerchantService;
-import com.sys.core.service.ProductRelaService;
-import com.sys.core.service.ProductService;
-import com.sys.core.dao.dmo.ChanInfo;
-import com.sys.core.dao.dmo.ChanMchtPaytype;
-import com.sys.core.dao.dmo.MchtChan;
-import com.sys.core.dao.dmo.MchtChanKey;
-import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.MchtProduct;
-import com.sys.core.dao.dmo.PlatProductRela;
 import com.sys.common.enums.StatusEnum;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.MchtChan;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -212,123 +202,7 @@ public class MchtChanAdminServiceImpl implements MchtChanAdminService {
 
 	@Override
 	public int refresh(List<String> mchtIds) {
-		try {
-
-			if (CollectionUtils.isEmpty(mchtIds)) {
-				return 0;
-			}
-
-			Set<String> chanIds = new HashSet<>();
-			Set<String> chanIdsOld = new HashSet<>();
-
-			//根据商户查找商户产品
-			List<MchtProduct> mchtProducts;
-			List<MchtChan> mchtInfosOld;
-//			List<MchtChan> mchtInfosAdd;
-//			List<MchtChan> mchtInfosDelete;
-			MchtChan mchtChanTemp;
-			MchtChanKey mchtChanKey;
-			MchtChanKey mchtChanKeyDel;
-			MchtChan mchtChanQuery;
-			for (String mchtId : mchtIds) {
-				MchtProduct mchtProductQuery = new MchtProduct();
-				mchtProductQuery.setMchtId(mchtId);
-				mchtProducts = mchtProductService.list(mchtProductQuery);
-				if (CollectionUtils.isEmpty(mchtProducts)) {
-					//删除所有该商户的商户通道
-					mchtChanService.deleteByMchtId(mchtId);
-					continue;
-				}
-
-				//查找支付产品
-				PlatProductRela platProductRela;
-				List<PlatProductRela> platProductRelas;
-				for (MchtProduct mchtProduct : mchtProducts) {
-
-					platProductRela = new PlatProductRela();
-					platProductRela.setProductId(mchtProduct.getProductId());
-					platProductRelas = productRelaService.list(platProductRela);
-					if (CollectionUtils.isEmpty(platProductRelas)) {
-						continue;
-					}
-
-					//查找产品的通道
-					ChanMchtPaytype chanMchtPaytype;
-					for (PlatProductRela productRela : platProductRelas) {
-						chanMchtPaytype = chanMchtPaytypeService.queryByKey(productRela.getChanMchtPaytypeId());
-						if (chanMchtPaytype == null) {
-							continue;
-						}
-						chanIds.add(chanMchtPaytype.getChanId());
-					}
-				}
-
-				//对比现有商户通道，多删少增
-				mchtChanQuery = new MchtChan();
-				mchtChanQuery.setMchtId(mchtId);
-				mchtInfosOld = mchtChanService.list(mchtChanQuery);
-
-				if (CollectionUtils.isEmpty(mchtInfosOld)) {
-					if (CollectionUtils.isEmpty(chanIds)) {
-						return 0;
-					}
-
-					for (String chanId : chanIds) {
-						mchtChanKey = new MchtChanKey();
-						mchtChanKey.setMchtId(mchtId);
-						mchtChanKey.setChanId(chanId);
-						mchtChanTemp = mchtChanService.queryByKey(mchtChanKey);
-						if (mchtChanTemp != null) {
-							continue;
-						}
-						mchtChanTemp = new MchtChan();
-						mchtChanTemp.setMchtId(mchtId);
-						mchtChanTemp.setChanId(chanId);
-						mchtChanTemp.setIsValid(Integer.parseInt(StatusEnum.VALID.getCode()));
-						mchtChanService.create(mchtChanTemp);
-					}
-
-				} else if (CollectionUtils.isEmpty(chanIds)) {
-					//删除所有该商户的商户通道
-					mchtChanService.deleteByMchtId(mchtId);
-				} else {
-					for (MchtChan mchtChan : mchtInfosOld) {
-						chanIdsOld.add(mchtChan.getChanId());
-					}
-					Set<String> chanIdsTemp = new HashSet<>();
-					chanIdsTemp.addAll(chanIds);
-					chanIdsTemp.removeAll(chanIdsOld);
-
-					for (String chanId : chanIdsTemp) {
-						mchtChanKey = new MchtChanKey();
-						mchtChanKey.setMchtId(mchtId);
-						mchtChanKey.setChanId(chanId);
-						mchtChanTemp = mchtChanService.queryByKey(mchtChanKey);
-						if (mchtChanTemp != null) {
-							continue;
-						}
-						mchtChanTemp = new MchtChan();
-						mchtChanTemp.setMchtId(mchtId);
-						mchtChanTemp.setChanId(chanId);
-						mchtChanTemp.setIsValid(Integer.parseInt(StatusEnum.VALID.getCode()));
-						mchtChanService.create(mchtChanTemp);
-					}
-
-					chanIdsOld.removeAll(chanIds);
-					for (String chanId : chanIdsOld) {
-						mchtChanKeyDel = new MchtChan();
-						mchtChanKeyDel.setMchtId(mchtId);
-						mchtChanKeyDel.setChanId(chanId);
-						mchtChanService.delete(mchtChanKeyDel);
-					}
-				}
-
-			}
-		} catch (Exception e) {
-			log.error("刷新失败", e);
-			return 0;
-		}
-		return 1;
+		return mchtChanService.refresh(mchtIds);
 	}
 
 	@Override

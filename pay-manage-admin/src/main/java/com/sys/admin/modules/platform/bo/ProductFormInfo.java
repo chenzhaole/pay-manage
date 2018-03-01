@@ -1,10 +1,10 @@
 package com.sys.admin.modules.platform.bo;
 
-import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.PlatFeerate;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.DateUtils2;
+import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.PlatFeerate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.util.CollectionUtils;
 
@@ -26,6 +26,8 @@ public class ProductFormInfo {
 	private String code;
 
 	private String name;
+
+	private String chanMchtPaytypeId; //搜索用
 
 	private String payType;
 
@@ -313,6 +315,14 @@ public class ProductFormInfo {
 		this.productRelasSize = productRelasSize;
 	}
 
+	public String getChanMchtPaytypeId() {
+		return chanMchtPaytypeId;
+	}
+
+	public void setChanMchtPaytypeId(String chanMchtPaytypeId) {
+		this.chanMchtPaytypeId = chanMchtPaytypeId;
+	}
+
 	public ProductFormInfo() {
 	}
 
@@ -326,6 +336,7 @@ public class ProductFormInfo {
 
 		this.routeType = Integer.parseInt(StringUtils.isNotBlank(paramMap.get("routeType")) ? paramMap.get("routeType") : "1");
 		this.code = paramMap.get("code");
+		this.chanMchtPaytypeId = paramMap.get("chanMchtPaytypeId");
 		this.name = paramMap.get("productName");
 		this.payType = paramMap.get("paymentType");
 		this.isNameControlled = Integer.parseInt(StringUtils.isNotBlank(paramMap.get("isNameControlled")) ? paramMap.get("isNameControlled") : "0");

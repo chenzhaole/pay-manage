@@ -33,4 +33,8 @@
 	<dubbo:reference id="chanPaytypeBankService" interface="com.sys.core.service.ChanPaytypeBankService" />
 	<dubbo:reference id="platBankService" interface="com.sys.core.service.PlatBankService" />
 	<dubbo:reference id="platCardBinService" interface="com.sys.core.service.PlatCardBinService" />
+	<dubbo:reference id="mchtChanRegisteService" interface="com.sys.core.service.MchtChanRegisteService" />
+	<dubbo:reference id="mchtChanRegisteOrderService" interface="com.sys.core.service.MchtChanRegisteOrderService" />
+	<dubbo:reference id="proxyDetailService" interface="com.sys.core.service.ProxyDetailService" />
+	<dubbo:reference id="proxyBatchService" interface="com.sys.core.service.ProxyBatchService" />
 </beans>

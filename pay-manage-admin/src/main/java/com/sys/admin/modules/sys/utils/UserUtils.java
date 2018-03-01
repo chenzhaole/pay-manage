@@ -1,22 +1,10 @@
 package com.sys.admin.modules.sys.utils;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
-import org.apache.shiro.SecurityUtils;
-import org.apache.shiro.UnavailableSecurityManagerException;
-import org.apache.shiro.subject.Subject;
-import org.hibernate.criterion.DetachedCriteria;
-import org.hibernate.criterion.Order;
-import org.hibernate.criterion.Restrictions;
-
 import com.google.common.collect.Maps;
 import com.sys.admin.common.service.BaseService;
 import com.sys.admin.common.utils.CacheUtils;
 import com.sys.admin.common.utils.ConstUtils;
 import com.sys.admin.common.utils.SpringContextHolder;
-import com.sys.admin.modules.sys.dao.AreaDao;
 import com.sys.admin.modules.sys.dao.MenuDao;
 import com.sys.admin.modules.sys.dao.OfficeDao;
 import com.sys.admin.modules.sys.dao.UserDao;
@@ -25,6 +13,16 @@ import com.sys.admin.modules.sys.entity.Menu;
 import com.sys.admin.modules.sys.entity.Office;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.security.SystemAuthorizingRealm.Principal;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.UnavailableSecurityManagerException;
+import org.apache.shiro.subject.Subject;
+import org.hibernate.criterion.DetachedCriteria;
+import org.hibernate.criterion.Order;
+import org.hibernate.criterion.Restrictions;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 /**
  * 用户工具类
@@ -95,10 +93,12 @@ public class UserUtils extends BaseService {
 	}
 
     public static String getUserName(Long id) {
-        User user = userDao.findOne(id);
-        if (user != null) {
-            return user.getName();
-        }
+    	if (id != null){
+			User user = userDao.findOne(id);
+			if (user != null) {
+				return user.getName();
+			}
+		}
         return null;
     }
 

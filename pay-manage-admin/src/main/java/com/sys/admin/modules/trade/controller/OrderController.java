@@ -7,8 +7,10 @@ package com.sys.admin.modules.trade.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
+import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.bo.ChanMchtFormInfo;
 import com.sys.admin.modules.channel.service.ChanMchtAdminService;
@@ -17,31 +19,16 @@ import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.OrderAdminService;
-import com.sys.boss.api.entry.trade.TradeNotify;
-import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
-import com.sys.core.service.ChanMchtPaytypeService;
-import com.sys.core.service.ChannelService;
-import com.sys.core.service.ConfigSysService;
-import com.sys.core.service.MchtGwOrderService;
-import com.sys.core.service.MchtProductService;
-import com.sys.core.service.MerchantService;
-import com.sys.core.service.ProductService;
 import com.sys.boss.api.service.order.OrderProxypay4ManageService;
-import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.ChanInfo;
-import com.sys.core.dao.dmo.ChanMchtPaytype;
-import com.sys.core.dao.dmo.CpInfo;
-import com.sys.core.dao.dmo.MchtGatewayOrder;
-import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.PlatProduct;
-import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.util.BeanUtils;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
-import com.sys.common.util.PostUtil;
+import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
+import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -56,7 +43,6 @@ import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -66,6 +52,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -111,6 +98,27 @@ public class OrderController extends BaseController {
 	public String list(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 					   Model model, @RequestParam Map<String, String> paramMap) {
 
+		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+		//支付产品列表
+		List<PlatProduct> productList = productService.list(new PlatProduct());
+		//通道商户支付方式列表
+		List<ChanMchtPaytype> chanMchtPaytypeList = chanMchtPaytypeService.list(new ChanMchtPaytype());
+		//  上游通道列表
+		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
+		//查询商户列表
+		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
+		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
+		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
+
+		model.addAttribute("chanInfoList", chanInfoList);
+		model.addAttribute("mchtList", mchtList);
+		model.addAttribute("productList", productList);
+		model.addAttribute("chanMchtPaytypeList", chanMchtPaytypeList);
+
+		if ("no".equals(paramMap.get("query"))) {
+			return "modules/order/orderList";
+		}
+
 		//创建查询实体
 		MchtGatewayOrder order = new MchtGatewayOrder();
 		assemblySearch(paramMap, order);
@@ -127,22 +135,6 @@ public class OrderController extends BaseController {
 
 		int orderCount = orderAdminService.ordeCount(order);
 
-		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
-		//支付产品列表
-		List<PlatProduct> productList = productService.list(new PlatProduct());
-		//通道商户支付方式列表
-		List<ChanMchtPaytype> chanMchtPaytypeList = chanMchtPaytypeService.list(new ChanMchtPaytype());
-		//上游通道列表
-		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
-		//查询商户列表
-		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
-		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
-		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
-
-		model.addAttribute("chanInfoList", chanInfoList);
-		model.addAttribute("mchtList", mchtList);
-		model.addAttribute("productList", productList);
-		model.addAttribute("chanMchtPaytypeList", chanMchtPaytypeList);
 		model.addAttribute("paramMap", paramMap);
 
 		if (orderCount == 0) {
@@ -233,6 +225,16 @@ public class OrderController extends BaseController {
 		return "modules/order/orderList";
 	}
 
+	/**
+	 * 订单详情
+	 *
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @param model
+	 * @param paramMap
+	 * @return
+	 */
 	@RequiresPermissions("process:question:view")
 	@RequestMapping(value = {"detail", ""})
 	public String detail(HttpServletRequest request, HttpServletResponse response, HttpSession session,
@@ -242,15 +244,15 @@ public class OrderController extends BaseController {
 			MchtGatewayOrder searchBo = new MchtGatewayOrder();
 			assemblySearch(paramMap, searchBo);
 
-			//根据订单id和时间查询订单，时间用来定位分表
+			//根据订单id和时间查询订单，时间用来2定位分表
 			List<MchtGatewayOrder> orderList = orderAdminService.list(searchBo);
 			if (orderList != null && orderList.size() > 0) {
 				MchtGatewayOrder order = orderList.get(0);
 				//根据商户id查询商户信息
 				MchtInfo mchtInfo = merchantService.queryByKey(order.getMchtId());
-					model.addAttribute("mchtInfo", mchtInfo);
-				ChanInfo chanInfo = channelService.queryByKey(order.getChanId());
-					model.addAttribute("chanInfo", chanInfo);
+				model.addAttribute("mchtInfo", mchtInfo);
+				ChanInfo chanInfo = channelService.queryByKey(order.getChanCode());
+				model.addAttribute("chanInfo", chanInfo);
 				ChanMchtFormInfo chanMchtPaytype = chanMchtAdminService.getChanMchtPaytypeById(order.getChanMchtPaytypeId());
 				model.addAttribute("chanMchtPaytype", chanMchtPaytype);
 				ProductFormInfo platProduct = productAdminService.getPlatProductById(order.getPlatProductId());
@@ -258,45 +260,6 @@ public class OrderController extends BaseController {
 
 				model.addAttribute("orderInfo", orderList.get(0));
 			}
-//    		String url = GlobalConfig.getConfig("boss.url")+"platform/findGatewayOrderById";
-//            Map<String,String> params = new HashMap<String,String>();
-//            params.put("id", id);
-//            String resp = HttpUtil.post(url, params);
-//            DataResponse dataResponse = JSONObject.parseObject(resp, DataResponse.class);
-//            
-//            PlatGatewayOrder order = new PlatGatewayOrder();
-//            Map map = new HashMap();
-//            if(ErrorCodeEnum.SUCCESS.getCode().equalsIgnoreCase(dataResponse.getCode())){
-//            	String data = JSONObject.toJSONString(dataResponse.getData());
-//            	order = JSONObject.parseObject(data, PlatGatewayOrder.class);
-//            	map = JSONObject.parseObject(dataResponse.getData().toString(), Map.class);
-////            	map = JSONObject.parseObject(data, Map.class);
-//            	map.put("createDateStr", DateFormatUtils.format(order.getCreateDate(), "yyyy-MM-dd HH:mm:ss"));
-//            	map.put("updateDateStr", DateFormatUtils.format(order.getUpdateDate(), "yyyy-MM-dd HH:mm:ss"));
-//            	map.put("tradeAmoutYuan", NumberUtil.fen2Yuan(Long.parseLong(String.valueOf(order.getTradeAmount()))));
-//            	map.put("mchtFeeYuan", NumberUtil.fen2Yuan(Long.parseLong(String.valueOf(order.getMchtFee()))));
-//            	PayTypeEnum payTypeEnum = PayTypeEnum.toEnum(order.getPayType());
-//            	map.put("payTypeStr", payTypeEnum.getDesc());
-//            	PayStatusEnum payStatusEnum = PayStatusEnum.toEnum(order.getStatus());
-//            	map.put("statusStr", payStatusEnum.getDesc());
-//            }
-
-			//读取商户基本信息
-//            User user = UserUtils.getUser();
-//            String url2 = GlobalConfig.getConfig("boss.url")+"merchant/getByMchtNo";
-//        	Map<String,String> params2 = new HashMap<String, String>();
-//        	params2.put("no", user.getNo());
-//        	String resp2 = HttpUtil.post(url2, params2);
-//        	DataResponse dataResponse2 = JSONObject.parseObject(resp2, DataResponse.class);
-//        	MchtInfo merchant = new MchtInfo();
-//        	if(ErrorCodeEnum.SUCCESS.getCode().equalsIgnoreCase(dataResponse2.getCode())){
-//        		String data = JSONObject.toJSONString(dataResponse2.getData());
-//        		merchant = JSONObject.parseObject(data,MchtInfo.class);
-//        	}
-//            Page<MchtInfo> page = new Page<>(request, response);
-//            page.setList(new ArrayList<MchtInfo>());
-//            model.addAttribute("merchant", merchant);
-//            model.addAttribute("orderInfo", map);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
@@ -354,84 +317,136 @@ public class OrderController extends BaseController {
 		return "modules/order/payQRCode";
 	}
 
-	@RequestMapping("supplyNotify")
-	@ResponseBody
-	public String supplyNotify(String orderId, String suffix, HttpServletResponse response) {
+	/**
+	 * 查补单
+	 *
+	 * @param request
+	 * @param response
+	 * @param session
+	 * @param model
+	 * @param paramMap
+	 * @return
+	 */
+	@RequestMapping("querySupply")
+	public String querySupply(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes,
+							  Model model, @RequestParam Map<String, String> paramMap) {
 		String message = "";
 		try {
-			MchtGatewayOrder queryBO = new MchtGatewayOrder();
-			queryBO.setId(orderId);
-			queryBO.setSuffix(suffix);
-			List<MchtGatewayOrder> orderList = orderAdminService.list(queryBO);
-
-			MchtGatewayOrder order = orderList.get(0);
-			String notifyUrl = order.getNotifyUrl();
-			if (StringUtils.isNotBlank(notifyUrl)) {
-				TradeNotify tradeNotify = buildTradeNotify(order);
-				String requestUrl = tradeNotify.getUrl();
-				String requestMsg = JSON.toJSONString(tradeNotify.getResponse());
-				logger.info("[start] 异步通知商户开始，请求地址：{} 请求内容：{}", requestUrl, requestMsg);
-				String result = PostUtil.postMsg(requestUrl, requestMsg);
-				logger.info("[end] 异步通知商户结束，请求地址：{} 请求内容：{} 商户响应：{}", requestUrl, requestMsg, response);
-
-				if ("SUCCESS".equalsIgnoreCase(result)) {
-					order.setSupplyStatus("0");
-					message = "补发成功";
-				} else {
-					order.setSupplyStatus("1");
-					message = "已补发，商户响应：" + result;
-				}
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String queryUrl = gatewayUrl + "/queryQuickOrder";
+			MchtGatewayOrder searchBo = new MchtGatewayOrder();
+			searchBo.setId(paramMap.get("orderId"));
+			String suffix = "20" + searchBo.getId().substring(1, 5);
+			searchBo.setSuffix(suffix);
+			List<MchtGatewayOrder> orderList = orderAdminService.list(searchBo);
+			MchtGatewayOrder order;
+			if (orderList != null && orderList.size() > 0) {
+				order = orderList.get(0);
 			} else {
-				order.setSupplyStatus("1");
-				message = "补发失败，此订单通知地址为空";
-				logger.info(message + " 订单号：" + order.getPlatOrderId());
+				redirectAttributes.addFlashAttribute("message", "查无此单！");
+				redirectAttributes.addFlashAttribute("messageType", "error");
+				return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
 			}
-			order.setSuffix(suffix);
-			mchtGwOrderService.saveByKey(order);
+			MchtInfo mchtInfo = merchantService.queryByKey(order.getMchtId());
+			if (mchtInfo == null) {
+				redirectAttributes.addFlashAttribute("message", "查无此商户！");
+				redirectAttributes.addFlashAttribute("messageType", "error");
+				return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+			}
+			String key = mchtInfo.getMchtKey();
+
+			JSONObject data = new JSONObject();
+			JSONObject head = new JSONObject();
+			JSONObject body = new JSONObject();
+			head.put("mchtId", mchtInfo.getId());
+			head.put("version", "20");
+			head.put("biz", order.getPayType());
+			data.put("head", head);
+			body.put("tradeId", order.getId());
+			body.put("orderTime", new SimpleDateFormat("yyyyMMddHHmmss").format(order.getCreateTime()));
+			Map<String, String> params = JSONObject.parseObject(
+					JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
+					});
+			String sign = SignUtil.md5Sign(params, key);
+			data.put("sign", sign);
+			data.put("body", body);
+			String respStr = HttpUtil.post(queryUrl, data.toJSONString());
+			logger.info("gateway查单返回：" + respStr);
+			JSONObject result = JSON.parseObject(respStr);
+			JSONObject resultBody = result.getJSONObject("body");
+			if (resultBody != null) {
+				String resultStatus = resultBody.getString("status");
+				if ("SUCCESS".equals(resultStatus)) {
+
+					//补发通知
+					String supplyUrl = gatewayUrl + "/renotify";
+					Map<String, String> redata = new HashMap<>();
+					redata.put("orderId", order.getId());
+					redata.put("suffix", suffix);
+					String reNoStr = HttpUtil.post(supplyUrl, redata);
+					logger.info("gateway补发通知返回：" + reNoStr);
+
+					if ("SUCCESS".equalsIgnoreCase(reNoStr)) {
+						order.setSupplyStatus("0");
+						message = "补发成功";
+					} else {
+						order.setSupplyStatus("1");
+						message = "已补发，商户响应：" + reNoStr;
+					}
+
+					redirectAttributes.addFlashAttribute("message", "查单成功," + message);
+					redirectAttributes.addFlashAttribute("messageType", "success");
+					return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+				} else if ("FAILURE".equals(resultStatus)) {
+					redirectAttributes.addFlashAttribute("message", "查单成功, 支付状态为失败");
+					redirectAttributes.addFlashAttribute("messageType", "success");
+					return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+				}
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("查补单失败，" + e.getMessage());
+			message = "查补单失败, 系统错误";
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "error");
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		} finally {
+
+		}
+		return message;
+	}
+
+	@RequestMapping("supplyNotify")
+	public String supplyNotify(String orderId, String suffix, RedirectAttributes redirectAttributes, HttpServletResponse response) {
+		String message = "";
+		try {
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String supplyUrl = gatewayUrl + "/renotify";
+			Map<String, String> data = new HashMap<>();
+			data.put("orderId", orderId);
+			data.put("suffix", suffix);
+			String respStr = HttpUtil.post(supplyUrl, data);
+			logger.info("gateway补发通知返回：" + respStr);
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "success");
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error("补发失败，" + e.getMessage());
 			message = "补发失败，" + e.getMessage();
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "error");
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
 		} finally {
-			try {
-				response.reset();
-				response.setContentType("text/html; charset=utf-8");
-				response.setCharacterEncoding("utf-8");
-				response.getWriter().print(message);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			logger.info(message);
+			return message;
 		}
-		return null;
-	}
-
-	private TradeNotify buildTradeNotify(MchtGatewayOrder order) throws Exception {
-		TradeNotify tradeNotify = new TradeNotify();
-		tradeNotify.setUrl(order.getNotifyUrl());
-
-		TradeNotifyResponse tradeNotifyResponse = new TradeNotifyResponse();
-		TradeNotifyResponse.TradeNotifyResponseHead head = new TradeNotifyResponse.TradeNotifyResponseHead();
-		head.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
-
-		TradeNotifyResponse.TradeNotifyBody body = new TradeNotifyResponse.TradeNotifyBody();
-		body.setMchtId(order.getMchtId());
-		body.setOrderId(order.getMchtOrderId());
-		body.setStatus(PayStatusEnum.PAY_SUCCESS.getCode().equals(order.getStatus()) ? "SUCCESS" : "FAILURE");
-		body.setParam("");
-		body.setSeq("");
-		TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(body);
-		String mchtKey = merchantService.queryByKey(order.getMchtId()).getMchtKey();
-		String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
-
-		tradeNotifyResponse.setSign(sign);
-		tradeNotifyResponse.setBody(body);
-		tradeNotify.setResponse(tradeNotifyResponse);
-		return tradeNotify;
 	}
 
 	@RequestMapping(value = "/export")
 	public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
-						 @RequestParam Map<String, String> paramMap ) throws IOException{
+						 @RequestParam Map<String, String> paramMap) throws IOException {
 
 		//创建查询实体
 		MchtGatewayOrder order = new MchtGatewayOrder();
@@ -439,11 +454,11 @@ public class OrderController extends BaseController {
 
 		//计算条数 上限五万条
 		int orderCount = orderAdminService.ordeCount(order);
-		if (orderCount > 50000){
+		if (orderCount > 50000) {
 			redirectAttributes.addFlashAttribute("messageType", "fail");
 			redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
 			response.setCharacterEncoding("UTF-8");
-			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+			return "redirect:" + GlobalConfig.getAdminPath() + "/order/list";
 		}
 
 		// 访问数据库，得到数据集
@@ -460,10 +475,10 @@ public class OrderController extends BaseController {
 		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
 
 		for (MchtGatewayOrder gwOrder : deitelVOList) {
-			if (PayStatusEnum.toEnum(gwOrder.getStatus()) != null){
+			if (PayStatusEnum.toEnum(gwOrder.getStatus()) != null) {
 				gwOrder.setStatus(PayStatusEnum.toEnum(gwOrder.getStatus()).getDesc());
 			}
-			if (PayTypeEnum.toEnum(gwOrder.getPayType()) != null){
+			if (PayTypeEnum.toEnum(gwOrder.getPayType()) != null) {
 				gwOrder.setPayType(PayTypeEnum.toEnum(gwOrder.getPayType()).getDesc());
 			}
 			gwOrder.setMchtId(mchtMap.get(gwOrder.getMchtId()));
@@ -471,12 +486,12 @@ public class OrderController extends BaseController {
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
 		}
 
-		String []headers={"商户名称","产品名称","支付类型","商户订单号",
-				"平台订单号","交易金额","订单状态","创建时间","支付时间"};
+		String[] headers = {"商户名称", "产品名称", "支付类型", "商户订单号",
+				"平台订单号", "交易金额", "订单状态", "创建时间", "支付时间"};
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
-		response.setHeader("Content-Disposition", "attachment; filename="+URLEncoder.encode("收单对公报表.xls","UTF-8"));
+		response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("收单对公报表.xls", "UTF-8"));
 		OutputStream out = response.getOutputStream();
 
 		// 第一步，创建一个webbook，对应一个Excel文件
@@ -488,15 +503,15 @@ public class OrderController extends BaseController {
 		HSSFRow row = sheet.createRow((int) 0);
 
 		int j = 0;
-		for(String header : headers){
+		for (String header : headers) {
 			HSSFCell cell = row.createCell((short) j);
 			cell.setCellValue(header);
 			sheet.autoSizeColumn(j);
 			j++;
 		}
-		if(!Collections3.isEmpty(deitelVOList)){
+		if (!Collections3.isEmpty(deitelVOList)) {
 			int rowIndex = 1;//行号
-			for(MchtGatewayOrder orderTemp : deitelVOList){
+			for (MchtGatewayOrder orderTemp : deitelVOList) {
 				int cellIndex = 0;
 				row = sheet.createRow(rowIndex);
 				HSSFCell cell = row.createCell(cellIndex);
@@ -561,11 +576,12 @@ public class OrderController extends BaseController {
 		redirectAttributes.addFlashAttribute("messageType", "success");
 		redirectAttributes.addFlashAttribute("message", "导出完毕");
 		response.setCharacterEncoding("UTF-8");
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/order/list";
 	}
 
 	/**
 	 * 组装搜索参数
+	 *
 	 * @param paramMap
 	 * @return
 	 */
@@ -577,11 +593,14 @@ public class OrderController extends BaseController {
 		}
 
 		//设置平台订单号
-		order.setPlatOrderId(paramMap.get("platformSeq"));
+		if (StringUtils.isNotBlank(paramMap.get("platformSeq"))) {
+			order.setPlatOrderId(paramMap.get("platformSeq").trim());
+		}
+
 		//设置商户订单号
-		order.setMchtOrderId(paramMap.get("customerSeq"));
-		//初始化页面开始时间
-		String beginDate = paramMap.get("beginDate");
+		if (StringUtils.isNotBlank(paramMap.get("customerSeq"))) {
+			order.setMchtOrderId(paramMap.get("customerSeq").trim());
+		}
 
 		//登陆用户名称=商户ID
 //		User user = UserUtils.getUser();
@@ -592,6 +611,8 @@ public class OrderController extends BaseController {
 //			order.setMchtId(loginName);
 //		}
 
+		//初始化页面开始时间
+		String beginDate = paramMap.get("beginDate");
 		if (StringUtils.isBlank(beginDate)) {
 			order.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
 			paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
@@ -634,11 +655,11 @@ public class OrderController extends BaseController {
 		}
 		//官方订单号
 		if (StringUtils.isNotBlank(paramMap.get("officialSeq"))) {
-			order.setOfficialOrderId(paramMap.get("officialSeq"));
+			order.setOfficialOrderId(paramMap.get("officialSeq").trim());
 		}
 		//上游订单号
 		if (StringUtils.isNotBlank(paramMap.get("chanSeq"))) {
-			order.setChanOrderId(paramMap.get("chanSeq"));
+			order.setChanOrderId(paramMap.get("chanSeq").trim());
 		}
 		if (StringUtils.isNotBlank(paramMap.get("chanId"))) {
 			order.setChanId(paramMap.get("chanId"));

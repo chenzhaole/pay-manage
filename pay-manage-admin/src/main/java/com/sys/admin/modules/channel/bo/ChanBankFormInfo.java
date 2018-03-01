@@ -1,13 +1,9 @@
 package com.sys.admin.modules.channel.bo;
 
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.common.PageInfo;
-
 import org.apache.commons.lang3.StringUtils;
 
-
 import javax.servlet.http.HttpServletRequest;
-
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.Enumeration;
@@ -32,6 +28,10 @@ public class ChanBankFormInfo {
 	private String bankName;
 
 	private String platBankCode;
+
+	private String chanBankName;
+
+	private String chanLineCode;
 
 	private String chanBankCode;
 
@@ -66,6 +66,22 @@ public class ChanBankFormInfo {
 	private String extend;
 
 	private PageInfo pageInfo;
+
+	public String getChanBankName() {
+		return chanBankName;
+	}
+
+	public void setChanBankName(String chanBankName) {
+		this.chanBankName = chanBankName;
+	}
+
+	public String getChanLineCode() {
+		return chanLineCode;
+	}
+
+	public void setChanLineCode(String chanLineCode) {
+		this.chanLineCode = chanLineCode;
+	}
 
 	public PageInfo getPageInfo() {
 		return pageInfo;
@@ -285,6 +301,8 @@ public class ChanBankFormInfo {
 			this.passbookTotalMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("passbookTotalMoney")) ? "0" : requestMap.get("passbookTotalMoney"));
 			this.extend = requestMap.get("extend");
 			this.status = requestMap.get("status");
+			this.chanBankName = requestMap.get("chanBankName");
+			this.chanLineCode = requestMap.get("chanLineCode");
 //			this.settleCategory = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleCategory")) ? "0" : requestMap.get("settleCategory"));
 //			this.feeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeRate")) ? "0" : requestMap.get("feeRate"));
 //			this.depositLimit = new BigDecimal(StringUtils.isBlank(requestMap.get("depositLimit")) ? "0" : requestMap.get("depositLimit"));

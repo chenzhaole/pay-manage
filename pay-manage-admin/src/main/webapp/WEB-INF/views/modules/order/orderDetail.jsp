@@ -26,7 +26,9 @@
 	<!-- <div id="searchForm" class="breadcrumb">
 		<label><th>商户信息</th></label>
 	</div> -->
-
+	<div class="breadcrumb">
+		<input id="btnCancel" class="btn center-block" type="button" value="返 回" onclick="window.history.go(-1);" name="btnCancel"/>
+	</div>
 	<table id="infoTable" class="table table-striped table-bordered table-condensed">
 		<tr>
 			<td colspan="4" style="text-align: center;"><b>商户信息</b></td>
@@ -59,10 +61,6 @@
 	        <td width="25%">${chanInfo.chanCode}</td>
 	        <td width="25%">上游通道名称: </td>
 	        <td width="25%">${chanInfo.name} </td>
-   		</tr>
-   		<tr>
-   			<td>地址: </td>
-	        <td colspan="3">${chanInfo.companyAdr}</td>
    		</tr>
 	</tbody>
 	</table>
@@ -105,9 +103,9 @@
 	</tr>
 	<tr>
 	<td >支付产品费率:</td>
-	<td>${platProduct.chanOrderId}</td>
+	<td>${platProduct.feeRate}</td>
 		<td >通道支付方式费率: </td>
-		<td>${chanMchtPaytype.chanOrderId}</td>
+		<td>${chanMchtPaytype.feeRate}</td>
 	</tr>
 	<tr>
 	<td >支付类型:</td>
