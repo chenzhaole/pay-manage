@@ -23,16 +23,30 @@
  	
  	<dubbo:reference id="platBankcardValidService" interface="com.sys.core.service.PlatBankcardValidService" timeout="30000"/>
  	<dubbo:reference id="chanBankcardValidService" interface="com.sys.core.service.ChanBankcardValidService" timeout="30000"/>
-	<!--<dubbo:reference id="tradeCashierService" interface="com.sys.boss.api.service.trade.TradeCashierService" timeout="30000"/>-->
+	<dubbo:reference id="tradeCashierService" interface="com.sys.boss.api.service.trade.TradeCashierService" timeout="30000"/>
 	<dubbo:reference id="tradeOrderService" interface="com.sys.boss.api.service.trade.TradeOrderService" timeout="30000"/>
  
  	<!-- 银行卡归属地，卡BIN查询 -->
  	<dubbo:reference id="tradeBankCardOwnershipHandler" interface="com.sys.boss.api.service.trade.handler.ITradeBankCardOwnershipHandler" timeout="30000"/>
-	
- 	<!-- 统一扫码，下单支付处理句柄 -->
- 	<dubbo:reference id="tradeCommPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCommPayHandler" timeout="30000"/>
 
+	<!-- TX一户一报商户入驻 -->
+	<dubbo:reference id="tradeMchtRegisteHandler" interface="com.sys.boss.api.service.trade.handler.ITradeMchtRegisteHandler" timeout="30000"/>
+	<!-- TX一户一报商户快捷预消费接口 -->
+	<dubbo:reference id="tradeTxQuickPrePayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxQuickPrePayHandler" timeout="30000"/>
+	<!-- TX一户一报商户快捷支付接口 -->
+	<dubbo:reference id="tradeTxQuickCommPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxQuickCommPayHandler" timeout="30000"/>
 	<!-- 收银台处理句柄 -->
 	<dubbo:reference id="tradeCashierHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierHandler" timeout="30000"/>
- 	
+	<!-- 统一扫码，下单支付处理句柄 -->
+	<dubbo:reference id="tradeCommPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCommPayHandler" timeout="30000"/>
+
+	<dubbo:reference id="tradeTxQueryOrderHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxQueryOrderHandler" timeout="30000"/>
+
+	<dubbo:reference id="tradeTxDFSingleHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxDFSingleHandler" timeout="30000"/>
+
+	<dubbo:reference id="tradeTxDFQueryHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxDFQueryHandler" timeout="30000"/>
+
+	<dubbo:reference id="mchtGwOrderService" interface="com.sys.core.service.MchtGwOrderService" timeout="30000"/>
+	<dubbo:reference id="merchantService" interface="com.sys.core.service.MerchantService" timeout="30000"/>
+	<dubbo:reference id="taskLogService" interface="com.sys.core.service.TaskLogService" timeout="30000"/>
 </beans>

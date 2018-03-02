@@ -23,7 +23,22 @@
 			<artifactId>pay-boss-api</artifactId>
 			<version>0.0.1-SNAPSHOT</version>
 		</dependency>
-
+		<dependency>
+			<groupId>com.sys.common</groupId>
+			<artifactId>pay-common-util</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sys.common</groupId>
+			<artifactId>pay-common-core-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+		<dependency>
+			<groupId>com.sys.trans</groupId>
+			<artifactId>pay-trans-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
+			
 
 		<dependency>
 			<groupId>com.alibaba</groupId>
@@ -211,21 +226,7 @@
 			<groupId>commons-lang</groupId>
 			<artifactId>commons-lang</artifactId>
 		</dependency>
-		<dependency>
-			<groupId>com.sys.common</groupId>
-			<artifactId>pay-common-util</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sys.common</groupId>
-			<artifactId>pay-common-core-api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
-		<dependency>
-			<groupId>com.sys.trans</groupId>
-			<artifactId>pay-trans-api</artifactId>
-			<version>0.0.1-SNAPSHOT</version>
-		</dependency>
+		
 		<!-- TEST end -->
 	</dependencies>
 	<build>

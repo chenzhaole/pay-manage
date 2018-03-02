@@ -39,15 +39,14 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 		OwnershipResponse ownershipResponse = new OwnershipResponse();
 		OwnershipResponseHead head = new OwnershipResponseHead();
 		OwnershipResponseBody body = new OwnershipResponseBody();
-		String sign = "";
-
+		
 		try {
 			if(paramStr.endsWith("=")){
 				paramStr = paramStr.substring(0,paramStr.length()-1);
 			}
 			//解析请求参数
 			TradeOwnershipRequest ownershipRequest = JSON.parseObject(paramStr, TradeOwnershipRequest.class);
-
+			
 			CommonResult checkResp = check(ownershipRequest);
 			if(!ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
 				head.setRespCode(checkResp.getRespCode());
@@ -55,10 +54,11 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 				ownershipResponse.setHead(head);
 				return ownershipResponse;
 			}
-
+			
 			TradeOwnershipRequest tradeRequest = (TradeOwnershipRequest) checkResp.getData();
 			CommonResult tradeResult = tradeBankCardOwnershipHandler.process(tradeRequest, "");
 			logger.info(BIZ_NAME+"调用Trade返回tradeResult="+JSON.toJSONString(tradeResult));
+			
 			if(ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode())){
 				Object[] data = (Object[]) tradeResult.getData();
 				Map<String,String> map = (Map<String, String>) data[0];
@@ -70,22 +70,20 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 				body.setBankCode(map.get("bankCode"));
 				body.setBankName(map.get("bankName"));
 				body.setParam(map.get("param"));
-
+				
 				MchtInfo merchant = (MchtInfo) data[1];
-				sign = SignUtil.md5Sign(map, merchant.getMchtKey());
-
+				String sign = SignUtil.md5Sign(map, merchant.getMchtKey());
+				
 			}else{
 				head.setRespCode(tradeResult.getRespCode());
 				head.setRespMsg(tradeResult.getRespMsg());
 			}
 			ownershipResponse.setHead(head);
 			ownershipResponse.setBody(body);
-			if(StringUtils.isNotBlank(sign)) ownershipResponse.setSign(sign);
-
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		
 		return ownershipResponse;
 	}
 
@@ -102,7 +100,7 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 				logger.info(BIZ_NAME+"[biz]请求参数值不是银行卡归属信息查询的支付类型CODE 入参biz=" + tradeRequest.getHead().getBiz() +" 正确的biz=" + PayTypeEnum.OWNERSHIP.getCode());
 				return checkResp;
 			}
-
+			
 			if (tradeRequest.getHead() == null
 					|| tradeRequest.getBody() == null
 					|| tradeRequest.getSign() == null) {
@@ -134,7 +132,7 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 			checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
 			checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
 			checkResp.setData(tradeRequest);
-
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(BIZ_NAME+"系统异常：" + e.getMessage());
