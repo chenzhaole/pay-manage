@@ -12,7 +12,7 @@ import com.sys.manage.notify.service.IChannelService;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.Result;
 import com.sys.trans.api.entry.Trade;
-import com.sys.trans.exception.TranException;
+import com.sys.trans.exception.TransException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -60,12 +60,12 @@ public class RecNotifyController extends BaseController {
 	 * @param chanCode
 	 * @param platOrderId
 	 * @return
-	 * @throws TranException
+	 * @throws TransException
 	 */
 	@RequestMapping("/reciveNotify/{chanCode}/{platOrderId}")
 //	@RequestMapping("abc")
 	@ResponseBody
-	public String reciveNotify(@RequestBody String data, @PathVariable String chanCode, @PathVariable String platOrderId) throws TranException {
+	public String reciveNotify(@RequestBody String data, @PathVariable String chanCode, @PathVariable String platOrderId) throws TransException {
 		logger.info("接收上游通道异步通知接口[start]，chanCode=["+chanCode+"] , platOrderId=["+platOrderId+"] , data=["+data+"]");
 		Result tranResult = notFindChannelResult() ;
 		CommonResult bossResult = new CommonResult();
@@ -128,7 +128,7 @@ public class RecNotifyController extends BaseController {
 	 */
 	@RequestMapping("/recNotify/{chanCode}/{platOrderId}")
 	@ResponseBody
-	public String recNotify(@RequestBody String data, @PathVariable String chanCode, @PathVariable String platOrderId) throws TranException {
+	public String recNotify(@RequestBody String data, @PathVariable String chanCode, @PathVariable String platOrderId) throws TransException {
 		logger.info("接收上游通道异步通知接口-START chanCode=" + chanCode + " platOrderId=" + platOrderId + " data="+ data + "");
 		Result tranResult = notFindChannelResult();
 		CommonResult bossResult = new CommonResult();
@@ -184,7 +184,7 @@ public class RecNotifyController extends BaseController {
 	 */
 	@RequestMapping(value = "/recNotify/ch2")
 	@ResponseBody
-	public String recNotify2(HttpServletRequest request, HttpServletResponse response, @RequestParam Map<String, String> paramMap) throws TranException {
+	public String recNotify2(HttpServletRequest request, HttpServletResponse response, @RequestParam Map<String, String> paramMap) throws TransException {
 		logger.info(request.getParameter("attach"));
 		logger.info("接收上游通道异步通知接口ch2-START paramMap="+JSON.toJSONString(paramMap));
 		CommonResult bossResult = new CommonResult();

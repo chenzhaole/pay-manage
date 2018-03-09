@@ -28,7 +28,7 @@ public class MerchantNotifyService {
     private Logger logger = LoggerFactory.getLogger(MerchantNotifyService.class);
 
     private DefaultMQPushConsumer consumer;
-
+/*
     @PostConstruct
     private void initConsumer(){
         logger.info("=================>>manage-notify消费者初始化<<=================");
@@ -100,5 +100,5 @@ public class MerchantNotifyService {
                 JedisConnPool.returnResource(pool, jedis, "mchtNotify异步通知商户 finally");
             }
         }
-    }
+    }*/
 }
