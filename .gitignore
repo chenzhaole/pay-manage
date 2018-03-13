@@ -18,3 +18,5 @@ target/
 .project
 .classpath
 /bin/*
+
+.idea/*

@@ -3,7 +3,7 @@ package com.sys.manage.notify.control;
 import com.alibaba.fastjson.JSON;
 import com.sys.trans.api.entry.Result;
 import com.sys.trans.api.entry.Trade;
-import com.sys.trans.exception.TranException;
+import com.sys.trans.exception.TransException;
 import com.sys.common.util.DesUtil32;
 
 import org.slf4j.Logger;
@@ -36,7 +36,7 @@ public class NotifyController extends BaseController {
 	 */
 	@RequestMapping("notify2mcht")
 	@ResponseBody
-	public String notify2mcht(@RequestBody String data) throws TranException {
+	public String notify2mcht(@RequestBody String data) throws TransException {
 		logger.info("----"+getCurrentDate("")+"----[start]支付-支付结果通知---"+new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(new Date()));
 		logger.info("----"+getCurrentDate("")+"----接收到的原始数据 [data]: "+data);
 		Result result = sysErrorResult("未知错误") ;
