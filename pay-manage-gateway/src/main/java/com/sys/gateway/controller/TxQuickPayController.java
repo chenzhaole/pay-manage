@@ -10,7 +10,7 @@ import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.quickpay.TXQuickCommPayRequest;
 import com.sys.boss.api.entry.trade.request.quickpay.TXQuickCommPayRequestBody;
 import com.sys.boss.api.entry.trade.response.quickpay.TXQuickCommPayResponse;
-import com.sys.boss.api.service.trade.handler.ITradeTxQuickCommPayHandler;
+import com.sys.boss.api.service.trade.handler.ITradeTxQuickPayHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.IpUtil;
@@ -36,11 +36,11 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping(value = "")
-public class TxQuickCommPayController {
+public class TxQuickPayController {
     protected final Logger logger = LoggerFactory.getLogger(TxQuickPrePayController.class);
 
     @Autowired
-    ITradeTxQuickCommPayHandler iTradeTxQuickCommPayHandler;
+    ITradeTxQuickPayHandler iTradeTxQuickPayHandler;
 
     @RequestMapping(value="/gateway/txQuickCommPay")
     @ResponseBody
@@ -135,7 +135,7 @@ public class TxQuickCommPayController {
         String sign  ="";
         try {
             logger.info("调用boss-trade创建一户一报商户快捷支付订单，参数值tradeRequest："+JSON.toJSONString(tradeRequest));
-            CommonResult commonResult = (CommonResult) iTradeTxQuickCommPayHandler.process(tradeRequest, ip);
+            CommonResult commonResult = (CommonResult) iTradeTxQuickPayHandler.process(tradeRequest, ip);
             logger.info("调用boss-trade创建一户一报商户快捷支付订单，返回值commonResult：" + JSON.toJSONString(commonResult));
             if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode()) || ErrorCodeEnum.E8003.getCode().equals(commonResult.getRespCode())) {
                 Result mchtResult = (Result) commonResult.getData();

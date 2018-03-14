@@ -1,5 +1,5 @@
 <html>
 <body>
-<h2>myepay-manage-gateway</h2>
+<h2>pay-manage-gateway</h2>
 </body>
 </html>
