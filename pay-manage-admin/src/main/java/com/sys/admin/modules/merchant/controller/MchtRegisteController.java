@@ -1,13 +1,40 @@
 package com.sys.admin.modules.merchant.controller;
 
 import com.sys.admin.common.persistence.Page;
+import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.merchant.bo.MchtRegisteForm;
-import com.sys.common.enums.StatusEnum;
+import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
+import com.sys.admin.modules.platform.service.MchtProductAdminService;
+import com.sys.boss.api.entry.CommonResult;
+import com.sys.boss.api.entry.trade.request.TradeReqHead;
+import com.sys.boss.api.entry.trade.request.registe.MchtRegisteRequestBody;
+import com.sys.boss.api.entry.trade.request.registe.TradeMchtRegisteRequest;
+import com.sys.boss.api.service.trade.handler.ITradeMchtRegiste4ExistingMchtHandler;
+import com.sys.boss.api.service.trade.handler.ITradeTxQuickPayHandler;
+import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
-import com.sys.core.service.*;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.ChanMchtPaytype;
+import com.sys.core.dao.dmo.MchtBankCard;
+import com.sys.core.dao.dmo.MchtChanRegiste;
+import com.sys.core.dao.dmo.MchtChanRegisteOrder;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatBank;
+import com.sys.core.dao.dmo.PlatFeerate;
+import com.sys.core.dao.dmo.PlatProduct;
+import com.sys.core.service.ChanMchtPaytypeService;
+import com.sys.core.service.ChannelService;
+import com.sys.core.service.MchtBankCardService;
+import com.sys.core.service.MchtChanRegisteOrderService;
+import com.sys.core.service.MchtChanRegisteService;
+import com.sys.core.service.MerchantService;
+import com.sys.core.service.PlatBankService;
+import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +42,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -43,6 +71,24 @@ public class MchtRegisteController extends BaseController {
 	@Autowired
 	private ChanMchtPaytypeService chanMchtPaytypeService;
 
+	@Autowired
+	private MchtBankCardService mchtBankCardService;
+
+	@Autowired
+	private PlatBankService platBankService;
+
+	@Autowired
+	private ProductService productService;
+
+	@Autowired
+	private MchtProductAdminService mchtProductAdminService;
+
+	@Autowired
+	private PlatFeerateService platFeerateService;
+
+	@Autowired
+	private ITradeMchtRegiste4ExistingMchtHandler tradeMchtRegiste4ExistingMchtHandler;
+
 	/**
 	 * 通道补录 选择通道商户支付方式
 	 */
@@ -58,38 +104,146 @@ public class MchtRegisteController extends BaseController {
 	 * 通道补录
 	 */
 	@RequestMapping(value = {"reRegiste", ""})
+	@ResponseBody
 	public String reRegiste(HttpServletRequest request, HttpServletResponse response, Model model,
-								  @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+							@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+
+		CommonResult result = new CommonResult();
+		result.setRespMsg("执行失败");
+
+		//要补录的记录Id
+		String mchtChanRegisteId = paramMap.get("mchtChanRegisteId");
 
 		//要补录的通道商户支付方式Id
-		String chanId = paramMap.get("chanMchtPaytypeId");
-		//要补录的商户code
-		List<String> mchtCodes = new ArrayList<>();
+		String chanMchtPaytypeId = paramMap.get("chanMchtPaytypeId");
 
-		MchtChanRegiste mchtChanRegiste = new MchtChanRegiste();
-		mchtChanRegiste.setStatus(StatusEnum.VALID.getCode());
-		List<MchtChanRegiste> mchtInfoList = mchtChanRegisteService.list(mchtChanRegiste);
+		//要补录的卡类型
+		String cardType = paramMap.get("cardType");
 
-		for (MchtChanRegiste chanRegiste : mchtInfoList) {
-			mchtCodes.add(chanRegiste.getMchtCode());
+		// 根据卡类型、卡号筛选最新的入驻记录
+		List<MchtChanRegiste> mchtInfoList;
+
+		if (StringUtils.isBlank(mchtChanRegisteId)){
+			mchtInfoList = new ArrayList<>();
+			mchtInfoList.add(mchtChanRegisteService.queryByKey(mchtChanRegisteId));
+		}else {
+			mchtInfoList = mchtChanRegisteService.reRegisteList(cardType);
 		}
 
-		return "";
+		if (Collections3.isEmpty(mchtInfoList)){
+			result.setRespMsg("执行失败");
+		}
+
+		// 用户银行卡
+		List<MchtBankCard> mchtBankCards = mchtBankCardService.list(new MchtBankCard());
+		Map<String, MchtBankCard> mchtBankCardMap = Collections3.extractToMap(mchtBankCards, "id");
+
+		//查询商户列表
+		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+		Map<String, MchtInfo> mchtMap = Collections3.extractToMap(mchtList, "id");
+
+		//查询平台银行列表
+		List<PlatBank> platBanks = platBankService.list(new PlatBank());
+		Map<String, String> platBankMap = Collections3.extractToMap(platBanks, "bankCode", "bankName");
+
+
+		TradeMchtRegisteRequest registeRequest;
+		TradeReqHead head;
+		MchtRegisteRequestBody registeRequestBody;
+		MchtBankCard mchtBankCard;
+		MchtInfo mchtInfo;
+		MchtProductFormInfo mchtProductFormInfo = new MchtProductFormInfo();
+		List<MchtProduct> mchtProducts;
+		PlatFeerate platFeerate;
+
+		// 遍历入驻新通道
+		for (MchtChanRegiste chanRegiste : mchtInfoList) {
+
+			//排除已入驻该通道的记录
+			if (mchtBankCardMap.get(chanRegiste.getMchtCode()) == null ||
+					mchtMap.get(chanRegiste.getMchtCode()) == null ||
+					chanMchtPaytypeId.equals(chanRegiste.getChanMchtPaytypeId())) {
+				continue;
+			}
+			registeRequest = new TradeMchtRegisteRequest();
+
+			mchtBankCard = mchtBankCardMap.get(chanRegiste.getMchtCode());
+			mchtInfo = mchtMap.get(chanRegiste.getMchtCode());
+
+			mchtProductFormInfo.setMchtId(chanRegiste.getMchtCode());
+			mchtProducts = mchtProductAdminService.getProductListByMchtId(mchtProductFormInfo);
+
+			// 根据mchtId查询Product信息
+			PlatProduct product = null;
+			for (MchtProduct mprod : mchtProducts) {
+				product = productService.queryByKey(mprod.getProductId());
+				if (PayTypeEnum.QUICK_TX.getCode().equals(product.getPayType())) {
+					break;
+				}
+			}
+
+			if (mchtBankCard == null || mchtInfo == null || product == null) {
+				continue;
+			}
+
+			//查找最新费率
+			platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode(),
+					chanRegiste.getMchtCode() + "&" + product.getId());
+
+			head = new TradeReqHead();
+			head.setMchtId(ConfigUtil.getValue("ykzlMchtId"));
+			head.setVersion("20");
+			head.setBiz("11");
+			registeRequest.setHead(head);
+
+			registeRequestBody = new MchtRegisteRequestBody();
+			registeRequestBody.setOrderId("RE" + chanRegiste.getId());
+			registeRequestBody.setName(mchtInfo.getName());
+			registeRequestBody.setAddress(mchtInfo.getCompanyAdr());
+			registeRequestBody.setMchtType(mchtInfo.getMchtType());
+			registeRequestBody.setLegalName(mchtBankCard.getBankAccountName());
+			registeRequestBody.setLegalCertType(mchtBankCard.getCertType());
+			registeRequestBody.setLegalCertNo(mchtBankCard.getCertNo());
+			registeRequestBody.setSettleBankNo(mchtBankCard.getPlatBankCode());
+			registeRequestBody.setSettleCardType(mchtBankCard.getBankCardType());
+			registeRequestBody.setSettleCardCvv(mchtBankCard.getCreditCvv());
+			registeRequestBody.setSettleCardExpDate(mchtBankCard.getCreditExpDate());
+			registeRequestBody.setBankAccountMobile(mchtBankCard.getBankAccountMobile());
+			registeRequestBody.setSettleBankAccountNo(mchtBankCard.getBankCardNo());
+			registeRequestBody.setSettleAccountName(mchtBankCard.getBankAccountName());
+			registeRequestBody.setSettleBankName(platBankMap.get(mchtBankCard.getPlatBankCode()));
+			registeRequestBody.setSettleBankAcctType(mchtBankCard.getAccountType());
+
+			registeRequestBody.setBankRateType(platFeerate.getFeeType());
+			registeRequestBody.setBankSettleCycle(platFeerate.getSettleCycle());
+			registeRequestBody.setBankDmType("1"); //有无积分
+			registeRequestBody.setBankRate(platFeerate.getFeeRate().doubleValue() + "");
+			registeRequestBody.setBankFee(platFeerate.getFeeAmount().doubleValue() + "");
+
+			registeRequestBody.setOpType("1");//1-申请；2-变更
+			registeRequestBody.setUserId(chanRegiste.getMchtCode());
+
+			registeRequest.setBody(registeRequestBody);
+
+			result = tradeMchtRegiste4ExistingMchtHandler.process(registeRequest, "admin后台");
+		}
+
+		return result.getRespMsg();
 	}
 
 	@RequestMapping(value = {"registeIndex"})
-	public String registerIndex(Model model){
+	public String registerIndex(Model model) {
 		initListPage(model);
 		return "modules/merchant/mchtRegisteList";
 	}
 
 	@RequestMapping(value = {"registeOrderIndex"})
-	public String registeOrderIndex(Model model){
+	public String registeOrderIndex(Model model) {
 		initListPage(model);
 		return "modules/merchant/mchtRegisteOrderList";
 	}
 
-	private void initListPage(Model model){
+	private void initListPage(Model model) {
 		//查询商户列表
 		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
 		//通道商户支付方式列表
@@ -100,8 +254,8 @@ public class MchtRegisteController extends BaseController {
 		model.addAttribute("chanInfoList", chanInfoList);
 		model.addAttribute("mchtInfos", mchtList);
 		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
-		model.addAttribute("paramMap", new HashMap<String,String>());
-		model.addAttribute("page",new Page(1,new PageInfo().getPageSize(),0,true));
+		model.addAttribute("paramMap", new HashMap<String, String>());
+		model.addAttribute("page", new Page(1, new PageInfo().getPageSize(), 0, true));
 	}
 
 
@@ -225,11 +379,11 @@ public class MchtRegisteController extends BaseController {
 	 * 商户入驻流水详情页
 	 */
 	@RequestMapping("mchtRegisteOrderDetail")
-	public String mchtRegisteOrderDetail(String id,Model model){
+	public String mchtRegisteOrderDetail(String id, Model model) {
 		MchtChanRegisteOrder registeOrder = mchtChanRegisteOrderService.queryByKey(id);
 		ChanMchtPaytype chanMchtPaytype = chanMchtPaytypeService.queryByKey(registeOrder.getChanMchtPaytypeId());
-		model.addAttribute("registeOrder",registeOrder);
-		model.addAttribute("chanMchtPayType",chanMchtPaytype!=null?chanMchtPaytype.getName():"");
+		model.addAttribute("registeOrder", registeOrder);
+		model.addAttribute("chanMchtPayType", chanMchtPaytype != null ? chanMchtPaytype.getName() : "");
 		return "modules/merchant/mchtRegisteOrderDetail";
 	}
 
