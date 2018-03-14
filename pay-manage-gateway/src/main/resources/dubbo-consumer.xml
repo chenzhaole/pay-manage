@@ -49,4 +49,7 @@
 	<dubbo:reference id="mchtGwOrderService" interface="com.sys.core.service.MchtGwOrderService" timeout="30000"/>
 	<dubbo:reference id="merchantService" interface="com.sys.core.service.MerchantService" timeout="30000"/>
 	<dubbo:reference id="taskLogService" interface="com.sys.core.service.TaskLogService" timeout="30000"/>
+
+	<!-- 网页支付-->
+	<dubbo:reference id="tradeCashierMchtHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler" timeout="30000"/>
 </beans>
