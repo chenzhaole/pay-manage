@@ -801,7 +801,7 @@
                     <label class="control-label">商户类别<span style="color: red;"><span style="color: red;">*</span></span></label>
                     <div class="controls">
                         <c:choose>
-                            <c:when test="${fn:contains(merchant.signType, '5')}">
+                            <c:when test="${!fn:contains(merchant.signType, '5')}">
                                 <label><input name="signType" type="checkbox" value="1" id="payMcht"
                                               onclick="checkPayMcht()"
                                               <c:if test="${fn:contains(merchant.signType, '1')}">checked="checked"
