@@ -12,11 +12,9 @@ import com.sys.trans.api.entry.Trade;
  * @author: ChenZL
  * @time: 2018年2月6日
  */
-public interface NotifyService {
+public interface GwRecNotifyService {
 
 
-	CommonResult notify4chan(String channelCode, String orderNo, String data);
-
-	CommonResult notify2mcht(String payType, Trade redisOrderTrade);
+	CommonResult reciveNotify(String channelCode, String orderNo, String data);
 
 }
