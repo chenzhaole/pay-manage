@@ -18,15 +18,15 @@
     <div class="aui-title">支付中心</div>
 </header>
 <div class="bgF orderInfo">
-    <span class="label">商品名称：</span><span class="goodsName">${tradeCashierResponse.goods}</span> <span class="total">￥${tradeCashierResponse.amount}</span>
+    <span class="label">商品名称：</span><span class="goodsName">${goods}</span> <span class="total">￥${amount}</span>
 </div>
 <div class="aui-content aui-margin-b-15 bgF">
     <ul class="aui-list aui-list-in">
         <li class="aui-list-header">请选择支付方式</li>
 
-        <c:forEach items="${tradeCashierResponse.supportPaymentList}" var="supportPayType">
-            <c:if test="${supportPayType.supportPayment=='alipay'}">
-                <a href="${ctx}/gateway/cashier/pay/${tradeCashierResponse.orderId}/${supportPayType.payType}/${tradeCashierResponse.sign}">
+        <c:forEach items="${paymentTypes}" var="paymentType">
+            <c:if test="${paymentType=='ali'}">
+                <a href="${ctx}/gateway/cashier/pay/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/alipay.png" alt="支付宝支付" />
@@ -39,8 +39,8 @@
                 </a>
             </c:if>
 
-            <c:if test="${supportPayType.supportPayment=='wxpay'}">
-                <a href="${ctx}/gateway/cashier/pay/${tradeCashierResponse.orderId}/${supportPayType.payType}/${tradeCashierResponse.sign}">
+            <c:if test="${paymentType=='wx'}">
+                <a href="${ctx}/gateway/cashier/pay/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/wechat.png" alt="微信支付" />
@@ -53,7 +53,7 @@
                 </a>
             </c:if>
 
-            <c:if test="${supportPayType.supportPayment=='quickpay'}">
+            <%--<c:if test="${supportPayType.supportPayment=='quickpay'}">
                 <a href="./fastpay.html">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
@@ -65,7 +65,7 @@
                         </div>
                     </li>
                 </a>
-            </c:if>
+            </c:if>--%>
 
         </c:forEach>
     </ul>

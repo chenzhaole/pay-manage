@@ -21,8 +21,8 @@
      <img src="${ctxStatic}/images/fail.png" alt="" />
     </div>-->
     <div class="tipText">
-        <p>${commonResult.respMsg},请稍后重试！</p>
-        <p>错误码：${commonResult.respCode}</p>
+        <p>${respMsg},请稍后重试！</p>
+        <p>错误码：${respCode}</p>
 
     </div>
 

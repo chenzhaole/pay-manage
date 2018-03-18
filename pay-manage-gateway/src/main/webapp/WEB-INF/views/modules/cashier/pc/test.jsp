@@ -33,7 +33,7 @@
             <option value="sn02">苏宁扫码转h5支付</option>
             <option value="qq01">QQh5支付</option>
             <option value="qq02">QQ扫码转h5支付</option>
-            <option value="qq03">QQ扫码支付"</option>
+            <option value="qq03">QQ扫码支付</option>
             <option value="jd01">京东h5支付</option>
             <option value="jd02">京东扫码支付</option>
             <option value="jd03">京东扫码转h5支付</option>
