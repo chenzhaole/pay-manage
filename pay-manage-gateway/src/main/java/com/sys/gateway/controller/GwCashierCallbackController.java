@@ -3,6 +3,7 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
+import com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler;
 import com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler;
 import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
@@ -37,8 +38,7 @@ public class GwCashierCallbackController {
     private Logger logger = LoggerFactory.getLogger(GwCashierCallbackController.class);
 
     @Autowired
-    private TradeCashierCallbackHandler iTradeCashierCallbackHandler;
-
+    private ITradeCashierCallbackHandler tradeCashierCallbackHandler;
     private static final String BIZ = "网页支付GwCashierCallbackController->";
 
 
@@ -46,8 +46,8 @@ public class GwCashierCallbackController {
     /**
      * 接收上游callback请求
      */
-    @RequestMapping(value="/chanCallBack/{chanCode}/{platOrderId}/{payType}")
-    public String chanCallBack(HttpServletRequest request, @PathVariable String chanCode, @PathVariable String platOrderId, @PathVariable String payType, Model model) throws Exception {
+    @RequestMapping(value="/chanCallBack/{platOrderId}/{payType}")
+    public String chanCallBack(HttpServletRequest request, @PathVariable String platOrderId, @PathVariable String payType, Model model) throws Exception {
         CommonResult result = new CommonResult();
         //设备类型,默认pc
         String deviceType = DeviceTypeEnum.PC.getCode();
@@ -56,7 +56,7 @@ public class GwCashierCallbackController {
         //打印日志使用，拼接商户号，支付类型，商户订单号，
         String midoid = "";
         try {
-            midoid = "通道chanCode："+chanCode+"-->支付类型payType："+payType+"-->平台订单号："+platOrderId+"-->";
+            midoid = "支付类型payType："+payType+"-->平台订单号："+platOrderId+"-->";
             //设备类型 如果商户没有传，就由我们自己来通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
             deviceType = request.getParameter("deviceType");
             logger.info(BIZ+midoid+"请求参数中获取的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
@@ -72,41 +72,36 @@ public class GwCashierCallbackController {
             logger.info(BIZ+midoid+"获取的请求ip为："+ip);
             logger.info(BIZ+midoid+"最终确定的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 
-            result = iTradeCashierMchtHandler.process(requestInfo, ip, deviceType);
-
-                logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，传入的请求参数是："+JSONObject.toJSONString(requestInfo)+",IP："+ip+"，deviceType："+deviceType+"，返回的数据为："+JSONObject.toJSONString(result));
-                if(null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
-                    if(PayTypeEnum.CASHIER_PLAT.getCode().equals(requestInfo.getHead().getBiz())){
-                        //收银台页面跳转
-                        page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode());
-                        //设置收银台页面需要的值
-                        this.addCashierModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount() );
-                        logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用收银台页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
-                    }else{
-                        //非收银台页面跳转
-                        page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz());
-                        //设置h5中间页需要的参数
-                        if(page.endsWith("scan")){
-                            this.addScanCentPageModelInfo (model, result);
-                        }else if(page.endsWith("cent")){
-                            this.addH5CentPageModelInfo (model, result);
-                        }
-                        logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用收银台页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
-                    }
+            logger.info(BIZ+midoid+"调用tradeCashierCallbackHandler处理业务逻辑，传入的请求参数platOrderId="+platOrderId+",payType="+payType);
+            result = tradeCashierCallbackHandler.process(platOrderId, payType);
+            logger.info(BIZ+midoid+"调用tradeCashierCallbackHandler处理业务逻辑，传入的请求参数platOrderId="+platOrderId+",payType="+payType+"，返回值为："+JSONObject.toJSONString(result));
+            if(null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
+                Map<String, Object> callbackInfo = (Map) result.getData();
+                boolean showResultPage = (boolean) callbackInfo.get("showResultPage");
+                String callbackUrl = (String) callbackInfo.get("callbackUrl");
+                if(showResultPage){
+                    //展示支付结果页
+                    page = this.getPageByDeviceType(deviceType, PageTypeEnum.RESULT.getCode());
                 }else{
-                    page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
-                    logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
+                    return "redirect:"+callbackUrl;
                 }
+
+            }else{
+                model.addAttribute("respCode",result.getRespCode());
+                model.addAttribute("respMsg",result.getRespMsg());
+                page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
+                logger.info(BIZ + midoid+"处理callback页面回调请求业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
+            }
         } catch (Exception e) {
             e.printStackTrace();
             result.setRespCode(ErrorCodeEnum.E8001.getCode());
             result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+            model.addAttribute("respCode",result.getRespCode());
+            model.addAttribute("respMsg",result.getRespMsg());
             page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
-            logger.error(BIZ+midoid+"接收商户请求异常："+e.getMessage());
+            logger.error(BIZ+midoid+"callback页面回调请求异常："+e.getMessage());
         }
-        model.addAttribute("respCode",result.getRespCode());
-        model.addAttribute("respMsg",result.getRespMsg());
-        logger.info(BIZ+midoid+"处理完业务之后，返回给页面的数据为："+JSONObject.toJSONString(model));
+        logger.info(BIZ+midoid+"处理callback页面回调请求之后，返回给页面的数据为："+JSONObject.toJSONString(model));
         return page;
     }
 
