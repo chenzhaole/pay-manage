@@ -47,11 +47,12 @@ public class GwRecNotifyServiceImpl implements GwRecNotifyService {
 	 * 接收并解析上有通道的通知内容
      */
 	@Override
-	public CommonResult reciveNotify(String channelCode, String orderNo, String data) {
+	public CommonResult reciveNotify(String channelCode, String orderNo, String payType, String data) {
 		//封装异步通知url中带来的参数
 		Trade trade = new Trade();
 		Config config = new Config();
 		config.setChannelCode(channelCode);
+		config.setPayType(payType);
 		Order order = new Order();
 		order.setOrderNo(orderNo);
 

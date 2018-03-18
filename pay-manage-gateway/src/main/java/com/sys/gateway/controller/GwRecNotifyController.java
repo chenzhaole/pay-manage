@@ -47,7 +47,7 @@ public class GwRecNotifyController {
 
         String resp2chan = "FAILURE";
         //解析并校验签名上游通道异步通知的数据
-        CommonResult tradeResult = recNotifyService.reciveNotify(chanCode,platOrderId,data);
+        CommonResult tradeResult = recNotifyService.reciveNotify(chanCode, platOrderId, payType, data);
         if(ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode())){
             //解析通道数据成功,更新数据库订单状态成功
             Trade redisOrderTrade = (Trade) tradeResult.getData();

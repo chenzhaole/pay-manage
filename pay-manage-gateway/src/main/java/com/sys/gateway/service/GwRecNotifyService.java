@@ -15,6 +15,6 @@ import com.sys.trans.api.entry.Trade;
 public interface GwRecNotifyService {
 
 
-	CommonResult reciveNotify(String channelCode, String orderNo, String data);
+	CommonResult reciveNotify(String channelCode, String orderNo, String payType, String data);
 
 }
