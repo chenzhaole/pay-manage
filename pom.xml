@@ -104,6 +104,9 @@
 		<netty.version>3.2.7.Final</netty.version>
 		<zkclient.version>0.1</zkclient.version>
 
+		<!--引入二维码生成工具包-->
+		<javase.version>3.3.0</javase.version>
+
 
 	</properties>
 
@@ -846,6 +849,15 @@
 				<scope>provided</scope>
 			</dependency>
 			<!-- Apache Tomcat end -->
+
+			<!--引入二维码生成工具-->
+			<dependency>
+				<groupId>com.google.zxing</groupId>
+				<artifactId>javase</artifactId>
+				<version>${javase.version}</version>
+			</dependency>
+
+
 
 		</dependencies>
 
