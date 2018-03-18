@@ -50,8 +50,6 @@
             <td><label>商户订单号：</label><input value="${paramMap.mchtOrderId}" name="mchtOrderId" type="text" maxlength="64" class="input-medium"/></td>
             <td><label>平台订单号：</label><input value="${paramMap.platOrderId}" name="platOrderId" type="text" maxlength="64" class="input-medium"/></td>
             <td><label>上游订单号：</label><input value="${paramMap.chanOrderId}" name="chanOrderId" type="text" maxlength="64" class="input-medium"/></td>
-        </tr>
-        <tr>
             <td>
                 <label>状态：</label>
                 <select name="status" class="input-medium" id="fund_settle_mode">
@@ -98,6 +96,11 @@
                 ${fns:getDictLabel(mcht.status,'mcht_registe_status' , '')}
             </td>
             <td><fmt:formatDate value="${mcht.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+            </td>
+            <td>
+                <c:if test="${mcht.status == -1}">
+                <a href="${ctx}/merchant/reRegiste?mchtChanRegisteOrderId=${mcht.id}">重新入驻</a>
+                </c:if>
             </td>
         </tr>
     </c:forEach>

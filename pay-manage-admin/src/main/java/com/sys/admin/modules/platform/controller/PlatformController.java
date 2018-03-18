@@ -151,18 +151,25 @@ public class PlatformController {
 		}
 
 		List<ChanMchtFormInfo> chanInfoList = chanMchtAdminService.getChannelListSimple(new ChanMchtFormInfo());
-		List<ChanMchtFormInfo> chanMchtFormInfos = new ArrayList<>();
-		for (ChanMchtFormInfo chanMchtFormInfo : chanInfoList) {
-			if (chanMchtFormInfo.getPayType().equals(payType)) {
-				chanMchtFormInfos.add(chanMchtFormInfo);
-			}
-		}
+		List<ChanMchtFormInfo> chanMchtFormInfos;
 
-		if (CollectionUtils.isEmpty(chanMchtFormInfos)) {
-			redirectAttributes.addFlashAttribute("messageType", "error");
-			redirectAttributes.addFlashAttribute("message", "该支付方式未配置");
-			response.setCharacterEncoding("UTF-8");
-			return "redirect:" + GlobalConfig.getAdminPath() + "/platform/getPayType";
+		//平台收银台可用所有支付方式
+		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(payType)) {
+			chanMchtFormInfos = chanInfoList;
+		} else {
+			chanMchtFormInfos = new ArrayList<>();
+			for (ChanMchtFormInfo chanMchtFormInfo : chanInfoList) {
+				if (chanMchtFormInfo.getPayType().equals(payType)) {
+					chanMchtFormInfos.add(chanMchtFormInfo);
+				}
+			}
+
+			if (CollectionUtils.isEmpty(chanMchtFormInfos)) {
+				redirectAttributes.addFlashAttribute("messageType", "error");
+				redirectAttributes.addFlashAttribute("message", "该支付方式未配置");
+				response.setCharacterEncoding("UTF-8");
+				return "redirect:" + GlobalConfig.getAdminPath() + "/platform/getPayType";
+			}
 		}
 
 		model.addAttribute("chanInfoList", chanMchtFormInfos);

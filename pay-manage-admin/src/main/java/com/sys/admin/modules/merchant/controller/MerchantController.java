@@ -360,7 +360,7 @@ public class MerchantController extends BaseController {
 			chan = true;
 
 			MchtProductFormInfo mchtProductFormInfo = new MchtProductFormInfo();
-			mchtProductFormInfo.setMchtCode(paramMap.get("mchtCode"));
+			mchtProductFormInfo.setMchtId(paramMap.get("id"));
 			List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(mchtProductFormInfo);
 
 			if (CollectionUtils.isEmpty(mchtProductFormInfos)){

@@ -35,6 +35,7 @@
 <form id="registeForm" action="${ctx}/merchant/reRegiste" method="post">
 
     <input type="hidden" name="op" value="add">
+    <input type="hidden" name="mchtChanRegisteId" value="${mchtChanRegisteId}">
 
     <!-- ********************************************************************** -->
     <div class="breadcrumb">
@@ -52,6 +53,16 @@
                                 <option value="${chanMchtPaytype.id}"
                                 >${chanMchtPaytype.name}</option>
                             </c:forEach>
+                        </select>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">卡类型</label>
+                    <div class="controls">
+                        <select name="cardType" class="selectpicker bla bla bli" data-live-search="true">
+                            <option value="">--请选择--</option>
+                            <option value="1">借记卡</option>
+                            <option value="2">信用卡</option>
                         </select>
                     </div>
                 </div>

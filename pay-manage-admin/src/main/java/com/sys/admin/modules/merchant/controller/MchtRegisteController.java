@@ -93,10 +93,11 @@ public class MchtRegisteController extends BaseController {
 	 * 通道补录 选择通道商户支付方式
 	 */
 	@RequestMapping(value = {"reRegistePage"})
-	public String reRegistePage(Model model) {
+	public String reRegistePage(@RequestParam Map<String, String> paramMap, Model model) {
 		//通道商户支付方式列表
 		List<ChanMchtPaytype> chanMchtPaytypeList = chanMchtPaytypeService.list(new ChanMchtPaytype());
 		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
+		model.addAttribute("mchtChanRegisteId", paramMap.get("mchtChanRegisteId"));
 		return "modules/merchant/RegisteSelectChan";
 	}
 
@@ -107,12 +108,16 @@ public class MchtRegisteController extends BaseController {
 	@ResponseBody
 	public String reRegiste(HttpServletRequest request, HttpServletResponse response, Model model,
 							@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+		response.setCharacterEncoding("utf-8");
 
 		CommonResult result = new CommonResult();
 		result.setRespMsg("执行失败");
 
-		//要补录的记录Id
+		//要录入新通道的记录Id
 		String mchtChanRegisteId = paramMap.get("mchtChanRegisteId");
+
+		//要失败补录的记录Id
+		String mchtChanRegisteOrderId = paramMap.get("mchtChanRegisteOrderId");
 
 		//要补录的通道商户支付方式Id
 		String chanMchtPaytypeId = paramMap.get("chanMchtPaytypeId");
@@ -120,18 +125,36 @@ public class MchtRegisteController extends BaseController {
 		//要补录的卡类型
 		String cardType = paramMap.get("cardType");
 
-		// 根据卡类型、卡号筛选最新的入驻记录
 		List<MchtChanRegiste> mchtInfoList;
+		MchtChanRegiste mchtChanRegiste;
 
-		if (StringUtils.isBlank(mchtChanRegisteId)){
-			mchtInfoList = new ArrayList<>();
-			mchtInfoList.add(mchtChanRegisteService.queryByKey(mchtChanRegisteId));
+		//失败补录
+		if (StringUtils.isNotBlank(mchtChanRegisteOrderId)){
+			MchtChanRegisteOrder registeOrder = mchtChanRegisteOrderService.queryByKey(mchtChanRegisteOrderId);
+			chanMchtPaytypeId = registeOrder.getChanMchtPaytypeId();
+
+			MchtChanRegiste mchtChanRegisteSearch = new MchtChanRegiste();
+			mchtChanRegisteSearch.setMchtCode(registeOrder.getMchtCode());
+			mchtChanRegisteSearch.setPlatOrderId(registeOrder.getPlatOrderId());
+			mchtInfoList = mchtChanRegisteService.list(mchtChanRegisteSearch);
 		}else {
-			mchtInfoList = mchtChanRegisteService.reRegisteList(cardType);
+
+			//入驻新通道
+			// 根据卡类型、卡号筛选最新的入驻记录
+			if (StringUtils.isBlank(mchtChanRegisteId)){
+				mchtInfoList = mchtChanRegisteService.reRegisteList(cardType);
+			}else {
+				mchtInfoList = new ArrayList<>();
+				mchtChanRegiste = mchtChanRegisteService.queryByKey(mchtChanRegisteId);
+				if (mchtChanRegiste != null){
+					mchtInfoList.add(mchtChanRegiste);
+				}
+			}
 		}
 
 		if (Collections3.isEmpty(mchtInfoList)){
-			result.setRespMsg("执行失败");
+			result.setRespMsg("no record");
+			return "no record";
 		}
 
 		// 用户银行卡
@@ -159,16 +182,15 @@ public class MchtRegisteController extends BaseController {
 		// 遍历入驻新通道
 		for (MchtChanRegiste chanRegiste : mchtInfoList) {
 
-			//排除已入驻该通道的记录
-			if (mchtBankCardMap.get(chanRegiste.getMchtCode()) == null ||
-					mchtMap.get(chanRegiste.getMchtCode()) == null ||
+			mchtBankCard = mchtBankCardMap.get(chanRegiste.getMchtBankCardId());
+			mchtInfo = mchtMap.get(chanRegiste.getMchtCode());
+
+			//校验数据、排除已入驻该通道的记录
+			if (mchtBankCard == null || mchtInfo == null ||
 					chanMchtPaytypeId.equals(chanRegiste.getChanMchtPaytypeId())) {
 				continue;
 			}
 			registeRequest = new TradeMchtRegisteRequest();
-
-			mchtBankCard = mchtBankCardMap.get(chanRegiste.getMchtCode());
-			mchtInfo = mchtMap.get(chanRegiste.getMchtCode());
 
 			mchtProductFormInfo.setMchtId(chanRegiste.getMchtCode());
 			mchtProducts = mchtProductAdminService.getProductListByMchtId(mchtProductFormInfo);
@@ -182,7 +204,7 @@ public class MchtRegisteController extends BaseController {
 				}
 			}
 
-			if (mchtBankCard == null || mchtInfo == null || product == null) {
+			if (product == null) {
 				continue;
 			}
 
@@ -223,6 +245,7 @@ public class MchtRegisteController extends BaseController {
 			registeRequestBody.setOpType("1");//1-申请；2-变更
 			registeRequestBody.setUserId(chanRegiste.getMchtCode());
 
+			registeRequestBody.setParam(chanMchtPaytypeId);
 			registeRequest.setBody(registeRequestBody);
 
 			result = tradeMchtRegiste4ExistingMchtHandler.process(registeRequest, "admin后台");
@@ -230,6 +253,7 @@ public class MchtRegisteController extends BaseController {
 
 		return result.getRespMsg();
 	}
+
 
 	@RequestMapping(value = {"registeIndex"})
 	public String registerIndex(Model model) {
@@ -265,7 +289,9 @@ public class MchtRegisteController extends BaseController {
 	@RequestMapping(value = {"registeList"})
 	public String registeList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 		MchtChanRegiste mchtChanRegiste = new MchtChanRegiste();
-		mchtChanRegiste.setMchtCode(paramMap.get("mchtCode"));
+
+		//搜索手机号
+		mchtChanRegiste.setExtend1(paramMap.get("phone"));
 		mchtChanRegiste.setChanMchtPaytypeId(paramMap.get("chanMchtPaytypeId"));
 		mchtChanRegiste.setStatus(paramMap.get("status"));
 
@@ -279,7 +305,7 @@ public class MchtRegisteController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		mchtChanRegiste.setPageInfo(pageInfo);
 
-		List<MchtChanRegiste> mchtInfoList = mchtChanRegisteService.list(mchtChanRegiste);
+		List<MchtChanRegiste> mchtInfoList = mchtChanRegisteService.search(mchtChanRegiste);
 
 		//查询商户列表
 		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
@@ -287,6 +313,9 @@ public class MchtRegisteController extends BaseController {
 		List<ChanMchtPaytype> chanMchtPaytypeList = chanMchtPaytypeService.list(new ChanMchtPaytype());
 		//  上游通道列表
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
+
+		// 用户银行卡
+		List<MchtBankCard> mchtBankCards = mchtBankCardService.list(new MchtBankCard());
 
 		model.addAttribute("chanInfoList", chanInfoList);
 		model.addAttribute("mchtInfos", mchtList);
@@ -297,7 +326,7 @@ public class MchtRegisteController extends BaseController {
 
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
-		Map<String, String> mchtMobileMap = Collections3.extractToMap(mchtList, "id", "mobile");
+		Map<String, String> mchtMobileMap = Collections3.extractToMap(mchtBankCards, "id", "bankAccountMobile");
 		Map<String, String> chanMchtPaytypeMap = Collections3.extractToMap(chanMchtPaytypeList, "id", "chanId");
 		Map<String, String> paytypeMap = Collections3.extractToMap(chanMchtPaytypeList, "id", "payType");
 
@@ -308,7 +337,7 @@ public class MchtRegisteController extends BaseController {
 			mchtRegisteForm = new MchtRegisteForm();
 			BeanUtils.copyProperties(chanRegiste, mchtRegisteForm);
 			mchtRegisteForm.setMchtName(mchtMap.get(chanRegiste.getMchtCode()));
-			mchtRegisteForm.setPhone(mchtMobileMap.get(chanRegiste.getMchtCode()));
+			mchtRegisteForm.setPhone(mchtMobileMap.get(chanRegiste.getMchtBankCardId()));
 			mchtRegisteForm.setChanName(channelMap.get(chanMchtPaytypeMap.get(mchtRegisteForm.getChanMchtPaytypeId())));
 			mchtRegisteForm.setPaytype(paytypeMap.get(mchtRegisteForm.getChanMchtPaytypeId()));
 			mchtRegisteForms.add(mchtRegisteForm);
