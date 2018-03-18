@@ -1,6 +1,7 @@
 package com.sys.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.TradeNotify;
 import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
@@ -37,6 +38,7 @@ public class GwRecNotifyServiceImpl implements GwRecNotifyService {
 
 	protected final Logger logger = LoggerFactory.getLogger(GwRecNotifyService.class);
 
+	private final String BIZ = "接收异步通知GwRecNotifyServiceImpl-";
 
 	@Autowired
 	ITradePayNotifyHandler tradePayNotifyHandler;
@@ -46,14 +48,21 @@ public class GwRecNotifyServiceImpl implements GwRecNotifyService {
      */
 	@Override
 	public CommonResult reciveNotify(String channelCode, String orderNo, String data) {
-
+		//封装异步通知url中带来的参数
+		Trade trade = new Trade();
 		Config config = new Config();
 		config.setChannelCode(channelCode);
 		Order order = new Order();
 		order.setOrderNo(orderNo);
 
+		trade.setConfig(config);
+		trade.setOrder(order);
+		//异步通知原始报文
+		trade.setData(data);
+		logger.info(BIZ+"orderNo="+orderNo+"，封装通知参数trade="+ JSONObject.toJSONString(trade));
 		//调用boss-trade获取缓存中的orderTrade
-		CommonResult commonResult = tradePayNotifyHandler.process(null);
+		CommonResult commonResult = tradePayNotifyHandler.process(trade);
+		logger.info(BIZ+"orderNo="+orderNo+"，处理业务逻辑后返回的CommonResult="+ JSONObject.toJSONString(commonResult));
 
 		return commonResult;
 	}

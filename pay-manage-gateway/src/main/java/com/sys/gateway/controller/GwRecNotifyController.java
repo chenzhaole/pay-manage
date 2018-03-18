@@ -43,15 +43,15 @@ public class GwRecNotifyController {
     @RequestMapping("/recNotify/{chanCode}/{platOrderId}/{payType}")
     @ResponseBody
     public String recNotify(@RequestBody String data, @PathVariable String chanCode, @PathVariable String platOrderId, @PathVariable String payType) throws TransException {
-        logger.info(BIZ+"[START] chanCode=" + chanCode + " platOrderId=" + platOrderId + " data="+ data + "");
+        logger.info(BIZ+"[START] chanCode=" + chanCode + " platOrderId=" + platOrderId + " 异步通知原始报文data="+ data + "");
 
         String resp2chan = "FAILURE";
+        //解析并校验签名上游通道异步通知的数据
         CommonResult tradeResult = recNotifyService.reciveNotify(chanCode,platOrderId,data);
         if(ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode())){
             //解析通道数据成功,更新数据库订单状态成功
             Trade redisOrderTrade = (Trade) tradeResult.getData();
             logger.info("bossTrade查询的缓存订单Trade对象:"+JSON.toJSONString(redisOrderTrade));
-
 
             CommonResult serviceResult = sendNotifyService.sendNotify(payType,redisOrderTrade);
             if(ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())){
