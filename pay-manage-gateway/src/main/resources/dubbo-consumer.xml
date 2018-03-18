@@ -64,4 +64,5 @@
 
 	<!-- [boss-trad] 网页支付-->
 	<dubbo:reference id="tradeCashierMchtHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler" timeout="30000"/>
+	<dubbo:reference id="tradeCashierCallbackHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler" timeout="30000"/>
 </beans>
