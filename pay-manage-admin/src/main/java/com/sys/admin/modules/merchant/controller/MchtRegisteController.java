@@ -138,6 +138,10 @@ public class MchtRegisteController extends BaseController {
 			mchtChanRegisteSearch.setPlatOrderId(registeOrder.getPlatOrderId());
 			mchtInfoList = mchtChanRegisteService.list(mchtChanRegisteSearch);
 		}else {
+			if (StringUtils.isBlank(chanMchtPaytypeId) ||
+					StringUtils.isBlank(cardType)){
+				return "未选择";
+			}
 
 			//入驻新通道
 			// 根据卡类型、卡号筛选最新的入驻记录
