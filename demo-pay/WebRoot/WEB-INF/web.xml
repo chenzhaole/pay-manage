@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:web="http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_2_5.xsd"
+	id="WebApp_ID" version="2.5">
+	<display-name>js_jsp_utf8</display-name>
+	<welcome-file-list>
+		<welcome-file>index-test.jsp</welcome-file>
+	</welcome-file-list>
+
+	<servlet>
+		<servlet-name>TestOwnershipServlet</servlet-name>
+		<servlet-class>com.demo.action.TestOwnershipServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestOwnershipServlet</servlet-name>
+		<url-pattern>/testOwnership</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>TestPay</servlet-name>
+		<servlet-class>com.demo.action.TestPayServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestPay</servlet-name>
+		<url-pattern>/testPay</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>TestPayResult</servlet-name>
+		<servlet-class>com.demo.action.TestPayResultSerlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestPayResult</servlet-name>
+		<url-pattern>/testPayResult</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>TestPayResultQuery</servlet-name>
+		<servlet-class>com.demo.action.TestPayResultQuery</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestPayResultQuery</servlet-name>
+		<url-pattern>/testPayResultQuery</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>TestQuery</servlet-name>
+		<servlet-class>com.demo.action.TestQueryServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestQuery</servlet-name>
+		<url-pattern>/testQuery</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>TestRefund</servlet-name>
+		<servlet-class>com.demo.action.TestRefundServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestRefund</servlet-name>
+		<url-pattern>/testRefund</url-pattern>
+	</servlet-mapping>
+
+
+	<servlet>
+		<servlet-name>TestRefundQuery</servlet-name>
+		<servlet-class>com.demo.action.TestRefundQueryServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestRefundQuery</servlet-name>
+		<url-pattern>/testRefundQuery</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>TestTxQuickPrePayServlet</servlet-name>
+		<servlet-class>com.demo.action.TestTxQuickPrePayServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestTxQuickPrePayServlet</servlet-name>
+		<url-pattern>/prePay</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>testTxMchtRegisteServlet</servlet-name>
+		<servlet-class>com.demo.action.TestTxMchtRegisteServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>testTxMchtRegisteServlet</servlet-name>
+		<url-pattern>/testTxMchtRegisteServlet</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>TestTxQuickCommPayServlet</servlet-name>
+		<servlet-class>com.demo.action.TestTxQuickCommPayServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestTxQuickCommPayServlet</servlet-name>
+		<url-pattern>/testTxQuickCommPayServlet</url-pattern>
+	</servlet-mapping>
+
+</web-app>
