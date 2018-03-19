@@ -173,8 +173,10 @@ public class GwDFController {
     @RequestMapping("execProxyPay")
     @ResponseBody
     public String execProxyPay(@RequestParam(required = false,value = "id") Integer logId){
+        logger.info("代付API，【定时任务发起代付】任务执行logId开始："+logId);
         CommonResult result = tradeDFBatchHandler.process(null);
         taskLogService.recordLog(logId,result);
+        logger.info("代付API，【定时任务发起代付】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
         return "ok";
     }
 
@@ -184,8 +186,10 @@ public class GwDFController {
     @RequestMapping("execQuery")
     @ResponseBody
     public String execQuery(@RequestParam(required = false,value = "id") Integer logId){
+        logger.info("代付API，【定时任务代付查单】任务执行logId开始："+logId);
         CommonResult result = tradeDFQueryHandler.process(null);
         taskLogService.recordLog(logId,result);
+        logger.info("代付API，【定时任务代付查单】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
         return "ok";
     }
 
