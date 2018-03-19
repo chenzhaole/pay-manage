@@ -213,4 +213,6 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 		}
 		return result;
 	}
+
+
 }

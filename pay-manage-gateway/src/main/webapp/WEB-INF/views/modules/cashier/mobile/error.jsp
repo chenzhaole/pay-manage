@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
-    <title>异常</title>
+    <title>出错啦...</title>
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/aui.css" />
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css" />
 </head>
@@ -21,12 +21,13 @@
      <img src="${ctxStatic}/images/fail.png" alt="" />
     </div>-->
     <div class="tipText">
-        <p>${commonResult.respMsg},请稍后重试！</p>
+        <p>${respMsg},请稍后重试！</p>
+        <p>错误码：${respCode}</p>
 
     </div>
 
     <div class="submitBox">
-        <a href="">
+        <a href="javascript:window.history.back();">
             <input type="submit" class="reverseBtn" value="返回">
         </a>
     </div>

@@ -7,10 +7,10 @@ import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.TradeBaseRequest;
 import com.sys.boss.api.entry.trade.request.TradeReqHead;
-import com.sys.boss.api.entry.trade.request.quickpay.TXQuickCommPayRequest;
-import com.sys.boss.api.entry.trade.request.quickpay.TXQuickCommPayRequestBody;
-import com.sys.boss.api.entry.trade.response.quickpay.TXQuickCommPayResponse;
-import com.sys.boss.api.service.trade.handler.ITradeTxQuickCommPayHandler;
+import com.sys.boss.api.entry.trade.request.quickpay.TXQuickPayRequest;
+import com.sys.boss.api.entry.trade.request.quickpay.TXQuickPayRequestBody;
+import com.sys.boss.api.entry.trade.response.quickpay.TXQuickPayResponse;
+import com.sys.boss.api.service.trade.handler.ITradeTxQuickPayHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.IpUtil;
@@ -36,17 +36,17 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping(value = "")
-public class TxQuickCommPayController {
+public class TxQuickPayController {
     protected final Logger logger = LoggerFactory.getLogger(TxQuickPrePayController.class);
 
     @Autowired
-    ITradeTxQuickCommPayHandler iTradeTxQuickCommPayHandler;
+    ITradeTxQuickPayHandler iTradeTxQuickPayHandler;
 
     @RequestMapping(value="/gateway/txQuickCommPay")
     @ResponseBody
     public String txQuickCommPay(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes)throws java.io.IOException {
-        TXQuickCommPayResponse validPayResp = new TXQuickCommPayResponse();
-        TXQuickCommPayResponse.TXQuickCommPayResponseHead head = new TXQuickCommPayResponse.TXQuickCommPayResponseHead();
+        TXQuickPayResponse validPayResp = new TXQuickPayResponse();
+        TXQuickPayResponse.TXQuickPayResponseHead head = new TXQuickPayResponse.TXQuickPayResponseHead();
         try {
             //请求ip
             String ip = IpUtil.getRemoteHost(request);
@@ -62,10 +62,10 @@ public class TxQuickCommPayController {
                 validPayResp.setHead(head);
             }else{
                 //掉一户一报商户快捷支付支付接口
-                TXQuickCommPayRequest tradeRequest = (TXQuickCommPayRequest) checkResp.getData();
-                logger.info("掉一户一报商户快捷支付接口，传入的TXQuickCommPayRequest信息为：TXQuickCommPayRequest="+ JSONObject.toJSONString(tradeRequest));
+                TXQuickPayRequest tradeRequest = (TXQuickPayRequest) checkResp.getData();
+                logger.info("掉一户一报商户快捷支付接口，传入的TXQuickPayRequest信息为：TXQuickPayRequest="+ JSONObject.toJSONString(tradeRequest));
                 validPayResp = callHandler(tradeRequest, ip);
-                logger.info("掉一户一报商户快捷支付接口，返回的TXQuickCommPayResponse信息为：TXQuickCommPayResponse="+JSONObject.toJSONString(validPayResp));
+                logger.info("掉一户一报商户快捷支付接口，返回的TXQuickPayResponse信息为：TXQuickPayResponse="+JSONObject.toJSONString(validPayResp));
                 //TODO 返回信息体
             }
         } catch (Exception e) {
@@ -86,7 +86,7 @@ public class TxQuickCommPayController {
                 paramStr = paramStr.substring(0,paramStr.length()-1);
             }
             //解析请求参数
-            TXQuickCommPayRequest tradeRequest = JSON.parseObject(paramStr, TXQuickCommPayRequest.class);
+            TXQuickPayRequest tradeRequest = JSON.parseObject(paramStr, TXQuickPayRequest.class);
             if (tradeRequest.getHead() == null || tradeRequest.getBody() == null || tradeRequest.getSign() == null) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg("一户一报商户快捷支付[head],[body],[sign]请求参数值不能为空");
@@ -102,7 +102,7 @@ public class TxQuickCommPayController {
                 return checkResp;
             }
 
-            TXQuickCommPayRequestBody body = tradeRequest.getBody();
+            TXQuickPayRequestBody body = tradeRequest.getBody();
             if (StringUtils.isBlank(body.getTradeId())
                     || StringUtils.isBlank(body.getSmsCode())
                     || StringUtils.isBlank(body.getAccountName())
@@ -112,7 +112,7 @@ public class TxQuickCommPayController {
                     || StringUtils.isBlank(body.getNotifyUrl())) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg("[tradeId],[smsCode],[accountName],[bankCardNo],[userId],[notifyUrl]请求参数值不能为空");
-                logger.error("[tradeId],[smsCode],[accountName],[bankCardNo],[userId],[notifyUrl]请求参数值不能为空，即TXQuickCommPayRequestBody=："+ JSONObject.toJSONString(body));
+                logger.error("[tradeId],[smsCode],[accountName],[bankCardNo],[userId],[notifyUrl]请求参数值不能为空，即TXQuickPayRequestBody=："+ JSONObject.toJSONString(body));
                 return checkResp;
             }
 
@@ -128,14 +128,14 @@ public class TxQuickCommPayController {
         return checkResp;
     }
     /** 调用商户快捷支付接口 */
-    public TXQuickCommPayResponse callHandler(TradeBaseRequest tradeRequest, String ip) {
+    public TXQuickPayResponse callHandler(TradeBaseRequest tradeRequest, String ip) {
 
-        TXQuickCommPayResponse.TXQuickCommPayResponseHead head = new TXQuickCommPayResponse.TXQuickCommPayResponseHead();
-        TXQuickCommPayResponse.TXQuickCommPayResponseBody body = new TXQuickCommPayResponse.TXQuickCommPayResponseBody();
+        TXQuickPayResponse.TXQuickPayResponseHead head = new TXQuickPayResponse.TXQuickPayResponseHead();
+        TXQuickPayResponse.TXQuickPayResponseBody body = new TXQuickPayResponse.TXQuickPayResponseBody();
         String sign  ="";
         try {
             logger.info("调用boss-trade创建一户一报商户快捷支付订单，参数值tradeRequest："+JSON.toJSONString(tradeRequest));
-            CommonResult commonResult = (CommonResult) iTradeTxQuickCommPayHandler.process(tradeRequest, ip);
+            CommonResult commonResult = (CommonResult) iTradeTxQuickPayHandler.process(tradeRequest, ip);
             logger.info("调用boss-trade创建一户一报商户快捷支付订单，返回值commonResult：" + JSON.toJSONString(commonResult));
             if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode()) || ErrorCodeEnum.E8003.getCode().equals(commonResult.getRespCode())) {
                 Result mchtResult = (Result) commonResult.getData();
@@ -168,8 +168,8 @@ public class TxQuickCommPayController {
             e.printStackTrace();
             logger.error("一户一报商户快捷支付创建订单异常 e=" + e.getMessage());
         }
-        TXQuickCommPayResponse validPayResponse = new TXQuickCommPayResponse(head, body, sign);
-        logger.info("一户一报商户快捷支付返回gateway客户端TXQuickCommPayResponse="+JSON.toJSONString(validPayResponse));
+        TXQuickPayResponse validPayResponse = new TXQuickPayResponse(head, body, sign);
+        logger.info("一户一报商户快捷支付返回gateway客户端TXQuickPayResponse="+JSON.toJSONString(validPayResponse));
         return validPayResponse;
     }
 }

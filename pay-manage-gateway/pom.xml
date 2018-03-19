@@ -228,6 +228,13 @@
 		</dependency>
 		
 		<!-- TEST end -->
+		<!--引入二维码工具类-->
+		<dependency>
+			<groupId>com.google.zxing</groupId>
+			<artifactId>javase</artifactId>
+		</dependency>
+
+
 	</dependencies>
 	<build>
 		<plugins>

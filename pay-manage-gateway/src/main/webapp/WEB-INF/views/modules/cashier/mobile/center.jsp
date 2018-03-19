@@ -40,14 +40,27 @@
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
     $(function(){
-        var callMode = '${result.callMode}';
-        if(callMode == '01'){//h5 链接重定向
-            location.href = '${result.payInfo}';
-        }else if(callMode == '02'){//表单自动提交
+        var callMode = '${callMode}';
+        if("01" == callMode){
+            //01：h5支付通过location.href方式唤起支付
+            location.href = '${payInfo}';
+        }else if("02" == callMode){
+            //02：h5支付通过form表单方式唤起支付
             $("#cardpayForm").submit();
-        }else if(callMode == '03'){//公众号支付
-
+        }else if("03" == callMode){
+            //h5支付通过原生方式唤起支付
+            //TODO
+        }else if("06" == callMode){
+            //公众号原生支付方式唤起支付
+            //TODO
+        }else if("07" == callMode){
+            //公众号非原生支付方式唤起支付
+            //TODO
+        }else if("08" == callMode){
+            //掉起上游收银台支付唤起支付
+            //TODO
         }
+
     });
 </script>
 </html>

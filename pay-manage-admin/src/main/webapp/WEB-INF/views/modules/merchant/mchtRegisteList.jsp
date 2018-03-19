@@ -49,19 +49,13 @@
         <tr>
             <td>
                 <label>商户手机：</label>
-                <select name="mchtCode" class="selectpicker bla bla bli" data-live-search="true">
-                    <option value="">--请选择--</option>
-                    <c:forEach items="${mchtInfos}" var="mchtInfo">
-                        <option value="${mchtInfo.mchtCode}"
-                                <c:if test="${paramMap.mchtCode == mchtInfo.id}">selected</c:if>
-                        >${mchtInfo.mobile}</option>
-                    </c:forEach>
-                </select>
+                <input value="${paramMap.phone}" id="phone" name="phone" type="text" maxlength="64"
+                                           class="input-medium"/>
             </td>
             <td>
                 <label>通道商户支付方式：</label>
                 <select name="chanMchtPaytypeId" class="selectpicker bla bla bli" data-live-search="true">
-                    <option value="">--请选择--</option>
+                    <option value=""> --请选择-- </option>
                     <c:forEach items="${chanMchtPaytypes}" var="chanMchtPaytype">
                         <option value="${chanMchtPaytype.id}"
                                 <c:if test="${paramMap.chanMchtPaytypeId == chanMchtPaytype.id}">selected</c:if>
@@ -71,7 +65,7 @@
             </td>
             <td>
                 <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-                <input id="clearButton" class="btn btn-primary" type="button" value="通道补录" onclick="registe()"
+                <input id="clearButton" class="btn btn-primary" type="button" value="全量新通道入驻" onclick="registe()"
                        style="margin-left: 5px;"/>
             </td>
         </tr>
@@ -117,8 +111,7 @@
             <td>${fns:getDictLabel(mcht.paytype, "pay_type","" )}</td>
             <td><fmt:formatDate value="${mcht.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
                     <td>
-                    <a href="${ctx}/merchant/reRegiste?id=${mcht.id}">通道补录</a>
-                    <%--<a href="${ctx}/merchant/deleteMcht?id=${mcht.id}&mchtCode=${mcht.mchtCode}" onclick="return confirmx('是否删除编号为“${mcht.mchtCode}”的记录？', this.href)">删除</a>--%>
+                    <a href="${ctx}/merchant/reRegistePage?mchtChanRegisteId=${mcht.id}">入驻新通道</a>
                     </td>
         </tr>
     </c:forEach>

@@ -9,7 +9,7 @@ import com.sys.boss.api.entry.trade.TradeNotify;
 import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.quickpay.TXQuickQueryRequest;
 import com.sys.boss.api.entry.trade.request.quickpay.TXQuickQueryRequestBody;
-import com.sys.boss.api.entry.trade.response.quickpay.TXQuickCommPayResponse;
+import com.sys.boss.api.entry.trade.response.quickpay.TXQuickPayResponse;
 import com.sys.boss.api.entry.trade.response.quickpay.TXQuickQueryOrderListResponse;
 import com.sys.boss.api.entry.trade.response.quickpay.TXQuickQueryOrderResponse;
 import com.sys.boss.api.service.trade.handler.ITradeTxDFQueryHandler;
@@ -71,7 +71,7 @@ public class TxQuickOrderQueryController {
             }
             List<TradeNotify> list = (List<TradeNotify>) result.getData();
             for (TradeNotify tradeNotify : list) {
-                TXQuickCommPayResponse txResp = (TXQuickCommPayResponse) tradeNotify.getResponse();
+                TXQuickPayResponse txResp = (TXQuickPayResponse) tradeNotify.getResponse();
                 String mchtId = txResp.getBody().getMchtId();
                 String mchtgOrderId = txResp.getBody().getOrderId();
                 final String bizMidOid = BIZ + mchtId + "-" + mchtgOrderId;

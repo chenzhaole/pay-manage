@@ -29,8 +29,7 @@
             content: '<div class="layui-tab-item nopay layui-show"><div class="warn-content"><div class="warntip"><img src="${ctxStatic}/images/warn.png" alt="已支付" />温馨提示</div><p>'+msg+' , 状态码：'+code+'。</p><button class="layui-btn close">重试</button></div>',
             success:function(layero, index){
                 $(".close").on("click",function(){
-                    alert("刷新操作！")
-//							window.location.href = "http://www.baidu.com"
+                    window.history.back();
                 })
             }
         })
