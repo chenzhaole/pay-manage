@@ -27,7 +27,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.net.URLDecoder;
 
 @Controller
-@RequestMapping("gateway/df")
+@RequestMapping("df/gateway")
 public class GwDFController {
     private Logger logger = LoggerFactory.getLogger(GwDFController.class);
 
