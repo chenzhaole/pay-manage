@@ -1,6 +1,7 @@
 package com.sys.gateway.service;
 
 import com.sys.boss.api.entry.CommonResult;
+import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.trans.api.entry.Trade;
 
 /**
@@ -11,7 +12,7 @@ import com.sys.trans.api.entry.Trade;
  */
 public interface GwSendNotifyService {
 
-	CommonResult sendNotify(String payType, Trade redisOrderTrade);
+	CommonResult sendNotify(String payType, CacheTrade redisOrderTrade);
 
 	CommonResult sendNotifyAgain(String platOrderId, String suffix);
 

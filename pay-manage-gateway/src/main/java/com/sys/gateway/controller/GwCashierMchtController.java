@@ -105,7 +105,7 @@ public class GwCashierMchtController {
                         }else if(page.endsWith("cent")){
                             this.addH5CentPageModelInfo (model, result);
                         }
-                        logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用收银台页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+                        logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
                     }
                 }else{
                     page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());

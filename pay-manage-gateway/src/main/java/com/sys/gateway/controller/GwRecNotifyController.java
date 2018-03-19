@@ -2,6 +2,7 @@ package com.sys.gateway.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.sys.boss.api.entry.CommonResult;
+import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.gateway.service.GwRecNotifyService;
 import com.sys.gateway.service.GwSendNotifyService;
@@ -34,7 +35,7 @@ public class GwRecNotifyController {
     private GwSendNotifyService sendNotifyService;
 
 
-    private final String BIZ = "接收异步通知-";
+    private final String BIZ = "接收异步通知GwRecNotifyController->platOrderId：";
 
     /**
      * 接受统一异步通知结果
@@ -50,24 +51,22 @@ public class GwRecNotifyController {
         CommonResult tradeResult = recNotifyService.reciveNotify(chanCode, platOrderId, payType, data);
         if(ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode())){
             //解析通道数据成功,更新数据库订单状态成功
-            Trade redisOrderTrade = (Trade) tradeResult.getData();
-            logger.info("bossTrade查询的缓存订单Trade对象:"+JSON.toJSONString(redisOrderTrade));
-
+            //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
+            resp2chan = tradeResult.getRespMsg();
+            //通知商户信息源
+            CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
+            logger.info(BIZ+platOrderId+"，bossTrade查询的缓存订单Trade对象:"+JSON.toJSONString(redisOrderTrade));
             CommonResult serviceResult = sendNotifyService.sendNotify(payType,redisOrderTrade);
             if(ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())){
-                logger.info("通知商户成功");
-                //存库成功,通知商户成功,最终猜响应给通道成功
-                resp2chan = tradeResult.getRespMsg();//TODO:按时使用该字段存储返回通道的响应值
+                logger.info(BIZ+platOrderId+"，通知商户成功");
             }else{
-                logger.info("通知商户失败");
+                logger.info(BIZ+platOrderId+"，通知商户失败");
             }
-
         }else{
-            logger.info("bossTrade查询的缓存订单Trade对象,失败."+JSON.toJSONString(tradeResult));
+            logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
         }
 
-
-        logger.info("接收上游通道异步通知接口-END,返回通道响应: "+resp2chan);
+        logger.info(BIZ+platOrderId+"，接收上游通道异步通知接口-END,返回通道响应: "+resp2chan);
         return resp2chan;
     }
 

@@ -1,8 +1,14 @@
 package com.sys.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
+import com.sys.boss.api.entry.cache.CacheMcht;
+import com.sys.boss.api.entry.cache.CacheOrder;
+import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.boss.api.entry.trade.TradeNotify;
+import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
+import com.sys.boss.api.entry.trade.request.quickpay.TXQuickPrePayRequest;
 import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.boss.api.service.trade.handler.ITradePayNotifyHandler;
 import com.sys.common.enums.ErrorCodeEnum;
@@ -49,43 +55,156 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
     @Autowired
     private MerchantService merchantService;
 
+    private final String BIZ = "给下游商户异步通知流水信息GwSendNotifyServiceImpl->";
 
     @Override
-    public CommonResult sendNotify(String payType, Trade trade) {
+    public CommonResult sendNotify(String payType, CacheTrade cacheTrade) {
         CommonResult commonResult = new CommonResult();
         commonResult.setRespCode(ErrorCodeEnum.FAILURE.getCode());
-        TradeNotify tradeNotify = null;
-
-        //根据支付类型返回不同格式数据
-        if (payType.startsWith("wx") || payType.startsWith("ali") || payType.startsWith("qq")) {
-            //收银台支付
-            tradeNotify = buildTradeNotify4Order(trade, "status");
-        } else if (PayTypeEnum.QUICK_TX.equals(payType) || PayTypeEnum.QUICK.equals(payType)) {
-            //快捷
-            QuickPay quick = trade.getQuickPay();
-            tradeNotify = buildTradeNotify4TXQuick(trade, "status");
-        } else if (PayTypeEnum.MERCHANT_REGISTER.equals(payType)) {
-            //商户入驻
-            tradeNotify = buildTradeNotify4Registe(trade, "status");
+        TradeNotify tradeNotify = this.geneTradeNotifyInfo(payType, cacheTrade);
+        if(null == tradeNotify){
+            commonResult.setRespCode(ErrorCodeEnum.E9001.getCode());
+            commonResult.setRespMsg(ErrorCodeEnum.E9001.getDesc());
+            logger.info(BIZ+"异步通知商户信息TradeNotify为Null，请求参数源CacheTrade="+JSONObject.toJSONString(cacheTrade));
+            return commonResult;
         }
 
         String url = tradeNotify.getUrl();
         String contentType = "application/json";
         String content = JSON.toJSONString(tradeNotify.getResponse());
         try {
+            String mchtOrderId = ((TradeNotifyResponse)tradeNotify.getResponse()).getBody().getOrderId();
+            String platOrderId = ((TradeNotifyResponse)tradeNotify.getResponse()).getBody().getTradeId();
             //HTTP异步通知商户交易结果
+            logger.info(BIZ+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",异步通知商户信息为："+content);
             String mchtRes = HttpUtil.postConnManager(url, content, contentType, "UTF-8", "UTF-8");
-            logger.info("异步通知商户返回:" + mchtRes);
+            logger.info(BIZ+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",异步通知商户信息为："+content+",商户返回的结果为："+mchtRes);
             if ("SUCCESS".equals(mchtRes)) {
                 commonResult.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
             }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("异步通知商户系统异常,e.msg:" + e.getMessage());
-            commonResult.setRespMsg("异步通知商户系统异常,e.msg:" + e.getMessage());
+            logger.error(BIZ+"异步通知商户系统异常,e.msg:" + e.getMessage());
+            commonResult.setRespMsg("异步通知商户系统异常");
+        }
+        logger.info(BIZ+"异步通知商户信息后返回给上层的commonResult："+content+",请求参数源CacheTrade为："+JSONObject.toJSONString(cacheTrade));
+        return commonResult;
+    }
+
+    /**
+     * 根据CacheTrade拼接通知商户的TradeNotify信息
+     * @param payType
+     * @param cacheTrade
+     * @return
+     */
+    private TradeNotify geneTradeNotifyInfo(String payType, CacheTrade cacheTrade) {
+        //从CacheTrade对象获取信息
+        //不允许为空
+        Trade trade = (Trade) cacheTrade.getTrade();
+        //不允许为空
+        CacheOrder cacheOrder = cacheTrade.getCacheOrder();
+        //不允许为空
+        CacheMcht cacheMcht = cacheTrade.getCacheMcht();
+        if(null == trade || null == cacheOrder || cacheMcht == null ){
+            logger.info(BIZ+"从CacheTrade中未获取到需要的数据，不给商户异步通知，CacheTrade="+ JSONObject.toJSONString(cacheTrade));
+            return null;
+        }
+        return this.buildTradeNotifyInfo(trade, cacheOrder, cacheMcht, payType, cacheTrade);
+    }
+
+    /**
+     * 封装TradeNotify信息
+     * @param trade
+     * @param cacheOrder
+     * @param cacheMcht
+     * @param payType
+     * @param cacheTrade
+     * @return
+     */
+    private TradeNotify buildTradeNotifyInfo(Trade trade, CacheOrder cacheOrder, CacheMcht cacheMcht, String payType, CacheTrade cacheTrade) {
+        TradeNotify tradeNotify = new TradeNotify();
+        String respCode = ErrorCodeEnum.SUCCESS.getCode();
+        String respMsg = ErrorCodeEnum.SUCCESS.getDesc();
+        try {
+            //平台分配的下游商户号
+            String mchtId = cacheMcht.getMchtId();
+            //商户流水号
+            String mchtOrderId = cacheOrder.getMchtOrderId();
+            //平台流水号
+            String platOrderId = cacheOrder.getPlatOrderId();
+            String bankCardNo = "";
+            String status = cacheOrder.getStatus();
+            status = PayStatusEnum.PAY_SUCCESS.getCode().equals(status) ?
+                    "SUCCESS" : (PayStatusEnum.PROCESSING.getCode().equals(status) ? "PROCESSING" : "FAILURE");
+            String mchtKey = cacheMcht.getMchtKey();
+            String notifyUrl = "";
+            //根据支付类型返回不同格式数据
+            //快捷支付
+            QuickPay quick = null;
+            //第三方支付
+            Order order = null;
+            //金额
+            String amount = "";
+            if (PayTypeEnum.QUICK_TX.getCode().equals(payType) || PayTypeEnum.QUICK.getCode().equals(payType) || PayTypeEnum.COMB_DK.getCode().equals(payType)){
+                quick = trade.getQuickPay();
+                amount = quick.getAmount();
+                bankCardNo = quick.getBankCardNo();
+                //可以为空，缓存中如果不存在的话，会从quick信息里边取出notifyUrl，否则从TradeBaseRequest中取出
+                if(null == cacheTrade.getTradeBaseRequest()){
+                    //缓存数据失效，去数据库查询的时间，商户通知url暂存在quick实体中
+                    notifyUrl = quick.getNotifyUrl();
+                }else{
+                    TXQuickPrePayRequest tXQuickPrePayRequest = (TXQuickPrePayRequest) cacheTrade.getTradeBaseRequest();
+                    notifyUrl = tXQuickPrePayRequest.getBody().getNotifyUrl();
+                }
+                logger.info(BIZ+",此订单是快捷支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
+            } else if (PayTypeEnum.MERCHANT_REGISTER.equals(payType)) {
+                //TODO 商户入驻
+            }else{
+                //第三方支付
+                order = trade.getOrder();
+                amount = order.getAmount();
+                bankCardNo = order.getBankCardNo();
+                //可以为空，缓存中如果不存在的话，会从Order信息里边取出notifyUrl，否则从TradeBaseRequest中取出
+                if(null == cacheTrade.getTradeBaseRequest()){
+                    //缓存数据失效，去数据库查询的时间，商户通知url暂存在Order实体中
+                    notifyUrl = order.getNotifyUrl();
+                }else{
+                    TradeCashierRequest tradeCashierRequest = (TradeCashierRequest) cacheTrade.getTradeBaseRequest();
+                    notifyUrl = tradeCashierRequest.getBody().getNotifyUrl();
+                }
+                logger.info(BIZ+",此订单第三方支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
+            }
+            //商户异步通知url
+            tradeNotify.setUrl(notifyUrl);
+
+            TradeNotifyResponse tradeNotifyResponse = new TradeNotifyResponse();
+            TradeNotifyResponse.TradeNotifyResponseHead head = new TradeNotifyResponse.TradeNotifyResponseHead();
+            head.setRespCode(respCode);
+            head.setRespMsg(respMsg);
+            TradeNotifyResponse.TradeNotifyBody body = new TradeNotifyResponse.TradeNotifyBody();
+            body.setMchtId(mchtId);
+            body.setOrderId(mchtOrderId);
+            body.setTradeId(platOrderId);
+            body.setStatus(status);
+            body.setAmount(amount);
+            body.setBankCardNo(bankCardNo);
+
+            tradeNotifyResponse.setHead(head);
+            tradeNotifyResponse.setBody(body);
+
+            TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(body);
+            String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
+            tradeNotifyResponse.setSign(sign);
+
+            tradeNotify.setResponse(tradeNotifyResponse);
+            logger.info(BIZ+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",tradeNotify："+JSONObject.toJSONString(tradeNotify));
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(BIZ+"组合商户异步通知对象异常 msg：" + e.getMessage());
         }
 
-        return null;
+        return tradeNotify;
     }
 
     @Override
