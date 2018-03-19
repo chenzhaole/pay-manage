@@ -2,15 +2,12 @@ package com.sys.gateway.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
-import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
 import com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler;
-import com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler;
 import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.ConfigUtil;
 import com.sys.gateway.common.IpUtil;
-import com.sys.gateway.service.GwCashierMchtService;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -21,7 +18,6 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
@@ -106,113 +102,6 @@ public class GwCashierCallbackController {
     }
 
     /**
-     * 设置h5中间页需要的请求参数
-     *
-     * @param model
-     * @param result
-     */
-    private void addH5CentPageModelInfo(Model model, CommonResult result) {
-
-        Result resultInfo = (Result) result.getData();
-        model.addAttribute("callMode", resultInfo.getStartPayType());
-        model.addAttribute("payInfo", resultInfo.getPayInfo());
-    }
-
-    /**
-     * 设置扫码中间页需要的请求参数
-     *
-     * @param model
-     * @param result
-     */
-    private void addScanCentPageModelInfo(Model model, CommonResult result) {
-        Result resultInfo = (Result) result.getData();
-        String startPayType = resultInfo.getStartPayType();
-        //封装生成二维码支付链接
-        String payInfo = "";
-        if(StartPayTypeEnum.SCAN_INSIDE.getCode().equals(startPayType)){
-            try {
-                String preUrl = ConfigUtil.getValue("qrCode.domain");
-                String url = "http://"+preUrl+"/qrCode/gen";
-                payInfo = url + "?uuid=" + URLEncoder.encode(resultInfo.getPayInfo(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-        }else if(StartPayTypeEnum.SCAN_EXTERNAL.getCode().equals(startPayType)){
-            payInfo = resultInfo.getPayInfo();
-        }
-
-        model.addAttribute("payInfo", payInfo);
-        model.addAttribute("paymentType", StringUtils.isNotBlank(resultInfo.getPaymentType())?resultInfo.getPaymentType().substring(0,2):"");
-    }
-    /**
-     * 收银台页面需要的数据
-     * @param model
-     */
-    private void addCashierModelInfo(Model model, CommonResult result, String goods, String amount) {
-        model.addAttribute("goods", goods);
-        model.addAttribute("amount", amount);
-        Map mapData = (Map) result.getData();
-        model.addAttribute("paymentTypes", mapData.get("paymentTypes"));
-        model.addAttribute("mchtOrderId", mapData.get("mchtOrderId"));
-        model.addAttribute("extraData", mapData.get("extraData"));
-    }
-
-    /**
-     * 非收银台选择跳转页面
-     * @return
-     */
-    private String chooseNotCashierPage(String deviceType, String biz) {
-        //根据设备类型，确定跳转页面
-        String page = "";
-        if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
-            //pc页面
-            page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode());
-        }else{
-            //手机端和微信内，需要判断展示哪一种中间页,因为h5支付和公众号支付使用的是一种中间页，扫码支付使用的是另一种中间页
-            //根据支付类型解析出具体中间页
-            String pageTypeCode = this.resolvePageType(biz);
-            page = this.getPageByDeviceType(deviceType, pageTypeCode);
-        }
-        return page;
-    }
-
-    /**
-     * 根据支付类型找到具体的场景
-     * @param biz
-     * @return
-     */
-    private String resolvePageType(String biz) {
-        if(PayTypeEnum.WX_WAP.getCode().equals(biz) || //微信h5支付
-                PayTypeEnum.WX_PUBLIC.getCode().equals(biz)  || //微信公众号支付
-                PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝线上扫码转h5支付
-                PayTypeEnum.ALIPAY_OFFLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝线下扫码转h5支付
-                PayTypeEnum.QQ_WAP.getCode().equals(biz)  || //QQh5支付
-                PayTypeEnum.QQ_SCAN2WAP.getCode().equals(biz)  || //QQ扫码转h5支付
-                PayTypeEnum.SUNING_SCAN2WAP.getCode().equals(biz)  || //苏宁扫码转h5支付
-                PayTypeEnum.JD_WAP.getCode().equals(biz)  || //京东h5支付
-                PayTypeEnum.JD_SCAN2WAP.getCode().equals(biz) //京东扫码转h5支付
-                ){
-
-            return PageTypeEnum.CENTER.getCode();
-
-        }else if(PayTypeEnum.COMBINE_QRCODE.getCode().equals(biz) || //聚合二维码
-                PayTypeEnum.WX_QRCODE.getCode().equals(biz)  || //微信扫码支付
-                PayTypeEnum.ALIPAY_ONLINE_QRCODE.getCode().equals(biz)  || //支付宝线上扫码
-                PayTypeEnum.ALIPAY_OFFLINE_QRCODE.getCode().equals(biz)  || //支付宝线下扫码
-                PayTypeEnum.SUNING_QRCODE.getCode().equals(biz)  || //苏宁扫码
-                PayTypeEnum.QQ_QRCODE.getCode().equals(biz)  || //QQ扫码支付
-                PayTypeEnum.JD_SCAN.getCode().equals(biz)  || //京东扫码支付
-                PayTypeEnum.UNIONPAY_QRCODE.getCode().equals(biz) //银联二维码支付
-        ){
-            return PageTypeEnum.SCAN.getCode();
-        }else{
-            //错误页面
-            return PageTypeEnum.ERROR.getCode();
-        }
-    }
-
-
-    /**
      * 获取请求的ua，由于不同浏览器可能是User-Agent也可能是user-agent
      * @param request
      * @return
@@ -251,107 +140,5 @@ public class GwCashierCallbackController {
             deviceTypeName = "pc";
         }
         return "modules/cashier/"+deviceTypeName+"/"+pageType;
-    }
-
-
-    /**
-     * 测试页面使用
-     * @param request
-     * @return
-     */
-    @RequestMapping("genSign")
-    @ResponseBody
-    public String genSign(HttpServletRequest request){
-        Map<String,String> paramMap = new HashMap<String,String>();
-
-        paramMap.put("amount",request.getParameter("amount"));
-        System.out.println(request.getParameter("amount"));
-        if(StringUtils.isNotBlank(request.getParameter("appId"))){
-            paramMap.put("appId",request.getParameter("appId"));
-            System.out.println(request.getParameter("appId"));
-        }
-        if(StringUtils.isNotBlank(request.getParameter("appName"))){
-            String appName = "";
-            try {
-                 appName = URLDecoder.decode(request.getParameter("appName"), "utf-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            paramMap.put("appName", appName);
-            System.out.println(appName);
-        }
-        if(StringUtils.isNotBlank(request.getParameter("callBackUrl"))){
-            paramMap.put("callBackUrl",request.getParameter("callBackUrl"));
-            System.out.println(request.getParameter("callBackUrl"));
-        }
-        if(StringUtils.isNotBlank(request.getParameter("desc"))){
-            String desc = "";
-            try {
-                 desc = URLDecoder.decode(request.getParameter("desc"), "utf-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
-            paramMap.put("desc", desc);
-            System.out.println(desc);
-        }
-        if(StringUtils.isNotBlank(request.getParameter("deviceType"))){
-            paramMap.put("deviceType",request.getParameter("deviceType"));
-            System.out.println(request.getParameter("deviceType"));
-        }
-        if(StringUtils.isNotBlank(request.getParameter("expireTime"))){
-            paramMap.put("expireTime",request.getParameter("expireTime"));
-            System.out.println(request.getParameter("expireTime"));
-        }
-        String goods = "";
-        try {
-            goods = URLDecoder.decode(request.getParameter("goods"),"utf-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        paramMap.put("goods",goods);
-
-        if(StringUtils.isNotBlank(request.getParameter("ip"))){
-            paramMap.put("ip",request.getParameter("ip"));
-            System.out.println(request.getParameter("ip"));
-        }
-        if(StringUtils.isNotBlank(request.getParameter("openId"))){
-            paramMap.put("openId",request.getParameter("openId"));
-            System.out.println(request.getParameter("openId"));
-        }
-        if(StringUtils.isNotBlank(request.getParameter("operator"))){
-            paramMap.put("operator",request.getParameter("operator"));
-            System.out.println(request.getParameter("operator"));
-        }
-        paramMap.put("orderId",request.getParameter("orderId"));
-        System.out.println(request.getParameter("orderId"));
-        paramMap.put("orderTime",request.getParameter("orderTime"));
-        System.out.println(request.getParameter("orderTime"));
-
-
-        paramMap.put("notifyUrl",request.getParameter("notifyUrl"));
-        System.out.println(request.getParameter("notifyUrl"));
-
-        String mchtKey = request.getParameter("mchtKey");
-
-        String sign = null;
-        try {
-            sign = SignUtil.md5Sign(paramMap,mchtKey);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return sign;
-    }
-
-    /**
-     * 测试页面使用
-     * @param request
-     * @return
-     */
-    @RequestMapping("test")
-    public String test(HttpServletRequest request) {
-
-        System.out.println("测试页面");
-        return "modules/cashier/pc/test";
-
     }
 }
