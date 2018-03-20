@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
 <head>
-    <title>通道补录-选择通道支付方式</title>
+    <title>新通道入驻-选择通道支付方式</title>
     <meta name="decorator" content="default"/>
     <style>
         .table th, .table td {
@@ -21,16 +21,59 @@
             $('.selectpicker').selectpicker({});
         });
 
+        $(function () {
+
+            $("#registeForm").validate({
+                debug: false, //调试模式取消submit的默认提交功能
+                focusInvalid: false, //当为false时，验证无效时，没有焦点响应
+                onkeyup: false,
+                submitHandler: function () {   //表单提交句柄,为一回调函数，带一个参数：form
+
+                    if ("0" == $('#chanMchtPaytypeId  option:selected').val()) {
+                        alert('请选择商户通道支付方式');
+                        return;
+                    } else if ('0' == $('#cardType  option:selected').val()) {
+                        alert('请选择卡类型');
+                        return;
+                    }
+
+                    showShadow();
+                    document.forms[0].submit();
+                },
+                errorPlacement: function (error, element) {
+                    error.appendTo(element.parent());
+                },
+                rules: {
+                    chanMchtPaytypeId: {required: true},
+                    cardType: {required: true}
+                },
+                messages: {
+                    chanMchtPaytypeId: {
+                        required: '必选'
+                    },
+                    cardType: {
+                        required: '必选'
+                    }
+                }
+            });
+        });
+
     </script>
 
 </head>
 <body>
 
 <div class="breadcrumb">
-    <label><a href="#">申报信息管理</a> > <a href="#"><b>通道补录</b></a></label>
+    <label><a href="#">商户入驻信息管理</a> > <a href="#"><b>新通道入驻</b></a></label>
 </div>
 
 <tags:message content="${message}" type="${messageType}"/>
+
+<div class="shadow" style="display:block;">
+    <div id="tbl_brand_processing" class="dataProcessing">
+        <img src="${ctxStatic}/images/loading.gif"><span>&nbsp;&nbsp;已发起入驻，可在此页等待或前往商户入驻流水查看结果</span>
+    </div>
+</div>
 
 <form id="registeForm" action="${ctx}/merchant/reRegiste" method="post">
 
@@ -47,8 +90,8 @@
                 <div class="control-group">
                     <label class="control-label">通道商户支付方式</label>
                     <div class="controls">
-                        <select name="chanMchtPaytypeId" class="selectpicker bla bla bli" data-live-search="true">
-                            <option value="">--请选择--</option>
+                        <select id="chanMchtPaytypeId" name="chanMchtPaytypeId" class="selectpicker bla bla bli" data-live-search="true">
+                            <option value="0">--请选择--</option>
                             <c:forEach items="${chanMchtPaytypes}" var="chanMchtPaytype">
                                 <option value="${chanMchtPaytype.id}"
                                 >${chanMchtPaytype.name}</option>
@@ -59,8 +102,8 @@
                 <div class="control-group">
                     <label class="control-label">卡类型</label>
                     <div class="controls">
-                        <select name="cardType" class="selectpicker bla bla bli" data-live-search="true">
-                            <option value="">--请选择--</option>
+                        <select id="cardType" name="cardType" class="selectpicker bla bla bli" data-live-search="true">
+                            <option value="0">--请选择--</option>
                             <option value="1">借记卡</option>
                             <option value="2">信用卡</option>
                         </select>
