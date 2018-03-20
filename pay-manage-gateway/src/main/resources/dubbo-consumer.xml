@@ -72,6 +72,7 @@
 	<dubbo:reference id="tradeDFReqHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFReqHandler" timeout="30000"/>
 	<dubbo:reference id="tradeDFBatchHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFBatchHandler" timeout="30000"/>
 	<dubbo:reference id="tradeDFSingleHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFSingleHandler" timeout="30000"/>
+	<dubbo:reference id="tradeDFQueryHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFQueryHandler" timeout="30000"/>
 
 
 </beans>
