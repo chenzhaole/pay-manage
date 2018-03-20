@@ -39,6 +39,7 @@ public class TestPayServlet extends HttpServlet {
 			JSONObject data = new JSONObject();
 			JSONObject head = getHeadJson(request);
 			JSONObject body = (JSONObject) JSONObject.toJSON(getBodyMap(request));
+
 			data.put("head", head);
 			data.put("body", body);
 			data.put("sign", sign);

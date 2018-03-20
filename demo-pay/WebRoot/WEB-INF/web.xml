@@ -102,4 +102,31 @@
 		<url-pattern>/testTxQuickCommPayServlet</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>TestDFReqServlet</servlet-name>
+		<servlet-class>com.demo.action.TestDFReqServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestDFReqServlet</servlet-name>
+		<url-pattern>/testDFReq</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>TestDFQueryServlet</servlet-name>
+		<servlet-class>com.demo.action.TestDFQueryServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestDFQueryServlet</servlet-name>
+		<url-pattern>/testDFQuery</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>TestDFBalanceServlet</servlet-name>
+		<servlet-class>com.demo.action.TestDFBalanceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestDFBalanceServlet</servlet-name>
+		<url-pattern>/testDFBalance</url-pattern>
+	</servlet-mapping>
+
 </web-app>

@@ -49,7 +49,24 @@
 						<a href="index-txQuickPay.jsp">TX快捷支付</a>
 					</dd>
 				</dl>
+				<dl class="">
 
+					<dd>
+						<a href="index-dfReq.jsp">代付请求测试</a>
+					</dd>
+				</dl>
+				<dl class="">
+
+					<dd>
+						<a href="index-dfQuery.jsp">代付查单测试</a>
+					</dd>
+				</dl>
+				<dl class="">
+
+					<dd>
+						<a href="index-dfBalance.jsp">代付查余额测试</a>
+					</dd>
+				</dl>
                <!--  
                 <dl class="content">
                     <dt>订单查询测试：</dt>
