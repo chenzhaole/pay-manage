@@ -11,7 +11,6 @@ import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.registe.MchtRegisteRequestBody;
 import com.sys.boss.api.entry.trade.request.registe.TradeMchtRegisteRequest;
 import com.sys.boss.api.service.trade.handler.ITradeMchtRegiste4ExistingMchtHandler;
-import com.sys.boss.api.service.trade.handler.ITradeTxQuickPayHandler;
 import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.Collections3;
@@ -104,11 +103,10 @@ public class MchtRegisteController extends BaseController {
 	/**
 	 * 通道补录
 	 */
-	@RequestMapping(value = {"reRegiste", ""})
+	@RequestMapping(value = {"reRegiste", ""}, produces = "application/json; charset=utf-8")
 	@ResponseBody
 	public String reRegiste(HttpServletRequest request, HttpServletResponse response, Model model,
 							@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
-		response.setCharacterEncoding("utf-8");
 
 		CommonResult result = new CommonResult();
 		result.setRespMsg("执行失败");
@@ -130,6 +128,7 @@ public class MchtRegisteController extends BaseController {
 
 		//失败补录
 		if (StringUtils.isNotBlank(mchtChanRegisteOrderId)){
+
 			MchtChanRegisteOrder registeOrder = mchtChanRegisteOrderService.queryByKey(mchtChanRegisteOrderId);
 			chanMchtPaytypeId = registeOrder.getChanMchtPaytypeId();
 
@@ -138,9 +137,10 @@ public class MchtRegisteController extends BaseController {
 			mchtChanRegisteSearch.setPlatOrderId(registeOrder.getPlatOrderId());
 			mchtInfoList = mchtChanRegisteService.list(mchtChanRegisteSearch);
 		}else {
+
 			if (StringUtils.isBlank(chanMchtPaytypeId) ||
 					StringUtils.isBlank(cardType)){
-				return "未选择";
+				return "未选择通道或卡类型";
 			}
 
 			//入驻新通道
@@ -158,7 +158,7 @@ public class MchtRegisteController extends BaseController {
 
 		if (Collections3.isEmpty(mchtInfoList)){
 			result.setRespMsg("no record");
-			return "no record";
+			return "未查询到商户的成功入驻信息";
 		}
 
 		// 用户银行卡
@@ -219,11 +219,11 @@ public class MchtRegisteController extends BaseController {
 			head = new TradeReqHead();
 			head.setMchtId(ConfigUtil.getValue("ykzlMchtId"));
 			head.setVersion("20");
-			head.setBiz("11");
+			head.setBiz("qj01");
 			registeRequest.setHead(head);
 
 			registeRequestBody = new MchtRegisteRequestBody();
-			registeRequestBody.setOrderId("RE" + chanRegiste.getId());
+			registeRequestBody.setOrderId("RE_" + chanRegiste.getId());
 			registeRequestBody.setName(mchtInfo.getName());
 			registeRequestBody.setAddress(mchtInfo.getCompanyAdr());
 			registeRequestBody.setMchtType(mchtInfo.getMchtType());
