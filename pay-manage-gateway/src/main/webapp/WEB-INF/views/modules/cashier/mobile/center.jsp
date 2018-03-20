@@ -18,7 +18,7 @@
 </header>
 <div class="item">
     <div style="display:none" >
-        ${result.payInfo}
+        ${payInfo}
     </div>
     <div class="tipText">
         <p class="warnTip"><img src="${ctxStatic}/images/lamp.png" alt="温馨提示"  class="lamp"/>温馨提示</p>
@@ -39,7 +39,13 @@
 </body>
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
+    //拼接页面回调地址
+    var callbackUrl = "/gateway/cashier/chanCallBack/${platOrderId}/${payType}";
+    //轮训查单需要的参数
+    var queryInfo = "${platOrderId}";
+
     $(function(){
+
         var callMode = '${callMode}';
         if("01" == callMode){
             //01：h5支付通过location.href方式唤起支付

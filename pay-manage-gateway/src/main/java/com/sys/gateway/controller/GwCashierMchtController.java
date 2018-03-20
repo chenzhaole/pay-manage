@@ -1,8 +1,10 @@
 package com.sys.gateway.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
+import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler;
 import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
@@ -17,6 +19,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -102,7 +105,7 @@ public class GwCashierMchtController {
                         //设置h5中间页需要的参数
                         if(page.endsWith("scan")){
                             this.addScanCentPageModelInfo (model, result);
-                        }else if(page.endsWith("cent")){
+                        }else if(page.endsWith("center")){
                             this.addH5CentPageModelInfo (model, result);
                         }
                         logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
@@ -139,6 +142,8 @@ public class GwCashierMchtController {
         Result resultInfo = (Result) result.getData();
         model.addAttribute("callMode", resultInfo.getStartPayType());
         model.addAttribute("payInfo", resultInfo.getPayInfo());
+        model.addAttribute("platOrderId", resultInfo.getOrderNo());
+        model.addAttribute("payType", resultInfo.getPaymentType());
     }
 
     /**
@@ -278,6 +283,26 @@ public class GwCashierMchtController {
 
 
     /**
+     * 页面轮询查单
+     */
+    @RequestMapping(value="queryResult")
+    @ResponseBody
+    public String queryResult(HttpServletRequest request, Model model) throws Exception {
+        /*try {
+
+           //调用handler处理业务
+            result = iTradeCashierMchtHandler.process(requestInfo, ip, deviceType);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error(BIZ+midoid+"接收商户请求异常："+e.getMessage());
+        }
+        logger.info(BIZ+midoid+"处理完业务之后，返回给页面的数据为："+JSONObject.toJSONString(model));
+        return page;*/
+        return "";
+    }
+
+    /**
      * 测试页面使用
      * @param request
      * @return
@@ -371,9 +396,10 @@ public class GwCashierMchtController {
      * @return
      */
     @RequestMapping("test")
-    public String test(HttpServletRequest request) {
+    public String test(HttpServletRequest request, Model model) {
 
-        System.out.println("测试页面");
+        System.out.println("测试页面"+request.getServerName()+request.getServerPort());
+        model.addAttribute("testUrl", request.getServerName()+request.getServerPort());
         return "modules/cashier/pc/test";
 
     }

@@ -16,4 +16,5 @@ public interface GwSendNotifyService {
 
 	CommonResult sendNotifyAgain(String platOrderId, String suffix);
 
+	CommonResult testMchtNotifyInfo(String mchtId);
 }
