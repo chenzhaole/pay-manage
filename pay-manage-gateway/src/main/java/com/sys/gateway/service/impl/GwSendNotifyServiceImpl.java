@@ -151,7 +151,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                     //缓存数据失效，去数据库查询的时间，商户通知url暂存在quick实体中
                     notifyUrl = quick.getNotifyUrl();
                 }else{
-                    TXQuickPrePayRequestBody tXQuickPrePayRequestBody = JSON.parseObject(JSONObject.toJSONString(cacheTrade.getTradeBaseRequest()), TXQuickPrePayRequestBody.class);
+                    JSONObject jsonObject = (JSONObject) JSONObject.toJSON(cacheTrade.getTradeBaseRequest());
+                    TXQuickPrePayRequestBody tXQuickPrePayRequestBody = JSON.parseObject(jsonObject.getString("body"), TXQuickPrePayRequestBody.class);
                     notifyUrl = tXQuickPrePayRequestBody.getNotifyUrl();
                 }
                 logger.info(BIZ+",此订单是快捷支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);

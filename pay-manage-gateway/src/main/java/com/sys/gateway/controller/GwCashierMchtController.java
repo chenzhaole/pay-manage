@@ -1,10 +1,8 @@
 package com.sys.gateway.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
-import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler;
 import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
@@ -19,7 +17,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
@@ -399,7 +396,8 @@ public class GwCashierMchtController {
     public String test(HttpServletRequest request, Model model) {
 
         System.out.println("测试页面"+request.getServerName()+request.getServerPort());
-        model.addAttribute("testUrl", request.getServerName()+request.getServerPort());
+        int port = request.getServerPort();
+        model.addAttribute("testUrl", request.getServerName()+(80 == port ? "" : ":" +port));
         return "modules/cashier/pc/test";
 
     }

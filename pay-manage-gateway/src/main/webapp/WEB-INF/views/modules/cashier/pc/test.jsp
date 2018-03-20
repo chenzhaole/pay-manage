@@ -46,8 +46,8 @@
         订单时间: <input type="text" value="<%= new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) %>" name="orderTime"/><br>
         金额: <input type="text" value="10" name="amount"/>【分】<br>
         商品名称: <input type="text" value="游戏充值" name="goods"/><br>
-        notifyUrl: <input type="text" value="http://www.baidu.com" name="notifyUrl"/><br>
-        callBackUrl: <input type="text" value="http://${testUrl}/testNotify" name="callBackUrl"/><br>
+        notifyUrl: <input type="text" value="http://${testUrl}/testNotify" name="notifyUrl"/><br>
+        callBackUrl: <input type="text" value="http://www.baidu.com" name="callBackUrl"/><br>
         商品描述: <input type="text" value="10元大礼包" name="desc"/><br>
         应用ID: <input type="text" value="" name="appId"/><br>
         应用名称: <input type="text" value="" name="appName"/><br>
