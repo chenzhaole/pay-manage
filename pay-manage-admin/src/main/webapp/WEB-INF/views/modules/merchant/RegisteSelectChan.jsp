@@ -71,7 +71,7 @@
 
 <div class="shadow" style="display:block;">
     <div id="tbl_brand_processing" class="dataProcessing">
-        <img src="${ctxStatic}/images/loading.gif"><span>&nbsp;&nbsp;处理中...</span>
+        <img src="${ctxStatic}/images/loading.gif"><span>&nbsp;&nbsp;已发起入驻，可在此页等待或前往商户入驻流水查看结果</span>
     </div>
 </div>
 
