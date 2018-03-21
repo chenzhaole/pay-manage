@@ -2,12 +2,6 @@
 //统计轮询时间
 var intervalTime = 0;
 
-$(function(){
-    //5秒之后执行查单处理
-    setTimeout("toOrderQuery('"+queryInfo+"')",5000);
-});
-
-
 /*调用轮询方案查询订单,每秒查询一次*/
 function toOrderQuery(queryInfo){
     //刷新页面之后重新开始查
@@ -29,7 +23,7 @@ function orderQueryDeal(queryInfo){
         dataType:'text' ,
         async:true,
         success:function(data){
-            if (data=="2"||data=="-1"){
+            if (data=="2"||data=="-1" || data == '4002' || data == '4001'){
                 //查到结果后，关闭轮询
                 location.href=callbackUrl;
             }else {

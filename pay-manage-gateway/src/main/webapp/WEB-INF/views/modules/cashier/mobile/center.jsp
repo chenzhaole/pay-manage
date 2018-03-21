@@ -24,7 +24,9 @@
         <p class="warnTip"><img src="${ctxStatic}/images/lamp.png" alt="温馨提示"  class="lamp"/>温馨提示</p>
         <p>支付时请注意身边安全,并注意避免重复支付。</p>
     </div>
-
+    <c:if test="${'01' == callMode && '0' == iframe}">
+        <iframe id="ifrmname" name="ifrmname" style="display: none;" src="${payInfo}"></iframe>
+    </c:if>
     <div class="submitBox">
         <a href="">
             <input type="submit" class="reverseBtn" value="返回">
@@ -38,18 +40,26 @@
 </div>
 </body>
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
+<script src="${ctxStatic}/js/rotationOrder.js?version=1.2"></script>
 <script type="text/javascript">
     //拼接页面回调地址
     var callbackUrl = "/gateway/cashier/chanCallBack/${platOrderId}/${payType}";
     //轮训查单需要的参数
-    var queryInfo = "${platOrderId}";
+    var queryInfo = "platOrderId="+ "${platOrderId}";
 
     $(function(){
 
+        //5秒之后执行查单处理
+        setTimeout("toOrderQuery('"+queryInfo+"')",5000);
+
         var callMode = '${callMode}';
         if("01" == callMode){
-            //01：h5支付通过location.href方式唤起支付
-            location.href = '${payInfo}';
+            //是否通过iframe标签掉起支付，0：使用， 1：不使用
+            var iframe = '${iframe}';
+            if(1 == iframe){
+                //01：h5支付通过location.href方式唤起支付
+                location.href = '${payInfo}';
+            }
         }else if("02" == callMode){
             //02：h5支付通过form表单方式唤起支付
             $("#cardpayForm").submit();

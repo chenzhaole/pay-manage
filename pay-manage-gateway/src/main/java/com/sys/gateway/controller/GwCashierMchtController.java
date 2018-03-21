@@ -6,6 +6,7 @@ import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
 import com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler;
 import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
+import com.sys.common.util.IdUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.ConfigUtil;
 import com.sys.gateway.common.IpUtil;
@@ -62,10 +63,11 @@ public class GwCashierMchtController {
             //设备类型 如果商户没有传，就由我们自己来通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
             deviceType = request.getParameter("deviceType");
             logger.info(BIZ+midoid+"请求参数中获取的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+            String userAgent = "";
             if(StringUtils.isEmpty(deviceType)){
                 logger.info(BIZ+midoid+"请求参数中未获取到deviceType，需要通过程序获取deviceType的值");
                 //根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
-                String userAgent = this.getUserAgentInfoByRequest(request);
+                userAgent = this.getUserAgentInfoByRequest(request);
                 logger.info(BIZ+midoid+"根据请求头获取的user-agent为："+userAgent);
                 deviceType = HttpUtil.getDeviceType(userAgent);
                 logger.info(BIZ+midoid+"商户没传设备类型，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
@@ -99,11 +101,12 @@ public class GwCashierMchtController {
                     }else{
                         //非收银台页面跳转
                         page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz());
-                        //设置h5中间页需要的参数
                         if(page.endsWith("scan")){
-                            this.addScanCentPageModelInfo (model, result);
+                            //设置扫码中间页需要的参数
+                            this.addScanCentPageModelInfo(model, result);
                         }else if(page.endsWith("center")){
-                            this.addH5CentPageModelInfo (model, result);
+                            //设置h5和公众号支付的中间页需要的参数
+                            this.addH5CentPageModelInfo(model, result, userAgent);
                         }
                         logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
                     }
@@ -134,15 +137,84 @@ public class GwCashierMchtController {
      * @param model
      * @param result
      */
-    private void addH5CentPageModelInfo(Model model, CommonResult result) {
-
+    private void addH5CentPageModelInfo(Model model, CommonResult result, String userAgent) {
         Result resultInfo = (Result) result.getData();
+        String payType = resultInfo.getPaymentType();
         model.addAttribute("callMode", resultInfo.getStartPayType());
         model.addAttribute("payInfo", resultInfo.getPayInfo());
         model.addAttribute("platOrderId", resultInfo.getOrderNo());
-        model.addAttribute("payType", resultInfo.getPaymentType());
+        model.addAttribute("payType", payType);
+        //是否使用扫码转H5方式，即是否通过iframe标签掉起支付，0：使用， 1：不使用
+        model.addAttribute("iframe", this.useIfrmnameMark(payType, userAgent));
     }
 
+    /**
+     * 是否通过iframe标签掉起支付，0：使用， 1：不使用
+     * @param payType
+     * @param userAgent
+     * @return
+     */
+    private String useIfrmnameMark(String payType, String userAgent) {
+        //默认不使用
+        String iframe = "1";
+        if(PayTypeEnum.QQ_SCAN2WAP.getCode().equals(payType)){
+            //qq扫码转h5不支持：苹果自带浏览器、uc浏览器、百度浏览器
+            //过滤掉qq扫码转h5不支持的浏览器，
+            if(browserbSupportQQScan2H5(userAgent)){
+               iframe = "0";
+            }
+        }else if(PayTypeEnum.ALIPAY_OFFLINE_SCAN2WAP.getCode().equals(payType) || PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) ){
+            if(browserbSupportAliScan2H5(userAgent)){
+                iframe = "0";
+            }
+        }
+        return iframe;
+    }
+
+    /**
+     * qq扫码转h5不支持：苹果自带浏览器、uc浏览器、百度浏览器，过滤掉qq扫码转h5不支持的浏览器，
+     * @param userAgent
+     * @return
+     */
+    private boolean browserbSupportQQScan2H5(String userAgent) {
+        if (userAgent.contains("iPhone")){
+            //ios手机自带浏览器
+            //仅仅是苹果浏览器内核，即苹果自带浏览器
+            if(userAgent.contains("Safari")
+                    && !userAgent.contains("Chrome")
+                    && !userAgent.contains("Firefox")
+                    && !userAgent.contains("Opera")){
+                //不支持
+                return false;
+            }
+        }else if(userAgent.contains("Android")) {
+            //目前测试人员测出：手机百度浏览器、手机谷歌浏览器
+            // Android手机
+
+            //uc如下：判断依据 包含UCBrowser
+            //Mozilla/5.0 (Linux; U; Android 6.0.1; zh-CN; vivo X9 Build/MMB29M) AppleWebKit/537.36 (KHTML, like Gecko)
+//	    	  Version/4.0 Chrome/40.0.2214.89  UCBrowser/11.6.4.950 Mobile Safari/537.36
+
+            //手机百度如下：判断依据 包含baidu
+//	    	  user-agent = Mozilla/5.0 (Linux; Android 6.0.1; vivo X9 Build/MMB29M; wv) AppleWebKit/537.36 (KHTML, like Gecko)
+//	    	  Version/4.0 Chrome/48.0.2564.116 Mobile Safari/537.36 T7/9.1 baiduboxapp/9.1.0.12 (Baidu; P1 6.0.1)
+            /** 1. 安卓手机uc浏览器， 2.安卓手机百度浏览器*/
+            if(userAgent.contains("baidu") || userAgent.contains("UCBrowser")) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    /**
+     * 支付宝扫码转h5不支持：
+     * @param userAgent
+     * @return
+     */
+    private boolean browserbSupportAliScan2H5(String userAgent) {
+
+        return true;
+    }
     /**
      * 设置扫码中间页需要的请求参数
      *
@@ -166,6 +238,7 @@ public class GwCashierMchtController {
             payInfo = resultInfo.getPayInfo();
         }
 
+        model.addAttribute("platOrderId", resultInfo.getOrderNo());
         model.addAttribute("payInfo", payInfo);
         model.addAttribute("paymentType", StringUtils.isNotBlank(resultInfo.getPaymentType())?resultInfo.getPaymentType().substring(0,2):"");
     }
@@ -284,19 +357,28 @@ public class GwCashierMchtController {
      */
     @RequestMapping(value="queryResult")
     @ResponseBody
-    public String queryResult(HttpServletRequest request, Model model) throws Exception {
-        /*try {
-
-           //调用handler处理业务
-            result = iTradeCashierMchtHandler.process(requestInfo, ip, deviceType);
-
+    public String queryResult(HttpServletRequest request) throws Exception {
+        String status = PayStatusEnum.CREATE_SUCCESS.getCode();
+        String platOrderId = "";
+        try {
+            String ip = IpUtil.getRemoteHost(request);
+            platOrderId = request.getParameter("platOrderId");
+            //调用handler处理业务
+           CommonResult result = iTradeCashierMchtHandler.queryStatus(ip, platOrderId);
+           logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询结果：CommonResult="+ JSONObject.toJSONString(result));
+           if(null != result &&  null != result.getData()){
+                status = (String) result.getData();
+                if(PayStatusEnum.PAY_SUCCESS.getCode().equals(status)){
+                    logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询结果此订单成功，返回页面status="+PayStatusEnum.PAY_SUCCESS.getCode());
+                    return PayStatusEnum.PAY_SUCCESS.getCode();
+                }
+           }
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error(BIZ+midoid+"接收商户请求异常："+e.getMessage());
+            logger.error(platOrderId+"页面轮训查单请求异常："+e.getMessage());
         }
-        logger.info(BIZ+midoid+"处理完业务之后，返回给页面的数据为："+JSONObject.toJSONString(model));
-        return page;*/
-        return "";
+        logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询此订单结果，返回页面status="+status);
+        return status;
     }
 
     /**
@@ -398,6 +480,7 @@ public class GwCashierMchtController {
         System.out.println("测试页面"+request.getServerName()+request.getServerPort());
         int port = request.getServerPort();
         model.addAttribute("testUrl", request.getServerName()+(80 == port ? "" : ":" +port));
+        model.addAttribute("mchtOrderId", IdUtil.getUUID());
         return "modules/cashier/pc/test";
 
     }

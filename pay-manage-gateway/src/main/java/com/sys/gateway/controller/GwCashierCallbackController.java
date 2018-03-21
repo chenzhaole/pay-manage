@@ -6,6 +6,7 @@ import com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler;
 import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
+import com.sys.core.dao.dmo.MchtGatewayOrder;
 import com.sys.gateway.common.ConfigUtil;
 import com.sys.gateway.common.IpUtil;
 import com.sys.trans.api.entry.Result;
@@ -81,7 +82,6 @@ public class GwCashierCallbackController {
                 }else{
                     return "redirect:"+callbackUrl;
                 }
-
             }else{
                 model.addAttribute("respCode",result.getRespCode());
                 model.addAttribute("respMsg",result.getRespMsg());
@@ -141,4 +141,25 @@ public class GwCashierCallbackController {
         }
         return "modules/cashier/"+deviceTypeName+"/"+pageType;
     }
+
+    /**
+     * 测试结果页面使用
+     * @param request
+     * @return
+     */
+    @RequestMapping("testResult/{mchtOrderId}")
+    public String testResult(HttpServletRequest request, @PathVariable String mchtOrderId, Model model) {
+        CommonResult commonResult = tradeCashierCallbackHandler.testResult(mchtOrderId);
+        if(null != commonResult && null != commonResult.getData()){
+            MchtGatewayOrder mchtGatewayOrder = (MchtGatewayOrder) commonResult.getData();
+            String status = mchtGatewayOrder.getStatus();
+            model.addAttribute("platOrderId", mchtGatewayOrder.getPlatOrderId());
+            model.addAttribute("status", status);
+        }
+        model.addAttribute("mchtOrderId", mchtOrderId);
+        return "modules/cashier/pc/testResult";
+
+    }
+
+
 }

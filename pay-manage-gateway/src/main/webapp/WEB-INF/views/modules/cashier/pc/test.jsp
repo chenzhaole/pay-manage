@@ -42,12 +42,12 @@
             <option value="qj05">网银/网银退款支付</option>
         </select>
         <br>
-        商户订单号: <input type="text" value="<%= System.currentTimeMillis() %>" name="orderId"/><br>
+        商户订单号: <input type="text" value="${mchtOrderId}" name="orderId"/><br>
         订单时间: <input type="text" value="<%= new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) %>" name="orderTime"/><br>
         金额: <input type="text" value="10" name="amount"/>【分】<br>
         商品名称: <input type="text" value="游戏充值" name="goods"/><br>
         notifyUrl: <input type="text" value="http://${testUrl}/testNotify" name="notifyUrl"/><br>
-        callBackUrl: <input type="text" value="http://www.baidu.com" name="callBackUrl"/><br>
+        callBackUrl: <input type="text" value="http://${testUrl}/gateway/cashier/testResult/${mchtOrderId}" name="callBackUrl"/><br>
         商品描述: <input type="text" value="10元大礼包" name="desc"/><br>
         应用ID: <input type="text" value="" name="appId"/><br>
         应用名称: <input type="text" value="" name="appName"/><br>
