@@ -1,6 +1,7 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
@@ -286,8 +287,8 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("toCommitBatch")
     public String toCommitBatch(Model model){
-        String mchtId = null;//todo 商户ID,待补充
-        BigDecimal balance = null;//todo 商户余额,待补充
+        String mchtId = JedisUtil.get("mchtId");//todo 商户ID,待补充
+        BigDecimal balance = BigDecimal.valueOf(Double.valueOf(JedisUtil.get("balance")));//todo 商户余额,待补充
 
         balance = BigDecimal.valueOf(20000);//todo 测试
         mchtId = "17359b78";//todo 测试
@@ -316,6 +317,7 @@ public class ProxyOrderController extends BaseController {
                 List<PlatProxyDetail> details = new ArrayList<>();
                 //读取数据
                 readExcel(mchtId,sheet,fee,batch,details);
+
 
                 BigDecimal proxyAmount = batch.getTotalAmount().add(batch.getTotalFee());//所需总金额=代付金额+代付手续费
                 logger.info("【提交代付】商户ID={} 余额={} 手续费={} 代付金额={}",mchtId,balance,batch.getTotalFee().doubleValue(),proxyAmount.doubleValue());
@@ -411,6 +413,7 @@ public class ProxyOrderController extends BaseController {
         response.setCharacterEncoding("utf-8");
         response.getWriter().print(respMsg);
     }
+
 
     /**
      * 发短信
