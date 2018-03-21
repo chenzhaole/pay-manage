@@ -37,8 +37,9 @@ public class TestDFBalanceServlet extends HttpServlet {
             data.put("head", head);
             data.put("body", body);
             data.put("sign", sign);
+            System.out.println("请求数据："+data.toJSONString());
             respStr = PostUtil.post(payUrl, data.toJSONString());
-            System.out.println(respStr);
+            System.out.println("响应数据："+respStr);
         } catch (Exception e) {
             e.printStackTrace();
         }

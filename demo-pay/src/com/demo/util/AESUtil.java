@@ -66,7 +66,7 @@ public class AESUtil {
         /*
          * 此处使用AES-128-ECB加密模式，key需要为16位。
          */
-		String cKey = "1234567890123456";
+		String cKey = "04b69b8f5a8b4314";
 		// 需要加密的字串
 		String cSrc = "苟利国家生死以，岂因祸福避趋之";
 		System.out.println(cSrc);

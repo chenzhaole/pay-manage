@@ -49,6 +49,7 @@ public class SignUtil {
             platSignOrigStr = platSignOrigStr + key + "=" + value + "&";
         }
         platSignOrigStr = platSignOrigStr + "key=" + signkey;
+        System.out.println("加密串："+platSignOrigStr);
         platSignStr = MD5Util.MD5Encode(platSignOrigStr);
         return platSignStr;
     }
