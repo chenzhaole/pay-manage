@@ -288,7 +288,7 @@ public class ProxyOrderController extends BaseController {
     @RequestMapping("toCommitBatch")
     public String toCommitBatch(Model model){
         String mchtId = JedisUtil.get("mchtId");//todo 商户ID,待补充
-        BigDecimal balance = BigDecimal.valueOf(Double.valueOf(JedisUtil.get("balance")));//todo 商户余额,待补充
+        BigDecimal balance = new BigDecimal(JedisUtil.get("balance"));//todo 商户余额,待补充
 
         balance = BigDecimal.valueOf(20000);//todo 测试
         mchtId = "17359b78";//todo 测试
@@ -318,11 +318,11 @@ public class ProxyOrderController extends BaseController {
                 //读取数据
                 readExcel(mchtId,sheet,fee,batch,details);
 
-
+                BigDecimal finalBalance = new BigDecimal(JedisUtil.get("balance"));
                 BigDecimal proxyAmount = batch.getTotalAmount().add(batch.getTotalFee());//所需总金额=代付金额+代付手续费
                 logger.info("【提交代付】商户ID={} 余额={} 手续费={} 代付金额={}",mchtId,balance,batch.getTotalFee().doubleValue(),proxyAmount.doubleValue());
                 //余额是否充足校验
-                if(balance.doubleValue()-proxyAmount.doubleValue()>=0){
+                if(finalBalance.compareTo(proxyAmount)>=0){
                     JedisUtil.set(IdUtil.REDIS_PROXYPAY_BATCH+batch.getId(),JSON.toJSONString(batch),2*3600);
                     JedisUtil.set(IdUtil.REDIS_PROXYPAY_DETAILS+batch.getId(),JSON.toJSONString(details),2*3600);
 
