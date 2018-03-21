@@ -369,10 +369,7 @@ public class ProxyOrderController extends BaseController {
                     batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId),PlatProxyBatch.class);
                     List<PlatProxyDetail> details = JSON.parseArray(
                             JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS+batchId),PlatProxyDetail.class);
-                    proxyBatchService.create(batch);
-                    for(PlatProxyDetail detail : details){
-                        proxyDetailService.create(detail);
-                    }
+                    proxyBatchService.saveBatchAndDetails(batch,details);
                     respMsg = "ok";
                 }else{
                     respMsg = "batch exsit";

@@ -47,7 +47,7 @@ public class GwDFController {
     /**
      * 代付请求接口
      */
-    @RequestMapping("req")
+    @RequestMapping(value="req",produces = "application/json;charset=utf-8")
     @ResponseBody
     public String req(@RequestBody String data, HttpServletRequest request){
         logger.info("代付API，【代付请求接口】收到客户端请求参数：data="+data);
@@ -71,7 +71,7 @@ public class GwDFController {
             }else{
                 TradeDFCreateOrderRequest tradeRequest = (TradeDFCreateOrderRequest) checkResp.getData();
                 logger.info("代付API，【代付请求接口】传入的TradeProxyPayCreateOrderRequest信息为：TradeProxyPayCreateOrderRequest="+JSONObject.toJSONString(tradeRequest));
-                resp = tradeDFReqHandler.req(tradeRequest, ip);
+                resp = JSON.parseObject(tradeDFReqHandler.req(tradeRequest, ip),DFCreateOrderResponse.class);
                 logger.info("代付API，【代付请求接口】返回的ProxyPayCreateOrderResponse信息为：ProxyPayCreateOrderResponse="+JSONObject.toJSONString(resp));
             }
 
@@ -89,7 +89,7 @@ public class GwDFController {
     /**
      *  代付余额查询
      */
-    @RequestMapping("balance")
+    @RequestMapping(value="balance",produces = "application/json;charset=utf-8")
     @ResponseBody
     public String balance(@RequestBody String data, HttpServletRequest request){
         logger.info("代付API，【代付余额查询接口】收到客户端请求参数：data="+data);
@@ -114,7 +114,7 @@ public class GwDFController {
             }else{
                 TradeDFQueryBalanceRequest tradeRequest = (TradeDFQueryBalanceRequest) checkResp.getData();
                 logger.info("代付API，【代付余额查询接口】传入的TradeDFQueryBalanceRequest信息为：TradeDFQueryBalanceRequest="+JSONObject.toJSONString(tradeRequest));
-                resp = tradeDFBalanceHandler.balance(tradeRequest, ip);
+                resp = JSON.parseObject(tradeDFBalanceHandler.balance(tradeRequest, ip),DFQueryBalanceResponse.class);
                 logger.info("代付API，【代付余额查询接口】返回的DFQueryBalanceResponse信息为：DFQueryBalanceResponse="+JSONObject.toJSONString(resp));
             }
 
@@ -131,7 +131,7 @@ public class GwDFController {
     /**
      * 代付查单接口
      */
-    @RequestMapping("query")
+    @RequestMapping(value="query",produces = "application/json;charset=utf-8")
     @ResponseBody
     public String query(@RequestBody String data,HttpServletRequest request){
         logger.info("代付API，【代付查单接口】收到客户端请求参数：data="+data);
@@ -154,7 +154,7 @@ public class GwDFController {
             }else{
                 TradeDFQueryOrderRequest tradeRequest = (TradeDFQueryOrderRequest) checkResp.getData();
                 logger.info("代付API，【代付查单接口】传入的TradeDFQueryOrderRequest信息为：TradeDFQueryOrderRequest="+JSONObject.toJSONString(tradeRequest));
-                resp = tradeDFQueryOrderHandler.query(tradeRequest, ip);
+                resp = JSON.parseObject(tradeDFQueryOrderHandler.query(tradeRequest, ip),DFQueryOrderResponse.class);
                 logger.info("代付API，【代付查单接口】返回的DFQueryOrderResponse信息为：DFQueryOrderResponse="+JSONObject.toJSONString(resp));
             }
         }catch(Exception e){
