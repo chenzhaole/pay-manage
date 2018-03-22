@@ -60,7 +60,7 @@
 <div id="main">
     <div class="cashier-nav">
         <ol>
-            <li class="current">提交信息（代付请求） </li>
+            <li class="current">提交信息（代付查单） </li>
         </ol>
     </div>
     <form action="testDFQuery" method="post"  target="_blank">

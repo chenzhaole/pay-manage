@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-    <title>代付查单页面</title>
+    <title>代付查询余额页面</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="css/index.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
@@ -50,7 +50,7 @@
 <div id="main">
     <div class="cashier-nav">
         <ol>
-            <li class="current">提交信息（代付请求） </li>
+            <li class="current">提交信息（代付查询余额） </li>
         </ol>
     </div>
     <form action="testDFBalance" method="post"  target="_blank">
