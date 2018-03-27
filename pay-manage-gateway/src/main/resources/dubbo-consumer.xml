@@ -48,7 +48,7 @@
 	<dubbo:reference id="tradeTxQuickPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxQuickPayHandler" timeout="30000"/>
 
 	<!-- [boss-trad] 收银台处理句柄 -->
-	<dubbo:reference id="tradeCashierHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierHandler" timeout="30000"/>
+	<!--<dubbo:reference id="tradeCashierHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierHandler" timeout="30000"/>-->
 
 	<!-- [boss-trad] 统一扫码，下单支付处理句柄 -->
 	<dubbo:reference id="tradeCommPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCommPayHandler" timeout="30000"/>
@@ -64,6 +64,7 @@
 
 	<!-- [boss-trad] 网页支付-->
 	<dubbo:reference id="tradeCashierMchtHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler" timeout="30000"/>
+	<dubbo:reference id="tradeCashierPlatHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierPlatHandler" timeout="30000"/>
 	<dubbo:reference id="tradeCashierCallbackHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler" timeout="30000"/>
 
 	<!-- [boss-trad] 代付-->

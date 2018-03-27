@@ -34,9 +34,15 @@
 </div>
 
 <div class="tipbox">
-    <p>如遇支付问题请联系客服</p>
-    <p><span class="tag">客服热线 </span><span> 400-000-0000</span></p>
-    <p><span class="tag">客服QQ </span><span> 0000000000</span></p>
+    <c:if test="${ !empty mobile || !empty qq}">
+        <p>如遇支付问题请联系客服</p>
+    </c:if>
+    <c:if test="${ !empty mobile}">
+        <p><span class="tag">客服热线 </span><span> ${mobile}</span></p>
+    </c:if>
+    <c:if test="${ !empty qq}">
+        <p><span class="tag">客服QQ </span><span> ${qq}</span></p>
+    </c:if>
 </div>
 </body>
 </html>

@@ -200,6 +200,17 @@ body {
 		border: 1px solid #999;
 		color: #757575;
 }
+
+.dialog .aui-dialog-footer div:first-child{
+	border: 1px solid #999;
+	color: #757575;
+	background: transparent;
+}
+.dialog .aui-dialog-footer div:nth-child(2){
+	background: #62B900;
+	color: #FFF;
+	border: none;
+}
 .aui-dialog-footer{
 	justify-content: space-around;
 }

@@ -10,7 +10,7 @@ function toOrderQuery(queryInfo){
     setTimeout("orderQueryDeal('"+queryInfo+"')",1000);
 }
 
-/*查单接口处理*/
+/*查单接口处理轮询*/
 function orderQueryDeal(queryInfo){
     intervalTime++;
     if (intervalTime>120){
@@ -23,7 +23,7 @@ function orderQueryDeal(queryInfo){
         dataType:'text' ,
         async:true,
         success:function(data){
-            if (data=="2"||data=="-1" || data == '4002' || data == '4001'){
+            if (data==2||data==-1 || data == 4002 || data == 4001){
                 //查到结果后，关闭轮询
                 location.href=callbackUrl;
             }else {
@@ -35,3 +35,22 @@ function orderQueryDeal(queryInfo){
         }
     });
 }
+
+
+/*查单接口,查询订单状态*/
+function orderStatusQuery(queryInfo){
+    $.ajax({
+        type:"POST",
+        url: "/gateway/cashier/queryResult",
+        data: queryInfo,
+        dataType:'text' ,
+        async:false,
+        success:function(data){
+            $("#selectStatus").val(data);
+        },
+        error:function(){
+            //alert ("error");
+        }
+    });
+}
+

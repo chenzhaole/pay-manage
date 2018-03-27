@@ -24,15 +24,30 @@
             </div>
             
             <div class="submitBox">	
-              <a href="">
-                <input type="submit" class="reverseBtn" value="返回">
-              </a>
+              <a>
+				  <div class="aui-btn aui-btn-define1" onclick="goback(this)">返回</div>
+			  </a>
             </div>
         </div>
         <div class="tipbox">
-		<p>如遇支付问题请联系客服</p>
-		<p><span class="tag">客服热线 </span><span> 400-000-0000</span></p>
-		<p><span class="tag">客服QQ </span><span> 0000000000</span></p>
-	</div>
+			<c:if test="${ !empty mobile || !empty qq}">
+				<p>如遇支付问题请联系客服</p>
+			</c:if>
+			<c:if test="${ !empty mobile}">
+				<p><span class="tag">客服热线 </span><span> ${mobile}</span></p>
+			</c:if>
+			<c:if test="${ !empty qq}">
+				<p><span class="tag">客服QQ </span><span> ${qq}</span></p>
+			</c:if>
+		</div>
 	</body>
+	<script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
+	<script src="${ctxStatic}/js/app.js?v=1.1"></script>
+	<script type="text/javascript">
+        //轮训查单需要的参数
+        var callbackUrl = '${callbackUrl}';
+        function goback(el) {
+            location.href = callbackUrl;
+        }
+	</script>
 </html>
