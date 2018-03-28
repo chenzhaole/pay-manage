@@ -58,7 +58,7 @@ public class PayGwServiceImpl implements PayGwService {
 	protected final Logger logger = LoggerFactory.getLogger(PayGwServiceImpl.class);
 
 	@Autowired
-	private TradeService tradeService;
+	public TradeService tradeService;
 
 	@Autowired
 	private PlatBankcardValidService platBankcardValidService;
