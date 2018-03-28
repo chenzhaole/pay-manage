@@ -94,7 +94,7 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 			logger.info(BIZ_NAME+"请求接收参数：" + JSON.toJSONString(tradeRequest));
 
 			//判断biz参数值
-			if (!PayTypeEnum.OWNERSHIP.getCode().equals(tradeRequest.getHead().getBiz())) {
+			if (!PayTypeEnum.OWNERSHIP.getCode().equals(tradeRequest.getHead().getBiz()) && !"55".equals(tradeRequest.getHead().getBiz())) {
 				checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
 				checkResp.setRespCode("[biz]请求参数值错误");
 				logger.info(BIZ_NAME+"[biz]请求参数值不是银行卡归属信息查询的支付类型CODE 入参biz=" + tradeRequest.getHead().getBiz() +" 正确的biz=" + PayTypeEnum.OWNERSHIP.getCode());
