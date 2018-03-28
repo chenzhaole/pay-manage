@@ -235,10 +235,17 @@ public class MchtRegisteController extends BaseController {
 			registeRequestBody.setSettleCardCvv(mchtBankCard.getCreditCvv());
 			registeRequestBody.setSettleCardExpDate(mchtBankCard.getCreditExpDate());
 			registeRequestBody.setBankAccountMobile(mchtBankCard.getBankAccountMobile());
+			registeRequestBody.setTel(mchtBankCard.getBankAccountMobile());
 			registeRequestBody.setSettleBankAccountNo(mchtBankCard.getBankCardNo());
 			registeRequestBody.setSettleAccountName(mchtBankCard.getBankAccountName());
 			registeRequestBody.setSettleBankName(platBankMap.get(mchtBankCard.getPlatBankCode()));
 			registeRequestBody.setSettleBankAcctType(mchtBankCard.getAccountType());
+			registeRequestBody.setProvince(mchtBankCard.getProvinceCode());
+			registeRequestBody.setSettleBankProvince(mchtBankCard.getProvinceCode());
+			registeRequestBody.setCity(mchtBankCard.getCityCode());
+			registeRequestBody.setSettleBankCity(mchtBankCard.getCityCode());
+			registeRequestBody.setDistrict("朝阳区");
+			registeRequestBody.setOrganizationCode("org0000542");
 
 			registeRequestBody.setBankRateType(platFeerate.getFeeType());
 			registeRequestBody.setBankSettleCycle(platFeerate.getSettleCycle());
@@ -250,6 +257,150 @@ public class MchtRegisteController extends BaseController {
 			registeRequestBody.setUserId(chanRegiste.getMchtCode());
 
 			registeRequestBody.setParam(chanMchtPaytypeId);
+			registeRequestBody.setEmail(mchtBankCard.getId());//平台的bankCard表Id
+			registeRequest.setBody(registeRequestBody);
+
+			result = tradeMchtRegiste4ExistingMchtHandler.process(registeRequest, "admin后台");
+		}
+
+		return result.getRespMsg();
+	}
+
+	/**
+	 * 通道修改费率
+	 */
+	@RequestMapping(value = {"changeRegiste", ""}, produces = "application/json; charset=utf-8")
+	@ResponseBody
+	public String changeRegiste(HttpServletRequest request, HttpServletResponse response, Model model,
+							@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+
+		CommonResult result = new CommonResult();
+		result.setRespMsg("执行失败");
+
+		//要录入新通道的记录Id
+		String mchtChanRegisteId = paramMap.get("mchtChanRegisteId");
+
+		//要补录的通道商户支付方式Id
+		String chanMchtPaytypeId = paramMap.get("chanMchtPaytypeId");
+
+		List<MchtChanRegiste> mchtInfoList;
+		MchtChanRegiste mchtChanRegiste;
+
+		if (StringUtils.isBlank(mchtChanRegisteId)){
+			MchtChanRegiste mchtChanRegisteSearch = new MchtChanRegiste();
+			mchtChanRegisteSearch.setChanMchtPaytypeId(chanMchtPaytypeId);
+			//选出通道的所有成功入驻记录
+			mchtInfoList = mchtChanRegisteService.list(mchtChanRegisteSearch);
+		}else {
+			mchtInfoList = new ArrayList<>();
+			mchtChanRegiste = mchtChanRegisteService.queryByKey(mchtChanRegisteId);
+			if (mchtChanRegiste != null){
+				mchtInfoList.add(mchtChanRegiste);
+			}
+		}
+
+		if (Collections3.isEmpty(mchtInfoList)){
+			result.setRespMsg("no record");
+			return "未查询到商户的成功入驻信息";
+		}
+
+		// 用户银行卡
+		List<MchtBankCard> mchtBankCards = mchtBankCardService.list(new MchtBankCard());
+		Map<String, MchtBankCard> mchtBankCardMap = Collections3.extractToMap(mchtBankCards, "id");
+
+		//查询商户列表
+		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+		Map<String, MchtInfo> mchtMap = Collections3.extractToMap(mchtList, "id");
+
+		//查询平台银行列表
+		List<PlatBank> platBanks = platBankService.list(new PlatBank());
+		Map<String, String> platBankMap = Collections3.extractToMap(platBanks, "bankCode", "bankName");
+
+
+		TradeMchtRegisteRequest registeRequest;
+		TradeReqHead head;
+		MchtRegisteRequestBody registeRequestBody;
+		MchtBankCard mchtBankCard;
+		MchtInfo mchtInfo;
+		MchtProductFormInfo mchtProductFormInfo = new MchtProductFormInfo();
+		List<MchtProduct> mchtProducts;
+		PlatFeerate platFeerate;
+
+		// 遍历入驻新通道
+		for (MchtChanRegiste chanRegiste : mchtInfoList) {
+
+			mchtBankCard = mchtBankCardMap.get(chanRegiste.getMchtBankCardId());
+			mchtInfo = mchtMap.get(chanRegiste.getMchtCode());
+
+			//校验数据、排除已入驻该通道的记录
+			if (mchtBankCard == null || mchtInfo == null) {
+				continue;
+			}
+			registeRequest = new TradeMchtRegisteRequest();
+
+			mchtProductFormInfo.setMchtId(chanRegiste.getMchtCode());
+			mchtProducts = mchtProductAdminService.getProductListByMchtId(mchtProductFormInfo);
+
+			// 根据mchtId查询Product信息
+			PlatProduct product = null;
+			for (MchtProduct mprod : mchtProducts) {
+				product = productService.queryByKey(mprod.getProductId());
+				if (PayTypeEnum.QUICK_TX.getCode().equals(product.getPayType())) {
+					break;
+				}
+			}
+
+			if (product == null) {
+				continue;
+			}
+
+			//查找最新费率
+			platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode(),
+					chanRegiste.getMchtCode() + "&" + product.getId());
+
+			head = new TradeReqHead();
+			head.setMchtId(ConfigUtil.getValue("ykzlMchtId"));
+			head.setVersion("20");
+			head.setBiz("qj01");
+			registeRequest.setHead(head);
+
+			registeRequestBody = new MchtRegisteRequestBody();
+			registeRequestBody.setOrderId("RE_" + chanRegiste.getId());
+			registeRequestBody.setName(mchtInfo.getName());
+			registeRequestBody.setAddress(mchtInfo.getCompanyAdr());
+			registeRequestBody.setMchtType(mchtInfo.getMchtType());
+			registeRequestBody.setLegalName(mchtBankCard.getBankAccountName());
+			registeRequestBody.setLegalCertType(mchtBankCard.getCertType());
+			registeRequestBody.setLegalCertNo(mchtBankCard.getCertNo());
+//			registeRequestBody.setSettleBankNo(mchtBankCard.getPlatBankCode());
+			registeRequestBody.setSettleCardType(mchtBankCard.getBankCardType());
+			registeRequestBody.setSettleCardCvv(mchtBankCard.getCreditCvv());
+			registeRequestBody.setSettleCardExpDate(mchtBankCard.getCreditExpDate());
+			registeRequestBody.setBankAccountMobile(mchtBankCard.getBankAccountMobile());
+			registeRequestBody.setTel(mchtBankCard.getBankAccountMobile());
+			registeRequestBody.setSettleBankAccountNo(mchtBankCard.getBankCardNo());
+			registeRequestBody.setSettleAccountName(mchtBankCard.getBankAccountName());
+//			registeRequestBody.setSettleBankName(platBankMap.get(mchtBankCard.getPlatBankCode()));
+			registeRequestBody.setSettleBankAcctType(mchtBankCard.getAccountType());
+			registeRequestBody.setProvince(mchtBankCard.getProvinceCode());
+			registeRequestBody.setSettleBankProvince(mchtBankCard.getProvinceCode());
+			registeRequestBody.setCity(mchtBankCard.getCityCode());
+			registeRequestBody.setSettleBankCity(mchtBankCard.getCityCode());
+			registeRequestBody.setDistrict("朝阳区");
+			registeRequestBody.setOrganizationCode("org0000542");
+
+			registeRequestBody.setMchtType(chanRegiste.getChanRegisteNo());
+			registeRequestBody.setBankRateType("3");//修改类型，1,-修改扣率，3修改结算手续费
+			registeRequestBody.setBankSettleCycle(platFeerate.getSettleCycle());
+			registeRequestBody.setBankDmType("1"); //有无积分
+			registeRequestBody.setBankRate(platFeerate.getFeeRate().doubleValue() + "");
+			registeRequestBody.setBankFee("200");
+
+			registeRequestBody.setOpType("2");//1-申请；2-变更
+			registeRequestBody.setUserId(chanRegiste.getMchtCode());
+
+			registeRequestBody.setParam(chanMchtPaytypeId);
+			registeRequestBody.setEmail(mchtBankCard.getId());//平台的bankCard表Id
 			registeRequest.setBody(registeRequestBody);
 
 			result = tradeMchtRegiste4ExistingMchtHandler.process(registeRequest, "admin后台");

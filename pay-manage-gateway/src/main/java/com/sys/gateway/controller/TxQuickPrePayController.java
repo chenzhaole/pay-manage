@@ -173,12 +173,13 @@ public class TxQuickPrePayController {
                 body.setTradeTime(mchtResult.getPayTime());
                 body.setStatus("SUCCESS");
                 body.setUserId(mchtResult.getUserId());
+                body.setPayUrl(mchtResult.getPayInfo());
                 // 交易类型；1:短信，2:网页 qrCode字段不为空，表示是网页形式
                 /*if(StringUtils.isNotBlank(mchtResult.getQrCode())){
                     body.setTrType("2");
                     body.setPayUrl(mchtResult.getQrCode());
                 }else{*/
-                body.setTrType("1");
+                body.setTrType("2");
 //                }
                 // 签名
                 Map<String, String> params = JSONObject.parseObject(
