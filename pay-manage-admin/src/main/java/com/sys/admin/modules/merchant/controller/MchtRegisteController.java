@@ -219,7 +219,7 @@ public class MchtRegisteController extends BaseController {
 			head = new TradeReqHead();
 			head.setMchtId(ConfigUtil.getValue("ykzlMchtId"));
 			head.setVersion("20");
-			head.setBiz("qj01");
+			head.setBiz("qj101");
 			registeRequest.setHead(head);
 
 			registeRequestBody = new MchtRegisteRequestBody();
@@ -361,7 +361,7 @@ public class MchtRegisteController extends BaseController {
 			head = new TradeReqHead();
 			head.setMchtId(ConfigUtil.getValue("ykzlMchtId"));
 			head.setVersion("20");
-			head.setBiz("qj01");
+			head.setBiz("qj101");
 			registeRequest.setHead(head);
 
 			registeRequestBody = new MchtRegisteRequestBody();
@@ -394,7 +394,7 @@ public class MchtRegisteController extends BaseController {
 			registeRequestBody.setBankSettleCycle(platFeerate.getSettleCycle());
 			registeRequestBody.setBankDmType("1"); //有无积分
 			registeRequestBody.setBankRate(platFeerate.getFeeRate().doubleValue() + "");
-			registeRequestBody.setBankFee("200");
+			registeRequestBody.setBankFee(platFeerate.getFeeAmount().doubleValue() + "");
 
 			registeRequestBody.setOpType("2");//1-申请；2-变更
 			registeRequestBody.setUserId(chanRegiste.getMchtCode());
