@@ -89,8 +89,6 @@
 <body>
 <form action="${ctx}/proxy/confirmCommitBatch" method="post" id="inputForm">
     <input type="hidden" value="${batch.id}" name="batchId" id="batchId"/>
-    <input type="hidden" value="${phone}" name="phone" id="phone"/>
-    <input type="hidden" value="${mchtId}" name="mchtId" id="mchtId"/>
     <table width="100%"  style="border:0" cellspacing="0" cellpadding="1">
         <tr>
             <td align="left">提现总金额：<fmt:formatNumber type="number" value="${batch.totalAmount*0.01}" maxFractionDigits="2"/> 元</td>
