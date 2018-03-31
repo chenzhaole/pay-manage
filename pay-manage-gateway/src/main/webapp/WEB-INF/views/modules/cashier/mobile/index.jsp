@@ -26,7 +26,7 @@
 
         <c:forEach items="${paymentTypes}" var="paymentType">
             <c:if test="${paymentType=='ali'}">
-                <a href="${ctx}/gateway/cashier/pay/${mchtOrderId}/${paymentType}/${extraData}">
+                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/alipay.png" alt="支付宝支付" />
@@ -40,7 +40,7 @@
             </c:if>
 
             <c:if test="${paymentType=='wx'}">
-                <a href="${ctx}/gateway/cashier/pay/${mchtOrderId}/${paymentType}/${extraData}">
+                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/wechat.png" alt="微信支付" />
@@ -53,19 +53,48 @@
                 </a>
             </c:if>
 
-            <%--<c:if test="${supportPayType.supportPayment=='quickpay'}">
-                <a href="./fastpay.html">
+            <c:if test="${paymentType=='qq'}">
+                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
-                            <img src="${ctxStatic}/images/bank.png" alt="快捷支付" />
+                            <img src="${ctxStatic}/images/qq.png" alt="QQ钱包支付" />
                         </div>
-                        <div class="aui-list-item-inner aui-list-item-arrow" >
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <p class="wayName">QQ钱包支付</p>
+                            <p class="wayIntro">推荐拥有QQ钱包的用户使用</p>
+                        </div>
+                    </li>
+                </a>
+            </c:if>
+
+            <c:if test="${paymentType=='yl'}">
+                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <img src="${ctxStatic}/images/union.png" alt="银联二维码支付" />
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <p class="wayName">银联二维码支付</p>
+                            <p class="wayIntro">请使用支持银联二维码功能的客户端支付</p>
+                        </div>
+                    </li>
+                </a>
+            </c:if>
+
+            <c:if test="${paymentType=='qj'}">
+                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <img src="${ctxStatic}/images/union.png" alt="快捷支付" />
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
                             <p class="wayName">快捷支付</p>
                             <p class="wayIntro">直接使用银行卡进行支付</p>
                         </div>
                     </li>
                 </a>
-            </c:if>--%>
+            </c:if>
+
 
         </c:forEach>
     </ul>

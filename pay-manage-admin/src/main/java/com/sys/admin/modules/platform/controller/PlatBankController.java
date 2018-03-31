@@ -123,6 +123,7 @@ public class PlatBankController extends BaseController {
 				platCardBin.setBankName(searchInfo.getBankName());
 				platCardBin.setExtend(searchInfo.getExtend());
 				platCardBin.setStatus(searchInfo.getStatus());
+				searchInfo.setBankCode(platCardBin.getBankCode());
 				searchInfo.setUpdateDate(new Date());
 				result = platBankService.saveByKey(searchInfo);
 			}

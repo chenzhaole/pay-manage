@@ -78,6 +78,8 @@ public class GwCashierCallbackController {
                 if(showResultPage){
                     //展示支付结果页
                     page = this.getPageByDeviceType(deviceType, PageTypeEnum.RESULT.getCode());
+                    //支付结果页需要的参数
+                    model.addAttribute("callbackUrl", callbackUrl);
                 }else{
                     return "redirect:"+callbackUrl;
                 }

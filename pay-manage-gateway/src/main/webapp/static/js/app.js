@@ -103,7 +103,7 @@
 				params.text = params.text ? params.text : '';
 				var msgHtml = '<div class="aui-dialog-body"><input type="text" placeholder="' + params.text + '"></div>';
 			} else {
-				var msgHtml = params.msg ? '<div class="aui-dialog-body">' + params.msg + '</div>' : '<div class="aui-dialog-body">' + self.params.msg + '</div>';
+				var msgHtml = params.msg ? '<div class="aui-dialog-body" style="text-align: center;">' + params.msg + '</div>' : '<div class="aui-dialog-body">' + self.params.msg + '</div>';
 			}
 			var buttons = params.buttons ? params.buttons : self.params.buttons;
 			if(buttons && buttons.length > 0) {
