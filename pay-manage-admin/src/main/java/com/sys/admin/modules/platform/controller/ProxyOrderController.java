@@ -1,6 +1,7 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.google.common.collect.Maps;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
@@ -58,6 +59,8 @@ public class ProxyOrderController extends BaseController {
 
     @Autowired
     private PlatFeerateService feerateService;
+    @Autowired
+    private MchtAccountInfoService mchtAccountInfoService;
 
 
     /**
@@ -286,15 +289,13 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("toCommitBatch")
     public String toCommitBatch(Model model){
-        String mchtId = null;//todo 商户ID,待补充
-        BigDecimal balance = null;//todo 商户余额,待补充
-
-        balance = BigDecimal.valueOf(20000);//todo 测试
-        mchtId = "17359b78";//todo 测试
+        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
+        String mchtId = JedisUtil.get("mchtId");
+        BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
 
         MchtInfo mcht = merchantService.queryByKey(mchtId);
         model.addAttribute("balance",balance);
-        model.addAttribute("mcht",mcht);
+        model.addAttribute("mchtName",mcht.getName());
         return "modules/proxy/commitBatch";
     }
 
@@ -302,8 +303,10 @@ public class ProxyOrderController extends BaseController {
      * 提交代付
      */
     @RequestMapping("commitBatch")
-    public String commitBatch(String mchtId,Double balance,MultipartFile file,Model model,RedirectAttributes redirectAttributes){
-        logger.info("【提交代付】接受参数 商户ID={} 余额={}",mchtId,balance);
+    public String commitBatch(MultipartFile file,Model model,RedirectAttributes redirectAttributes){
+        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
+        String mchtId = JedisUtil.get("mchtId");
+
         String messageType = null;
         String message = null;
         try {
@@ -317,20 +320,26 @@ public class ProxyOrderController extends BaseController {
                 //读取数据
                 readExcel(mchtId,sheet,fee,batch,details);
 
+                BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
                 BigDecimal proxyAmount = batch.getTotalAmount().add(batch.getTotalFee());//所需总金额=代付金额+代付手续费
-                logger.info("【提交代付】商户ID={} 余额={} 手续费={} 代付金额={}",mchtId,balance,batch.getTotalFee().doubleValue(),proxyAmount.doubleValue());
+                logger.info("【提交代付】商户ID={} 余额={} 手续费={} 代付金额={}",
+                        mchtId,balance,batch.getTotalFee().stripTrailingZeros().toPlainString(),proxyAmount.stripTrailingZeros().toPlainString());
                 //余额是否充足校验
-                if(balance.doubleValue()-proxyAmount.doubleValue()>=0){
+                if(balance.compareTo(proxyAmount)>=0){
                     JedisUtil.set(IdUtil.REDIS_PROXYPAY_BATCH+batch.getId(),JSON.toJSONString(batch),2*3600);
                     JedisUtil.set(IdUtil.REDIS_PROXYPAY_DETAILS+batch.getId(),JSON.toJSONString(details),2*3600);
 
-                    MchtInfo mchtInfo = merchantService.queryByKey(mchtId);
+                    MchtInfo mcht = merchantService.queryByKey(mchtId);
+                    String phone = mcht.getPhone();
+                    phone = phone.substring(0, 3) + "****"
+                            + phone.substring(7, phone.length());
+
                     model.addAttribute("batch",batch);
                     model.addAttribute("details",details);
                     model.addAttribute("proxyFee",batch.getTotalFee().doubleValue());
                     model.addAttribute("proxyAmount",proxyAmount.doubleValue());
-                    model.addAttribute("phone",mchtInfo.getPhone());
-                    model.addAttribute("mchtId",mchtInfo.getId());
+                    model.addAttribute("phone",phone);
+
                 }else{
                     messageType = "error";
                     message = "代付失败，商户余额不足！";
@@ -369,10 +378,7 @@ public class ProxyOrderController extends BaseController {
                     batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId),PlatProxyBatch.class);
                     List<PlatProxyDetail> details = JSON.parseArray(
                             JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS+batchId),PlatProxyDetail.class);
-                    proxyBatchService.create(batch);
-                    for(PlatProxyDetail detail : details){
-                        proxyDetailService.create(detail);
-                    }
+                    proxyBatchService.saveBatchAndDetails(batch,details);
                     respMsg = "ok";
                 }else{
                     respMsg = "batch exsit";
@@ -393,7 +399,12 @@ public class ProxyOrderController extends BaseController {
      * 发送短信验证码
      */
     @RequestMapping("sendMsg")
-    public void sendMsg(String batchId,String phone,String mchtId,HttpServletResponse response) throws IOException {
+    public void sendMsg(String batchId,HttpServletResponse response) throws IOException {
+        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
+        String mchtId = JedisUtil.get("mchtId");
+        MchtInfo mcht = merchantService.queryByKey(mchtId);
+        String phone = mcht.getPhone();
+
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
@@ -414,6 +425,7 @@ public class ProxyOrderController extends BaseController {
         response.setCharacterEncoding("utf-8");
         response.getWriter().print(respMsg);
     }
+
 
     /**
      * 发短信
