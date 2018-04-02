@@ -40,5 +40,6 @@
 	<dubbo:reference id="tradeMchtRegiste4ExistingMchtHandler" interface="com.sys.boss.api.service.trade.handler.ITradeMchtRegiste4ExistingMchtHandler" />
 	<dubbo:reference id="mchtBankCardService" interface="com.sys.core.service.MchtBankCardService" />
 	<dubbo:reference id="mchtAccountInfoService" interface="com.sys.core.service.MchtAccountInfoService" />
-
+	<dubbo:reference id="platAccountAdjustService" interface="com.sys.core.service.PlatAccountAdjustService" />
+	<dubbo:reference id="mchtAccountDetailService" interface="com.sys.core.service.MchtAccountDetailService" />
 </beans>
