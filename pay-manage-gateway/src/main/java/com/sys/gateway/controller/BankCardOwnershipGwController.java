@@ -49,7 +49,7 @@ public class BankCardOwnershipGwController {
 	private BankCardOwnershipGwService bankCardOwnershipGwService;
 
 	/**银行卡归属信息查询**/
-    @RequestMapping(value="/gateway/ownership")
+    @RequestMapping(value="/gateway/ownership", produces = "application/json; charset=utf-8")
     @ResponseBody
     public String ownership(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
         

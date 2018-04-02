@@ -7,18 +7,18 @@ import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheOrder;
 import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.boss.api.entry.trade.TradeNotify;
-import com.sys.boss.api.entry.trade.request.cashier.CashierRequestBody;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
 import com.sys.boss.api.entry.trade.request.quickpay.TXQuickPrePayRequest;
-import com.sys.boss.api.entry.trade.request.quickpay.TXQuickPrePayRequestBody;
 import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.boss.api.service.trade.handler.ITradePayNotifyHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.util.*;
+import com.sys.common.util.BeanUtils;
+import com.sys.common.util.HttpUtil;
+import com.sys.common.util.PostUtil;
+import com.sys.common.util.SignUtil;
 import com.sys.core.dao.dmo.MchtGatewayOrder;
-import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.MchtGwOrderService;
 import com.sys.core.service.MerchantService;
 import com.sys.gateway.service.GwRecNotifyService;
@@ -33,7 +33,10 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 /**
  * @Description:网关支付业务处理实现类
@@ -97,7 +100,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
     private TradeNotify geneTradeNotifyInfo(String payType, CacheTrade cacheTrade) {
         //从CacheTrade对象获取信息
         //不允许为空
-        Trade trade = JSON.parseObject(JSONObject.toJSONString(cacheTrade.getTrade()), Trade.class);
+        Trade trade = (Trade) cacheTrade.getTrade();
         //不允许为空
         CacheOrder cacheOrder = cacheTrade.getCacheOrder();
         //不允许为空
@@ -151,11 +154,12 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                     //缓存数据失效，去数据库查询的时间，商户通知url暂存在quick实体中
                     notifyUrl = quick.getNotifyUrl();
                 }else{
-                    JSONObject jsonObject = (JSONObject) JSONObject.toJSON(cacheTrade.getTradeBaseRequest());
-                    TXQuickPrePayRequestBody tXQuickPrePayRequestBody = JSON.parseObject(jsonObject.getString("body"), TXQuickPrePayRequestBody.class);
-                    notifyUrl = tXQuickPrePayRequestBody.getNotifyUrl();
+                    TXQuickPrePayRequest tXQuickPrePayRequest = (TXQuickPrePayRequest) cacheTrade.getTradeBaseRequest();
+                    notifyUrl = tXQuickPrePayRequest.getBody().getNotifyUrl();
                 }
                 logger.info(BIZ+",此订单是快捷支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
+            } else if (PayTypeEnum.MERCHANT_REGISTER.equals(payType)) {
+                //TODO 商户入驻
             }else{
                 //第三方支付
                 order = trade.getOrder();
@@ -166,9 +170,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                     //缓存数据失效，去数据库查询的时间，商户通知url暂存在Order实体中
                     notifyUrl = order.getNotifyUrl();
                 }else{
-                    JSONObject jsonObject = (JSONObject) JSONObject.toJSON(cacheTrade.getTradeBaseRequest());
-                    CashierRequestBody cashierRequestBody = JSON.parseObject(jsonObject.getString("body"), CashierRequestBody.class);
-                    notifyUrl = cashierRequestBody.getNotifyUrl();
+                    TradeCashierRequest tradeCashierRequest = (TradeCashierRequest) cacheTrade.getTradeBaseRequest();
+                    notifyUrl = tradeCashierRequest.getBody().getNotifyUrl();
                 }
                 logger.info(BIZ+",此订单第三方支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
             }
@@ -185,10 +188,6 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             body.setTradeId(platOrderId);
             body.setStatus(status);
             body.setAmount(amount);
-            // TODO 具体时间再议，目前是给当前时间
-            body.setChargeTime(DateUtils2.getNowTimeStr(DateUtils2.STR_DATEFORMATE_yyyyMMddHHmmss));
-            body.setSeq(IdUtil.getUUID());
-            body.setBiz(payType);
             body.setBankCardNo(bankCardNo);
 
             tradeNotifyResponse.setHead(head);
@@ -258,19 +257,6 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         } finally {
             logger.info(message);
         }
-        return commonResult;
-    }
-
-    /**
-     * 模拟商户接收异步通知
-     * @param mchtId
-     * @return
-     */
-    @Override
-    public CommonResult testMchtNotifyInfo(String mchtId) {
-        CommonResult commonResult = new CommonResult();
-        MchtInfo mchtInfo = merchantService.queryByKey(mchtId);
-        commonResult.setData(mchtInfo);
         return commonResult;
     }
 
@@ -374,7 +360,5 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         //TODO:
         return null;
     }
-
-
 
 }

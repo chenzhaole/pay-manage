@@ -1,19 +1,13 @@
 package com.sys.gateway.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.cache.CacheTrade;
-import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.util.BeanUtils;
-import com.sys.common.util.SignUtil;
-import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.gateway.service.GwRecNotifyService;
 import com.sys.gateway.service.GwSendNotifyService;
 import com.sys.trans.api.entry.Trade;
 import com.sys.trans.exception.TransException;
-import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +16,6 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-
-import java.util.HashMap;
-import java.util.TreeMap;
 
 /**
  * 接收通道异步通知
@@ -71,11 +62,6 @@ public class GwRecNotifyController {
             }else{
                 logger.info(BIZ+platOrderId+"，通知商户失败");
             }
-        }else if(ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())){
-            //防止上游重复补抛异步通知--暂时返回success，后期会改造从平台录入
-
-            resp2chan = "success";
-            logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求,此笔订单已经成功，这是上游在重复补抛，不予处理，给上游通道返回resp2chan="+resp2chan);
         }else{
             logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
         }
@@ -84,43 +70,7 @@ public class GwRecNotifyController {
         return resp2chan;
     }
 
-    /**
-     * 模拟商户接受异步通知
-     * @param request
-     * @return
-     */
-    @RequestMapping("testNotify")
-    @ResponseBody
-    public String testNotify(@RequestBody String data) {
-        String result = "ERROR";
-        try {
-            if(StringUtils.isNotBlank(data)){
-                TradeNotifyResponse beanData = JSON.parseObject(data, TradeNotifyResponse.class);
-                String mchtId = beanData.getBody().getMchtId();
-                String platOrderId = beanData.getBody().getTradeId();
-                String mchtOrderId = beanData.getBody().getOrderId();
-                logger.info("模拟商户接收异步通知，接收到的数据为："+ JSONObject.toJSONString(data));
-                CommonResult commonResult = sendNotifyService.testMchtNotifyInfo(mchtId);
-                if(null != commonResult && null != commonResult.getData()){
-                    MchtInfo mchtInfo = (MchtInfo) commonResult.getData();
-                    String key = mchtInfo.getMchtKey();
-                    TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(beanData.getBody());
-                    String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), key);
-                    logger.info("模拟商户接收异步通知，签名串为："+ JSONObject.toJSONString(treeMap)+"，密钥为key："+key);
-                    if(beanData.getSign().equals(sign)){
-                        result = "SUCCESS";
-                        logger.info("模拟商户接收异步通知，platOrderId："+platOrderId+"，mchtOrderId："+mchtOrderId+"，签名通过，返回给支付平台的数据为："+result);
-                    }
-                }
-            }else{
-                logger.info("模拟商户接收异步通知，接收到的数据为null");
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        logger.info("模拟商户接收异步通知，返回给支付平台的结果为："+result);
-        return result;
-    }
+
 
 
 }

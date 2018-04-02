@@ -117,12 +117,6 @@
     </label>
 </div>
 
-<div class="shadow" style="display:block;">
-    <div id="tbl_brand_processing" class="dataProcessing">
-        <img src="${ctxStatic}/images/loading.gif"><span>&nbsp;&nbsp;处理中...</span>
-    </div>
-</div>
-
 <form id="channelForm" action="" method="post">
     <input type="hidden" id="op" name="op" value="${op }"/>
     <input type="hidden" name="id" value="${chanBank.id }"/>

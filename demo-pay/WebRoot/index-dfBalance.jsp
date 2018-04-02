@@ -2,7 +2,7 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html>
 <head>
-    <title>代付查询余额页面</title>
+    <title>代付查单页面</title>
     <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
     <link href="css/index.css" rel="stylesheet" type="text/css">
     <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
@@ -41,6 +41,16 @@
             }
         }
         function doSubmit(){
+            var batchOrderNo = $.trim($('input[name=batchOrderNo]').val());
+            if(batchOrderNo == ''){
+                alert('商户代付批次号不能为空');
+                return false;
+            }
+            var tradeId = $.trim($('input[name=tradeId]').val());
+            if(tradeId == ''){
+                alert('平台代付批次号不能为空');
+                return false;
+            }
 
             $('form').submit();
         }
@@ -50,7 +60,7 @@
 <div id="main">
     <div class="cashier-nav">
         <ol>
-            <li class="current">提交信息（代付查询余额） </li>
+            <li class="current">提交信息（代付请求） </li>
         </ol>
     </div>
     <form action="testDFBalance" method="post"  target="_blank">
@@ -60,7 +70,7 @@
                 <dt>代付查单地址：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="payUrl" value="http://localhost:12080/df/gateway/balance" maxlength="128" size="40"  placeholder="长度128"/>
+                    <input name="payUrl" value="http://localhost:12080/df/gateway/req/" maxlength="128" size="40"  placeholder="长度128"/>
                     <span class="null-star">(payUrl)*</span>
                     <span></span>
                 </dd>
@@ -68,7 +78,7 @@
                 <dt>商户编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="mchtId" value="183252b8" maxlength="32" size="16"  placeholder="长度32"/>
+                    <input name="mchtId" value="17b1652b" maxlength="32" size="16"  placeholder="长度32"/>
                     <span class="null-star">(mchtId)*</span>
                     <span></span>
                 </dd>
@@ -84,7 +94,7 @@
                 <dd>
                     <span class="null-star"></span>
                     <select name="biz">
-                        <option value="df02">代付</option>
+                        <option value="aliJspay">代付</option>
                     </select>
                     <span class="null-star">(biz)*</span>
                     <span></span>
@@ -93,7 +103,7 @@
                 <dt>商户秘钥：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="key" value="04b69b8f5a8b4314" maxlength="32"  size="40" placeholder=""/>
+                    <input name="key" value="36c7675514eb435aafcd774e2c81d67d" maxlength="32"  size="40" placeholder=""/>
                     <span class="null-star">(key)*</span>
                     <span></span>
                 </dd>

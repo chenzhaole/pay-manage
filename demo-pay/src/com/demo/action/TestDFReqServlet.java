@@ -10,7 +10,6 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
-import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -42,9 +41,8 @@ public class TestDFReqServlet extends HttpServlet {
             data.put("head", head);
             data.put("body", body);
             data.put("sign", sign);
-            System.out.println("请求数据："+data.toJSONString());
             respStr = PostUtil.post(payUrl, data.toJSONString());
-            System.out.println("响应数据："+respStr);
+            System.out.println(respStr);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -63,15 +61,11 @@ public class TestDFReqServlet extends HttpServlet {
     private Map<String, String> getBodyMap(HttpServletRequest req) {
         Map<String,String> map = new HashMap();
         try {
-            String detail = AESUtil.Encrypt(req.getParameter("detail").trim(),req.getParameter("key"));
-            System.out.println("utf-8编码前："+detail);
-            detail = URLEncoder.encode(detail,"UTF-8");
-            System.out.println("utf-8编码后："+detail);
-            map.put("batchOrderNo", req.getParameter("batchOrderNo").trim());
-            map.put("totalNum", req.getParameter("totalNum").trim());
-            map.put("totalAmount", req.getParameter("totalAmount").trim());
+            map.put("batchOrderNo", req.getParameter("batchOrderNo"));
+            map.put("totalNum", req.getParameter("totalNum"));
+            map.put("totalAmount", req.getParameter("totalAmount"));
             map.put("notifyUrl", req.getParameter("notifyUrl"));
-            map.put("detail", detail);
+            map.put("detail", AESUtil.Encrypt(req.getParameter("detail"),req.getParameter("key")));
         } catch (Exception e) {
             e.printStackTrace();
         }

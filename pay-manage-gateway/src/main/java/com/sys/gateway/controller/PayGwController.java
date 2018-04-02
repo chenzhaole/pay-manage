@@ -113,7 +113,7 @@ public class PayGwController {
 	}
 
 	/**公众号支付**/
-	@RequestMapping(value="/gateway/pubPay")
+	@RequestMapping(value="/gateway/pubPay", produces = "application/json; charset=utf-8")
 	@ResponseBody
 	public String pubPay(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
 		logger.info("queryListResult收到客户端请求参数：data="+data);
@@ -142,7 +142,7 @@ public class PayGwController {
 	}
 
 	/**快捷支付--快捷预消费接口**/
-	@RequestMapping(value="/gateway/quickPrePay")
+	@RequestMapping(value="/gateway/quickPrePay", produces = "application/json; charset=utf-8")
 	@ResponseBody
 	public String quickPrePay(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
 		logger.info("快捷支付--快捷预消费接口收到客户端请求参数：data="+data);
@@ -179,7 +179,7 @@ public class PayGwController {
 	}
 
 	/**快捷支付--快捷验证支付接口**/
-	@RequestMapping(value="/gateway/quickValidPay")
+	@RequestMapping(value="/gateway/quickValidPay", produces = "application/json; charset=utf-8")
 	@ResponseBody
 	public String quickValidPay(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
 		logger.info("快捷支付--快捷验证支付接口收到客户端请求参数：data="+data);
@@ -216,7 +216,7 @@ public class PayGwController {
 	}
 
 	/**快捷支付--快捷解绑接口**/
-	@RequestMapping(value="/gateway/quickUnbundPay")
+	@RequestMapping(value="/gateway/quickUnbundPay", produces = "application/json; charset=utf-8")
 	@ResponseBody
 	public String quickUnbundPay(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
 		logger.info("快捷支付--快捷解绑接口收到客户端请求参数：data="+data);
@@ -253,7 +253,7 @@ public class PayGwController {
 	}
 
 	/**四要素和六要素认证**/
-	@RequestMapping(value="/gateway/authCardElement")
+	@RequestMapping(value="/gateway/authCardElement", produces = "application/json; charset=utf-8")
 	@ResponseBody
 	public String authCardElement(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
 		logger.info("实名认证即四要素、六要素认证接口收到客户端请求参数：data="+data);

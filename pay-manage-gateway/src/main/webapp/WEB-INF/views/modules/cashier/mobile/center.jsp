@@ -18,15 +18,13 @@
 </header>
 <div class="item">
     <div style="display:none" >
-        ${payInfo}
+        ${result.payInfo}
     </div>
     <div class="tipText">
         <p class="warnTip"><img src="${ctxStatic}/images/lamp.png" alt="温馨提示"  class="lamp"/>温馨提示</p>
         <p>支付时请注意身边安全,并注意避免重复支付。</p>
     </div>
-    <c:if test="${'01' == callMode && '0' == iframe}">
-        <iframe id="ifrmname" name="ifrmname" style="display: none;" src="${payInfo}"></iframe>
-    </c:if>
+
     <div class="submitBox">
         <a>
             <div class="aui-btn aui-btn-define1" onclick="goback(this)">返回</div>
@@ -48,6 +46,14 @@
 </div>
 </body>
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
+<<<<<<< HEAD
+<script type="text/javascript">
+    $(function(){
+        var callMode = '${callMode}';
+        if("01" == callMode){
+            //01：h5支付通过location.href方式唤起支付
+            location.href = '${payInfo}';
+=======
 <script src="${ctxStatic}/js/app.js?v=1.1"></script>
 <script src="${ctxStatic}/js/rotationOrder.js?version=1.7"></script>
 <script type="text/javascript">
@@ -69,6 +75,7 @@
                 //01：h5支付通过location.href方式唤起支付
                 location.href = '${payInfo}';
             }
+>>>>>>> origin/master
         }else if("02" == callMode){
             //02：h5支付通过form表单方式唤起支付
             // TODO

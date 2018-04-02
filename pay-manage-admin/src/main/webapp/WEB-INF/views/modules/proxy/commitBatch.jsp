@@ -25,11 +25,9 @@
 <body>
 <tags:message content="${message}" type="${messageType}"/>
 
-<span style="font-size:15px;padding-left:15px;">商户名称：${mcht.name}&nbsp;&nbsp;&nbsp;&nbsp;账户余额：<fmt:formatNumber type="number" value="${balance*0.01}" maxFractionDigits="2"/>元</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+<span style="font-size:15px;padding-left:15px;">商户名称：${mchtName}&nbsp;&nbsp;&nbsp;&nbsp;账户余额：<fmt:formatNumber type="number" value="${balance*0.01}" maxFractionDigits="2"/>元</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
 <span style="color: red;font-size:8px;">提示：账户余额小于35.0元时不能代付</span>
 <form action="${ctx}/proxy/commitBatch" method="post" enctype="multipart/form-data">
-    <input type="hidden" name="mchtId" value="${mcht.id}"/>
-    <input type="hidden" name="balance" value="${balance}"/>
 <table width="100%" border="1" cellspacing="0" cellpadding="1">
     <tr>
         <td width="20%" align="center" colspan="2"><b>代付文件上传</b></td>
@@ -105,11 +103,11 @@
                             说明4：如果要素齐全，一般15分钟到账
                         </td>
                     </tr>
-                    <tr>
+                   <%-- <tr>
                         <td align="left" colspan="3">
                             更多说明：<a href="${ctxStatic}/doc/readme.pdf">商户操作手册下载</a>
                         </td>
-                    </tr>
+                    </tr>--%>
                 </table>
         </td>
     </tr>

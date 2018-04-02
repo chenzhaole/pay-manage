@@ -92,7 +92,7 @@
                 <dt>商户编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="mchtId" value="183252b8" maxlength="32" size="16"  placeholder="长度32"/>
+                    <input name="mchtId" value="17b1652b" maxlength="32" size="16"  placeholder="长度32"/>
                     <span class="null-star">(mchtId)*</span>
                     <span></span>
                 </dd>
@@ -108,7 +108,7 @@
                 <dd>
                     <span class="null-star"></span>
                     <select name="biz">
-                        <option value="df02">代付</option>
+                        <option value="aliJspay">代付</option>
                     </select>
                     <span class="null-star">(biz)*</span>
                     <span></span>
@@ -181,7 +181,7 @@
                 <dt>商户秘钥：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="key" value="04b69b8f5a8b4314" maxlength="32"  size="40" placeholder=""/>
+                    <input name="key" value="36c7675514eb435aafcd774e2c81d67d" maxlength="32"  size="40" placeholder=""/>
                     <span class="null-star">(key)*</span>
                     <span></span>
                 </dd>

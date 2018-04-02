@@ -39,4 +39,6 @@
 	<dubbo:reference id="proxyBatchService" interface="com.sys.core.service.ProxyBatchService" />
 	<dubbo:reference id="tradeMchtRegiste4ExistingMchtHandler" interface="com.sys.boss.api.service.trade.handler.ITradeMchtRegiste4ExistingMchtHandler" />
 	<dubbo:reference id="mchtBankCardService" interface="com.sys.core.service.MchtBankCardService" />
+	<dubbo:reference id="mchtAccountInfoService" interface="com.sys.core.service.MchtAccountInfoService" />
+
 </beans>

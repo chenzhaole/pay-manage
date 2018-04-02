@@ -43,33 +43,4 @@ public class PostUtil {
 		}
 		return result;
 	}
-
-	public static String post(String url, String postContent,String charset) {
-		String result = "";
-		HttpClient httpclient = null;
-		try {
-			httpclient = new DefaultHttpClient();
-			HttpParams params = httpclient.getParams();
-			HttpConnectionParams.setConnectionTimeout(params, 20000);
-			HttpConnectionParams.setSoTimeout(params, 20000);
-			HttpPost httppost = new HttpPost(url);
-			StringEntity reqEntity = new StringEntity(postContent, charset);
-			// 设置类型
-			reqEntity.setContentType("application/x-www-form-urlencoded");
-
-			// 设置请求的数据
-			httppost.setEntity(reqEntity);
-			// 执行
-			HttpResponse response = httpclient.execute(httppost);
-			HttpEntity entity = response.getEntity();
-			if (entity != null) {
-				result = EntityUtils.toString(entity,"UTF-8");
-			}
-		} catch (Exception e) {
-
-		} finally {
-			httpclient.getConnectionManager().shutdown();
-		}
-		return result;
-	}
 }
