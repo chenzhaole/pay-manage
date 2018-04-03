@@ -9,6 +9,7 @@ import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatAccountAdjust;
 import com.sys.core.service.MchtAccountDetailService;
+import com.sys.core.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -30,7 +31,8 @@ import java.util.Map;
 public class MchtAccountDetailController extends BaseController{
     @Autowired
     private MchtAccountDetailService mchtAccountDetailService;
-
+    @Autowired
+    private MerchantService merchantService;
 
     /**
      * 账务明细列表
@@ -55,6 +57,13 @@ public class MchtAccountDetailController extends BaseController{
 
         List<MchtAccountDetail> list = mchtAccountDetailService.list(mchtAccountDetail);
         int count = mchtAccountDetailService.count(mchtAccountDetail);
+
+        //初始化商户名称
+        Map<String,String> mchtMap = com.sys.common.util.Collections3.extractToMap(
+                merchantService.list(new MchtInfo()),"id","name");
+        for(MchtAccountDetail detail : list){
+            detail.setMchtName(mchtMap.get(detail.getMchtId()));
+        }
 
         Page page = new Page(pageInfo.getPageNo(),pageInfo.getPageSize(),count,true);
 
