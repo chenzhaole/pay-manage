@@ -264,7 +264,7 @@
         <function-signature>boolean endsWith(java.lang.CharSequence, java.lang.CharSequence)</function-signature>
         <example>${fns:endsWith(str,suffix)}</example>
     </function>
-    <function>
+    <!--<function>
         <description>缩写字符串，超过最大宽度用“...”表示</description>
         <name>abbr</name>
         <function-class>org.apache.commons.lang3.StringUtils</function-class>
@@ -277,10 +277,10 @@
         <function-class>org.apache.commons.lang3.StringUtils</function-class>
         <function-signature>java.lang.String replaceHtml(java.lang.String)</function-signature>
         <example>${fns:replaceHtml(html)}</example>
-    </function>
+    </function>-->
 
     <!-- DateUtils -->
-    <function>
+    <!--<function>
         <description>获取当前日期</description>
         <name>getDate</name>
         <function-class>com.sys.admin.common.utils.DateUtils</function-class>
@@ -293,18 +293,18 @@
         <function-class>com.sys.admin.common.utils.DateUtils</function-class>
         <function-signature>long pastDays(java.util.Date)</function-signature>
         <example>${fns:pastDays(date)}</example>
-    </function>
+    </function>-->
     <function>
         <description>格式化时间</description>
         <name>formatDate</name>
-        <function-class>com.sys.admin.common.utils.DateUtils</function-class>
+        <function-class>com.sys.common.util.DateUtils</function-class>
         <function-signature>java.lang.String formatDate(java.util.Date)</function-signature>
         <example>${fns:formatDate(date)}</example>
     </function>
     <function>
         <description>格式化时间</description>
         <name>formatTime</name>
-        <function-class>com.sys.admin.common.utils.DateUtils</function-class>
+        <function-class>com.sys.common.util.DateUtils</function-class>
         <function-signature>java.lang.String formatDate(java.util.Date,java.lang.String))</function-signature>
         <example>${fns:formatDate(date)}</example>
     </function>

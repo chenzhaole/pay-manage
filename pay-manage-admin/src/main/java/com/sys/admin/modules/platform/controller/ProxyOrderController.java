@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.google.common.collect.Maps;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
+import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.*;
@@ -19,6 +20,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -61,6 +63,8 @@ public class ProxyOrderController extends BaseController {
     private PlatFeerateService feerateService;
     @Autowired
     private MchtAccountInfoService mchtAccountInfoService;
+    @Value("${sms_send}")
+    private String sms_send;
 
 
     /**
@@ -366,12 +370,30 @@ public class ProxyOrderController extends BaseController {
     @RequestMapping("confirmCommitBatch")
     public void confirmCommitBatch(String batchId,String smsCode,HttpServletResponse response)throws IOException {
         logger.info("【确认代付】接受参数 代付批次ID={} 验证码={}",batchId,smsCode);
+        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
+        String mchtId = JedisUtil.get("mchtId");
+
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
-            String cacheCode = JedisUtil.get(IdUtil.REDIS_PROXYPAY_SMS_CODE+batchId);
+            Map<String,Object> paramsMap = new HashMap<>();
+            paramsMap.put("version","1.0");
+            paramsMap.put("mchtId", mchtId);
+            paramsMap.put("biz","df01");
+            paramsMap.put("orderId",batchId);
+            paramsMap.put("verifyCode",smsCode);
+            paramsMap.put("opType","2");
+
+            String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
+            paramsMap.put("sign",sign);
+
+            String url = sms_send+"/gateway/sms/verify";
+            logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
+            String postResp = PostUtil.postForm(url,paramsMap);
+            logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
+
             //校验验证码
-            if(StringUtils.equals(cacheCode,smsCode)){
+            if(StringUtils.equals(postResp,"0000")){
                 PlatProxyBatch batch = proxyBatchService.queryByKey(batchId);
                 //判断数据库是否存在该批次
                 if(batch == null){
@@ -402,19 +424,27 @@ public class ProxyOrderController extends BaseController {
     public void sendMsg(String batchId,HttpServletResponse response) throws IOException {
         //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
         String mchtId = JedisUtil.get("mchtId");
-        MchtInfo mcht = merchantService.queryByKey(mchtId);
-        String phone = mcht.getPhone();
-
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
-            //生成验证码
-            int smsCode = NumberUtils.buildRandom(6);
-            logger.info("【代付验证码】发送短信 批次号={} 商户号={} 手机号={} 验证码={}",batchId,mchtId,phone,smsCode);
-            //发送短信
-            boolean status = sendPlatSms(phone,mchtId,smsCode);
-            if(status){
-                JedisUtil.set(IdUtil.REDIS_PROXYPAY_SMS_CODE+batchId,smsCode+"",300);
+
+            Map<String,Object> paramsMap = new HashMap<>();
+            paramsMap.put("version","1.0");
+            paramsMap.put("mchtId", mchtId);
+            paramsMap.put("biz","df01");
+            paramsMap.put("orderId",batchId);
+            paramsMap.put("opType","1");
+
+            String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
+            paramsMap.put("sign",sign);
+
+
+            String url = sms_send+"/gateway/sms/send";
+            logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
+            String postResp = PostUtil.postForm(url,paramsMap);
+            logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
+
+            if(StringUtils.equals(postResp,"0000")){
                 respMsg = "ok";
             }
         } catch (Exception e) {
@@ -424,51 +454,6 @@ public class ProxyOrderController extends BaseController {
         response.setContentType(contentType);
         response.setCharacterEncoding("utf-8");
         response.getWriter().print(respMsg);
-    }
-
-
-    /**
-     * 发短信
-     **/
-    private boolean sendPlatSms(String mobile, String midoid,int smsCode) {
-        boolean result = false;
-
-        String sendTime = "";//String	可空	发送时间,为空表示立即发送	yyyyMMddHHmmss 格式
-        String appendID = "12";//String	必填	附加号码，例如：固定值 01，表示：展鸿软通 	短信内容中会显示 【展鸿软通】字样，若后期需要扩展新的附加号码，需向我方申请
-        // String desMobile = clientRequest.getBody().getMobilePhone();//String	必填	手机号	发送单条消息时，此字段填写11位的手机号码 。群发消息时，此字段为使用逗号分隔的手机号码串，每批发送的手机号数量不得超过500个
-        String contents = "尊敬的客户，您的验证码为：" + smsCode + "，请在5分钟内完成验证。如非本人操作，请无视此短信";//String	必填	发送消息内容最长不超过500字	需URL编码，见 备注1
-        try {
-            contents = URLEncoder.encode(URLEncoder.encode(contents, "UTF-8"), "UTF-8");
-
-            String contentType = "15";//String	必填	消息类型取值有15和8	15：以普通短信形式下发，8：以长短信形式下发
-            String spid = "1";//String	必填	用来标识短信端口号 	固定值 1
-            String num = "1000";//String	必填	短信有效期，单位 秒	例如：1000 秒
-            String pvData = appendID + contents + contentType + mobile + num + sendTime + spid;
-            String key = "248125f5e61b41f39d9609d952eeed64";
-            String pvalidate = "";//String	必填	签名信息	根据签名工具和双方事先约定好的的秘钥对参数进行加密，加密工具类，及其秘钥参见后文 ：加密秘钥来源 和 加密工具类。	签名生成规则见后文中的：签名生成规则
-
-            pvalidate = MD5Util.MD5Encode(pvData + key);
-
-            String url = "http://115.28.179.55:9000/gdsms/sendSms";
-            String reqData = "?sendTime=" + sendTime + "&appendID=" + appendID + "&desMobile=" + mobile//
-                    + "&contents=" + contents + "&contentType=" + contentType + "&spid=" + spid + "&num=" + num//
-                    + "&pvalidate=" + pvalidate;
-            url = url + reqData;
-            logger.info( midoid + " 发送短信请求url：" + url);
-
-            String retData = "";
-            retData = HttpUtil.get(url);
-            retData = URLDecoder.decode(retData, "UTF-8");
-            logger.info( midoid + " 发送短信返回值retData：" + retData);
-
-            //{"msg":"请求成功","status":"0"}
-            String status = JSON.parseObject(retData).getString("status");
-            result = "0".equals(status);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error( midoid + " 发送短信【error】异常，e.msg：" + e.getMessage());
-        }
-        return result;
     }
 
     /**
@@ -523,7 +508,7 @@ public class ProxyOrderController extends BaseController {
         batch.setId(batchId);
         batch.setMchtId(mchtId);
         batch.setUserId(null);//todo
-        batch.setPayType(PayTypeEnum.SINGLE_DF.getCode());
+        batch.setPayType(PayTypeEnum.BATCH_DF.getCode());
         batch.setTotalNum(null);//todo
         batch.setPayStatus(ProxyPayBatchStatusEnum.AUDIT_SUCCESS.getCode());
         batch.setCreateTime(new Date());
@@ -582,7 +567,7 @@ public class ProxyOrderController extends BaseController {
                 detail.setId(IdUtil.createProxDetailId("0"));
                 detail.setBatchId(batchId);
                 detail.setMchtId(mchtId);
-                detail.setPayType(PayTypeEnum.SINGLE_DF.getCode());
+                detail.setPayType(PayTypeEnum.BATCH_DF.getCode());
                 detail.setChannelTradeId(detail.getId());
                 detail.setBankCardNo(destAccountNo);
                 detail.setBankCardName(destAccountName);
@@ -623,7 +608,7 @@ public class ProxyOrderController extends BaseController {
         if(!Collections3.isEmpty(mchtProductList)){
             for(MchtProduct mchtProduct : mchtProductList){
                 PlatProduct product = productService.queryByKey(mchtProduct.getProductId());
-                if(StringUtils.equals(product.getPayType(),PayTypeEnum.SINGLE_DF.getCode())){
+                if(StringUtils.equals(product.getPayType(),PayTypeEnum.BATCH_DF.getCode())){
                     String bizType = FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode();
                     String bizRefId = mchtId + "&" + product.getId();
                     PlatFeerate feerate = feerateService.getValidFeerate(bizType, bizRefId);
