@@ -293,10 +293,8 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("toCommitBatch")
     public String toCommitBatch(Model model){
-        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
-        String mchtId = JedisUtil.get("mchtId");
+        String mchtId = UserUtils.getUser().getLoginName();
         BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
-
         MchtInfo mcht = merchantService.queryByKey(mchtId);
         model.addAttribute("balance",balance);
         model.addAttribute("mchtName",mcht.getName());
@@ -308,9 +306,7 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("commitBatch")
     public String commitBatch(MultipartFile file,Model model,RedirectAttributes redirectAttributes){
-        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
-        String mchtId = JedisUtil.get("mchtId");
-
+        String mchtId = UserUtils.getUser().getLoginName();
         String messageType = null;
         String message = null;
         try {
@@ -370,43 +366,46 @@ public class ProxyOrderController extends BaseController {
     @RequestMapping("confirmCommitBatch")
     public void confirmCommitBatch(String batchId,String smsCode,HttpServletResponse response)throws IOException {
         logger.info("【确认代付】接受参数 代付批次ID={} 验证码={}",batchId,smsCode);
-        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
-        String mchtId = JedisUtil.get("mchtId");
-
+        String mchtId = UserUtils.getUser().getLoginName();
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
-            Map<String,Object> paramsMap = new HashMap<>();
-            paramsMap.put("version","1.0");
-            paramsMap.put("mchtId", mchtId);
-            paramsMap.put("biz","df01");
-            paramsMap.put("orderId",batchId);
-            paramsMap.put("verifyCode",smsCode);
-            paramsMap.put("opType","2");
+            //校验代付批次
+            if(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId)!=null){
+                Map<String,Object> paramsMap = new HashMap<>();
+                paramsMap.put("version","1.0");
+                paramsMap.put("mchtId", mchtId);
+                paramsMap.put("biz","df01");
+                paramsMap.put("orderId",batchId);
+                paramsMap.put("verifyCode",smsCode);
+                paramsMap.put("opType","2");
 
-            String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
-            paramsMap.put("sign",sign);
+                String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
+                paramsMap.put("sign",sign);
 
-            String url = sms_send+"/gateway/sms/verify";
-            logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
-            String postResp = PostUtil.postForm(url,paramsMap);
-            logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
+                String url = sms_send+"/gateway/sms/verify";
+                logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
+                String postResp = PostUtil.postForm(url,paramsMap);
+                logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
 
-            //校验验证码
-            if(StringUtils.equals(postResp,"0000")){
-                PlatProxyBatch batch = proxyBatchService.queryByKey(batchId);
-                //判断数据库是否存在该批次
-                if(batch == null){
-                    batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId),PlatProxyBatch.class);
-                    List<PlatProxyDetail> details = JSON.parseArray(
-                            JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS+batchId),PlatProxyDetail.class);
-                    proxyBatchService.saveBatchAndDetails(batch,details);
-                    respMsg = "ok";
+                //校验验证码
+                if(StringUtils.equals(postResp,"0000")){
+                    PlatProxyBatch batch = proxyBatchService.queryByKey(batchId);
+                    //判断数据库是否存在该批次
+                    if(batch == null){
+                        batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId),PlatProxyBatch.class);
+                        List<PlatProxyDetail> details = JSON.parseArray(
+                                JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS+batchId),PlatProxyDetail.class);
+                        proxyBatchService.saveBatchAndDetails(batch,details);
+                        respMsg = "ok";
+                    }else{
+                        respMsg = "batch exist in db";
+                    }
                 }else{
-                    respMsg = "batch exsit";
+                    respMsg = "smscode error";
                 }
             }else{
-                respMsg = "smscode error";
+                respMsg = "batch not exist in redis";
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -422,30 +421,33 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("sendMsg")
     public void sendMsg(String batchId,HttpServletResponse response) throws IOException {
-        //todo 商户平台应根据当前登陆用户获取商户ID, 此处为了方便测试，先从缓存里去固定值，待补充
-        String mchtId = JedisUtil.get("mchtId");
+        String mchtId = UserUtils.getUser().getLoginName();
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
 
-            Map<String,Object> paramsMap = new HashMap<>();
-            paramsMap.put("version","1.0");
-            paramsMap.put("mchtId", mchtId);
-            paramsMap.put("biz","df01");
-            paramsMap.put("orderId",batchId);
-            paramsMap.put("opType","1");
+            if(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId)!=null){
+                Map<String,Object> paramsMap = new HashMap<>();
+                paramsMap.put("version","1.0");
+                paramsMap.put("mchtId", mchtId);
+                paramsMap.put("biz","df01");
+                paramsMap.put("orderId",batchId);
+                paramsMap.put("opType","1");
 
-            String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
-            paramsMap.put("sign",sign);
+                String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
+                paramsMap.put("sign",sign);
 
 
-            String url = sms_send+"/gateway/sms/send";
-            logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
-            String postResp = PostUtil.postForm(url,paramsMap);
-            logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
+                String url = sms_send+"/gateway/sms/send";
+                logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
+                String postResp = PostUtil.postForm(url,paramsMap);
+                logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
 
-            if(StringUtils.equals(postResp,"0000")){
-                respMsg = "ok";
+                if(StringUtils.equals(postResp,"0000")){
+                    respMsg = "ok";
+                }
+            }else{
+                respMsg = "batch not exist in redis";
             }
         } catch (Exception e) {
             e.printStackTrace();

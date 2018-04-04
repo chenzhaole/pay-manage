@@ -12,6 +12,7 @@ import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatAccountAdjust;
+import com.sys.core.service.MchtAccountInfoService;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatAccountAdjustService;
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +24,8 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
@@ -38,6 +41,8 @@ public class PlatAccountAdjustController extends BaseController {
     private PlatAccountAdjustService platAccountAdjustService;
     @Autowired
     private MerchantService merchantService;
+    @Autowired
+    private MchtAccountInfoService mchtAccountInfoService;
 
     @ModelAttribute
     public PlatAccountAdjust get(@RequestParam(required = false) String id){
@@ -139,6 +144,21 @@ public class PlatAccountAdjustController extends BaseController {
         platAccountAdjust.setUpdateTime(new Date());
         platAccountAdjustService.saveByKey(platAccountAdjust);
         return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/adjust/list";
+    }
+
+    /**
+     * 查询余额
+     */
+    @RequestMapping("balance")
+    public void balance(String mchtId,HttpServletResponse response) throws IOException {
+        BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
+        balance = balance.divide(BigDecimal.valueOf(100));
+
+        String contentType = "text/plain";
+        response.reset();
+        response.setContentType(contentType);
+        response.setCharacterEncoding("utf-8");
+        response.getWriter().print(balance.stripTrailingZeros().toPlainString());
     }
 
 }

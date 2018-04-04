@@ -26,14 +26,12 @@
             //发送验证码
             $("#sendMsg").click(function () {
                 var batchId = $("#batchId").val();
-                var phone = $("#phone").val();
-                var mchtId = $("#mchtId").val();
                 $.ajax({
                     url:'${ctx}/proxy/sendMsg',
                     type:'POST', //GET
                     async:true,    //或false,是否异步
                     data:{
-                        'batchId':batchId,'phone':phone,'mchtId':mchtId
+                        'batchId':batchId
                     },
                     timeout:5000,    //超时时间
                     dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -41,6 +39,8 @@
                         console.log(data);
                         if(data=='ok')
                             alert("发送成功");
+                        else if(data == 'batch not exist in redis')
+                            alert('代付信息异常，请重新上传excel！');
                         else
                             alert("发送失败，请联系管理员！");
                     }
@@ -50,8 +50,6 @@
             //提交确认代付
             $("#submitBut").click(function () {
                 var batchId = $("#batchId").val();
-                var phone = $("#phone").val();
-                var mchtId = $("#mchtId").val();
                 var smsCode = $("#smsCode").val().trim();
                 if(smsCode == ""){
                     alert("请输入验证码！");
@@ -61,7 +59,7 @@
                         type:'POST', //GET
                         async:true,    //或false,是否异步
                         data:{
-                            'batchId':batchId,'phone':phone,'mchtId':mchtId,'smsCode':smsCode
+                            'batchId':batchId,'smsCode':smsCode
                         },
                         timeout:5000,    //超时时间
                         dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -70,10 +68,12 @@
                             if(data=='ok') {
                                 alert("代付提交成功");
                                 window.location.href = "${ctx}/proxy/proxyBatchList";
-                            }else if(data == 'batch exsit') {
+                            }else if(data == 'batch exist in db') {
                                 alert("代付提交失败，该代付批次已经存在！");
                             }else if(data == 'smscode error') {
                                 alert("代付提交失败，短信验证码有误！");
+                            }else if(data == 'batch not exist in redis'){
+                                alert("代付信息异常，请重新上传excel！");
                             }else {
                                 alert("系统异常，请联系管理员！");
                             }
