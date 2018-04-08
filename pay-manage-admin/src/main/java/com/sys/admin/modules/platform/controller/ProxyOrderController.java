@@ -19,6 +19,7 @@ import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -295,6 +296,7 @@ public class ProxyOrderController extends BaseController {
      * 发起代付页面
      */
     @RequestMapping("toCommitBatch")
+    @RequiresPermissions("mcht:proxy:commit")
     public String toCommitBatch(Model model){
         String mchtId = UserUtils.getUser().getLoginName();
         BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
@@ -308,6 +310,7 @@ public class ProxyOrderController extends BaseController {
      * 提交代付
      */
     @RequestMapping("commitBatch")
+    @RequiresPermissions("mcht:proxy:commit")
     public String commitBatch(MultipartFile file,Model model,RedirectAttributes redirectAttributes){
         String mchtId = UserUtils.getUser().getLoginName();
         String messageType = null;
@@ -367,6 +370,7 @@ public class ProxyOrderController extends BaseController {
      * 确认代付信息
      */
     @RequestMapping("confirmCommitBatch")
+    @RequiresPermissions("mcht:proxy:commit")
     public void confirmCommitBatch(String batchId,String smsCode,HttpServletResponse response)throws IOException {
         logger.info("【确认代付】接受参数 代付批次ID={} 验证码={}",batchId,smsCode);
         String mchtId = UserUtils.getUser().getLoginName();
@@ -423,6 +427,7 @@ public class ProxyOrderController extends BaseController {
      * 发送短信验证码
      */
     @RequestMapping("sendMsg")
+    @RequiresPermissions("mcht:proxy:commit")
     public void sendMsg(String batchId,HttpServletResponse response) throws IOException {
         String mchtId = UserUtils.getUser().getLoginName();
         String contentType = "text/plain";

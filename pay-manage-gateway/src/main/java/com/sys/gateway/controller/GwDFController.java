@@ -61,7 +61,7 @@ public class GwDFController {
             logger.info("代付API，【代付请求接口】收到客户端请求参数后做url解码后的值为：data="+data);
 
             //校验请求参数
-            CommonResponse checkResp = tradeDFReqHandler.checkParam(data);
+            CommonResponse checkResp = tradeDFReqHandler.checkParam(data,ip);
             logger.info("代付API，【代付请求接口】校验请求参数的结果为："+ JSONObject.toJSONString(checkResp));
 
             if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
@@ -104,7 +104,7 @@ public class GwDFController {
 
 
             //校验请求参数
-            CommonResponse checkResp = tradeDFBalanceHandler.checkParam(data);
+            CommonResponse checkResp = tradeDFBalanceHandler.checkParam(data,ip);
             logger.info("代付API，【代付余额查询接口】校验请求参数的结果为："+ JSONObject.toJSONString(checkResp));
 
             if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
@@ -144,7 +144,7 @@ public class GwDFController {
             data = URLDecoder.decode(data, "utf-8");
             logger.info("代付API，【代付查单接口】收到客户端请求参数后做url解码后的值为：data="+data);
             //校验请求参数
-            CommonResponse checkResp = tradeDFQueryOrderHandler.checkParam(data);
+            CommonResponse checkResp = tradeDFQueryOrderHandler.checkParam(data,ip);
             logger.info("代付API，【代付查单接口】校验请求参数的结果为："+ JSONObject.toJSONString(checkResp));
 
             if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
