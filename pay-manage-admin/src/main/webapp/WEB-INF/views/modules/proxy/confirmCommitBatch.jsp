@@ -22,9 +22,15 @@
         }
     </style>
     <script type="text/javascript">
+        var InterValObj; //timer变量，控制时间
+        var count = 60; //间隔函数，1秒执行
+        var curCount;//当前剩余秒数
+
         $(document).ready(function(){
             //发送验证码
             $("#sendMsg").click(function () {
+                curCount = count;
+
                 var batchId = $("#batchId").val();
                 $.ajax({
                     url:'${ctx}/proxy/sendMsg',
@@ -36,13 +42,17 @@
                     timeout:5000,    //超时时间
                     dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
                     success:function(data){
-                        console.log(data);
-                        if(data=='ok')
+                        if(data=='ok') {
                             alert("发送成功");
-                        else if(data == 'batch not exist in redis')
+                            //设置button效果，开始计时
+                            $("#sendMsg").attr("disabled", "true");
+                            $("#sendMsg").val("请在" + curCount + "秒内输入验证码");
+                            InterValObj = window.setInterval(SetRemainTime, 1000); //启动计时器，1秒执行一次
+                        }else if(data == 'batch not exist in redis') {
                             alert('代付信息异常，请重新上传excel！');
-                        else
+                        }else {
                             alert("发送失败，请联系管理员！");
+                        }
                     }
                 });
             });
@@ -84,6 +94,19 @@
             });
 
         });
+
+        //timer处理函数
+        function SetRemainTime() {
+            if (curCount == 0) {
+                window.clearInterval(InterValObj);//停止计时器
+                $("#sendMsg").removeAttr("disabled");//启用按钮
+                $("#sendMsg").val("重新发送验证码");
+            }
+            else {
+                curCount--;
+                $("#sendMsg").val("请在" + curCount + "秒内输入验证码");
+            }
+        }
     </script>
 </head>
 <body>
@@ -101,7 +124,7 @@
         <tr>
             <td align="left">预留手机号码：${phone}</td>
             <td align="left">
-                手机验证码：<input type="text" name="smsCode" id="smsCode"/> <input type="button" value="发送短信" id="sendMsg"/>&nbsp;&nbsp;<input type="button" value="确认提交" id="submitBut"/>
+                手机验证码：<input type="text" name="smsCode" id="smsCode"/> <input type="button" value="发送验证码" id="sendMsg"/>&nbsp;&nbsp;<input type="button" value="确认提交" id="submitBut"/>
             </td>
         </tr>
     </table>
