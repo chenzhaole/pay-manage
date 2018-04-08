@@ -10,7 +10,7 @@
 </head>
 <body style="text-align: center">
     <form id="search" action="${ctx}/gateway/cashier/mchtCall" method="post" >
-        商户编号: <input type="text" value="18101331" name="mchtId"/><br>
+        商户编号: <input type="text" value="1848e6fe" name="mchtId"/><br>
         版本: <input type="text" value="20" name="version"/><br>
         支付类型:
         <select name="biz">
@@ -47,13 +47,13 @@
             <option value="qj301">网银/网银退款支付</option>
         </select>
         <br>
-        商户订单号: <input type="text" value="<%= System.currentTimeMillis() %>" name="orderId"/><br>
+        商户订单号: <input type="text" value="${mchtOrderId}" name="orderId"/><br>
         订单时间: <input type="text" value="<%= new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) %>" name="orderTime"/><br>
         金额: <input type="text" value="10" name="amount"/>【分】<br>
         商品名称: <input type="text" value="游戏充值" name="goods"/><br>
-        notifyUrl: <input type="text" value="http://www.baidu.com" name="notifyUrl"/><br>
-        callBackUrl: <input type="text" value="http://www.baidu.com" name="callBackUrl"/><br>
-        商品描述: <input type="text" value="10元大礼包" name="desc"/><br>
+        notifyUrl: <input type="text" value="http://${testUrl}/testNotify" name="notifyUrl"/><br>
+        callBackUrl: <input type="text" value="http://${testUrl}/gateway/cashier/testResult/${mchtOrderId}" name="callBackUrl"/><br>
+        商品描述: <input type="text" value="超级大礼包" name="desc"/><br>
         应用ID: <input type="text" value="" name="appId"/><br>
         应用名称: <input type="text" value="" name="appName"/><br>
         操作员编号: <input type="text" value="" name="operator"/><br>
@@ -66,7 +66,7 @@
             <option value="3">微信内</option>
             <option value="4">支付宝内</option>
         </select><br>
-        签名Key: <input type="text" value="4b5893bda3254933bf5d49c3675c3bc1" name="mchtKey"/><br>
+        签名Key: <input type="text" value="605091ae24f8404086b56d74a20c9812" name="mchtKey"/><br>
         sign: <input type="text" name="sign" id="sign"> <input type="button" value="签名" id="genSign"/><br>
         <input type="submit" value="提交"/>
     </form>

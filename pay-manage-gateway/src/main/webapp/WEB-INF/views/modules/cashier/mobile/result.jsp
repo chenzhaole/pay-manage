@@ -44,7 +44,6 @@
 	<script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 	<script src="${ctxStatic}/js/app.js?v=1.1"></script>
 	<script type="text/javascript">
-        //轮训查单需要的参数
         var callbackUrl = '${callbackUrl}';
         function goback(el) {
             location.href = callbackUrl;

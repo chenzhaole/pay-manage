@@ -23,12 +23,31 @@ function orderQueryDeal(queryInfo){
         dataType:'text' ,
         async:true,
         success:function(data){
-            if (data=="2"||data=="-1" || data == '4002' || data == '4001'){
+            if (data=="2"||data=="-1" || data == "4002" || data == "4001"){
                 //查到结果后，关闭轮询
                 location.href=callbackUrl;
             }else {
                 setTimeout("orderQueryDeal('"+queryInfo+"')",1000);
             }
+        },
+        error:function(){
+            //alert ("error");
+        }
+    });
+}
+
+
+
+/*查单接口处理*/
+function orderStatusQuery(queryInfo){
+    $.ajax({
+        type:"POST",
+        url: "/gateway/cashier/queryResult",
+        data: queryInfo,
+        dataType:'text' ,
+        async:true,
+        success:function(data){
+            $("#selectStatus").val(data);
         },
         error:function(){
             //alert ("error");

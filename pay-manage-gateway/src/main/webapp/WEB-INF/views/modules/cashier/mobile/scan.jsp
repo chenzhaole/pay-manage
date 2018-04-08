@@ -48,7 +48,7 @@
     提示:&nbsp;支付成功后回到本页面,点击下方按钮返回
 </p>
 <div class="aui-content aui-margin-b-15">
-
+    <input style="display: none" id="selectStatus" value=""/>
     <div class="aui-btn aui-btn-define1" onclick="goback(this)">已完成支付,点我返回</div>
 </div>
 
@@ -66,7 +66,7 @@
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script src="${ctxStatic}/js/app.js?v=1.0"></script>
 <script src="${ctxStatic}/js/cashier.js?v=1.0"></script>
-<script src="${ctxStatic}/js/rotationOrder.js?version=1.7"></script>
+<script src="${ctxStatic}/js/rotationOrder.js?version=1.9"></script>
 <script type="text/javascript">
     //拼接页面回调地址
     var callbackUrl = "/gateway/cashier/chanCallBack/${platOrderId}/${payType}";

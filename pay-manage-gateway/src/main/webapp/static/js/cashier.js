@@ -2,26 +2,29 @@ var countDownStatusWx = "0"; //微信支付倒计时状态 0 初始值; 1 计时
 var countDownStatusAli = "0";//支付宝倒计时状态 0 初始值; 1 计时中; 2 计时结束
 var countDownStatusQQWallet = "0";//qq钱包倒计时状态
 var countDownStatusUnionQrCode = "0";//银联二维码倒计时状态
+var countDownStatusJDQrCode = "0";//京东二维码倒计时状态
+var countDownStatusSNQrCode = "0";//苏宁二维码倒计时状态
 var platOrderId = "";
 
 /**
  *  获取二维码
  **/
-function getQrCode(tab) {
-    var paytype = tab.split("_")[1];
-    var supportPay = tab.split("_")[0];
+function getQrCode(paymentType) {
 
-    var ajax = supportPay=="wxpay"? (countDownStatusWx=="0"?true:false) :
-               supportPay=="alipay"?(countDownStatusAli=="0"?true:false) :
-                 supportPay=="qqpay"?(countDownStatusQQWallet=="0"?true:false) :
-                supportPay=="unionpay"?(countDownStatusUnionQrCode=="0"?true:false):
-                  supportPay=="other_cardpay"?true:false;
+    var ajax = paymentType=="wx"? (countDownStatusWx=="0"?true:false) :
+        paymentType=="al"?(countDownStatusAli=="0"?true:false) :
+            paymentType=="qq"?(countDownStatusQQWallet=="0"?true:false) :
+                paymentType=="yl"?(countDownStatusUnionQrCode=="0"?true:false):
+                    paymentType=="jd"?(countDownStatusJDQrCode=="0"?true:false):
+                        paymentType=="sn"?(countDownStatusSNQrCode=="0"?true:false):
+               false;
+
     if(ajax){
         //表单序列化处理，开始请求支付
         $.ajax({
             type:"POST",
             url: "/gateway/cashier/ajaxPay",
-            data:{"payType":paytype,"sign":sign,"orderId":orderId},
+            data:{"payType":paymentType,"sign":sign,"orderId":orderId},
             dataType:'text' ,
             async:true,
 
@@ -31,19 +34,19 @@ function getQrCode(tab) {
                 if(jsonData.respCode == "0000"){
                     platOrderId = jsonData.data.platOrderId;
                     var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
-                    if(supportPay == 'wxpay'){
+                    if(paymentType == 'wx'){
                         $("#wxqrcode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"wxTimeout",tab);
-                    }else if(supportPay == 'alipay'){
+                    }else if(paymentType == 'al'){
                         $("#aliqrcode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"aliTimeout",tab);
-                    }else if(supportPay == 'qqpay'){
+                    }else if(paymentType == 'qq'){
                         $("#qqWalletQrcode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"qqTimeout",tab);
-                    }else if(supportPay == 'unionpay'){
+                    }else if(paymentType == 'yl'){
                         $("#unionQrCode").attr("src",jsonData.data.payUrl);
                         countDown(countDownTime,"unionTimeout",tab);
-                    }else if(supportPay == 'other_cardpay'){
+                    }else if(paymentType == 'other_cardpay'){
                         $("#other_cardpay").html(jsonData.data.payInfo);
                         //form表单提交
                     }
@@ -66,25 +69,33 @@ function getQrCode(tab) {
 /**
  *  刷新二维码
  **/
-function reGetQrCode(tab,obj){
+function reGetQrCode(paymentType,obj){
     $(obj).hide();
-    var supportPay = tab.split("_")[0];
-    if(supportPay == "wxpay"){
+    if(paymentType == "wx"){
         countDownStatusWx = "0";
     }
 
-    if(supportPay == "alipay"){
+    if(paymentType == "al"){
         countDownStatusAli = "0";
     }
 
-    if(supportPay == "qqpay"){
+    if(paymentType == "qq"){
         countDownStatusQQWallet = "0";
     }
 
-    if(supportPay == "unionpay"){
+    if(paymentType == "yl"){
         countDownStatusUnionQrCode = "0";
     }
-    getQrCode(tab);
+
+    if(paymentType == "jd"){
+        countDownStatusJDQrCode = "0";
+    }
+
+    if(paymentType == "sn"){
+        countDownStatusSNQrCode = "0";
+    }
+
+    getQrCode(paymentType);
 }
 
 /**
@@ -164,55 +175,55 @@ function countDown(countDownTime,attr,tab){
 
 
 //---------start------------原生js公众号支付------------
-function wechat_public_pay(pub_payInfo, paymentType, orderId){
-    //公众号原生支付
-    var pub_payInfo_json = $.parseJSON(pub_payInfo);
-    //解析参数
-    var appId = pub_payInfo_json.appId;
-    var timeStamp = pub_payInfo_json.timeStamp;
-    var nonceStr = pub_payInfo_json.nonceStr;
-    var packageStr = pub_payInfo_json.package;
-    var signType = pub_payInfo_json.signType;
-    var paySign = pub_payInfo_json.paySign;
-
-    function onBridgeReady(){
-        WeixinJSBridge.invoke(
-            'getBrandWCPayRequest', {
-                "appId" : appId, //公众号名称，由商户传入
-                "timeStamp" : timeStamp, //时间戳，自1970年以来的秒数
-                "nonceStr" : nonceStr, //随机串
-                "package" : packageStr,
-                "signType" : signType,//微信签名方式：
-                "paySign" : paySign //微信签名
-            },
-            function(res){//20170619--运营提需求公众号支付失败不需要扫码
-                if(res.err_msg != "get_brand_wcpay_request:cancel"){
-                    // location.href = "/platcallback/order/"+gatewayId+"/"+paymentType+"/"+orderId; todo 平台callback地址
-                }
-                /*  if(res.err_msg == "get_brand_wcpay_request:ok" ) {
-                 //支付成功，直接跳回到结果页面
-                 redirectResultPageJs(paymentType, orderId);
-                 }else{
-                 if(res.err_msg != "get_brand_wcpay_request:cancel"){
-                 //异步请求后台去下单
-                 failPubToScanPay(paymentType, orderId, uuid, isRaw);
-                 }
-                 }    */
-                // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
-            }
-        );
-    }
-    if (typeof WeixinJSBridge == "undefined"){
-        if( document.addEventListener ){
-            document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
-        }else if (document.attachEvent){
-            document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
-            document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
-        }
-    }else{
-        onBridgeReady();
-    }
-}
+// function wechat_public_pay(pub_payInfo, paymentType, orderId){
+//     //公众号原生支付
+//     var pub_payInfo_json = $.parseJSON(pub_payInfo);
+//     //解析参数
+//     var appId = pub_payInfo_json.appId;
+//     var timeStamp = pub_payInfo_json.timeStamp;
+//     var nonceStr = pub_payInfo_json.nonceStr;
+//     var packageStr = pub_payInfo_json.package;
+//     var signType = pub_payInfo_json.signType;
+//     var paySign = pub_payInfo_json.paySign;
+//
+//     function onBridgeReady(){
+//         WeixinJSBridge.invoke(
+//             'getBrandWCPayRequest', {
+//                 "appId" : appId, //公众号名称，由商户传入
+//                 "timeStamp" : timeStamp, //时间戳，自1970年以来的秒数
+//                 "nonceStr" : nonceStr, //随机串
+//                 "package" : packageStr,
+//                 "signType" : signType,//微信签名方式：
+//                 "paySign" : paySign //微信签名
+//             },
+//             function(res){//20170619--运营提需求公众号支付失败不需要扫码
+//                 if(res.err_msg != "get_brand_wcpay_request:cancel"){
+//                     // location.href = "/platcallback/order/"+gatewayId+"/"+paymentType+"/"+orderId; todo 平台callback地址
+//                 }
+//                 /*  if(res.err_msg == "get_brand_wcpay_request:ok" ) {
+//                  //支付成功，直接跳回到结果页面
+//                  redirectResultPageJs(paymentType, orderId);
+//                  }else{
+//                  if(res.err_msg != "get_brand_wcpay_request:cancel"){
+//                  //异步请求后台去下单
+//                  failPubToScanPay(paymentType, orderId, uuid, isRaw);
+//                  }
+//                  }    */
+//                 // 使用以上方式判断前端返回,微信团队郑重提示：res.err_msg将在用户支付成功后返回    ok，但并不保证它绝对可靠。
+//             }
+//         );
+//     }
+//     if (typeof WeixinJSBridge == "undefined"){
+//         if( document.addEventListener ){
+//             document.addEventListener('WeixinJSBridgeReady', onBridgeReady, false);
+//         }else if (document.attachEvent){
+//             document.attachEvent('WeixinJSBridgeReady', onBridgeReady);
+//             document.attachEvent('onWeixinJSBridgeReady', onBridgeReady);
+//         }
+//     }else{
+//         onBridgeReady();
+//     }
+// }
 
 /**
  *

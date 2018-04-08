@@ -25,7 +25,7 @@
         <li class="aui-list-header">请选择支付方式</li>
 
         <c:forEach items="${paymentTypes}" var="paymentType">
-            <c:if test="${paymentType=='ali'}">
+            <c:if test="${paymentType=='al'}">
                 <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">

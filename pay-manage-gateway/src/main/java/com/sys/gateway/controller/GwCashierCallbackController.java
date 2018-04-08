@@ -3,12 +3,12 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler;
-import com.sys.common.enums.*;
+import com.sys.common.enums.DeviceTypeEnum;
+import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PageTypeEnum;
 import com.sys.common.util.HttpUtil;
-import com.sys.common.util.SignUtil;
-import com.sys.gateway.common.ConfigUtil;
+import com.sys.core.dao.dmo.MchtGatewayOrder;
 import com.sys.gateway.common.IpUtil;
-import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,12 +17,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.ResponseBody;
+
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.HashMap;
 import java.util.Map;
 
 /**
@@ -142,5 +138,24 @@ public class GwCashierCallbackController {
             deviceTypeName = "pc";
         }
         return "modules/cashier/"+deviceTypeName+"/"+pageType;
+    }
+
+    /**
+     * 测试结果页面使用
+     * @param request
+     * @return
+     */
+    @RequestMapping("testResult/{mchtOrderId}")
+    public String testResult(HttpServletRequest request, @PathVariable String mchtOrderId, Model model) {
+        CommonResult commonResult = tradeCashierCallbackHandler.testResult(mchtOrderId);
+        if(null != commonResult && null != commonResult.getData()){
+            MchtGatewayOrder mchtGatewayOrder = (MchtGatewayOrder) commonResult.getData();
+            String status = mchtGatewayOrder.getStatus();
+            model.addAttribute("platOrderId", mchtGatewayOrder.getPlatOrderId());
+            model.addAttribute("status", status);
+        }
+        model.addAttribute("mchtOrderId", mchtOrderId);
+        return "modules/cashier/pc/testResult";
+
     }
 }
