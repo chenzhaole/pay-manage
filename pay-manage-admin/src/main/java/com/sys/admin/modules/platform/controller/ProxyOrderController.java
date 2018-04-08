@@ -63,6 +63,9 @@ public class ProxyOrderController extends BaseController {
     private PlatFeerateService feerateService;
     @Autowired
     private MchtAccountInfoService mchtAccountInfoService;
+    @Autowired
+    private PlatBankService platBankService;
+
     @Value("${sms_send}")
     private String sms_send;
 
@@ -495,23 +498,16 @@ public class ProxyOrderController extends BaseController {
      * 读取数据
      */
     private void readExcel(String mchtId,Sheet sheet,BigDecimal fee,PlatProxyBatch batch,List<PlatProxyDetail> details){
-        double amount = 0.00;// 交易金额
-        double totalAmount = 0.00;// 累计交易金额
+        Map<String,String> bankCodeMap = getBankCodeMap();
+        BigDecimal totalAmount = BigDecimal.valueOf(0);// 累计交易金额
         int totalCount = 0;// 累计交易条数
-        Map<String,String> accountNoMap = new TreeMap<String,String>();//存放收款人卡号
-        List<String> accountNoAmountList = new ArrayList<String>();//存放收款人卡号和金额格式为:"收款人卡号-交易金额"
 
-        String bankCity = "";//开户行所在市
-        String destAccountName = "";// 收款人账户名
-        String destAccountNo = "";// 收款人卡号
-        String bankNameTmp = "";//临时银行名称包括银行编号
         String batchId= IdUtil.createProxBatchId("0");//代付批次ID
         batch.setRequesetType(ProxyPayRequestEnum.PLATFORM.getCode());
         batch.setId(batchId);
         batch.setMchtId(mchtId);
-        batch.setUserId(null);//todo
+        batch.setUserId(UserUtils.getUser().getId().toString());
         batch.setPayType(PayTypeEnum.BATCH_DF.getCode());
-        batch.setTotalNum(null);//todo
         batch.setPayStatus(ProxyPayBatchStatusEnum.AUDIT_SUCCESS.getCode());
         batch.setCreateTime(new Date());
         batch.setUpdateTime(new Date());
@@ -520,79 +516,16 @@ public class ProxyOrderController extends BaseController {
             int k=i+1;//用于提示错误行号
             Row row = sheet.getRow(i);
             if(row!=null){
-                //商户订单号
-                //收款人卡号
-                Cell cell0 = row.getCell(0);
-                if(cell0==null){
-                    throw new RuntimeException("第"+k+"行的收款人卡号为空!");
-                }
-                //收款人户名
-                Cell cell1 = row.getCell(1);
-                if(cell1==null){
-                    throw new RuntimeException("第"+k+"行的收款人户名为空!");
-                }
-                //银行名称
-                Cell cell2 = row.getCell(2);
-                if(cell2==null){
-                    throw new RuntimeException("第"+k+"行的银行名称为空!");
-                }
-                //金额
-                Cell cell3 = row.getCell(3);
-                if(cell3==null){
-                    throw new RuntimeException("第"+k+"行的代付金额为空!");
-                }else{
-                    if(Double.valueOf(getStringData(cell3).trim())<30){
-                        throw new RuntimeException("第"+k+"行的代付金额不能小于30元!");
-                    }
-                    if(Double.valueOf(getStringData(cell3).trim())>50000){
-                        throw new RuntimeException("第"+k+"行的代付金额大于50000元!");
-                    }
-                }
-                /**
-                 * 6月27日，军哥要求暂时去掉城市校验，用户体验不好
-                 */
-                Cell cell4 = row.getCell(4);
-                bankCity = getStringData(cell4);
-
-                destAccountNo = getStringData(cell0).trim();
-                destAccountName = getStringData(cell1).trim();
-                bankNameTmp = getStringData(cell2).trim();
-                amount = Double.valueOf(getStringData(cell3).trim());
-                bankCity = bankCity.trim();
-                //如果destAccountNo不在MAP中则将其存入MAP中用于后面统计收款人卡号是否大于20万
-                if(accountNoMap.get(destAccountNo)==null){
-                    accountNoMap.put(destAccountNo, destAccountNo);
-                }
-                accountNoAmountList.add(destAccountNo+"-"+amount);//"收款人卡号-交易金额"存入LIST中
-                //创建批次明细对象
-                PlatProxyDetail detail = new PlatProxyDetail();
-                detail.setId(IdUtil.createProxDetailId("0"));
-                detail.setBatchId(batchId);
-                detail.setMchtId(mchtId);
-                detail.setPayType(PayTypeEnum.BATCH_DF.getCode());
-                detail.setChannelTradeId(detail.getId());
-                detail.setBankCardNo(destAccountNo);
-                detail.setBankCardName(destAccountName);
-                detail.setBankName(bankNameTmp);
-                detail.setBankLineCode(null);//todo 联行号
-                detail.setBankCode(null);//todo 银行编码
-                detail.setCity(bankCity);
-                detail.setAmount(BigDecimal.valueOf(amount!=0?amount*100:0));//将交易金额转换为"分",保存到对象中
-                detail.setPayStatus(ProxyPayDetailStatusEnum.AUDIT_SUCCESS.getCode());
-                detail.setMchtFee(fee);
-                detail.setCreateDate(new Date());
-                detail.setUpdateDate(new Date());
-
-
+                PlatProxyDetail detail = buildProxyDetail(row,k,batch,fee,bankCodeMap);
                 details.add(detail);
-                totalAmount+=amount;
+                totalAmount = totalAmount.add(detail.getAmount());
                 totalCount++;
             }else{
                 throw new RuntimeException("第"+k+"行为空，如果空行较多，为避免提示空行，请在EXCEL文件中选择多行进行整行删除!");
             }
         }
 
-        batch.setTotalAmount(BigDecimal.valueOf(totalAmount).multiply(BigDecimal.valueOf(100)));
+        batch.setTotalAmount(totalAmount);
         batch.setTotalNum(totalCount);
         BigDecimal proxyFee = fee.multiply(BigDecimal.valueOf(batch.getTotalNum()));//代付手续费=单笔手续费*代付笔数
         batch.setTotalFee(proxyFee);
@@ -640,5 +573,80 @@ public class ProxyOrderController extends BaseController {
             }
         }
         return result;
+    }
+
+    /**
+     * 构造代付明细对象
+     */
+    private PlatProxyDetail buildProxyDetail(Row row,int k,PlatProxyBatch proxyBatch,BigDecimal fee,Map<String,String> bankCodeMap){
+        String bankCity = null;
+        String batchId = proxyBatch.getId();
+        String mchtId = proxyBatch.getMchtId();
+        String bankCardNo = null;
+        String bankCardName = null;
+        String bankName = null;
+        BigDecimal amount = null;
+
+        //商户订单号
+        //收款人卡号
+        Cell cell0 = row.getCell(0);
+        bankCardNo = getStringData(cell0).trim();
+        if(cell0==null || StringUtils.isBlank(bankCardNo)){
+            throw new RuntimeException("第"+k+"行的收款人卡号为空!");
+        }
+        //收款人户名
+        Cell cell1 = row.getCell(1);
+        bankCardName = getStringData(cell1).trim();
+        if(cell1==null || StringUtils.isBlank(bankCardName)){
+            throw new RuntimeException("第"+k+"行的收款人户名为空!");
+        }
+        //银行名称
+        Cell cell2 = row.getCell(2);
+        bankName = getStringData(cell2).trim();
+        if(cell2==null || StringUtils.isBlank(bankName)){
+            throw new RuntimeException("第"+k+"行的银行名称为空!");
+        }
+        //金额
+        Cell cell3 = row.getCell(3);
+        amount = new BigDecimal(getStringData(cell3).trim());
+        if(cell3==null){
+            throw new RuntimeException("第"+k+"行的代付金额为空!");
+        }else{
+            if(Double.valueOf(getStringData(cell3).trim())<30){
+                throw new RuntimeException("第"+k+"行的代付金额不能小于30元!");
+            }
+            if(Double.valueOf(getStringData(cell3).trim())>50000){
+                throw new RuntimeException("第"+k+"行的代付金额大于50000元!");
+            }
+        }
+        Cell cell4 = row.getCell(4);
+        bankCity = getStringData(cell4).trim();
+
+        //创建明细对象
+        PlatProxyDetail detail = new PlatProxyDetail();
+        detail.setId(IdUtil.createProxDetailId("0"));
+        detail.setBatchId(batchId);
+        detail.setMchtId(mchtId);
+        detail.setPayType(PayTypeEnum.BATCH_DF.getCode());
+        detail.setChannelTradeId(detail.getId());
+        detail.setBankCardNo(bankCardNo);
+        detail.setBankCardName(bankCardName);
+        detail.setBankName(bankName);
+        detail.setBankCode(bankCodeMap.get(detail.getBankName()));
+        detail.setCity(bankCity);
+        detail.setAmount(amount.multiply(BigDecimal.valueOf(100)));//将交易金额转换为"分",保存到对象中
+        detail.setPayStatus(ProxyPayDetailStatusEnum.AUDIT_SUCCESS.getCode());
+        detail.setMchtFee(fee);
+        detail.setCreateDate(new Date());
+        detail.setUpdateDate(new Date());
+        return detail;
+    }
+
+    /**
+     * 查询平台银行code
+     */
+    private Map<String,String> getBankCodeMap(){
+        return Collections3.extractToMap(
+                platBankService.list(new PlatBank()),"bankName","bankCode");
     }
 }
