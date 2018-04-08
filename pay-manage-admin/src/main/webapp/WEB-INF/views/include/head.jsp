@@ -18,6 +18,6 @@
 <script src="${ctxStatic}/common/project.js" type="text/javascript"></script>
 <link href="${ctxStatic}/common/shadow.css" type="text/css" rel="stylesheet" />
 <script src="${ctxStatic}/common/shadow.js" type="text/javascript"></script>
-
+<script src="${ctxStatic}/common/common.js" type="text/javascript"></script>
 <script type="text/javascript" src="${ctxStatic}/bootstrap/select/bootstrap-select.js"></script>
 <link rel="stylesheet" type="text/css" href="${ctxStatic}/bootstrap/select/bootstrap-select.css"/>

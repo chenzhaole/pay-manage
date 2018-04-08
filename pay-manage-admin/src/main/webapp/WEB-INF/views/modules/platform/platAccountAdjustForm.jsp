@@ -15,53 +15,51 @@
 
 
         $(function () {
-            jQuery.validator.addMethod("alnum", function (value, element) {
-                return this.optional(element) || /^[a-zA-Z0-9]+$/.test(value);
-            }, "只能包括英文字母和数字");
-            $("#channelForm").validate({
-                debug: false, //调试模式取消submit的默认提交功能
-                focusInvalid: false, //当为false时，验证无效时，没有焦点响应
-                onkeyup: false,
-                submitHandler: function (form) {   //表单提交句柄,为一回调函数，带一个参数：form
-                    showShadow();
-                    document.forms[0].action = "${ctx}/platform/addPlatBank";
-                    document.forms[0].submit();
-                },
-                errorPlacement: function (error, element) {
-                    error.appendTo(element.parent());
-                },
+           $("#inputForm").validate({
                 rules: {
-                    bankCode: {
-                        alnum: true,
-                        required: true,
-                        maxlength: 32
-                    },
-                    bankName: {
-                        required: true,
-                        maxlength: 32
-                    },
-                    extend: {
-                        maxlength: 255
-                    }
+                    loginName: {remote: "${ctx}/sys/user/checkLoginName?oldLoginName=" + encodeURIComponent('${user.loginName}')}
                 },
                 messages: {
-                    name: {
-                        required: '必填'
-                    },
-                    busiEmail: {
-                        email: 'email格式不正确'
+                    loginName: {remote: "用户登录名已存在"},
+                    confirmNewPassword: {equalTo: "输入与上面相同的密码"}
+                },
+                submitHandler: function(form){
+                    loading('正在提交，请稍等...');
+                    form.submit();
+                },
+                errorContainer: "#messageBox",
+                errorPlacement: function(error, element) {
+                    $("#messageBox").text("输入有误，请先更正。");
+                    if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+                        error.appendTo(element.parent().parent());
+                    } else {
+                        error.insertAfter(element);
                     }
                 }
             });
+
+            $("#balanceBtn").click(function () {
+                var mchtId = $("#mchtId").val();
+                if(mchtId == ''){
+                    alert("请输入商户号");
+                }else{
+                    $.ajax({
+                        url:'${ctx}/platform/adjust/balance',
+                        type:'POST', //GET
+                        async:true,    //或false,是否异步
+                        data:{
+                            'mchtId':mchtId
+                        },
+                        timeout:5000,    //超时时间
+                        dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
+                        success:function(data){
+                            console.log(data);
+                            $("#balance").val(data);
+                        }
+                    });
+                }
+            });
         });
-
-
-        function del(id) {
-            if (confirm("是否确认删除ID为“" + id + "”的记录？")) {
-                document.forms[0].action = "${ctx}/bowei/repaymentDel?id=" + id;
-                document.forms[0].submit();
-            }
-        }
 
 
     </script>
@@ -76,15 +74,6 @@
 <form:form id="inputForm" modelAttribute="platAccountAdjust" action="${ctx}/platform/adjust/save" method="post" class="form-horizontal">
     <form:hidden path="id"/>
     <tags:message content="${message}"/>
-
-    <%--<div class="control-group">--%>
-    <%--<label class="control-label">归属部门:</label>--%>
-    <%--<div class="controls">--%>
-    <%--<tags:treeselect id="office" name="office.id" value="${user.office.id}" labelName="office.name" labelValue="${user.office.name}"--%>
-    <%--title="部门" url="/sys/office/treeData?type=2" cssClass="required"/>--%>
-    <%--</div>--%>
-    <%--</div>--%>
-
     <table class="table">
         <tr>
             <td colspan="2">
@@ -104,7 +93,7 @@
                 <div class="control-group">
                     <label class="control-label">商户号<span style="color: red;">*</span></label>
                     <div class="controls">
-                        <form:input path="mchtId"/>
+                        <form:input path="mchtId" class="required"/>
                     </div>
                 </div>
             </td>
@@ -123,11 +112,9 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">账户余额<span style="color: red;">*</span></label>
+                    <label class="control-label">账户余额（元）</label>
                     <div class="controls">
-                    <label class="control-label">账户余额</label>
-                    <div class="controls">
-                        <input type="text" readonly disabled/> <input type="button" value="查询"/>
+                        <input type="text" readonly disabled id="balance"/> <input type="button" value="查询" id="balanceBtn"/>
                     </div>
                 </div>
             </td>
@@ -136,7 +123,7 @@
                 <div class="control-group">
                     <label class="control-label">调账金额（元）<span style="color: red;">*</span></label>
                     <div class="controls">
-                        <form:input path="adjustAmount" />
+                        <form:input path="adjustAmount" class="required number"/>
                     </div>
                 </div>
             </td>
