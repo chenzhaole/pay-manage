@@ -16,6 +16,7 @@ import com.sys.core.service.MchtAccountInfoService;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatAccountAdjustService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -59,6 +60,7 @@ public class PlatAccountAdjustController extends BaseController {
      * 调账记录列表
      */
     @RequestMapping(value={"list",""})
+    @RequiresPermissions("platform:adjust:list")
     public String list(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model){
         try {
             PageInfo pageInfo = new PageInfo();
@@ -104,8 +106,8 @@ public class PlatAccountAdjustController extends BaseController {
      * 调账申请页面
      */
     @RequestMapping(value="form")
+    @RequiresPermissions("platform:adjust:apply")
     public String form(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model){
-
         return "modules/platform/platAccountAdjustForm";
     }
 
@@ -114,6 +116,7 @@ public class PlatAccountAdjustController extends BaseController {
      * 保存调账申请
      */
     @RequestMapping("save")
+    @RequiresPermissions("platform:adjust:apply")
     public String save(PlatAccountAdjust platAccountAdjust){
         Long operatorId =  UserUtils.getUser().getId();
         String operatorName = UserUtils.getUser().getName();
@@ -134,6 +137,7 @@ public class PlatAccountAdjustController extends BaseController {
      * 调账审批
      */
     @RequestMapping("audit")
+    @RequiresPermissions("platform:adjust:audit")
     public String audit(PlatAccountAdjust platAccountAdjust){
         Long operatorId =  UserUtils.getUser().getId();
         String operatorName = UserUtils.getUser().getName();
@@ -150,6 +154,7 @@ public class PlatAccountAdjustController extends BaseController {
      * 查询余额
      */
     @RequestMapping("balance")
+    @RequiresPermissions("platform:adjust:apply")
     public void balance(String mchtId,HttpServletResponse response) throws IOException {
         BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
         balance = balance.divide(BigDecimal.valueOf(100));

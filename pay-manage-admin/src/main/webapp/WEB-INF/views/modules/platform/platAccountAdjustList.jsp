@@ -23,11 +23,13 @@
 
 <body>
 
-
+<shiro:hasPermission name="platform:adjust:apply">
 <ul class="nav nav-tabs">
     <li class="active"><a href="${ctx}/platform/adjust">调账列表</a></li>
     <li><a href="${ctx}/platform/adjust/form">调账添加</a></li>
 </ul>
+</shiro:hasPermission>
+
 <tags:message content="${message}" type="${messageType}"/>
 
 <form:form id="searchForm" modelAttribute="platAccountAdjust" action="${ctx}/platform/adjust" method="post" class="breadcrumb form-search">
@@ -72,7 +74,7 @@
         <th>审批日期</th>
         <th>审批人</th>
         <th>审批状态</th>
-        <th>操作</th>
+        <shiro:hasPermission name="platform:adjust:audit"><th>操作</th></shiro:hasPermission>
     </tr>
     </thead>
     <tbody>
@@ -92,12 +94,16 @@
             <td><fmt:formatDate value="${adjust.auditTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${adjust.auditorName}</td>
             <td>${fns:getDictLabel(adjust.auditStatus,'account_adjust_status' ,'' )}</td>
-            <td>
-                <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=4"
-                   onclick="return confirmx('确认通过？', this.href)">通过</a>|
-                <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=5"
-                   onclick="return confirmx('确认拒绝？', this.href)">拒绝</a>
-            </td>
+            <shiro:hasPermission name="platform:adjust:audit">
+                <td>
+                    <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
+                        <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=4"
+                           onclick="return confirmx('确认通过？', this.href)">通过</a>|
+                        <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=5"
+                           onclick="return confirmx('确认拒绝？', this.href)">拒绝</a>
+                    </c:if>
+                </td>
+            </shiro:hasPermission>
         </tr>
     </c:forEach>
     </tbody>
