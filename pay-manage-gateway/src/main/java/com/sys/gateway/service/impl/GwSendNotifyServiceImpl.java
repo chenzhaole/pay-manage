@@ -16,6 +16,7 @@ import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.BeanUtils;
 import com.sys.common.util.HttpUtil;
+import com.sys.common.util.JsonUtils;
 import com.sys.common.util.PostUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.dmo.MchtGatewayOrder;
@@ -154,7 +155,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                     //缓存数据失效，去数据库查询的时间，商户通知url暂存在quick实体中
                     notifyUrl = quick.getNotifyUrl();
                 }else{
-                    TXQuickPrePayRequest tXQuickPrePayRequest = (TXQuickPrePayRequest) cacheTrade.getTradeBaseRequest();
+                    Object prePayRequest = cacheTrade.getTradeBaseRequest();
+                    TXQuickPrePayRequest tXQuickPrePayRequest = JSON.parseObject(JSON.toJSONString(prePayRequest), TXQuickPrePayRequest.class);
                     notifyUrl = tXQuickPrePayRequest.getBody().getNotifyUrl();
                 }
                 logger.info(BIZ+",此订单是快捷支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
