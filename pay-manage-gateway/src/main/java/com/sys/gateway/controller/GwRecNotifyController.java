@@ -138,11 +138,10 @@ public class GwRecNotifyController {
         if(StringUtils.isBlank(data)){
           logger.info("模拟商户接收异步通知，收到的data = null");
         }else{
-           JSONObject jsonObject  = JSON.parseObject(data);
-           logger.info("模拟商户接收异步通知，收到的data转化成jsonObject="+ jsonObject);
             TradeNotifyResponse tradeNotifyResponse = JSON.parseObject(data, TradeNotifyResponse.class);
             mchtOrdertId = tradeNotifyResponse.getBody().getOrderId();
-            String retSign = jsonObject.getString(tradeNotifyResponse.getSign());
+            String retSign = tradeNotifyResponse.getSign();
+                logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的tradeNotifyResponse="+JSONObject.toJSONString(tradeNotifyResponse));
             String sign = "";
             try {
                 TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(tradeNotifyResponse.getBody());
