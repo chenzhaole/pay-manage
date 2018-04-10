@@ -14,10 +14,7 @@ import com.sys.boss.api.service.trade.handler.ITradePayNotifyHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.util.BeanUtils;
-import com.sys.common.util.HttpUtil;
-import com.sys.common.util.PostUtil;
-import com.sys.common.util.SignUtil;
+import com.sys.common.util.*;
 import com.sys.core.dao.dmo.MchtGatewayOrder;
 import com.sys.core.service.MchtGwOrderService;
 import com.sys.core.service.MerchantService;
@@ -170,7 +167,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                     //缓存数据失效，去数据库查询的时间，商户通知url暂存在Order实体中
                     notifyUrl = order.getNotifyUrl();
                 }else{
-                    TradeCashierRequest tradeCashierRequest = (TradeCashierRequest) cacheTrade.getTradeBaseRequest();
+                    TradeCashierRequest tradeCashierRequest = JSON.parseObject(JSONObject.toJSONString(cacheTrade.getTradeBaseRequest()), TradeCashierRequest.class);
                     notifyUrl = tradeCashierRequest.getBody().getNotifyUrl();
                 }
                 logger.info(BIZ+",此订单第三方支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
@@ -189,6 +186,9 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             body.setStatus(status);
             body.setAmount(amount);
             body.setBankCardNo(bankCardNo);
+            body.setSeq(IdUtil.getUUID());
+            body.setChargeTime(DateUtils.getNoSpSysTimeString());
+            body.setBiz(payType);
 
             tradeNotifyResponse.setHead(head);
             tradeNotifyResponse.setBody(body);

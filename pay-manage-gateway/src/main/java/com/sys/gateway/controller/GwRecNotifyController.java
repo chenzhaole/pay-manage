@@ -1,12 +1,17 @@
 package com.sys.gateway.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.cache.CacheTrade;
+import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.util.BeanUtils;
+import com.sys.common.util.SignUtil;
 import com.sys.gateway.service.GwRecNotifyService;
 import com.sys.gateway.service.GwSendNotifyService;
 import com.sys.trans.exception.TransException;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 /**
@@ -119,6 +125,39 @@ public class GwRecNotifyController {
         return resp2chan;
     }
 
-
+    /**
+     * 接受统一异步通知结果
+     * param参数值
+     */
+    @RequestMapping("/testNotify/{mchtKey}")
+    @ResponseBody
+    public String testNotify(@RequestBody String data, @PathVariable String mchtKey, HttpServletRequest request, HttpServletResponse response) throws TransException {
+        logger.info("模拟商户接收异步通知，收到的data="+ data);
+        String ret = "FAIL";
+        String mchtOrdertId = "";
+        if(StringUtils.isBlank(data)){
+          logger.info("模拟商户接收异步通知，收到的data = null");
+        }else{
+           JSONObject jsonObject  = JSON.parseObject(data);
+           logger.info("模拟商户接收异步通知，收到的data转化成jsonObject="+ jsonObject);
+            TradeNotifyResponse tradeNotifyResponse = JSON.parseObject(data, TradeNotifyResponse.class);
+            mchtOrdertId = tradeNotifyResponse.getBody().getOrderId();
+            String retSign = jsonObject.getString(tradeNotifyResponse.getSign());
+            String sign = "";
+            try {
+                TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(tradeNotifyResponse.getBody());
+                logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名key="+mchtKey+"，签名treeMap="+ treeMap);
+                sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
+                logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名结果sign="+ sign);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+            if(sign.equals(retSign)){
+                ret = "SUCCESS";
+            }
+        }
+        logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知,返回的结果="+ ret);
+        return ret;
+    }
 
 }

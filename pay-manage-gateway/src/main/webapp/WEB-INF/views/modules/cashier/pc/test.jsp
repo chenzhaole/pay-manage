@@ -51,7 +51,7 @@
         订单时间: <input type="text" value="<%= new SimpleDateFormat("yyyyMMddHHmmss").format(new Date()) %>" name="orderTime"/><br>
         金额: <input type="text" value="10" name="amount"/>【分】<br>
         商品名称: <input type="text" value="游戏充值" name="goods"/><br>
-        notifyUrl: <input type="text" value="http://${testUrl}/testNotify" name="notifyUrl"/><br>
+        notifyUrl: <input id="notifyUrl" type="text" value="http://${testUrl}/testNotify/" name="notifyUrl"/><br>
         callBackUrl: <input type="text" value="http://${testUrl}/gateway/cashier/testResult/${mchtOrderId}" name="callBackUrl"/><br>
         商品描述: <input type="text" value="超级大礼包" name="desc"/><br>
         应用ID: <input type="text" value="" name="appId"/><br>
@@ -66,7 +66,7 @@
             <option value="3">微信内</option>
             <option value="4">支付宝内</option>
         </select><br>
-        签名Key: <input type="text" value="605091ae24f8404086b56d74a20c9812" name="mchtKey"/><br>
+        签名Key: <input type="text" value="605091ae24f8404086b56d74a20c9812" id="mchtKey" name="mchtKey"/><br>
         sign: <input type="text" name="sign" id="sign"> <input type="button" value="签名" id="genSign"/><br>
         <input type="submit" value="提交"/>
     </form>
@@ -76,9 +76,14 @@
 <script type="text/javascript">
     $(document).ready(function () {
         $("#genSign").click(function () {
+            var mchtKey = $("#mchtKey").val();
+            var notifyUrl = $("#notifyUrl").val();
             var param = $("#search").serialize();
             param= decodeURIComponent(param,true);
             param= encodeURI(encodeURI(param));
+            param = param.replace("testNotify","testNotify/"+mchtKey);
+            notifyUrl = notifyUrl.replace("testNotify","testNotify/"+mchtKey);
+            $("#notifyUrl").val(notifyUrl);
             console.log(param);
             $.ajax({
                 type:"POST",
