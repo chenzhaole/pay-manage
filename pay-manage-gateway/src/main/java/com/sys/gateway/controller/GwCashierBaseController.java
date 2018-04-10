@@ -1,5 +1,6 @@
 package com.sys.gateway.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.*;
 import com.sys.common.util.NumberUtils;
@@ -12,7 +13,9 @@ import org.springframework.ui.Model;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * 第三方支付网页版sdk
@@ -111,6 +114,51 @@ public class GwCashierBaseController {
 
         return true;
     }
+
+    /**
+     * 设置pc页面支付需要的请求参数
+     *
+     * @param model
+     * @param result
+     */
+    protected void addPcScanPageModelInfo(Model model, CommonResult result, String amount, String mchtId, String goods, String mchtOrderId) {
+        Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
+        Result resultInfo = (Result) retMapInfo.get("result");
+        Map<String, String> mapQQandMobile = (Map<String, String>)retMapInfo.get("pageQQandMobile");
+        String startPayType = resultInfo.getClientPayWay();
+        //封装生成二维码支付链接
+        String payInfo = "";
+        if(ClientPayWayEnum.SCAN_INSIDE.getCode().equals(startPayType)){
+            try {
+                String preUrl = ConfigUtil.getValue("qrCode.domain");
+                String url = "http://"+preUrl+"/qrCode/gen";
+                payInfo = url + "?uuid=" + URLEncoder.encode(resultInfo.getPayInfo(), "UTF-8");
+            } catch (UnsupportedEncodingException e) {
+                e.printStackTrace();
+            }
+        }else if(ClientPayWayEnum.SCAN_EXTERNAL.getCode().equals(startPayType)){
+            payInfo = resultInfo.getPayInfo();
+        }
+        String payType = resultInfo.getPaymentType();
+        Set<String> paymentTypes = new HashSet<>();
+        paymentTypes.add(payType.substring(0, 2));
+        model.addAttribute("paymentTypes", paymentTypes);
+        model.addAttribute("platOrderId", resultInfo.getOrderNo());
+        model.addAttribute("payInfo", payInfo);
+        model.addAttribute("payType", payType);
+        //1表示非收银台，直接显示二维码
+        model.addAttribute("pcIscashier", "1");
+        //将分转成元
+        amount = NumberUtils.changeF2Y(amount);
+        model.addAttribute("amount", amount);
+        model.addAttribute("mchtId", mchtId);
+        model.addAttribute("goods", goods);
+        model.addAttribute("mchtOrderId", mchtOrderId);
+        String countdownTime  = ConfigUtil.getValue("qrCode.countdownTime");
+        model.addAttribute("countdownTime", countdownTime);
+
+    }
+
     /**
      * 设置扫码中间页需要的请求参数
      *
@@ -143,6 +191,33 @@ public class GwCashierBaseController {
         model.addAttribute("qq", mapQQandMobile.get("qq"));
         model.addAttribute("mobile", mapQQandMobile.get("mobile"));
     }
+
+    /**
+     *  pc端页面异步下单，返回页面的信息
+     * @param result
+     * @return
+     */
+    protected String returnPcPageInfo(Result result) {
+        String payInfo = "";
+        try {
+            String preUrl = ConfigUtil.getValue("qrCode.domain");
+            String url = "http://"+preUrl+"/qrCode/gen";
+            payInfo = url + "?uuid=" + URLEncoder.encode(result.getPayInfo(), "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        String payType = result.getPaymentType();
+        String platOrderId = result.getOrderNo();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("payInfo", payInfo);
+        jsonObject.put("platOrderId", platOrderId);
+        String countdownTime = ConfigUtil.getValue("qrCode.countdownTime");
+        jsonObject.put("countdownTime",countdownTime);
+        jsonObject.put("payType",payType);
+        return jsonObject.toString();
+    }
+
+
     /**
      * 收银台页面需要的数据
      * @param model
@@ -160,7 +235,8 @@ public class GwCashierBaseController {
         Map<String, String> pageQQandMobile = (Map<String, String>) mapData.get("pageQQandMobile");
         model.addAttribute("qq", pageQQandMobile.get("qq"));
         model.addAttribute("mobile", pageQQandMobile.get("mobile"));
-
+        //2表示展示收银台， 1表示不展示收银台
+        model.addAttribute("pcIscashier", "2");
     }
 
     /**

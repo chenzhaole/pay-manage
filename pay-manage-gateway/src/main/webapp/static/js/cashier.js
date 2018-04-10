@@ -4,12 +4,139 @@ var countDownStatusQQWallet = "0";//qq钱包倒计时状态
 var countDownStatusUnionQrCode = "0";//银联二维码倒计时状态
 var countDownStatusJDQrCode = "0";//京东二维码倒计时状态
 var countDownStatusSNQrCode = "0";//苏宁二维码倒计时状态
-var platOrderId = "";
+
 
 /**
- *  获取二维码
+ * start pc页面是否显示收银台
+ */
+$(function () {
+    var pcIscashierInit = $("#pcIscashier").val();
+    if("1" == pcIscashierInit){
+        //pc页面直接下单
+        var payTypeInit = $("#payType").val();
+        payTypeInit = payTypeInit.slice(0, 2);
+        var className = payTypeInit + '-content';
+        $("."+className).parent().addClass("layui-show");
+        //开启倒计时及页面轮询查单
+        var platOrderIdInit = $("#platOrderId").val();
+        var countdownTimeStrInit = $("#countdownTime").val();
+        //下单后，开启倒计时及页面轮询查单
+        notPcCashierDownTimeAndStartQuery(payTypeInit, countdownTimeStrInit, platOrderIdInit);
+    }else if("2" == pcIscashierInit){
+        //pc页面显示收银台
+        $(".layui-tab-item.nopay").addClass("layui-show").siblings().removeClass("layui-show");
+    }
+});
+/**
+ * end pc页面是否显示收银台
+ */
+
+
+/**
+ * start 页面点击获取二维码
+ * 2表示展示收银台， 1表示不展示收银台
+ */
+var pcIscashier = $("#pcIscashier").val();
+layui.config({});
+var layer;
+layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'element'], function() {
+    var laydate = layui.laydate, //日期
+        laypage = layui.laypage, //分页
+        element = layui.element; //元素操作
+        layer = layui.layer; //弹层
+
+    if('2' == pcIscashier){
+        //监听Tab切换
+        var index =0,inter=[],ele=[0,0,0,0,0];
+        element.on('tab(pay)', function(data) {
+            //加载--start
+            var indexLoad = layer.load(1, {shade: false}); //0代表加载的风格，支持0-2
+            $("div[class='layui-tab-content']").show();
+            //this是li标签,即拿到li标签的id属性值
+            var tab = $(this).attr("id");
+            //暂时将二维码倒计时跟展示二维码隐藏,下单成功后在显示出来
+            $("div[class='"+tab+"-content']").hide();
+            if(tab.indexOf("qj") == 0){
+            //银行卡的时候退出,不在获取二维码,而是去获取用户已绑定的卡信息
+                return;
+            }else{
+                //点击支付宝，微信图标时，发送请求操作,调用下边getAsynQrCode函数异步获取二维码
+                getAsynQrCode(tab);
+            }
+
+            //延迟半秒显示
+            setTimeout(function () {
+                //关闭加载效果
+                layer.close(indexLoad);
+                //显示二维码
+                $("div[class='"+tab+"-content']").show();
+
+            }, 1000);
+        });
+    }
+});
+/**
+ * end 页面点击获取二维码
+ */
+
+
+/**
+ * start 点击查看支付结果
+ */
+$(".qrcode .btn").on("click", function() {
+    //先查询下订单状态
+    var platOrderId = $("#platOrderId").val();
+    queryOrderStatus(platOrderId);
+    var status = $("#status").val();
+    if("2" == status) {
+        //跳转回掉页面
+        refuse();
+    }else{
+        var ctxStatic = $("#ctxStatic").val();
+        layer.open({
+            type: 1,
+            title: false,
+            closeBtn: 0, //不显示关闭按钮
+            shade: [0],
+            area: ['600px', '260px'],
+            //							  anim: 2,
+            title: '',
+            //maxmin:true,
+            content: '<div class="layui-tab-item nopay layui-show"><div class="warn-content"><div class="warntip"><img src="'+ctxStatic+'/images/warn.png" alt="支付结果" />温馨提示</div><p>支付结果未知!</p> <div class=""><button class="layui-btn" style="width:48%!important;float:left;margin:0;" onclick="refuse()">残忍拒绝</button><button class="layui-btn close" style="width:48%!important;float:right;margin:0;">返回支付</button></div></div>', //iframe的url，no代表不显示滚动条
+            success: function(layero, index) {
+                $(".close").on("click", function() {
+                    layer.closeAll();
+                })
+            },
+            end: function() {
+
+            }
+        })
+    }
+});
+/**
+ * end 点击查看支付结果
+ */
+
+
+/**
+ *  start 点击残忍拒绝时的操作
+ */
+function refuse() {
+    var platOrderId = $("#platOrderId").val();
+    var payType = $("#payType").val();
+    var callbackUrl = "/gateway/cashier/chanCallBack/"+platOrderId+"/"+payType;
+    window.location.href = callbackUrl;
+}
+/**
+ *  end 点击残忍拒绝时的操作
+ */
+
+
+/**
+ *  start 异步获取二维码
  **/
-function getQrCode(paymentType) {
+function getAsynQrCode(paymentType) {
 
     var ajax = paymentType=="wx"? (countDownStatusWx=="0"?true:false) :
         paymentType=="al"?(countDownStatusAli=="0"?true:false) :
@@ -19,41 +146,33 @@ function getQrCode(paymentType) {
                         paymentType=="sn"?(countDownStatusSNQrCode=="0"?true:false):
                false;
 
+    var mchtId = $("#mchtId").val();
+    var mchtOrderId = $("#mchtOrderId").val();
+    var extraData = $("#extraData").val();
+
     if(ajax){
         //表单序列化处理，开始请求支付
-        $.ajax({
-            type:"POST",
-            url: "/gateway/cashier/ajaxPay",
-            data:{"payType":paymentType,"sign":sign,"orderId":orderId},
-            dataType:'text' ,
-            async:true,
+       $.ajax({
+            type:"get",
+            url: "/gateway/cashier/platPcCall/"+mchtId+"/"+mchtOrderId+"/"+paymentType+"/"+extraData,
+            dataType:'json' ,
+            async:false,
 
             success:function(data){
-                //返回值转换成json
-                var jsonData = JSON.parse(data);
-                if(jsonData.respCode == "0000"){
-                    platOrderId = jsonData.data.platOrderId;
-                    var countDownTime = Date.parse(new Date())/1000+10;//TODO:默认倒计时60秒 待确认
-                    if(paymentType == 'wx'){
-                        $("#wxqrcode").attr("src",jsonData.data.payUrl);
-                        countDown(countDownTime,"wxTimeout",tab);
-                    }else if(paymentType == 'al'){
-                        $("#aliqrcode").attr("src",jsonData.data.payUrl);
-                        countDown(countDownTime,"aliTimeout",tab);
-                    }else if(paymentType == 'qq'){
-                        $("#qqWalletQrcode").attr("src",jsonData.data.payUrl);
-                        countDown(countDownTime,"qqTimeout",tab);
-                    }else if(paymentType == 'yl'){
-                        $("#unionQrCode").attr("src",jsonData.data.payUrl);
-                        countDown(countDownTime,"unionTimeout",tab);
-                    }else if(paymentType == 'other_cardpay'){
-                        $("#other_cardpay").html(jsonData.data.payInfo);
-                        //form表单提交
-                    }
-                    queryResult(platOrderId);
+                console.log(data);
+                if(data.respCode == "0000"){
+                    var payJsondata = JSON.parse(data.data);
+                    var platOrderId = payJsondata.platOrderId;
+                    var payType = payJsondata.payType;
+                    //将平台订单存入页面，查单时使用
+                    $("#platOrderId").val(platOrderId);
+                    $("#payType").val(payType);
+                    var payInfo = payJsondata.payInfo;
+                    var countdownTimeStr = payJsondata.countdownTime;
+                    //开启倒计时及页面轮询查单
+                    pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId, payInfo);
                 }else{
-                    console.log(jsonData.respMsg);
-                    $("#errorMsg").text(jsonData.respMsg);
+                    $("#errorMsg").text(data.respMsg);
                     tips(".nouse");
                 }
             },
@@ -64,12 +183,81 @@ function getQrCode(paymentType) {
         });
     }
 }
+/**
+ *  end 异步获取二维码
+ **/
+
+/**
+ *  start pc收银台方式，点击某种支付方式后，开启倒计时，并开始轮询查单
+ */
+function pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId, payInfo) {
+    //倒计时，后台配置
+    var countdownTimeInt = parseInt(countdownTimeStr);
+    var countDownTime = Date.parse(new Date())/1000+countdownTimeInt;
+    if(paymentType == 'wx'){
+        $("#wxqrcode").attr("src",payInfo);
+        countDown(countDownTime,"wxTimeout",paymentType);
+    }else if(paymentType == 'al'){
+        $("#aliqrcode").attr("src",payInfo);
+        countDown(countDownTime,"alTimeout",paymentType);
+    }else if(paymentType == 'qq'){
+        $("#qqWalletQrcode").attr("src",payInfo);
+        countDown(countDownTime,"qqTimeout",paymentType);
+    }else if(paymentType == 'jd'){
+        $("#jdqrcode").attr("src",payInfo);
+        countDown(countDownTime,"jdTimeout",paymentType);
+    }else if(paymentType == 'sn'){
+        $("#snWalletQrcode").attr("src",payInfo);
+        countDown(countDownTime,"snTimeout",paymentType);
+    }else if(paymentType == 'yl'){
+        $("#unionQrCode").attr("src",payInfo);
+        countDown(countDownTime,"ylTimeout",paymentType);
+    }else if(paymentType == 'other_cardpay'){
+        $("#other_cardpay").html(payInfo);
+        //form表单提交
+    }
+    //开启轮询查单
+    queryResult(platOrderId);
+}
+/**
+ *  end pc收银台方式，点击某种支付方式后，开启倒计时，并开始轮询查单
+ */
+
 
 
 /**
- *  刷新二维码
+ *  start pc非收银台方式，直接发起支付后，开启倒计时，并开始轮询查单
+ */
+function notPcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId) {
+    var countdownTimeInt = parseInt(countdownTimeStr);
+    var countDownTime = Date.parse(new Date())/1000+countdownTimeInt;
+
+    if(paymentType == 'wx'){
+        countDown(countDownTime,"wxTimeout",paymentType);
+    }else if(paymentType == 'al'){
+        countDown(countDownTime,"alTimeout",paymentType);
+    }else if(paymentType == 'qq'){
+        countDown(countDownTime,"qqTimeout",paymentType);
+    }else if(paymentType == 'jd'){
+        countDown(countDownTime,"jdTimeout",paymentType);
+    }else if(paymentType == 'sn'){
+        countDown(countDownTime,"snTimeout",paymentType);
+    }else if(paymentType == 'yl'){
+        countDown(countDownTime,"ylTimeout",paymentType);
+    }
+    //开启轮询查单
+    queryResult(platOrderId);
+
+}
+/**
+ *  end pc非收银台方式，直接发起支付后，开启倒计时，并开始轮询查单
+ */
+
+
+/**
+ *  start 刷新二维码
  **/
-function reGetQrCode(paymentType,obj){
+function reGetAsynQrCode(paymentType,obj){
     $(obj).hide();
     if(paymentType == "wx"){
         countDownStatusWx = "0";
@@ -95,11 +283,40 @@ function reGetQrCode(paymentType,obj){
         countDownStatusSNQrCode = "0";
     }
 
-    getQrCode(paymentType);
+    getAsynQrCode(paymentType);
 }
 
 /**
- *  查询订单状态
+ *  end 刷新二维码
+ **/
+
+/**
+ *  start 查询订单状态结果
+ **/
+function queryOrderStatus(platOrderId){
+    if(platOrderId != null && platOrderId != ""){
+        $.ajax({
+            type:"POST",
+            url: "/gateway/cashier/queryResult",
+            data:{"platOrderId":platOrderId},
+            dataType:'text' ,
+            async:false,
+            success:function(data){
+                $("#status").val(data);
+            },
+            error:function(){
+
+            }
+        });
+    }
+}
+/**
+ * end 查询订单状态结果
+ */
+
+
+/**
+ *  start 页面轮询时使用，查询订单状态
  **/
 function queryResult(platOrderId){
     if(platOrderId != null && platOrderId != ""){
@@ -109,12 +326,9 @@ function queryResult(platOrderId){
             data:{"platOrderId":platOrderId},
             dataType:'text' ,
             async:true,
-
             success:function(data){
-                //返回值转换成json
-                var jsonData = JSON.parse(data);
-                if(jsonData.status == "2"){
-                    window.location.href = jsonData.callbackUrl;
+                if(data == "2"){
+                    refuse();
                 }else{
                     setTimeout("queryResult('"+platOrderId+"')",5000);
                 }
@@ -125,24 +339,27 @@ function queryResult(platOrderId){
         });
     }
 }
+/**
+ *  end 页面轮询时使用，查询订单状态
+ **/
 
 /**
- *  倒计时
+ *  start 倒计时
  **/
-function countDown(countDownTime,attr,tab){
+function countDown(countDownTime,attr,paymentType){
     //获取当前时间戳
     var nowTime = Date.parse(new Date())/1000;
     //用预设时间戳-当前时间戳获得倒计时时间
     var cdTime = countDownTime-nowTime;
     if (cdTime >= 1) {
         $("#"+attr).html(formatDate(cdTime));
-        setTimeout("countDown("+countDownTime+",'"+attr+"','"+tab+"')",1000);
+        setTimeout("countDown("+countDownTime+",'"+attr+"','"+paymentType+"')",1000);
 
         if(attr == "wxTimeout"){
             countDownStatusWx = "1";
         }
 
-        if(attr == "aliTimeout"){
+        if(attr == "alTimeout"){
             countDownStatusAli = "1";
         }
 
@@ -150,11 +367,20 @@ function countDown(countDownTime,attr,tab){
             countDownStatusQQWallet = "1";
         }
 
-        if(attr == "unionTimeout"){
+        if(attr == "jdTimeout"){
+            countDownStatusJDQrCode = "1";
+        }
+
+        if(attr == "snTimeout"){
+            countDownStatusSNQrCode = "1";
+        }
+
+        if(attr == "ylTimeout"){
             countDownStatusUnionQrCode = "1";
         }
+
     }else {
-        // var html = '二维码已过期，<a href="javascript:reGetQrCode(\''+tab+'\')">刷新 </a>页面重新获取二维码';
+        // var html = '二维码已过期，<a href="javascript:reGetAsynQrCode(\''+paymentType+'\')">刷新 </a>页面重新获取二维码';
         $("#"+attr).parent().parent().find(".overdue").show();
 
         if(attr == "wxTimeout"){
@@ -163,15 +389,80 @@ function countDown(countDownTime,attr,tab){
         if(attr == "aliTimeout"){
             countDownStatusAli = "2";
         }
-
         if(attr == "qqTimeout"){
             countDownStatusQQWallet = "2";
         }
-        if(attr == "unionTimeout"){
+        if(attr == "jdTimeout"){
+            countDownStatusJDQrCode = "2";
+        }
+        if(attr == "snTimeout"){
+            countDownStatusSNQrCode = "2";
+        }
+        if(attr == "ylTimeout"){
             countDownStatusUnionQrCode = "2";
         }
     }
 }
+/**
+ *  end 倒计时
+ **/
+
+
+/**
+ *  start 将指定秒转换成时分秒格式
+ *
+ * */
+function formatDate(second){
+    var h = 0;
+    var m = 0;
+    //说明有小时
+    if (second>=3600){
+        h = parseInt(second/3600);
+        // alert (h);
+        second = second%3600;
+    }
+    //说明有分钟
+    if (second>=60){
+        m = parseInt(second/60);
+        second = second%60;
+    }
+    var hstr = "";
+    //小时不为0并且小时小于10
+    if (h<10){
+        hstr = "0"+h;
+    }else if (h>=10){
+        hstr = ""+h;
+    }
+    var mstr = "";
+    if (m<10){
+        mstr = "0"+m;
+    }else if (m>=10){
+        mstr = ""+m;
+    }
+    var sstr = "";
+    if (second<10){
+        sstr = "0"+second;
+    }else if (second>=10){
+        sstr = ""+second;
+    }
+    if (h<=0){
+        return mstr + ":" + sstr;
+    }
+    if (h>0){
+        return hstr + ":" + mstr + ":" + sstr;
+    }
+}
+/**
+ *  end 将指定秒转换成时分秒格式
+ *
+ * */
+
+
+//tips("nobind");
+function tips(ele) {
+    $(ele).addClass("layui-show").siblings().removeClass("layui-show");
+}
+
 
 
 //---------start------------原生js公众号支付------------
@@ -225,48 +516,4 @@ function countDown(countDownTime,attr,tab){
 //     }
 // }
 
-/**
- *
- * 将指定秒转换成时分秒格式
- *
- * */
-function formatDate(second){
-    var h = 0;
-    var m = 0;
-    //说明有小时
-    if (second>=3600){
-        h = parseInt(second/3600);
-        alert (h);
-        second = second%3600;
-    }
-    //说明有分钟
-    if (second>=60){
-        m = parseInt(second/60);
-        second = second%60;
-    }
-    var hstr = "";
-    //小时不为0并且小时小于10
-    if (h<10){
-        hstr = "0"+h;
-    }else if (h>=10){
-        hstr = ""+h;
-    }
-    var mstr = "";
-    if (m<10){
-        mstr = "0"+m;
-    }else if (m>=10){
-        mstr = ""+m;
-    }
-    var sstr = "";
-    if (second<10){
-        sstr = "0"+second;
-    }else if (second>=10){
-        sstr = ""+second;
-    }
-    if (h<=0){
-        return mstr + ":" + sstr;
-    }
-    if (h>0){
-        return hstr + ":" + mstr + ":" + sstr;
-    }
-}
+

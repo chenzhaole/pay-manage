@@ -152,22 +152,22 @@
   	}
   	/*wx*/
   	
-  	.wxpay-content p,
-  	.alipay-content p,
-  	.tenpay-content p,.unionpay-content p{
+  	.wx-content p,
+  	.al-content p,
+  	.qq-content p,.yl-content p{
   		font-size: 16px;
   		/*color: #666666;*/
   		/*letter-spacing: 1px;*/
 		margin: 48px 0 17px 0px;
 		text-align: center;
   	}
-  	.wxpay-content p{
+  	.wx-content p{
   		margin-top: 17px;
   	}
   	
-  	.alipay-content p,
-  	.tenpay-content p,
-  	.unionpay-content p {
+  	.al-content p,
+  	.qq-content p,
+  	.yl-content p {
   		text-align: center;
   	}
   	
@@ -176,7 +176,7 @@
   	}
   	
   	.layui-row,
-  	.wxpay-content {
+  	.wx-content {
   		height: 390px;
   	}
   	

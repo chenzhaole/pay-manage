@@ -26,7 +26,7 @@
 
         <c:forEach items="${paymentTypes}" var="paymentType">
             <c:if test="${paymentType=='al'}">
-                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/alipay.png" alt="支付宝支付" />
@@ -40,7 +40,7 @@
             </c:if>
 
             <c:if test="${paymentType=='wx'}">
-                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/wechat.png" alt="微信支付" />
@@ -54,7 +54,7 @@
             </c:if>
 
             <c:if test="${paymentType=='qq'}">
-                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/qq.png" alt="QQ钱包支付" />
@@ -68,7 +68,7 @@
             </c:if>
 
             <c:if test="${paymentType=='yl'}">
-                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/union.png" alt="银联二维码支付" />
@@ -82,7 +82,7 @@
             </c:if>
 
             <c:if test="${paymentType=='qj'}">
-                <a href="${ctx}/gateway/cashier/platCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
                             <img src="${ctxStatic}/images/union.png" alt="快捷支付" />

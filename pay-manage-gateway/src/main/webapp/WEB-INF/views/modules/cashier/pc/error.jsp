@@ -14,8 +14,8 @@
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script src="${ctxStatic}/layui/layui.js"></script>
 <script type="text/javascript">
-    var msg = '${commonResult.respMsg}';
-    var code = '${commonResult.respCode}';
+    var msg = '${respMsg}';
+    var code = '${respCode}';
     layui.config({});
     layui.use('layer', function() {
         var layer = layui.layer;
