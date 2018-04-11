@@ -149,6 +149,8 @@ public class ChanMchtFormInfo {
 
 	private Integer combType; //组合类型： 1-（绑卡+支付）组合接口；2-标准接口'
 
+	private String deviceType; //调用收银台页面的设备类型：1-手机端，2-PC端，3-微信内，4-支付宝内，5-APP。多选项，各值用半角逗号分隔
+
 	private static final long serialVersionUID = 1L;
 
 	public Integer getPerdayPayMaxAmount() {
@@ -668,6 +670,14 @@ public class ChanMchtFormInfo {
 		this.combType = combType;
 	}
 
+	public String getDeviceType() {
+		return deviceType;
+	}
+
+	public void setDeviceType(String deviceType) {
+		this.deviceType = deviceType;
+	}
+
 	//空的构造方法
 	public ChanMchtFormInfo() {
 
@@ -750,6 +760,18 @@ public class ChanMchtFormInfo {
 			this.smsSendType = Integer.parseInt(StringUtils.isBlank(requestMap.get("smsSendType")) ? "0" :requestMap.get("smsSendType"));
             this.smsContentTemplet = requestMap.get("smsContentTemplet");
             this.combType = Integer.parseInt(StringUtils.isBlank(requestMap.get("combType")) ? "0" :requestMap.get("combType"));
+
+			String[] deviceTypes = request.getParameterValues("deviceType");
+
+			if (deviceTypes != null && deviceTypes.length > 0){
+				StringBuffer signTypeTemp = new StringBuffer();
+				for (String signType : deviceTypes) {
+					signTypeTemp.append(signType);
+					signTypeTemp.append(",");
+				}
+				String signType = signTypeTemp.toString();
+				this.deviceType = signType.substring(0, signType.length() - 1);
+			}
 		}
 	}
 

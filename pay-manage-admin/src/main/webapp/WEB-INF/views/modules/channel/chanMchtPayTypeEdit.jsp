@@ -24,10 +24,10 @@
 
         //合同类型决定是否有上下级
         function parentDiss() {
-            if ( $("#contractType").val() === "2"){
+            if ($("#contractType").val() === "2") {
                 $("#parentId").attr("disabled", true);
                 $("#parentId").val("");
-            }else {
+            } else {
                 $("#parentId").attr("disabled", false);
             }
         }
@@ -39,10 +39,10 @@
         }
 
         function rateOrAmount() {
-            if ( $("#feeType").val() === "1"){
+            if ($("#feeType").val() === "1") {
                 $("#feeRate").attr("disabled", "disabled");
                 $("#feeAmount").attr("disabled", false);
-            }else {
+            } else {
                 $("#feeAmount").attr("disabled", "disabled");
                 $("#feeRate").attr("disabled", false);
             }
@@ -66,26 +66,27 @@
                     chanId: {required: true},
                     payType: {required: true},
                     name: {required: true},
-                    terminalNo: {maxlength:64},
-                    bizCode: {maxlength:64},
-                    chanMchtPassword: {maxlength:128},
-                    opAccount: {maxlength:32},
-                    opPassword: {maxlength:32},
-                    payUrl: {maxlength:255, required: true},
-                    synNotifyUrl: {maxlength:255},
-                    refundUrl: {maxlength:255},
-                    tranUrl: {maxlength:255, required: true},
-                    extend1: {maxlength:255},
-                    checkUrl: {maxlength:255},
-                    asynNotifyUrl: {maxlength:255},
-                    queryUrl: {maxlength:255},
-                    certPath1: {maxlength:128},
-                    certPath2: {maxlength:128},
-                    certPath3: {maxlength:128},
-                    certContent1: {maxlength:2048},
-                    certContent2: {maxlength:2048},
-                    certContent3: {maxlength:2048},
+                    terminalNo: {maxlength: 64},
+                    bizCode: {maxlength: 64},
+                    chanMchtPassword: {maxlength: 128},
+                    opAccount: {maxlength: 32},
+                    opPassword: {maxlength: 32},
+                    payUrl: {maxlength: 255, required: true},
+                    synNotifyUrl: {maxlength: 255},
+                    refundUrl: {maxlength: 255},
+                    tranUrl: {maxlength: 255},
+                    extend1: {maxlength: 255},
+                    checkUrl: {maxlength: 255},
+                    asynNotifyUrl: {maxlength: 255},
+                    queryUrl: {maxlength: 255},
+                    certPath1: {maxlength: 128},
+                    certPath2: {maxlength: 128},
+                    certPath3: {maxlength: 128},
+                    certContent1: {maxlength: 2048},
+                    certContent2: {maxlength: 2048},
+                    certContent3: {maxlength: 2048},
                     contractType: {required: true},
+                    deviceType: {required: true},
 
                     settleCycle: {},
                     settleMode: {},
@@ -104,25 +105,25 @@
                     }
                 }
             });
-            $("#chanId").change(function (){
-            	 $("#chanCode").val($("#chanId").find("option:selected").data("chancode"));
-            	 console.log("11=="+$("#chanCode").val());
+            $("#chanId").change(function () {
+                $("#chanCode").val($("#chanId").find("option:selected").data("chancode"));
+                console.log("11==" + $("#chanCode").val());
             });
             $("#chanCode").val($("#chanId").find("option:selected").data("chancode"));
-            console.log("33=="+$("#chanCode").val());
-            
-            $("#smsSendType").change(function(){
-            	cascadeSmsContent();
+            console.log("33==" + $("#chanCode").val());
+
+            $("#smsSendType").change(function () {
+                cascadeSmsContent();
             });
         });
 
-        function cascadeSmsContent(){
-        	var smsSendType = $("#smsSendType").val();
-        	if(smsSendType=='0'){
-        		$("#smsContentTemplet").attr("disabled",true);
-        	}else{
-        		$("#smsContentTemplet").attr("disabled",false);
-        	}
+        function cascadeSmsContent() {
+            var smsSendType = $("#smsSendType").val();
+            if (smsSendType == '0') {
+                $("#smsContentTemplet").attr("disabled", true);
+            } else {
+                $("#smsContentTemplet").attr("disabled", false);
+            }
         }
     </script>
 </head>
@@ -136,7 +137,7 @@
     <tags:message content="${message}" type="${messageType}"/>
     <input type="hidden" id="op" name="op" value="${op }"/>
     <input type="hidden" name="id" value="${chanMchPaytye.id }"/>
-	<input type="hidden" name="chanCode" value="${chanMchPaytye.chanCode }" id="chanCode"/>
+    <input type="hidden" name="chanCode" value="${chanMchPaytye.chanCode }" id="chanCode"/>
     <!-- ********************************************************************** -->
     <div class="breadcrumb">
         <label>支付通道基本信息</label>
@@ -160,25 +161,30 @@
                     <div class="controls">
                         <select name="contractType" class="input-xlarge" id="contractType" onchange="parentDiss()">
                             <option value="">--请选择--</option>
-                            <option <c:if test="${chanMchPaytye.contractType == 1}">selected</c:if> value="1">商户合同</option>
-                            <option <c:if test="${chanMchPaytye.contractType == 2}">selected</c:if> value="2">服务商合同</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.contractType == 1}">selected</c:if> value="1">商户合同
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.contractType == 2}">selected</c:if> value="2">服务商合同
+                            </option>
                         </select>
                     </div>
                 </div>
             </td>
             <td>
-            <div class="control-group">
-                <label class="control-label">所属上级</label>
-                <div class="controls">
-                    <select class="input-xlarge" name="parentId" id="parentId">
-                        <option>无</option>
-                        <c:forEach items="${chanMchts}" var="chanMcht">
-                            <option <c:if test="${chanMchPaytye.parentId == chanMcht.id}">selected</c:if>
-                                    value="${chanMcht.id}">${chanMcht.name}</option>
-                        </c:forEach>
-                    </select>
+                <div class="control-group">
+                    <label class="control-label">所属上级</label>
+                    <div class="controls">
+                        <select class="input-xlarge" name="parentId" id="parentId">
+                            <option>无</option>
+                            <c:forEach items="${chanMchts}" var="chanMcht">
+                                <option
+                                        <c:if test="${chanMchPaytye.parentId == chanMcht.id}">selected</c:if>
+                                        value="${chanMcht.id}">${chanMcht.name}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
                 </div>
-            </div>
             </td>
         </tr>
         <tr>
@@ -190,7 +196,8 @@
                                 <c:if test="${op == 'edit'}">disabled="disabled"</c:if>>
                             <option data-shortName="请选择" value="">--请选择--</option>
                             <c:forEach items="${mchtInfos}" var="mchtInfo">
-                                <option <c:if test="${chanMchPaytye.mchtId == mchtInfo.id}">selected</c:if>
+                                <option
+                                        <c:if test="${chanMchPaytye.mchtId == mchtInfo.id}">selected</c:if>
                                         data-mchtCode="${mchtInfo.mchtCode}" data-shortName="${mchtInfo.shortName}"
                                         value="${mchtInfo.id}">${mchtInfo.name}</option>
                             </c:forEach>
@@ -207,7 +214,9 @@
                                 <c:if test="${op == 'edit'}">disabled="disabled"</c:if>>
                             <option value="">--请选择--</option>
                             <c:forEach items="${chanInfos}" var="chanInfo">
-                                <option data-chanCode="${chanInfo.chanCode }"<c:if test="${chanMchPaytye.chanId == chanInfo.id}">selected</c:if> value="${chanInfo.id}">${chanInfo.name}</option>
+                                <option data-chanCode="${chanInfo.chanCode }"
+                                        <c:if test="${chanMchPaytye.chanId == chanInfo.id}">selected</c:if>
+                                        value="${chanInfo.id}">${chanInfo.name}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -222,7 +231,9 @@
                                 <c:if test="${op == 'edit'}">disabled="disabled"</c:if>>
                             <option value="">--请选择--</option>
                             <c:forEach items="${paymentTypeInfos}" var="paymentTypeInfo">
-                                <option <c:if test="${chanMchPaytye.payType == paymentTypeInfo.code}">selected</c:if> value="${paymentTypeInfo.code}">${paymentTypeInfo.desc}</option>
+                                <option
+                                        <c:if test="${chanMchPaytye.payType == paymentTypeInfo.code}">selected</c:if>
+                                        value="${paymentTypeInfo.code}">${paymentTypeInfo.desc}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -270,7 +281,8 @@
                 <div class="control-group">
                     <label class="control-label" for="chanMchtPassword">商户密码</label>
                     <div class="controls">
-                        <input name="chanMchtPassword" placeholder="" value="${chanMchPaytye.chanMchtPassword}" type="text" id="chanMchtPassword">
+                        <input name="chanMchtPassword" placeholder="" value="${chanMchPaytye.chanMchtPassword}"
+                               type="text" id="chanMchtPassword">
                     </div>
                 </div>
             </td>
@@ -287,13 +299,14 @@
                 <div class="control-group">
                     <label class="control-label" for="opPassword">操作员密码</label>
                     <div class="controls">
-                        <input name="opPassword" placeholder="" value="${chanMchPaytye.opPassword}" class="input-xlarge" type="text"
+                        <input name="opPassword" placeholder="" value="${chanMchPaytye.opPassword}" class="input-xlarge"
+                               type="text"
                                id="opPassword">
                     </div>
                 </div>
             </td>
         </tr>
-        
+
         <tr>
             <td colspan="2">
                 <div class="control-group">
@@ -360,7 +373,8 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label" for="certPath1">通道公钥地址<span style="color: red;"><span style="color: red;"></span></span></label>
+                    <label class="control-label" for="certPath1">通道公钥地址<span style="color: red;"><span
+                            style="color: red;"></span></span></label>
                     <div class="controls">
                         <input name="certPath1" value="${chanMchPaytye.certPath1 }" placeholder=""
                                type="text" id="certPath1">
@@ -369,7 +383,8 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label" for="certPath2">平台私钥地址<span style="color: red;"><span style="color: red;"></span></span></label>
+                    <label class="control-label" for="certPath2">平台私钥地址<span style="color: red;"><span
+                            style="color: red;"></span></span></label>
                     <div class="controls">
                         <input name="certPath2" value="${chanMchPaytye.certPath2 }" placeholder=""
                                type="text" id="certPath2">
@@ -378,7 +393,8 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label" for="certPath3">平台公钥地址<span style="color: red;"><span style="color: red;"></span></span></label>
+                    <label class="control-label" for="certPath3">平台公钥地址<span style="color: red;"><span
+                            style="color: red;"></span></span></label>
                     <div class="controls">
                         <input name="certPath3" value="${chanMchPaytye.certPath3 }" placeholder=""
                                type="text" id="certPath3">
@@ -390,7 +406,8 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label" for="certContent1">通道公钥内容<span style="color: red;"><span style="color: red;"></span></span></label>
+                    <label class="control-label" for="certContent1">通道公钥内容<span style="color: red;"><span
+                            style="color: red;"></span></span></label>
                     <div class="controls">
 			    <textarea name="certContent1" placeholder="" class="" id="certContent1"
                           rows="5">${chanMchPaytye.certContent1}</textarea>
@@ -398,17 +415,19 @@
                 </div>
             </td>
             <td>
-                        <div class="control-group">
-                            <label class="control-label" for="certContent2">平台私钥内容<span style="color: red;"><span style="color: red;"></span></span></label>
-                            <div class="controls">
+                <div class="control-group">
+                    <label class="control-label" for="certContent2">平台私钥内容<span style="color: red;"><span
+                            style="color: red;"></span></span></label>
+                    <div class="controls">
 			    <textarea name="certContent2" placeholder="" class="" id="certContent2"
                           rows="5">${chanMchPaytye.certContent2}</textarea>
-                            </div>
-                        </div>
+                    </div>
+                </div>
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label" for="certContent3">平台公钥内容<span style="color: red;"><span style="color: red;"></span></span></label>
+                    <label class="control-label" for="certContent3">平台公钥内容<span style="color: red;"><span
+                            style="color: red;"></span></span></label>
                     <div class="controls">
 			    <textarea name="certContent3" placeholder="" class="" id="certContent3"
                           rows="5">${chanMchPaytye.certContent3}</textarea>
@@ -423,78 +442,108 @@
                     <label class="control-label" for="smsSendType">快捷支付组合类型</label>
                     <div class="controls">
                         <select name="combType" id="combType">
-                            <option value="0" >--请选择--</option>
-                            <option value="1" <c:if test="${chanMchPaytye.combType == 1}">selected</c:if>>（绑卡+支付）组合接口</option>
+                            <option value="0">--请选择--</option>
+                            <option value="1" <c:if test="${chanMchPaytye.combType == 1}">selected</c:if>>（绑卡+支付）组合接口
+                            </option>
                             <option value="2" <c:if test="${chanMchPaytye.combType == 2}">selected</c:if>>标准接口</option>
                         </select>
                     </div>
                 </div>
             </td>
 
-	        	<td colspan="1">
-	                <div class="control-group">
-	                    <label class="control-label" for="smsSendType">短信发送方式</label>
-	                    <div class="controls">
-	                    	<select name="smsSendType" id="smsSendType">
-                                <option value="0" >--请选择--</option>
-	                    		<c:forEach items="${fns:getDictList('sms_send_type') }" var="dict">
-		                    		<option value="${dict.value}" <c:if test="${dict.value eq chanMchPaytye.smsSendType}">selected</c:if>>
-		                    			${dict.label}
-		                    		</option>
-		                    	</c:forEach>
-	                    	</select>
-	                    </div>
-	                </div>
-	            </td>
-	            
-	        <td colspan="3">
+            <td colspan="1">
+                <div class="control-group">
+                    <label class="control-label" for="smsSendType">短信发送方式</label>
+                    <div class="controls">
+                        <select name="smsSendType" id="smsSendType">
+                            <option value="0">--请选择--</option>
+                            <c:forEach items="${fns:getDictList('sms_send_type') }" var="dict">
+                                <option value="${dict.value}"
+                                        <c:if test="${dict.value eq chanMchPaytye.smsSendType}">selected</c:if>>
+                                        ${dict.label}
+                                </option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                </div>
+            </td>
+
+            <td colspan="3">
                 <div class="control-group">
                     <label class="control-label" for="smsContentTemplet">短信内容模版</label>
                     <div class="controls">
                         <textarea name="smsContentTemplet" placeholder="" class="" id="smsContentTemplet"
-                          rows="3" style="width:500px;">${chanMchPaytye.smsContentTemplet}</textarea>
+                                  rows="3" style="width:500px;">${chanMchPaytye.smsContentTemplet}</textarea>
                     </div>
                 </div>
             </td>
+
+        </tr>
+        <tr>
+
+            <td>
+                <div class="control-group">
+                    <label class="control-label">设备类型<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <div class="controls">
+                        <label><input name="deviceType" type="checkbox" value="1" id="requestMcht"
+                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '1')}">checked="checked"</c:if> />移动端
+                        </label>
+                        <label><input name="deviceType" type="checkbox" value="2" id="serverMcht"
+                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '2')}">checked="checked"</c:if> />PC端
+                        </label>
+                        <label><input name="deviceType" type="checkbox" value="3" onclick="checkType()"
+                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '3')}">checked="checked"</c:if> />微信内
+                        </label>
+                        <label><input name="deviceType" type="checkbox" value="4" onclick="checkType()"
+                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '4')}">checked="checked"</c:if> />支付宝
+                        </label>
+                        <label><input name="deviceType" type="checkbox" value="5" onclick="checkType()"
+                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '5')}">checked="checked"</c:if> />APP内
+                        </label>
+                    </div>
+
+                </div>
+            </td>
+
         </tr>
     </table>
 
     <!-- ********************************************************************** -->
     <%--<div class="breadcrumb">--%>
-        <%--<label>商务合作信息</label>--%>
+    <%--<label>商务合作信息</label>--%>
     <%--</div>--%>
     <%--<tags:message content="${message}" type="${messageType}"/>--%>
     <%--<table class="table">--%>
-        <%--<tr>--%>
+    <%--<tr>--%>
 
-            <%--<td>--%>
-                <%--<div class="control-group">--%>
-                    <%--<label class="control-label">合同类型<span style="color: red;">*</span></label>--%>
-                    <%--<div class="controls">--%>
-                        <%--<select name="contractType" class="input-xlarge" id="contractType">--%>
-                            <%--<option value="">--请选择--</option>--%>
-                            <%--<option <c:if test="${chanMchPaytye.contractType == 1}">selected</c:if> value="1">商户合同</option>--%>
-                            <%--<option <c:if test="${chanMchPaytye.contractType == 2}">selected</c:if> value="2">服务商合同</option>--%>
-                        <%--</select>--%>
-                    <%--</div>--%>
-                <%--</div>--%>
-            <%--</td>--%>
+    <%--<td>--%>
+    <%--<div class="control-group">--%>
+    <%--<label class="control-label">合同类型<span style="color: red;">*</span></label>--%>
+    <%--<div class="controls">--%>
+    <%--<select name="contractType" class="input-xlarge" id="contractType">--%>
+    <%--<option value="">--请选择--</option>--%>
+    <%--<option <c:if test="${chanMchPaytye.contractType == 1}">selected</c:if> value="1">商户合同</option>--%>
+    <%--<option <c:if test="${chanMchPaytye.contractType == 2}">selected</c:if> value="2">服务商合同</option>--%>
+    <%--</select>--%>
+    <%--</div>--%>
+    <%--</div>--%>
+    <%--</td>--%>
 
-            <%--<td>--%>
-                <%--<div class="control-group">--%>
-                    <%--<label class="control-label">所属上级</label>--%>
-                    <%--<div class="controls">--%>
-                        <%--<select name="parentId">--%>
-                            <%--<option>请选择</option>--%>
-                            <%--<c:forEach items="${chanMchts}" var="chanMcht">--%>
-                                <%--<option <c:if test="${chanMchPaytye.parentId == chanMcht.id}">selected</c:if>--%>
-                                        <%--value="${chanMcht.id}">${chanMcht.name}</option>--%>
-                            <%--</c:forEach>--%>
-                        <%--</select>--%>
-                    <%--</div>--%>
-                <%--</div>--%>
-            <%--</td>--%>
-        <%--</tr>--%>
+    <%--<td>--%>
+    <%--<div class="control-group">--%>
+    <%--<label class="control-label">所属上级</label>--%>
+    <%--<div class="controls">--%>
+    <%--<select name="parentId">--%>
+    <%--<option>请选择</option>--%>
+    <%--<c:forEach items="${chanMchts}" var="chanMcht">--%>
+    <%--<option <c:if test="${chanMchPaytye.parentId == chanMcht.id}">selected</c:if>--%>
+    <%--value="${chanMcht.id}">${chanMcht.name}</option>--%>
+    <%--</c:forEach>--%>
+    <%--</select>--%>
+    <%--</div>--%>
+    <%--</div>--%>
+    <%--</td>--%>
+    <%--</tr>--%>
 
     <%--</table>--%>
     <!-- ********************************************************************** -->
@@ -511,10 +560,18 @@
                     <div class="controls">
                         <select name="settleMode" class="input-xlarge" id="settleMode">
                             <option value="">--请选择--</option>
-                            <option <c:if test="${chanMchPaytye.settleMode == 1}">selected</c:if> value="1">收单对公</option>
-                            <option <c:if test="${chanMchPaytye.settleMode == 2}">selected</c:if> value="2">收单对私</option>
-                            <option <c:if test="${chanMchPaytye.settleMode == 3}">selected</c:if> value="3">代付</option>
-                            <option <c:if test="${chanMchPaytye.settleMode == 4}">selected</c:if> value="4">银行直清</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleMode == 1}">selected</c:if> value="1">收单对公
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleMode == 2}">selected</c:if> value="2">收单对私
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleMode == 3}">selected</c:if> value="3">代付
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleMode == 4}">selected</c:if> value="4">银行直清
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -525,9 +582,15 @@
                     <div class="controls">
                         <select name="settleCycle" class="input-xlarge" id="settleCycle">
                             <option value="">--请选择--</option>
-                            <option <c:if test="${chanMchPaytye.settleCycle == 1}">selected</c:if> value="1">D0</option>
-                            <option <c:if test="${chanMchPaytye.settleCycle == 2}">selected</c:if> value="2">T0</option>
-                            <option <c:if test="${chanMchPaytye.settleCycle == 3}">selected</c:if> value="3">T1</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleCycle == 1}">selected</c:if> value="1">D0
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleCycle == 2}">selected</c:if> value="2">T0
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleCycle == 3}">selected</c:if> value="3">T1
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -551,8 +614,12 @@
                     <div class="controls">
                         <select name="feeType" class="input-xlarge" id="feeType" onchange="rateOrAmount()">
                             <option value="">--请选择--</option>
-                            <option <c:if test="${chanMchPaytye.feeType == 1}">selected</c:if> value="1">按笔收费</option>
-                            <option <c:if test="${chanMchPaytye.feeType == 2}">selected</c:if> value="2">按比例收费</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.feeType == 1}">selected</c:if> value="1">按笔收费
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.feeType == 2}">selected</c:if> value="2">按比例收费
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -581,7 +648,8 @@
                 <div class="control-group">
                     <label class="control-label" for="feeAmount">当日限额(分)</label>
                     <div class="controls">
-                        <input name="perdayPayMaxAmount" value="${chanMchPaytye.perdayPayMaxAmount }" placeholder="" class="input-xlarge"
+                        <input name="perdayPayMaxAmount" value="${chanMchPaytye.perdayPayMaxAmount }" placeholder=""
+                               class="input-xlarge"
                                type="text" id="perdayPayMaxAmount">
                     </div>
                 </div>
@@ -593,13 +661,16 @@
                     <div class="controls">
                         <label class="control-label" for="activeNow">立即</label>
                         <input name="feeStatus" value="1" placeholder="" class="input-xlarge"
-                               type="radio" <c:if test="${chanMchPaytye.feeStatus == 1}">checked</c:if>
+                               type="radio"
+                               <c:if test="${chanMchPaytye.feeStatus == 1}">checked</c:if>
                                <c:if test="${op == 'add'}">checked</c:if> id="activeNow">
                         <label class="control-label" for="activeThan">定时</label>
                         <input name="feeStatus" value="0" placeholder="" class="input-xlarge"
-                               type="radio" <c:if test="${chanMchPaytye.feeStatus == 0}">checked</c:if> id="activeThan">
+                               type="radio"
+                               <c:if test="${chanMchPaytye.feeStatus == 0}">checked</c:if> id="activeThan">
                         <input id="activeTime" name="activeTime" type="text" class="input-medium Wdate"
-                               value="${chanMchPaytye.activeTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true,readOnly:true,isShowOK:true,isShowToday:true, minDate:'%y-%M-%d'});"/>
+                               value="${chanMchPaytye.activeTime}"
+                               onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true,readOnly:true,isShowOK:true,isShowToday:true, minDate:'%y-%M-%d'});"/>
 
                     </div>
                 </div>
@@ -616,7 +687,7 @@
         <tr>
             <td colspan="2">
                 <div class="control-group">
-                    <label class="control-label" for="tranUrl">平台接口地址<span style="color: red;">*</span></label>
+                    <label class="control-label" for="tranUrl">平台接口地址<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="tranUrl" value="${chanMchPaytye.tranUrl }" placeholder=""
                                style="width:500px;" type="text" id="tranUrl" class=" {required:true,url:true}">
@@ -632,7 +703,9 @@
                     <div class="controls">
                         <select name="status" class="input-xlarge" id="status">
                             <option value="1">启用</option>
-                            <option <c:if test="${chanMchPaytye.status == 2}">selected</c:if> value="2">停用</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.status == 2}">selected</c:if> value="2">停用
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -642,9 +715,15 @@
                     <label class="control-label">SDK类型</label>
                     <div class="controls">
                         <select name="sdkType" class="input-xlarge" id="sdkType">
-                            <option <c:if test="${chanMchPaytye.sdkType == 1}">selected</c:if> value="1">实时</option>
-                            <option <c:if test="${chanMchPaytye.sdkType == 2}">selected</c:if> value="2">循环</option>
-                            <option <c:if test="${chanMchPaytye.sdkType == 3}">selected</c:if> value="3">一次</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.sdkType == 1}">selected</c:if> value="1">实时
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.sdkType == 2}">selected</c:if> value="2">循环
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.sdkType == 3}">selected</c:if> value="3">一次
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -656,7 +735,8 @@
                 <div class="control-group">
                     <label class="control-label" for="extend1">说明</label>
                     <div class="controls">
-		    			<textarea name="extend1" placeholder="" style="width:500px;" id="extend1" rows="3">${chanMchPaytye.extend1}</textarea>
+                        <textarea name="extend1" placeholder="" style="width:500px;" id="extend1"
+                                  rows="3">${chanMchPaytye.extend1}</textarea>
                     </div>
                 </div>
             </td>
