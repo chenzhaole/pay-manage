@@ -13,7 +13,7 @@ function toOrderQuery(queryInfo){
 /*查单接口处理*/
 function orderQueryDeal(queryInfo){
     intervalTime++;
-    if (intervalTime>120){
+    if (intervalTime>100){
         return ;
     }
     $.ajax({

@@ -10,7 +10,6 @@ import com.sys.common.util.IdUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwCashierMchtService;
-import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,11 +61,11 @@ public class GwCashierMchtController extends GwCashierBaseController {
 			//设备类型 如果商户没有传，就由我们自己来通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
 			deviceType = request.getParameter("deviceType");
 			logger.info(BIZ+midoid+"请求参数中获取的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+			//根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
+			String userAgent = this.getUserAgentInfoByRequest(request);
+			logger.info(BIZ+midoid+"根据请求头获取的user-agent为："+userAgent);
 			if(StringUtils.isEmpty(deviceType)){
 				logger.info(BIZ+midoid+"请求参数中未获取到deviceType，需要通过程序获取deviceType的值");
-				//根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
-				String userAgent = this.getUserAgentInfoByRequest(request);
-				logger.info(BIZ+midoid+"根据请求头获取的user-agent为："+userAgent);
 				deviceType = HttpUtil.getDeviceType(userAgent);
 				logger.info(BIZ+midoid+"商户没传设备类型，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 			}
@@ -106,16 +105,16 @@ public class GwCashierMchtController extends GwCashierBaseController {
 						}else{
 							//设置h5中间页需要的参数
 							if(page.endsWith("scan")){
-								this.addScanCentPageModelInfo (model, result);
-							}else if(page.endsWith("cent")){
-								this.addH5CentPageModelInfo (model, result);
+								this.addScanCentPageModelInfo(model, result);
+							}else if(page.endsWith("center")){
+								this.addH5CentPageModelInfo(model, result, userAgent);
 							}
 							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 						}
 					}
 				}else{
 					page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
-	//客服信息
+					//客服信息
                     if(result != null && null != result.getData() &&  (result.getData() instanceof Map)){
                         qq = (String) ((Map) result.getData()).get("qq");
                         mobile = (String) ((Map) result.getData()).get("mobile");
@@ -146,19 +145,6 @@ public class GwCashierMchtController extends GwCashierBaseController {
 	}
 
 	/**
-	 * 设置h5中间页需要的请求参数
-	 *
-	 * @param model
-	 * @param result
-	 */
-	private void addH5CentPageModelInfo(Model model, CommonResult result) {
-
-		Result resultInfo = (Result) result.getData();
-		model.addAttribute("callMode", resultInfo.getClientPayWay());
-		model.addAttribute("payInfo", resultInfo.getPayInfo());
-	}
-
-	/**
 	 * 收银台页面需要的数据
 	 * @param model
 	 */
@@ -182,19 +168,24 @@ public class GwCashierMchtController extends GwCashierBaseController {
     public String queryResult(HttpServletRequest request) throws Exception {
         String status = PayStatusEnum.CREATE_SUCCESS.getCode();
         String platOrderId = "";
+        String deviceType = "";
         try {
-           String ip = IpUtil.getRemoteHost(request);
-           platOrderId = request.getParameter("platOrderId");
-           //调用handler处理业务
-           CommonResult result = iTradeCashierMchtHandler.queryStatus(ip, platOrderId);
-           logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询结果：CommonResult="+ JSONObject.toJSONString(result));
-           if(null != result &&  null != result.getData()){
+			String userAgent = this.getUserAgentInfoByRequest(request);
+			logger.info("页面轮询，根据请求头获取的user-agent为："+userAgent);
+			deviceType = HttpUtil.getDeviceType(userAgent);
+			logger.info("页面轮询，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+            String ip = IpUtil.getRemoteHost(request);
+            platOrderId = request.getParameter("platOrderId");
+            //调用handler处理业务
+            CommonResult result = iTradeCashierMchtHandler.queryStatus(ip, platOrderId);
+            logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询结果：CommonResult="+ JSONObject.toJSONString(result));
+            if(null != result &&  null != result.getData()){
                 status = (String) result.getData();
                 if(PayStatusEnum.PAY_SUCCESS.getCode().equals(status)){
                     logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询结果此订单成功，返回页面status="+PayStatusEnum.PAY_SUCCESS.getCode());
                     return PayStatusEnum.PAY_SUCCESS.getCode();
                 }
-           }
+            }
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(platOrderId+"页面轮训查单请求异常："+e.getMessage());

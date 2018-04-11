@@ -216,8 +216,10 @@ function pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrder
         $("#other_cardpay").html(payInfo);
         //form表单提交
     }
-    //开启轮询查单
-    queryResult(platOrderId);
+    //3秒后，开启轮询查单
+    setTimeout(function () {
+        queryResult(platOrderId);
+    }, 3000);
 }
 /**
  *  end pc收银台方式，点击某种支付方式后，开启倒计时，并开始轮询查单
@@ -330,7 +332,7 @@ function queryResult(platOrderId){
                 if(data == "2"){
                     refuse();
                 }else{
-                    setTimeout("queryResult('"+platOrderId+"')",5000);
+                    setTimeout("queryResult('"+platOrderId+"')",1000);
                 }
             },
             error:function(){

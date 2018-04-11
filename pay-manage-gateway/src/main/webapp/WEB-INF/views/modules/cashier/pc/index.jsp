@@ -288,7 +288,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=5.6"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=5.7"></script>
     <script src="${ctxStatic}/js/cardPay.js"></script>
     <script>
         /**

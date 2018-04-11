@@ -66,7 +66,7 @@
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script src="${ctxStatic}/js/app.js?v=1.0"></script>
 <script src="${ctxStatic}/js/cashier.js?v=1.0"></script>
-<script src="${ctxStatic}/js/rotationOrder.js?version=1.9"></script>
+<script src="${ctxStatic}/js/rotationOrder.js?version=2.1"></script>
 <script type="text/javascript">
     //拼接页面回调地址
     var callbackUrl = "/gateway/cashier/chanCallBack/${platOrderId}/${payType}";
@@ -74,8 +74,8 @@
     var queryInfo = "platOrderId="+ "${platOrderId}";
 
     $(function(){
-        //5秒之后执行查单处理
-        setTimeout("toOrderQuery('"+queryInfo+"')",5000);
+        //3秒之后执行查单处理
+        setTimeout("toOrderQuery('"+queryInfo+"')",3000);
     });
 
     var dialog = new auiDialog({});
