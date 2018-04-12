@@ -143,13 +143,11 @@ public class GwCashierPlatController extends GwCashierBaseController {
                     if(result != null && null != result.getData() &&  (result.getData() instanceof Map)){
                         Map mapData = (Map) result.getData();
                         Map<String, String> pageQQandMobile = (Map<String, String>) mapData.get("pageQQandMobile");
-                        model.addAttribute("qq", pageQQandMobile.get("qq"));
-                        model.addAttribute("mobile", pageQQandMobile.get("mobile"));
+                        qq = pageQQandMobile.get("qq");
+                        mobile = pageQQandMobile.get("mobile");
                     }else{
                         result.setRespCode(ErrorCodeEnum.E8001.getCode());
                         result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
-                        model.addAttribute("qq", qq);
-                        model.addAttribute("mobile", mobile);
                     }
                     logger.info(BIZ+midoid+"调用TradeCashierPlatHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
                 }
@@ -157,8 +155,6 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 //请求参数不能为空
                 result.setRespCode(ErrorCodeEnum.E1017.getCode());
                 result.setRespMsg(ErrorCodeEnum.E1017.getDesc());
-                model.addAttribute("qq", qq);
-                model.addAttribute("mobile", mobile);
                 page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
                 logger.info(BIZ+midoid+"接收收银台请求，解析请求参数失败，存在未传的参数，返回的CommonResult="+JSONObject.toJSONString(result));
             }
@@ -166,10 +162,14 @@ public class GwCashierPlatController extends GwCashierBaseController {
             e.printStackTrace();
             result.setRespCode(ErrorCodeEnum.E8001.getCode());
             result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
-            model.addAttribute("qq", qq);
-            model.addAttribute("mobile", mobile);
             page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
             logger.error(BIZ+midoid+"接收收银台页面请求异常："+e.getMessage());
+        }
+        if(StringUtils.isNotBlank(qq)){
+            model.addAttribute("qq", qq);
+        }
+        if(StringUtils.isNotBlank(mobile)){
+            model.addAttribute("mobile", mobile);
         }
         model.addAttribute("respCode",result.getRespCode());
         model.addAttribute("respMsg",result.getRespMsg());

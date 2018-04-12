@@ -118,31 +118,31 @@ public class GwCashierMchtController extends GwCashierBaseController {
                     if(result != null && null != result.getData() &&  (result.getData() instanceof Map)){
 						Map mapData = (Map) result.getData();
 						Map<String, String> pageQQandMobile = (Map<String, String>) mapData.get("pageQQandMobile");
-						model.addAttribute("qq", pageQQandMobile.get("qq"));
-						model.addAttribute("mobile", pageQQandMobile.get("mobile"));
+						qq = pageQQandMobile.get("qq");
+						mobile = pageQQandMobile.get("mobile");
                     }else{
 						result.setRespCode(ErrorCodeEnum.E8001.getCode());
 						result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
-						model.addAttribute("qq", qq);
-						model.addAttribute("mobile", mobile);
 					}
 					logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
 				}
 			}else{
 				page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
 				logger.info(BIZ+midoid+"解析并校验商户请求参数失败："+ JSONObject.toJSONString(result) );
-                model.addAttribute("qq", qq);
-                model.addAttribute("mobile", mobile);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			result.setRespCode(ErrorCodeEnum.E8001.getCode());
 			result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
-            model.addAttribute("qq", qq);
-            model.addAttribute("mobile", mobile);
 			page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
 			logger.error(BIZ+midoid+"接收商户请求异常："+e.getMessage());
 		}
+        if(StringUtils.isNotBlank(qq)){
+		    model.addAttribute("qq", qq);
+        }
+        if(StringUtils.isNotBlank(mobile)){
+		    model.addAttribute("mobile", mobile);
+        }
 		model.addAttribute("respCode",result.getRespCode());
 		model.addAttribute("respMsg",result.getRespMsg());
 		logger.info(BIZ+midoid+"处理完业务之后，返回给页面的数据为："+JSONObject.toJSONString(model));
