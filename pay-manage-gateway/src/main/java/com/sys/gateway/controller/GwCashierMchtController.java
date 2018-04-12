@@ -116,11 +116,16 @@ public class GwCashierMchtController extends GwCashierBaseController {
 					page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
 					//客服信息
                     if(result != null && null != result.getData() &&  (result.getData() instanceof Map)){
-                        qq = (String) ((Map) result.getData()).get("qq");
-                        mobile = (String) ((Map) result.getData()).get("mobile");
-                        model.addAttribute("qq", qq);
-                        model.addAttribute("mobile", mobile);
-                    }
+						Map mapData = (Map) result.getData();
+						Map<String, String> pageQQandMobile = (Map<String, String>) mapData.get("pageQQandMobile");
+						model.addAttribute("qq", pageQQandMobile.get("qq"));
+						model.addAttribute("mobile", pageQQandMobile.get("mobile"));
+                    }else{
+						result.setRespCode(ErrorCodeEnum.E8001.getCode());
+						result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+						model.addAttribute("qq", qq);
+						model.addAttribute("mobile", mobile);
+					}
 					logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
 				}
 			}else{
