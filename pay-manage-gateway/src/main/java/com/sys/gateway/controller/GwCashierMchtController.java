@@ -69,23 +69,23 @@ public class GwCashierMchtController extends GwCashierBaseController {
 				deviceType = HttpUtil.getDeviceType(userAgent);
 				logger.info(BIZ+midoid+"商户没传设备类型，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 			}
-			//解析并校验商户请求参数
 			TradeCashierRequest requestInfo = null;
+			//解析并校验商户请求参数
 			result = gwCashierService.resolveAndcheckParam(request);
 			logger.info(BIZ+midoid+"解析并校验商户请求参数后的结果为："+ JSONObject.toJSONString(result));
 			if(ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
 				//商户请求参数校验通过
 				requestInfo = (TradeCashierRequest) result.getData();
-				//商户ID+支付类型+商户订单ID
 				//获取请求ip，值必须真实，某些上游通道要求必须是真实ip
 				//老网关转发的请求，会带过来真实ip,另外商户也可以传ip，如果请求参数的ip为空，我们才通过程序获取
 				String ip = requestInfo.getBody().getIp();
 				if(StringUtils.isBlank(ip)){
 					ip = IpUtil.getRemoteHost(request);
+				    logger.info(BIZ+midoid+"通过程序获取的请求ip为："+ip);
 				}
-				logger.info(BIZ+midoid+"获取的请求ip为："+ip);
-				logger.info(BIZ+midoid+"最终确定的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+				logger.info(BIZ+midoid+"最终获取的请求ip为："+ip+"，最终确定的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 				//调用handler处理业务
+				logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，传入的请求参数是："+JSONObject.toJSONString(requestInfo)+",IP："+ip+"，deviceType："+deviceType);
 				result = iTradeCashierMchtHandler.process(requestInfo, ip, deviceType);
 				logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，传入的请求参数是："+JSONObject.toJSONString(requestInfo)+",IP："+ip+"，deviceType："+deviceType+"，返回的数据为："+JSONObject.toJSONString(result));
 				if(null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
@@ -103,10 +103,11 @@ public class GwCashierMchtController extends GwCashierBaseController {
 							this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId());
 							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，pc端显示支付，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 						}else{
-							//设置h5中间页需要的参数
 							if(page.endsWith("scan")){
+							    //设置扫码中间页需要的参数
 								this.addScanCentPageModelInfo(model, result);
 							}else if(page.endsWith("center")){
+							    //设置h5中间页需要的参数
 								this.addH5CentPageModelInfo(model, result, userAgent);
 							}
 							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
