@@ -270,14 +270,14 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         head.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
 
         TradeNotifyResponse.TradeNotifyBody body = new TradeNotifyResponse.TradeNotifyBody();
-        body.setMchtId(order.getMchtId());
+        body.setMchtId(order.getMchtCode());
         body.setOrderId(order.getMchtOrderId());
         body.setStatus(PayStatusEnum.PAY_SUCCESS.getCode().equals(order.getStatus()) ? "SUCCESS" : "PROCESSING");
         body.setTradeId(order.getId());
         body.setBankCardNo(order.getBankCardNo());
         body.setAmount(order.getAmount() + "");
         TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(body);
-        String mchtKey = merchantService.queryByKey(order.getMchtId()).getMchtKey();
+        String mchtKey = merchantService.queryByKey(order.getMchtCode()).getMchtKey();
         String sign = SignUtil.md5Sign(new HashMap<>(treeMap), mchtKey);
 
         tradeNotifyResponse.setSign(sign);

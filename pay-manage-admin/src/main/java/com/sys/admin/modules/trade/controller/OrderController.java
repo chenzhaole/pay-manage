@@ -322,7 +322,6 @@ public class OrderController extends BaseController {
 	 *
 	 * @param request
 	 * @param response
-	 * @param session
 	 * @param model
 	 * @param paramMap
 	 * @return
@@ -333,7 +332,7 @@ public class OrderController extends BaseController {
 		String message = "";
 		try {
 			String gatewayUrl = ConfigUtil.getValue("gateway.url");
-			String queryUrl = gatewayUrl + "/queryQuickOrder";
+			String queryUrl = gatewayUrl + "/queryOrder";
 			MchtGatewayOrder searchBo = new MchtGatewayOrder();
 			searchBo.setId(paramMap.get("orderId"));
 			String suffix = "20" + searchBo.getId().substring(1, 5);
@@ -347,7 +346,7 @@ public class OrderController extends BaseController {
 				redirectAttributes.addFlashAttribute("messageType", "error");
 				return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
 			}
-			MchtInfo mchtInfo = merchantService.queryByKey(order.getMchtId());
+			MchtInfo mchtInfo = merchantService.queryByKey(order.getMchtCode());
 			if (mchtInfo == null) {
 				redirectAttributes.addFlashAttribute("message", "查无此商户！");
 				redirectAttributes.addFlashAttribute("messageType", "error");
@@ -395,6 +394,10 @@ public class OrderController extends BaseController {
 					}
 
 					redirectAttributes.addFlashAttribute("message", "查单成功," + message);
+					redirectAttributes.addFlashAttribute("messageType", "success");
+					return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+				} else if ("FAILURE".equals(resultStatus)) {
+					redirectAttributes.addFlashAttribute("message", "查单成功, 支付状态为失败");
 					redirectAttributes.addFlashAttribute("messageType", "success");
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
 				} else if ("FAILURE".equals(resultStatus)) {

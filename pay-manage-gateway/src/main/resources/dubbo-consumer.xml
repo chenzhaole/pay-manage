@@ -53,6 +53,9 @@
 	<!-- [boss-trad] 统一扫码，下单支付处理句柄 -->
 	<dubbo:reference id="tradeCommPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCommPayHandler" timeout="30000"/>
 
+	<!-- [boss-trad] 订单查询 -->
+	<dubbo:reference id="tradeQueryOrderHandler" interface="com.sys.boss.api.service.trade.handler.ITradeQueryOrderHandler" timeout="30000"/>
+
 	<!-- [boss-trad] TX订单查询 -->
 	<dubbo:reference id="tradeTxQueryOrderHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxQueryOrderHandler" timeout="30000"/>
 
