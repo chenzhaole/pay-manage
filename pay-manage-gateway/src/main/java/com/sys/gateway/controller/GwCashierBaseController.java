@@ -130,7 +130,7 @@ public class GwCashierBaseController {
         String payInfo = "";
         if(ClientPayWayEnum.SCAN_INSIDE.getCode().equals(startPayType)){
             try {
-                String preUrl = ConfigUtil.getValue("qrCode.domain");
+                String preUrl = resultInfo.getQrCodeDomain();
                 String url = "http://"+preUrl+"/qrCode/gen";
                 payInfo = url + "?uuid=" + URLEncoder.encode(resultInfo.getPayInfo(), "UTF-8");
             } catch (UnsupportedEncodingException e) {

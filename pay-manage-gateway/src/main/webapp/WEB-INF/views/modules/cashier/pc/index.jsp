@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>收银台pc</title>
     <link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css">
-    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.0">
+    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.6">
     <link rel="stylesheet" href="${ctxStatic}/css/jquery.mCustomScrollbar.min.css" />
 
 </head>
@@ -272,6 +272,20 @@
 
 
                     </c:forEach>
+
+                    <!--提示-->
+                    <div class="layui-tab-item nouse" id="alipay">
+                        <div class="warn-content">
+                            <img src="${ctxStatic}/images/pop3.png" alt="暂未支付" />
+                            <p>
+                                下单失败，请尝试其他支付方式
+                            </p>
+                            <p>
+                                状态码:<span id="respCode"></span>，错误描述:<span id="respMsg"></span>
+                            </p>
+                        </div>
+                    </div>
+
                     <!--提示-->
                     <div class="layui-tab-item nopay">
                         <div class="warn-content">
@@ -288,7 +302,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=5.7"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=6.4"></script>
     <script src="${ctxStatic}/js/cardPay.js"></script>
     <script>
         /**

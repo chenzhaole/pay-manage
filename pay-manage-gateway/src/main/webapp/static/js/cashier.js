@@ -172,12 +172,14 @@ function getAsynQrCode(paymentType) {
                     //开启倒计时及页面轮询查单
                     pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId, payInfo);
                 }else{
-                    $("#errorMsg").text(data.respMsg);
+                    $("#respCode").html(data.respCode);
+                    $("#respMsg").html(data.respMsg);
                     tips(".nouse");
                 }
             },
             error:function(){
-                $("#errorMsg").text("哎呀！服务器开小差了。");
+                $("#respCode").html("unKnow");
+                $("#respMsg").html("哎呀！服务器开小差了");
                 tips(".nouse");
             }
         });
