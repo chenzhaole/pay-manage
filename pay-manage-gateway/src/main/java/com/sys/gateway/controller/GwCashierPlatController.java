@@ -50,7 +50,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
             //通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
             logger.info(BIZ + midoid + "通过程序获取deviceType的值");
             //根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
-            String userAgent = getUserAgentInfoByRequest(request);
+            String userAgent = getUserAgentInfoByRequest(request, midoid);
             logger.info(BIZ + midoid + "根据请求头获取的user-agent为：" + userAgent);
             deviceType = HttpUtil.getDeviceType(userAgent);
             logger.info(BIZ + midoid + "通过程序判断deviceType为：" + deviceType + "-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
@@ -64,8 +64,9 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 if (null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode()) && null != result.getData()) {
                     Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
                     Result resultInfo = (Result) retMapInfo.get("result");
+                    Map<String, String> mapQQandMobile = (Map<String, String>)retMapInfo.get("pageQQandMobile");
                     //pc端是异步下单
-                    String pcAsynScanInfo = returnPcPageInfo(resultInfo);
+                    String pcAsynScanInfo = returnPcPageInfo(resultInfo, midoid);
                     result.setData(pcAsynScanInfo);
                 }else{
                     if(result == null){
@@ -114,7 +115,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
             //通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
             logger.info(BIZ + midoid + "通过程序获取deviceType的值");
             //根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
-            String userAgent = getUserAgentInfoByRequest(request);
+            String userAgent = getUserAgentInfoByRequest(request, midoid);
             logger.info(BIZ + midoid + "根据请求头获取的user-agent为：" + userAgent);
             deviceType = HttpUtil.getDeviceType(userAgent);
             logger.info(BIZ + midoid + "通过程序判断deviceType为：" + deviceType + "-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
@@ -130,18 +131,18 @@ public class GwCashierPlatController extends GwCashierBaseController {
                     Result resultInfo = (Result) retMapInfo.get("result");
                     String biz = resultInfo.getPaymentType();
                     //非收银台页面跳转
-                    page = this.chooseNotCashierPage(deviceType, biz);
+                    page = this.chooseNotCashierPage(deviceType, biz, midoid);
                     if(page.endsWith("scan")){
                         //设置扫码中间页需要的参数
-                        this.addScanCentPageModelInfo(model, result);
+                        this.addScanCentPageModelInfo(model, result, midoid);
                     }else if(page.endsWith("center")){
                         //设置h5和公众号支付的中间页需要的参数
-                        this.addH5CentPageModelInfo(model, result, userAgent);
+                        this.addH5CentPageModelInfo(model, result, userAgent, midoid);
                     }
                     logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 
                 }else{
-                    page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
+                    page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
                     //客服信息
                     if(result != null && null != result.getData() &&  (result.getData() instanceof Map)){
                         Map mapData = (Map) result.getData();
@@ -158,14 +159,14 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 //请求参数不能为空
                 result.setRespCode(ErrorCodeEnum.E1017.getCode());
                 result.setRespMsg(ErrorCodeEnum.E1017.getDesc());
-                page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
+                page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
                 logger.info(BIZ+midoid+"接收收银台请求，解析请求参数失败，存在未传的参数，返回的CommonResult="+JSONObject.toJSONString(result));
             }
         } catch (Exception e) {
             e.printStackTrace();
             result.setRespCode(ErrorCodeEnum.E8001.getCode());
             result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
-            page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
+            page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
             logger.error(BIZ+midoid+"接收收银台页面请求异常："+e.getMessage());
         }
         if(StringUtils.isNotBlank(qq)){

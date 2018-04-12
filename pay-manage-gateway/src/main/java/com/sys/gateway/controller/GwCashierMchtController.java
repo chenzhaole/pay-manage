@@ -62,7 +62,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 			deviceType = request.getParameter("deviceType");
 			logger.info(BIZ+midoid+"请求参数中获取的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 			//根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
-			String userAgent = this.getUserAgentInfoByRequest(request);
+			String userAgent = this.getUserAgentInfoByRequest(request, midoid);
 			logger.info(BIZ+midoid+"根据请求头获取的user-agent为："+userAgent);
 			if(StringUtils.isEmpty(deviceType)){
 				logger.info(BIZ+midoid+"请求参数中未获取到deviceType，需要通过程序获取deviceType的值");
@@ -91,30 +91,30 @@ public class GwCashierMchtController extends GwCashierBaseController {
 				if(null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
 					if(PayTypeEnum.CASHIER_PLAT.getCode().equals(requestInfo.getHead().getBiz())){
 						//收银台页面跳转
-						page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode());
+						page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode(), midoid);
 						//设置收银台页面需要的值
-						this.addCashierModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId() );
+						this.addCashierModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), midoid );
 						logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用收银台页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 					}else{
 						//非收银台页面跳转
-						page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz());
+						page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz(), midoid);
 						if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
 							//pc页面操作，将支付地址带到页面
-							this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId());
+							this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId(), midoid);
 							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，pc端显示支付，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 						}else{
 							if(page.endsWith("scan")){
 							    //设置扫码中间页需要的参数
-								this.addScanCentPageModelInfo(model, result);
+								this.addScanCentPageModelInfo(model, result, midoid);
 							}else if(page.endsWith("center")){
 							    //设置h5中间页需要的参数
-								this.addH5CentPageModelInfo(model, result, userAgent);
+								this.addH5CentPageModelInfo(model, result, userAgent, midoid);
 							}
 							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 						}
 					}
 				}else{
-					page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
+					page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
 					//客服信息
                     if(result != null && null != result.getData() &&  (result.getData() instanceof Map)){
 						Map mapData = (Map) result.getData();
@@ -128,14 +128,14 @@ public class GwCashierMchtController extends GwCashierBaseController {
 					logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
 				}
 			}else{
-				page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
+				page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
 				logger.info(BIZ+midoid+"解析并校验商户请求参数失败："+ JSONObject.toJSONString(result) );
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
 			result.setRespCode(ErrorCodeEnum.E8001.getCode());
 			result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
-			page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
+			page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
 			logger.error(BIZ+midoid+"接收商户请求异常："+e.getMessage());
 		}
         if(StringUtils.isNotBlank(qq)){
@@ -176,7 +176,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
         String platOrderId = "";
         String deviceType = "";
         try {
-			String userAgent = this.getUserAgentInfoByRequest(request);
+			String userAgent = this.getUserAgentInfoByRequest(request, "");
 			logger.info("页面轮询，根据请求头获取的user-agent为："+userAgent);
 			deviceType = HttpUtil.getDeviceType(userAgent);
 			logger.info("页面轮询，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");

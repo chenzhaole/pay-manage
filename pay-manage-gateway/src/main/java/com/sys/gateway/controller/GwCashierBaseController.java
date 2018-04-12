@@ -29,7 +29,7 @@ public class GwCashierBaseController {
      * @param model
      * @param result
      */
-    protected void addH5CentPageModelInfo(Model model, CommonResult result, String userAgent) {
+    protected void addH5CentPageModelInfo(Model model, CommonResult result, String userAgent, String midoid) {
         Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
         Result resultInfo = (Result) retMapInfo.get("result");
         Map<String, String> mapQQandMobile = (Map<String, String>)retMapInfo.get("pageQQandMobile");
@@ -39,11 +39,12 @@ public class GwCashierBaseController {
         model.addAttribute("platOrderId", resultInfo.getOrderNo());
         model.addAttribute("payType", payType);
         //是否使用扫码转H5方式，即是否通过iframe标签掉起支付，0：使用， 1：不使用
-        model.addAttribute("iframe", this.useIfrmnameMark(payType, userAgent));
+        model.addAttribute("iframe", this.useIfrmnameMark(payType, userAgent, midoid));
 
         //qq和手机
         model.addAttribute("qq", mapQQandMobile.get("qq"));
         model.addAttribute("mobile", mapQQandMobile.get("mobile"));
+        logger.info(midoid+"，h5中间页需要的参数："+JSONObject.toJSONString(model));
 
     }
 
@@ -53,20 +54,21 @@ public class GwCashierBaseController {
      * @param userAgent
      * @return
      */
-    protected String useIfrmnameMark(String payType, String userAgent) {
+    protected String useIfrmnameMark(String payType, String userAgent, String midoid) {
         //默认不使用
         String iframe = "1";
         if(PayTypeEnum.QQ_SCAN2WAP.getCode().equals(payType)){
             //qq扫码转h5不支持：苹果自带浏览器、uc浏览器、百度浏览器
             //过滤掉qq扫码转h5不支持的浏览器，
-            if(browserbSupportQQScan2H5(userAgent)){
+            if(browserbSupportQQScan2H5(userAgent, midoid)){
                iframe = "0";
             }
         }else if(PayTypeEnum.ALIPAY_OFFLINE_SCAN2WAP.getCode().equals(payType) || PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) ){
-            if(browserbSupportAliScan2H5(userAgent)){
+            if(browserbSupportAliScan2H5(userAgent, midoid)){
                 iframe = "0";
             }
         }
+        logger.info(midoid+"，是否通过iframe标签掉起支付，iframe："+iframe+"，【0：使用， 1：不使用】");
         return iframe;
     }
 
@@ -75,7 +77,7 @@ public class GwCashierBaseController {
      * @param userAgent
      * @return
      */
-    protected boolean browserbSupportQQScan2H5(String userAgent) {
+    protected boolean browserbSupportQQScan2H5(String userAgent, String midoid) {
         if (userAgent.contains("iPhone")){
             //ios手机自带浏览器
             //仅仅是苹果浏览器内核，即苹果自带浏览器
@@ -84,6 +86,7 @@ public class GwCashierBaseController {
                     && !userAgent.contains("Firefox")
                     && !userAgent.contains("Opera")){
                 //不支持
+                logger.info(midoid+"，qq扫码转h5支付，不支持iPhone手机的自带浏览器");
                 return false;
             }
         }else if(userAgent.contains("Android")) {
@@ -98,9 +101,15 @@ public class GwCashierBaseController {
 //	    	  user-agent = Mozilla/5.0 (Linux; Android 6.0.1; vivo X9 Build/MMB29M; wv) AppleWebKit/537.36 (KHTML, like Gecko)
 //	    	  Version/4.0 Chrome/48.0.2564.116 Mobile Safari/537.36 T7/9.1 baiduboxapp/9.1.0.12 (Baidu; P1 6.0.1)
             /** 1. 安卓手机uc浏览器， 2.安卓手机百度浏览器*/
-            if(userAgent.contains("baidu") || userAgent.contains("UCBrowser")) {
+            if(userAgent.contains("baidu")) {
+                logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的百度【baidu】浏览器");
                 return false;
             }
+            if(userAgent.contains("UCBrowser")){
+                logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的UC【UCBrowser】浏览器");
+                return false;
+            }
+
         }
         return true;
     }
@@ -110,18 +119,18 @@ public class GwCashierBaseController {
      * @param userAgent
      * @return
      */
-    protected boolean browserbSupportAliScan2H5(String userAgent) {
-
+    protected boolean browserbSupportAliScan2H5(String userAgent, String midoid) {
+        //TODO
         return true;
     }
 
     /**
-     * 设置pc页面支付需要的请求参数
+     * 设置pc页面非收银台支付方式需要的请求参数
      *
      * @param model
      * @param result
      */
-    protected void addPcScanPageModelInfo(Model model, CommonResult result, String amount, String mchtId, String goods, String mchtOrderId) {
+    protected void addPcScanPageModelInfo(Model model, CommonResult result, String amount, String mchtId, String goods, String mchtOrderId, String midoid) {
         Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
         Result resultInfo = (Result) retMapInfo.get("result");
         Map<String, String> mapQQandMobile = (Map<String, String>)retMapInfo.get("pageQQandMobile");
@@ -129,13 +138,7 @@ public class GwCashierBaseController {
         //封装生成二维码支付链接
         String payInfo = "";
         if(ClientPayWayEnum.SCAN_INSIDE.getCode().equals(startPayType)){
-            try {
-                String preUrl = resultInfo.getQrCodeDomain();
-                String url = "http://"+preUrl+"/qrCode/gen";
-                payInfo = url + "?uuid=" + URLEncoder.encode(resultInfo.getPayInfo(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            payInfo = this.geneQrcodeUrl(resultInfo.getQrCodeDomain(), resultInfo.getPayInfo(), midoid);
         }else if(ClientPayWayEnum.SCAN_EXTERNAL.getCode().equals(startPayType)){
             payInfo = resultInfo.getPayInfo();
         }
@@ -157,6 +160,8 @@ public class GwCashierBaseController {
         String countdownTime  = ConfigUtil.getValue("qrCode.countdownTime");
         model.addAttribute("countdownTime", countdownTime);
 
+        logger.info(midoid+",pc页面非收银台支付方式需要的参数："+JSONObject.toJSONString(model));
+
     }
 
     /**
@@ -165,7 +170,7 @@ public class GwCashierBaseController {
      * @param model
      * @param result
      */
-    protected void addScanCentPageModelInfo(Model model, CommonResult result) {
+    protected void addScanCentPageModelInfo(Model model, CommonResult result, String midoid) {
         Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
         Result resultInfo = (Result) retMapInfo.get("result");
         Map<String, String> mapQQandMobile = (Map<String, String>)retMapInfo.get("pageQQandMobile");
@@ -173,13 +178,7 @@ public class GwCashierBaseController {
         //封装生成二维码支付链接
         String payInfo = "";
         if(ClientPayWayEnum.SCAN_INSIDE.getCode().equals(startPayType)){
-            try {
-                String preUrl = resultInfo.getQrCodeDomain();
-                String url = "http://"+preUrl+"/qrCode/gen";
-                payInfo = url + "?uuid=" + URLEncoder.encode(resultInfo.getPayInfo(), "UTF-8");
-            } catch (UnsupportedEncodingException e) {
-                e.printStackTrace();
-            }
+            payInfo = this.geneQrcodeUrl(resultInfo.getQrCodeDomain(), resultInfo.getPayInfo(), midoid);
         }else if(ClientPayWayEnum.SCAN_EXTERNAL.getCode().equals(startPayType)){
             payInfo = resultInfo.getPayInfo();
         }
@@ -190,6 +189,26 @@ public class GwCashierBaseController {
         //qq和手机
         model.addAttribute("qq", mapQQandMobile.get("qq"));
         model.addAttribute("mobile", mapQQandMobile.get("mobile"));
+        logger.info(midoid+",扫码中间页需要的数据："+JSONObject.toJSONString(model));
+    }
+
+    /**
+     * 扫码支付，自己封装的二维码url
+     * @param qrCodeDomain
+     * @param qrCodepayInfo
+     * @param midoid
+     * @return
+     */
+    private String geneQrcodeUrl(String qrCodeDomain, String qrCodepayInfo, String midoid) {
+        String payInfo = "";
+        try {
+            String url = "http://"+qrCodeDomain+"/qrCode/gen";
+            payInfo = url + "?uuid=" + URLEncoder.encode(qrCodepayInfo, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        logger.info(midoid+"，扫码支付，自己封装的二维码url："+payInfo);
+        return payInfo;
     }
 
     /**
@@ -197,15 +216,8 @@ public class GwCashierBaseController {
      * @param result
      * @return
      */
-    protected String returnPcPageInfo(Result result) {
-        String payInfo = "";
-        try {
-            String preUrl = result.getQrCodeDomain();
-            String url = "http://"+preUrl+"/qrCode/gen";
-            payInfo = url + "?uuid=" + URLEncoder.encode(result.getPayInfo(), "UTF-8");
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
+    protected String returnPcPageInfo(Result result, String midoid) {
+        String payInfo = this.geneQrcodeUrl(result.getQrCodeDomain(), result.getPayInfo(), midoid);
         String payType = result.getPaymentType();
         String platOrderId = result.getOrderNo();
         JSONObject jsonObject = new JSONObject();
@@ -214,7 +226,9 @@ public class GwCashierBaseController {
         String countdownTime = ConfigUtil.getValue("qrCode.countdownTime");
         jsonObject.put("countdownTime",countdownTime);
         jsonObject.put("payType",payType);
-        return jsonObject.toString();
+        String data = jsonObject.toString();
+        logger.info(midoid+"，pc端页面异步下单，返回页面的信息："+data);
+        return data;
     }
 
 
@@ -222,7 +236,7 @@ public class GwCashierBaseController {
      * 收银台页面需要的数据
      * @param model
      */
-    protected void addCashierModelInfo(Model model, CommonResult result, String goods, String amount, String mchtId) {
+    protected void addCashierModelInfo(Model model, CommonResult result, String goods, String amount, String mchtId, String midoid) {
         model.addAttribute("goods", goods);
         //将分转成元
         amount = NumberUtils.changeF2Y(amount);
@@ -237,33 +251,37 @@ public class GwCashierBaseController {
         model.addAttribute("mobile", pageQQandMobile.get("mobile"));
         //2表示展示收银台， 1表示不展示收银台
         model.addAttribute("pcIscashier", "2");
+        logger.info(midoid+"，收银台页面需要的数据："+JSONObject.toJSONString(model));
     }
 
     /**
      * 非收银台选择跳转页面
      * @return
      */
-    protected String chooseNotCashierPage(String deviceType, String biz) {
+    protected String chooseNotCashierPage(String deviceType, String biz, String midoid) {
         //根据设备类型，确定跳转页面
         String page = "";
         if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
             //pc页面
-            page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode());
+            page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode(), midoid );
         }else{
             //手机端和微信内，需要判断展示哪一种中间页,因为h5支付和公众号支付使用的是一种中间页，扫码支付使用的是另一种中间页
             //根据支付类型解析出具体中间页
-            String pageTypeCode = this.resolvePageType(biz);
-            page = this.getPageByDeviceType(deviceType, pageTypeCode);
+            String pageTypeCode = this.resolvePageType(biz, midoid);
+            page = this.getPageByDeviceType(deviceType, pageTypeCode, midoid);
         }
+        logger.info(midoid+"，非收银台选择跳转页面page="+page);
         return page;
     }
 
     /**
-     * 根据支付类型找到具体的场景
+     * 手机端根据支付类型找到具体的支付中间页
      * @param biz
      * @return
      */
-    protected String resolvePageType(String biz) {
+    protected String resolvePageType(String biz, String midoid) {
+        //具体页面
+        String pageType = "";
         if(PayTypeEnum.WX_WAP.getCode().equals(biz) || //微信h5支付
                 PayTypeEnum.WX_PUBLIC.getCode().equals(biz)  || //微信公众号支付
                 PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝线上扫码转h5支付
@@ -275,7 +293,7 @@ public class GwCashierBaseController {
                 PayTypeEnum.JD_SCAN2WAP.getCode().equals(biz) //京东扫码转h5支付
                 ){
 
-            return PageTypeEnum.CENTER.getCode();
+            pageType = PageTypeEnum.CENTER.getCode();
 
         }else if(PayTypeEnum.COMBINE_QRCODE.getCode().equals(biz) || //聚合二维码
                 PayTypeEnum.WX_QRCODE.getCode().equals(biz)  || //微信扫码支付
@@ -285,12 +303,16 @@ public class GwCashierBaseController {
                 PayTypeEnum.QQ_QRCODE.getCode().equals(biz)  || //QQ扫码支付
                 PayTypeEnum.JD_SCAN.getCode().equals(biz)  || //京东扫码支付
                 PayTypeEnum.UNIONPAY_QRCODE.getCode().equals(biz) //银联二维码支付
-        ){
-            return PageTypeEnum.SCAN.getCode();
+                ){
+
+            pageType = PageTypeEnum.SCAN.getCode();
+
         }else{
             //错误页面
-            return PageTypeEnum.ERROR.getCode();
+            pageType = PageTypeEnum.ERROR.getCode();
         }
+        logger.info(midoid+"，手机端根据支付类型找到具体的支付中间页,传入的支付类型="+biz+"，最终页面page="+pageType);
+        return pageType;
     }
 
 
@@ -299,7 +321,7 @@ public class GwCashierBaseController {
      * @param request
      * @return
      */
-    protected String getUserAgentInfoByRequest(HttpServletRequest request) {
+    protected String getUserAgentInfoByRequest(HttpServletRequest request, String midoid) {
         String userAgent = StringUtils.isNotEmpty(request.getHeader("user-agent"))
                 ?request.getHeader("user-agent").toLowerCase():"";
         if (StringUtils.isEmpty(userAgent)){
@@ -310,6 +332,9 @@ public class GwCashierBaseController {
         if(StringUtils.isEmpty(userAgent)){
             userAgent = "unknow";
         }
+        if(StringUtils.isNotBlank(midoid)){
+            logger.info(midoid+"，获取的请求头userAgent="+userAgent);
+        }
         return userAgent;
     }
 
@@ -318,7 +343,7 @@ public class GwCashierBaseController {
      * @param deviceType
      * @return
      */
-    protected String getPageByDeviceType(String deviceType, String pageType) {
+    protected String getPageByDeviceType(String deviceType, String pageType, String midoid) {
         String deviceTypeName = "";
         if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
             deviceTypeName = "pc";
@@ -332,7 +357,9 @@ public class GwCashierBaseController {
             //默认pc
             deviceTypeName = "pc";
         }
-        return "modules/cashier/"+deviceTypeName+"/"+pageType;
+        String url = "modules/cashier/"+deviceTypeName+"/"+pageType;
+        logger.info(midoid+"，根据设备类型，找对应页面为："+url);
+        return url;
     }
 
 }

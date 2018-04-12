@@ -138,7 +138,7 @@ function refuse() {
  **/
 function getAsynQrCode(paymentType) {
 
-    var ajax = paymentType=="wx"? (countDownStatusWx=="0"?true:false) :
+    var isAjax = paymentType=="wx"? (countDownStatusWx=="0"?true:false) :
         paymentType=="al"?(countDownStatusAli=="0"?true:false) :
             paymentType=="qq"?(countDownStatusQQWallet=="0"?true:false) :
                 paymentType=="yl"?(countDownStatusUnionQrCode=="0"?true:false):
@@ -150,44 +150,45 @@ function getAsynQrCode(paymentType) {
     var mchtOrderId = $("#mchtOrderId").val();
     var extraData = $("#extraData").val();
 
-    if(ajax){
-        //表单序列化处理，开始请求支付
-       $.ajax({
-            type:"get",
-            url: "/gateway/cashier/platPcCall/"+mchtId+"/"+mchtOrderId+"/"+paymentType+"/"+extraData,
-            dataType:'json' ,
-            async:false,
+       //表单序列化处理，开始请求支付
+    $.ajax({
+        type:"get",
+        url: "/gateway/cashier/platPcCall/"+mchtId+"/"+mchtOrderId+"/"+paymentType+"/"+extraData,
+        dataType:'json' ,
+        async:false,
 
-            success:function(data){
-                console.log(data);
-                if(data.respCode == "0000"){
-                    var payJsondata = JSON.parse(data.data);
-                    var platOrderId = payJsondata.platOrderId;
-                    var payType = payJsondata.payType;
-                    //将平台订单存入页面，查单时使用
-                    $("#platOrderId").val(platOrderId);
-                    $("#payType").val(payType);
-                    var payInfo = payJsondata.payInfo;
-                    var countdownTimeStr = payJsondata.countdownTime;
-                    //开启倒计时及页面轮询查单
+        success:function(data){
+            console.log(data);
+            if(data.respCode == "0000"){
+                var payJsondata = JSON.parse(data.data);
+                var platOrderId = payJsondata.platOrderId;
+                var payType = payJsondata.payType;
+                //将平台订单存入页面，查单时使用
+                $("#platOrderId").val(platOrderId);
+                $("#payType").val(payType);
+                var payInfo = payJsondata.payInfo;
+                var countdownTimeStr = payJsondata.countdownTime;
+                //开启倒计时及页面轮询查单
+                if(isAjax) {
                     pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId, payInfo);
-                }else{
-                    if(data.respCode == "E8003"){
-                        //该笔订单已成功
-                        $("#alreadySucc").css("display","block");
-                    }
-                    $("#respCode").html(data.respCode);
-                    $("#respMsg").html(data.respMsg);
-                    tips(".nouse");
                 }
-            },
-            error:function(){
-                $("#respCode").html("unKnow");
-                $("#respMsg").html("哎呀！服务器开小差了");
+            }else{
+                if(data.respCode == "E8003"){
+                    //该笔订单已成功
+                    $("#alreadySucc").css("display","block");
+                }
+                $("#respCode").html(data.respCode);
+                $("#respMsg").html(data.respMsg);
                 tips(".nouse");
             }
-        });
-    }
+        },
+        error:function(){
+            $("#respCode").html("unKnow");
+            $("#respMsg").html("哎呀！服务器开小差了");
+            tips(".nouse");
+        }
+    });
+
 }
 /**
  *  end 异步获取二维码
