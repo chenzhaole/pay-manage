@@ -172,6 +172,10 @@ function getAsynQrCode(paymentType) {
                     //开启倒计时及页面轮询查单
                     pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId, payInfo);
                 }else{
+                    if(data.respCode == "E8003"){
+                        //该笔订单已成功
+                        $("#alreadySucc").css("display","block");
+                    }
                     $("#respCode").html(data.respCode);
                     $("#respMsg").html(data.respMsg);
                     tips(".nouse");

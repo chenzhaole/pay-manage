@@ -283,6 +283,7 @@
                             <p>
                                 状态码:<span id="respCode"></span>，错误描述:<span id="respMsg"></span>
                             </p>
+                            <button class="layui-btn" id="alreadySucc" onclick="refuse()" style="display: none;">确定</button>
                         </div>
                     </div>
 
