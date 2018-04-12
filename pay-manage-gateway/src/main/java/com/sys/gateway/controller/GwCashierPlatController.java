@@ -58,6 +58,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 String ip = IpUtil.getRemoteHost(request);
                 logger.info(BIZ + midoid + "通过程序获取的ip为：" + ip);
                 //调用handler处理业务
+                logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip);
                 result = iTradeCashierPlatHandler.process(mchtId, mchtOrderId, paymentType, extraData, deviceType, ip);
                 logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip +"，返回的数据为：" + JSONObject.toJSONString(result));
                 if (null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode()) && null != result.getData()) {
@@ -67,8 +68,10 @@ public class GwCashierPlatController extends GwCashierBaseController {
                     String pcAsynScanInfo = returnPcPageInfo(resultInfo);
                     result.setData(pcAsynScanInfo);
                 }else{
-                    result.setRespCode(ErrorCodeEnum.E6110.getCode());
-                    result.setRespMsg(ErrorCodeEnum.E6110.getDesc());
+                    if(result == null){
+                        result.setRespCode(ErrorCodeEnum.E6110.getCode());
+                        result.setRespMsg(ErrorCodeEnum.E6110.getDesc());
+                    }
                     logger.info(BIZ+midoid+"调用TradeCashierPlatHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
                 }
             }else{
@@ -119,12 +122,12 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 String ip = IpUtil.getRemoteHost(request);
                 logger.info(BIZ + midoid + "通过程序获取的ip为：" + ip);
                 //调用handler处理业务
+                logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip);
                 result = iTradeCashierPlatHandler.process(mchtId, mchtOrderId, paymentType, extraData, deviceType, ip);
                 logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip +"，返回的数据为：" + JSONObject.toJSONString(result));
                 if (null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode()) && null != result.getData()) {
                     Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
                     Result resultInfo = (Result) retMapInfo.get("result");
-
                     String biz = resultInfo.getPaymentType();
                     //非收银台页面跳转
                     page = this.chooseNotCashierPage(deviceType, biz);
