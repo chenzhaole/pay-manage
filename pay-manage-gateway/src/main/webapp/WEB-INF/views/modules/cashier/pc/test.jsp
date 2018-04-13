@@ -43,6 +43,7 @@
             <option value="jd102">京东扫码转h5支付</option>
             <option value="jd401">京东扫码支付</option>
             <option value="yl401">银联二维码支付</option>
+            <option value="yl402">银联扫码转h5</option>
             <option value="qj202">快捷支付(即银行卡支付)</option>
             <option value="qj301">网银/网银退款支付</option>
         </select>

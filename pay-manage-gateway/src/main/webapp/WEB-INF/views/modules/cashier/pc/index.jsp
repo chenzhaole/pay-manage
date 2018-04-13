@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>收银台pc</title>
     <link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css">
-    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.8">
+    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=2.0">
     <link rel="stylesheet" href="${ctxStatic}/css/jquery.mCustomScrollbar.min.css" />
 
 </head>
@@ -68,7 +68,7 @@
                         </c:if>
                         <c:if test="${paymentType=='jd'}">
                             <li id="${paymentType}">
-                                <div class="jdpay"><img class="timg" src="${ctxStatic}/images/bank.png" alt="" />京东支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                                <div class="jdpay"><img class="timg" src="${ctxStatic}/images/jd.png" alt="" />京东支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
                             </li>
                         </c:if>
                         <c:if test="${paymentType=='sn'}">
@@ -105,7 +105,7 @@
                                             <img src="${payInfo}" alt="" class="photo" id="wxqrcode"/>
                                             <div class="wx-tip clearfix">
                                                 <img src="${ctxStatic}/images/scan.png" alt="" />
-                                                <span>微信扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
+                                                <span><font color="red">微信</font>扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
                                             </div>
                                             <div class="btn">查看支付结果</div>
                                         </div>
@@ -131,7 +131,7 @@
                                         <img src="${payInfo}" alt="" class="photo" id="aliqrcode"/>
                                         <div class="wx-tip clearfix">
                                             <img src="${ctxStatic}/images/scan.png" alt="" />
-                                            <span>支付宝扫一扫进行支付，支付完成后，请点击查看支付结果</span>
+                                            <span><font color="red">支付宝</font>扫一扫进行支付，支付完成后，请点击查看支付结果</span>
                                         </div>
                                         <div class="btn">查看支付结果</div>
                                     </div>
@@ -150,7 +150,7 @@
                                         <img src="${payInfo}" alt="" class="photo" id="qqWalletQrcode"/>
                                         <div class="wx-tip clearfix">
                                             <img src="${ctxStatic}/images/scan.png" alt="" />
-                                            <span>手机QQ扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
+                                            <span><font color="red">手机QQ</font>扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
                                         </div>
                                         <div class="btn">查看支付结果</div>
                                     </div>
@@ -168,7 +168,7 @@
                                         <img src="${payInfo}" alt="" class="photo" id="jdqrcode"/>
                                         <div class="wx-tip clearfix">
                                             <img src="${ctxStatic}/images/scan.png" alt="" />
-                                            <span>京东扫一扫进行支付，支付完成后，请点击查看支付结果</span>
+                                            <span><font color="red">京东</font>扫一扫进行支付，支付完成后，请点击查看支付结果</span>
                                         </div>
                                         <div class="btn">查看支付结果</div>
                                     </div>
@@ -187,7 +187,7 @@
                                         <img src="${payInfo}" alt="" class="photo" id="snWalletQrcode"/>
                                         <div class="wx-tip clearfix">
                                             <img src="${ctxStatic}/images/scan.png" alt="" />
-                                            <span>苏宁扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
+                                            <span><font color="red">苏宁</font>扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
                                         </div>
                                         <div class="btn">查看支付结果</div>
                                     </div>

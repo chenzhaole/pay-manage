@@ -8,8 +8,14 @@
     <title>支付中心</title>
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/aui.css" />
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css?v=1.4" />
+    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/loading.css?v=1.0" />
 </head>
-<body id="Error" class="bgF dialog">
+<body id="Error" class="bgF dialog is-loading">
+<div class="curtain">
+    <div class="loader">
+        loading...
+    </div>
+</div>
 <header class="aui-bar aui-bar-nav">
     <a class="aui-pull-left aui-btn" onclick="history.back()">
         <img src="${ctxStatic}/images/back.png"/>
@@ -57,6 +63,9 @@
     var iframe = '${iframe}';
 
     $(function(){
+        window.onload=function(){
+            $('body').removeClass('is-loading');
+        }
         //3秒之后执行查单处理
         setTimeout("toOrderQuery('"+queryInfo+"')",3000);
 

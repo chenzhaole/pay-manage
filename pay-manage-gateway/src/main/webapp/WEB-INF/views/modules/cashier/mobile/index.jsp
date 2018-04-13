@@ -71,7 +71,7 @@
                 <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
-                            <img src="${ctxStatic}/images/union.png" alt="京东支付" />
+                            <img src="${ctxStatic}/images/jd.png" alt="京东支付" />
                         </div>
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <p class="wayName">京东支付</p>

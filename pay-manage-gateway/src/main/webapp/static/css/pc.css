@@ -154,7 +154,10 @@
   	
   	.wx-content p,
   	.al-content p,
-  	.qq-content p,.yl-content p{
+  	.qq-content p,
+  	.sn-content p,
+  	.jd-content p,
+    .yl-content p{
   		font-size: 16px;
   		/*color: #666666;*/
   		/*letter-spacing: 1px;*/
@@ -167,6 +170,8 @@
   	
   	.al-content p,
   	.qq-content p,
+  	.sn-content p,
+  	.jd-content p,
   	.yl-content p {
   		text-align: center;
   	}

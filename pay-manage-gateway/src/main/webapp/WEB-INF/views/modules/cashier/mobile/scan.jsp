@@ -9,9 +9,15 @@
     <title>扫码支付</title>
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/aui.css" />
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css?v=1.0" />
+    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/loading.css?v=1.0" />
 </head>
 
-<body id="qrcode" class="default_pop dialog">
+<body id="qrcode" class="default_pop dialog is-loading">
+<div class="curtain">
+    <div class="loader">
+        loading...
+    </div>
+</div>
 <header class="aui-bar aui-bar-nav">
     <div class="aui-title">支付中心</div>
 </header>
@@ -76,6 +82,9 @@
     var queryInfo = "platOrderId="+ "${platOrderId}";
 
     $(function(){
+        window.onload=function(){
+            $('body').removeClass('is-loading');
+        }
         //3秒之后执行查单处理
         setTimeout("toOrderQuery('"+queryInfo+"')",3000);
     });
