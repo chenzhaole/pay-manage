@@ -33,10 +33,12 @@
             </c:when>
             <c:otherwise>
                 <p class="pay_tip2">步骤2&nbsp;:&nbsp;前往
-                    <span>
+                    <span style="color:red;">
                       <c:if test="${paymentType eq 'wx'}">微信</c:if>
                       <c:if test="${paymentType eq 'ali'}">支付宝</c:if>
                       <c:if test="${paymentType eq 'qq'}">QQ</c:if>
+                      <c:if test="${paymentType eq 'jd'}">京东</c:if>
+                      <c:if test="${paymentType eq 'sn'}">苏宁</c:if>
                     </span>"扫一扫",在相册中选择二维码进行扫描
                 </p>
             </c:otherwise>

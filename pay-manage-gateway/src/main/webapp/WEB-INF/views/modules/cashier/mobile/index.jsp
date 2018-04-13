@@ -67,6 +67,20 @@
                 </a>
             </c:if>
 
+            <c:if test="${paymentType=='jd'}">
+                <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <img src="${ctxStatic}/images/union.png" alt="京东支付" />
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <p class="wayName">京东支付</p>
+                            <p class="wayIntro">请使用京东客户端支付</p>
+                        </div>
+                    </li>
+                </a>
+            </c:if>
+
             <c:if test="${paymentType=='yl'}">
                 <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">

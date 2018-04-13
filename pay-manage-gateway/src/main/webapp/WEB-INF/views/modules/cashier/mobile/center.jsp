@@ -17,9 +17,6 @@
     <div class="aui-title">支付中心</div>
 </header>
 <div class="item">
-    <div style="display:none" >
-        ${result.payInfo}
-    </div>
     <div class="tipText">
         <p class="warnTip"><img src="${ctxStatic}/images/lamp.png" alt="温馨提示"  class="lamp"/>温馨提示</p>
         <p>支付时请注意身边安全,并注意避免重复支付。</p>
@@ -27,6 +24,7 @@
     <c:if test="${'01' == callMode && '0' == iframe}">
         <iframe id="ifrmname" name="ifrmname" style="display: none;" src="${payInfo}"></iframe>
     </c:if>
+    <div style="display: none" id="formSubmit">${payInfo}</div>
     <div class="submitBox">
         <a>
             <div class="aui-btn aui-btn-define1" onclick="goback(this)">返回</div>
@@ -71,7 +69,7 @@
             }
         }else if("02" == callMode){
             //02：h5支付通过form表单方式唤起支付
-            // TODO
+            $("#formSubmit form").submit();
         }else if("03" == callMode){
             //h5支付通过原生方式唤起支付
             //TODO
@@ -116,7 +114,7 @@
                         }
                     }else if("02" == callMode){
                         //02：h5支付通过form表单方式唤起支付
-                        // TODO
+                        $("#formSubmit form").submit();
                     }else if("03" == callMode){
                         //h5支付通过原生方式唤起支付
                         //TODO

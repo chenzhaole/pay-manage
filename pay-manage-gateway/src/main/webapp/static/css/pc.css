@@ -859,6 +859,23 @@
 		box-sizing: border-box;
 		box-shadow: 0 2px 5px rgba(0, 0, 0, .5);
 	}
+
+
+	/*20180413*/
+	.union-tip {
+		width: 310px!important;
+		margin-left: -43px;
+	}
+	.union-tip span{
+		width: 250px;
+	}
+	.union-tip >span >a{
+		cursor: pointer;
+		color:red;
+	}
+	.union-tip >span >a:hover{
+		color: #62B900;
+	}
 /*滚动条*/
 /*.bar{
 	position:relative;

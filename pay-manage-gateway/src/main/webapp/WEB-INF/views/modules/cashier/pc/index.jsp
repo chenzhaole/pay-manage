@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>收银台pc</title>
     <link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css">
-    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.6">
+    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.8">
     <link rel="stylesheet" href="${ctxStatic}/css/jquery.mCustomScrollbar.min.css" />
 
 </head>
@@ -203,9 +203,9 @@
                                             二维码已过期,请重新获取
                                         </div>
                                         <img src="${payInfo}" alt="" class="photo" id="unionQrCode"/>
-                                        <div class="wx-tip clearfix">
+                                        <div class="wx-tip clearfix union-tip">
                                             <img src="${ctxStatic}/images/scan.png" alt="" />
-                                            <span>银联二维码进行支付，支付完成后，请点击查看支付结果	</span>
+                                            <span>银联二维码进行支付，支付完成后，请点击查看支付结果<a href="javascript:void(0);" class="openSupportList">（查看支持客户端）</a>	</span>
                                         </div>
                                         <div class="btn">查看支付结果</div>
                                     </div>
@@ -303,7 +303,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=6.5"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=6.6"></script>
     <script src="${ctxStatic}/js/cardPay.js"></script>
     <script>
         /**

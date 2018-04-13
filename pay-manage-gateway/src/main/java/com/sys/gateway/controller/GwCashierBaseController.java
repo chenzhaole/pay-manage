@@ -290,7 +290,8 @@ public class GwCashierBaseController {
                 PayTypeEnum.QQ_SCAN2WAP.getCode().equals(biz)  || //QQ扫码转h5支付
                 PayTypeEnum.SUNING_SCAN2WAP.getCode().equals(biz)  || //苏宁扫码转h5支付
                 PayTypeEnum.JD_WAP.getCode().equals(biz)  || //京东h5支付
-                PayTypeEnum.JD_SCAN2WAP.getCode().equals(biz) //京东扫码转h5支付
+                PayTypeEnum.JD_SCAN2WAP.getCode().equals(biz) ||//京东扫码转h5支付
+                PayTypeEnum.UNIONPAY_SCAN2WAP.getCode().equals(biz) //京东扫码转h5支付
                 ){
 
             pageType = PageTypeEnum.CENTER.getCode();

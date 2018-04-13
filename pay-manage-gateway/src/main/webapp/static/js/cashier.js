@@ -74,6 +74,20 @@ layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'elemen
             }, 1000);
         });
     }
+
+
+    //银联二维码支持的客户端列表
+    $(document).on("click",".openSupportList",function(e){
+        layer.open({
+            type: 2,
+            title: false,
+            area: ['750px','80%'],
+            shade: 0.8,
+            closeBtn: 1,
+            shadeClose: true,
+            content: 'https://billcloud.unionpay.com/upwxs-mktc/web/mapp/wxe990cdbcc189456e/custom/alllist'
+        });
+    });
 });
 /**
  * end 页面点击获取二维码
