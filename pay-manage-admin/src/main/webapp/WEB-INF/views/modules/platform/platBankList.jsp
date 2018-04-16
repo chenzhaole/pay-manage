@@ -46,8 +46,8 @@
 					<label>状态：</label>
 					<select name="status" type="text" maxlength="64" class="input-medium">
 						<option value="">--请选择--</option>
-						<option <c:if test="${chanInfo.status == 1}">selected</c:if> value="1">启用</option>
-						<option <c:if test="${chanInfo.status == 2}">selected</c:if> value="2">停用</option>
+						<option <c:if test="${paramMap.status == 1}">selected</c:if> value="1">启用</option>
+						<option <c:if test="${paramMap.status == 2}">selected</c:if> value="2">停用</option>
 					</select>
  				</td>
  				<td>

@@ -148,6 +148,19 @@
 </td>
 
 </tr>
+<tr>
+	<td>
+		<div class="control-group">
+			<label class="control-label" >备注</label>
+			<div class="controls">
+                        <textarea name="remark" placeholder="" style="width:350px;" id="remark"
+								  rows="3">${channel.remark}</textarea>
+			</div>
+		</div>
+	</td>
+
+</tr>
+
 </table>
 
 

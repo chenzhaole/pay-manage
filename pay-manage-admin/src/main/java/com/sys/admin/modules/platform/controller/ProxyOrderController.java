@@ -1,17 +1,40 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.google.common.collect.Maps;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
-import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.common.enums.*;
-import com.sys.common.util.*;
+import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.ProxyPayBatchStatusEnum;
+import com.sys.common.enums.ProxyPayDetailStatusEnum;
+import com.sys.common.enums.ProxyPayRequestEnum;
+import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.Collections3;
+import com.sys.common.util.DateUtils2;
+import com.sys.common.util.IdUtil;
+import com.sys.common.util.JedisUtil;
+import com.sys.common.util.PostUtil;
+import com.sys.common.util.SignUtil;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
-import com.sys.core.service.*;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatBank;
+import com.sys.core.dao.dmo.PlatFeerate;
+import com.sys.core.dao.dmo.PlatProduct;
+import com.sys.core.dao.dmo.PlatProxyBatch;
+import com.sys.core.dao.dmo.PlatProxyDetail;
+import com.sys.core.service.ChannelService;
+import com.sys.core.service.MchtAccountInfoService;
+import com.sys.core.service.MchtProductService;
+import com.sys.core.service.MerchantService;
+import com.sys.core.service.PlatBankService;
+import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductService;
+import com.sys.core.service.ProxyBatchService;
+import com.sys.core.service.ProxyDetailService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -24,6 +47,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -31,12 +55,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping(value = "${adminPath}/proxy")
@@ -77,6 +104,7 @@ public class ProxyOrderController extends BaseController {
     @RequestMapping(value = {"proxyBatchList", ""})
     public String proxyBatchList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
         PlatProxyBatch proxyBatch = new PlatProxyBatch();
+        proxyBatch.setId(paramMap.get("batchId"));
         proxyBatch.setChanId(paramMap.get("chanId"));
         proxyBatch.setMchtId(paramMap.get("mchtId"));
         proxyBatch.setMchtOrderId(paramMap.get("mchtOrderId"));
@@ -104,13 +132,20 @@ public class ProxyOrderController extends BaseController {
         model.addAttribute("mchtInfos", mchtInfos);
 //		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
 
+		//查询商户列表
+		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
+        Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
+
         int proxyCount = proxyBatchService.count(proxyBatch);
-        if (proxyCount == 0) {
-            return "modules/proxy/proxyBatchList";
-        }
 
         List<PlatProxyBatch> proxyInfoList = proxyBatchService.list(proxyBatch);
 
+        if (!CollectionUtils.isEmpty(proxyInfoList)){
+			for (PlatProxyBatch platProxyBatch : proxyInfoList) {
+				platProxyBatch.setMchtId(mchtMap.get(platProxyBatch.getMchtId()));
+				platProxyBatch.setChanId(channelMap.get(platProxyBatch.getChanId()));
+			}
+		}
         Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
         model.addAttribute("page", page);
         model.addAttribute("paramMap", paramMap);

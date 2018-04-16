@@ -125,8 +125,10 @@ public class MchtChanAdminServiceImpl implements MchtChanAdminService {
 			}
 
 			int disableCount = 0;
+			String isValid = "";
 			for (MchtChan chan : mchtChans) {
-				if (StatusEnum.INVALID.getCode().equals(chan.getIsValid())) {
+				isValid = chan.getIsValid()+"";
+				if (!StatusEnum.VALID.getCode().equals(isValid)) {
 					disableCount++;
 				}
 			}
