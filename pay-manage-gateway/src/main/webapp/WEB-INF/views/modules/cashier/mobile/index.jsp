@@ -81,6 +81,20 @@
                 </a>
             </c:if>
 
+            <c:if test="${paymentType=='sn'}">
+                <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
+                    <li class="aui-list-item">
+                        <div class="aui-list-item-label-icon">
+                            <img src="${ctxStatic}/images/sn.png" alt="苏宁支付" />
+                        </div>
+                        <div class="aui-list-item-inner aui-list-item-arrow">
+                            <p class="wayName">苏宁支付</p>
+                            <p class="wayIntro">请使用苏宁金融客户端支付</p>
+                        </div>
+                    </li>
+                </a>
+            </c:if>
+
             <c:if test="${paymentType=='yl'}">
                 <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
@@ -99,7 +113,7 @@
                 <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
-                            <img src="${ctxStatic}/images/union.png" alt="快捷支付" />
+                            <img src="${ctxStatic}/images/bank.png" alt="快捷支付" />
                         </div>
                         <div class="aui-list-item-inner aui-list-item-arrow">
                             <p class="wayName">快捷支付</p>

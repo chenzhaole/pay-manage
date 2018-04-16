@@ -73,7 +73,7 @@
                         </c:if>
                         <c:if test="${paymentType=='sn'}">
                             <li id="${paymentType}">
-                                <div class="snpay"><img class="timg" src="${ctxStatic}/images/qq.png" alt="" />苏宁扫码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                                <div class="snpay"><img class="timg" src="${ctxStatic}/images/sn.png" alt="" />苏宁扫码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
                             </li>
                         </c:if>
                         <c:if test="${paymentType=='yl'}">
