@@ -11,6 +11,7 @@ import com.sys.core.dao.dmo.PlatAccountAdjust;
 import com.sys.core.service.MchtAccountDetailService;
 import com.sys.core.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -38,6 +39,7 @@ public class MchtAccountDetailController extends BaseController{
      * 账务明细列表
      */
     @RequestMapping(value={"list",""})
+    @RequiresPermissions("platform:accountDetail:list")
     public String list(MchtAccountDetail mchtAccountDetail, HttpServletRequest request, Model model){
         PageInfo pageInfo = new PageInfo();
         mchtAccountDetail.setPageInfo(pageInfo);
