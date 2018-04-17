@@ -73,7 +73,6 @@
 </div>
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script src="${ctxStatic}/js/app.js?v=1.0"></script>
-<script src="${ctxStatic}/js/cashier.js?v=1.0"></script>
 <script src="${ctxStatic}/js/rotationOrder.js?version=2.1"></script>
 <script type="text/javascript">
     //拼接页面回调地址
@@ -81,17 +80,18 @@
     //轮训查单需要的参数
     var queryInfo = "platOrderId="+ "${platOrderId}";
 
+    $(document).ready(function(){
+        $('body').removeClass('is-loading');
+        $(".curtain").remove();
+    });
+
     $(function(){
-        window.onload=function(){
-            $('body').removeClass('is-loading');
-        }
         //3秒之后执行查单处理
         setTimeout("toOrderQuery('"+queryInfo+"')",3000);
     });
 
     var dialog = new auiDialog({});
     function goback(el){
-
         //首先查缓存，看订单是否已经成功
         orderStatusQuery(queryInfo);
         var status = $("#selectStatus").val();

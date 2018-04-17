@@ -15,6 +15,8 @@ $(function () {
         //pc页面直接下单
         var payTypeInit = $("#payType").val();
         payTypeInit = payTypeInit.slice(0, 2);
+        //支付选中状态
+        $("#"+payTypeInit).addClass("layui-this").siblings().removeClass("layui-this");
         var className = payTypeInit + '-content';
         $("."+className).parent().addClass("layui-show");
         //开启倒计时及页面轮询查单

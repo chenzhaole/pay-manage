@@ -187,7 +187,7 @@
                                         <img src="${payInfo}" alt="" class="photo" id="snWalletQrcode"/>
                                         <div class="wx-tip clearfix">
                                             <img src="${ctxStatic}/images/scan.png" alt="" />
-                                            <span><font color="red">苏宁</font>扫一扫进行支付，支付完成后，请点击查看支付结果	</span>
+                                            <span><font color="red">苏宁金融</font>扫一扫进行支付，支付完成后，点击查看支付结果	</span>
                                         </div>
                                         <div class="btn">查看支付结果</div>
                                     </div>
@@ -303,7 +303,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=6.6"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=6.8"></script>
     <script src="${ctxStatic}/js/cardPay.js"></script>
     <script>
         /**

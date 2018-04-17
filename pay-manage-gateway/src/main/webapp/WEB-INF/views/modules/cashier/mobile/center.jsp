@@ -62,10 +62,12 @@
     var callMode = '${callMode}';
     var iframe = '${iframe}';
 
+    $(document).ready(function(){
+        $('body').removeClass('is-loading');
+        $(".curtain").remove();
+    });
+
     $(function(){
-        window.onload=function(){
-            $('body').removeClass('is-loading');
-        }
         //3秒之后执行查单处理
         setTimeout("toOrderQuery('"+queryInfo+"')",3000);
 
