@@ -37,7 +37,7 @@
  		<table>
  			<tr>
  				<td>
-					<label>产品名称：</label><input value="${paramMap.name}" name="productName" type="text" maxlength="64" class="input-medium"/>
+					<label>产品名称：</label><input value="${paramMap.productName}" name="productName" type="text" maxlength="64" class="input-medium"/>
  				</td>
 
 				<td>
@@ -72,9 +72,9 @@
 					<label>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;状 态： </label>
 					<select  value=""  name="status" type="text" maxlength="64" class="input-medium">
 						<option value="">--请选择--</option>
-						<option value="1">启用</option>
-						<option value="2">停用</option>
-						<option value="3">待审核</option>
+						<option value="1" <c:if test="${paramMap.status == '1'}">selected</c:if> >启用</option>
+						<option value="2" <c:if test="${paramMap.status == '2'}">selected</c:if> >停用</option>
+						<option value="3" <c:if test="${paramMap.status == '3'}">selected</c:if> >待审核</option>
 					</select>
 				</td>
 

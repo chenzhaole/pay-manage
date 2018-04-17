@@ -54,28 +54,17 @@
                 </select>
             </td>
 
-            <td>
-                <label>代付状态：</label>
-                <select name="payStatus" class="input-medium" id="">
-                    <option value="">--请选择--</option>
-                    <option <c:if test="${paramMap.payStatus == 1}">selected</c:if> value="1">发起</option>
-                    <option <c:if test="${paramMap.payStatus == 2}">selected</c:if> value="2">审核中</option>
-                    <option <c:if test="${paramMap.payStatus == 3}">selected</c:if> value="3">代付中</option>
-                    <option <c:if test="${paramMap.payStatus == 4}">selected</c:if> value="4">查单中</option>
-                    <option <c:if test="${paramMap.payStatus == 5}">selected</c:if> value="5">查单完成</option>
-                </select>&nbsp;&nbsp;&nbsp;
-            </td>
 
             <td>
                 <label>批次编号：</label>
-                <input value="${paramMap.mchtOrderId}" name="mchtOrderId" type="text" maxlength="64" class="input-medium"/>
+                <input value="${paramMap.batchId}" name="batchId" type="text" maxlength="64" class="input-medium"/>
             </td>
 
         </tr>
         <tr>
             <td>
                 <label>代付通道：</label>
-                <select name="batchId" class="selectpicker bla bla bli" data-live-search="true">
+                <select name="chanId" class="selectpicker bla bla bli" data-live-search="true">
                     <option value="">--请选择--</option>
                     <c:forEach items="${chanInfos}" var="chanInfo">
                         <option value="${chanInfo.id}"
@@ -86,13 +75,18 @@
             </td>
 
             <td>
-                <label>代付结果：</label>
-                <select name="checkStatus" class="input-medium">
-    <option value="">--请选择--</option>
-    <option <c:if test="${paramMap.checkStatus == 1}">selected</c:if> value="1">成功</option>
-    <option <c:if test="${paramMap.checkStatus == 2}">selected</c:if> value="2">失败</option>
-    </select>&nbsp;&nbsp;&nbsp;
-    </td>
+                <label>代付状态：</label>
+                <select name="payStatus" class="input-medium" id="">
+                    <option <c:if test="${paramMap.payStatus == ''}">selected</c:if> value="">--请选择--</option>
+                    <option <c:if test="${paramMap.payStatus == '0'}">selected</c:if> value="0">未处理</option>
+                    <option <c:if test="${paramMap.payStatus == '1'}">selected</c:if> value="1">已处理</option>
+                    <option <c:if test="${paramMap.payStatus == '2'}">selected</c:if> value="2">处理中</option>
+                    <option <c:if test="${paramMap.payStatus == '3'}">selected</c:if> value="3">不能处理</option>
+                    <option <c:if test="${paramMap.payStatus == '4'}">selected</c:if> value="4">部分失败</option>
+                    <option <c:if test="${paramMap.payStatus == '5'}">selected</c:if> value="5">全部失败</option>
+                    <option <c:if test="${paramMap.payStatus == '6'}">selected</c:if> value="6">全部成功</option>
+                </select>&nbsp;&nbsp;&nbsp;
+            </td>
 
     <td>
         <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
@@ -104,7 +98,9 @@
     <thead>
     <tr>
         <th>NO</th>
-        <th>批次号</th>
+        <th>批次编号</th>
+        <th>代付商户</th>
+        <th>代付通道</th>
         <th>来源</th>
         <th>总笔数</th>
         <th>总金额</th>
@@ -123,7 +119,10 @@
             <td><%=i%>
             </td>
             <td>${proxyBatch.id}</td>
-            <td>${proxyBatch.dataSource}</td>
+            <td>${proxyBatch.mchtId}</td>
+            <td>${proxyBatch.chanId}</td>
+            <td><c:if test="${proxyBatch.dataSource == 0}">线上接口</c:if>
+                <c:if test="${proxyBatch.dataSource == 1}">线下手工</c:if></td>
             <td>${proxyBatch.totalNum}</td>
             <td><fmt:formatNumber type="number" value="${proxyDetail.totalAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
             <td><fmt:formatNumber type="number" value="${proxyDetail.totalFee*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>

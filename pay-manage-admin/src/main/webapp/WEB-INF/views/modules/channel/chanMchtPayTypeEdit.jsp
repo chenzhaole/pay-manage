@@ -42,8 +42,11 @@
             if ($("#feeType").val() === "1") {
                 $("#feeRate").attr("disabled", "disabled");
                 $("#feeAmount").attr("disabled", false);
-            } else {
+            } else if ($("#feeType").val() === "2") {
                 $("#feeAmount").attr("disabled", "disabled");
+                $("#feeRate").attr("disabled", false);
+            } else if ($("#feeType").val() === "3") {
+                $("#feeAmount").attr("disabled", false);
                 $("#feeRate").attr("disabled", false);
             }
         }
@@ -619,6 +622,9 @@
                             </option>
                             <option
                                     <c:if test="${chanMchPaytye.feeType == 2}">selected</c:if> value="2">按比例收费
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.feeType == 3}">selected</c:if> value="3">混合
                             </option>
                         </select>
                     </div>

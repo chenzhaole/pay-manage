@@ -30,7 +30,8 @@ public class ChannelFormInfo {
 	private String code;//实体转换是否成功
 	private Long operatorId;
 	private String channelCooType;
-	
+	private String remark; //备注
+
 	public String getId() {
 		return id;
 	}
@@ -50,6 +51,14 @@ public class ChannelFormInfo {
 
 	public void setChannelCooType(String channelCooType) {
 		this.channelCooType = channelCooType;
+	}
+
+	public String getRemark() {
+		return remark;
+	}
+
+	public void setRemark(String remark) {
+		this.remark = remark;
 	}
 
 	//空的构造方法
@@ -81,6 +90,7 @@ public class ChannelFormInfo {
 			this.techMobile = requestMap.get("techMobile");
 			this.techPhone = requestMap.get("techPhone");
 			this.channelCooType = requestMap.get("channelCooType");
+			this.remark = requestMap.get("remark");
 		}
 	}
 
