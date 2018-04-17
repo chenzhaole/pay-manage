@@ -63,14 +63,17 @@ public class GwRecNotifyController {
             //解析通道数据成功,更新数据库订单状态成功
             //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
             resp2chan = tradeResult.getRespMsg();
-            //通知商户信息源
-            CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
-            logger.info(BIZ+platOrderId+"，bossTrade查询的缓存订单Trade对象:"+JSON.toJSONString(redisOrderTrade));
-            CommonResult serviceResult = sendNotifyService.sendNotify(payType,redisOrderTrade);
-            if(ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())){
-                logger.info(BIZ+platOrderId+"，通知商户成功");
-            }else{
-                logger.info(BIZ+platOrderId+"，通知商户失败");
+            //数据不为空，才会给商户通知
+            if(null != tradeResult.getData()){
+                //通知商户信息源
+                CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
+                logger.info(BIZ+platOrderId+"，bossTrade查询的缓存订单Trade对象:"+JSON.toJSONString(redisOrderTrade));
+                CommonResult serviceResult = sendNotifyService.sendNotify(payType,redisOrderTrade);
+                if(ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())){
+                    logger.info(BIZ+platOrderId+"，通知商户成功");
+                }else{
+                    logger.info(BIZ+platOrderId+"，通知商户失败");
+                }
             }
         }else{
             logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
@@ -108,14 +111,17 @@ public class GwRecNotifyController {
             //解析通道数据成功,更新数据库订单状态成功
             //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
             resp2chan = tradeResult.getRespMsg();
-            //通知商户信息源
-            CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
-            logger.info(BIZ+platOrderId+"，bossTrade查询的缓存订单Trade对象:"+JSON.toJSONString(redisOrderTrade));
-            CommonResult serviceResult = sendNotifyService.sendNotify(payType,redisOrderTrade);
-            if(ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())){
-                logger.info(BIZ+platOrderId+"，通知商户成功");
-            }else{
-                logger.info(BIZ+platOrderId+"，通知商户失败");
+            //数据不为空，才会给商户通知
+            if(null != tradeResult.getData()) {
+                //通知商户信息源
+                CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
+                logger.info(BIZ + platOrderId + "，bossTrade查询的缓存订单Trade对象:" + JSON.toJSONString(redisOrderTrade));
+                CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
+                if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
+                    logger.info(BIZ + platOrderId + "，通知商户成功");
+                } else {
+                    logger.info(BIZ + platOrderId + "，通知商户失败");
+                }
             }
         }else{
             logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
