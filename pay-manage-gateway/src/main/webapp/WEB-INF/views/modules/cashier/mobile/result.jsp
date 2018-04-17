@@ -42,7 +42,7 @@
 		</div>
 	</body>
 	<script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
-	<script src="${ctxStatic}/js/app.js?v=1.1"></script>
+	<script src="${ctxStatic}/js/app.js?v=1.0.0"></script>
 	<script type="text/javascript">
         var callbackUrl = '${callbackUrl}';
         function goback(el) {

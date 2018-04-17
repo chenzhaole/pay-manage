@@ -7,8 +7,8 @@
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
     <title>支付中心</title>
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/aui.css" />
-    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css?v=1.4" />
-    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/loading.css?v=1.0" />
+    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css?v=1.0.0" />
+    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/loading.css?v=1.0.0" />
 </head>
 <body id="Error" class="bgF dialog is-loading">
 <div class="curtain">
@@ -52,8 +52,8 @@
 </div>
 </body>
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
-<script src="${ctxStatic}/js/app.js?v=1.1"></script>
-<script src="${ctxStatic}/js/rotationOrder.js?version=2.1"></script>
+<script src="${ctxStatic}/js/app.js?v=1.0.0"></script>
+<script src="${ctxStatic}/js/rotationOrder.js?version=1.0.0"></script>
 <script type="text/javascript">
     //拼接页面回调地址
     var callbackUrl = "/gateway/cashier/chanCallBack/${platOrderId}/${payType}";

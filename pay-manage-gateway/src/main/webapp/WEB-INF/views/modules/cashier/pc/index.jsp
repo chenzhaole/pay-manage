@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>收银台pc</title>
     <link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css">
-    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=2.0">
+    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.0.0">
     <link rel="stylesheet" href="${ctxStatic}/css/jquery.mCustomScrollbar.min.css" />
 
 </head>
@@ -303,8 +303,8 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=6.8"></script>
-    <script src="${ctxStatic}/js/cardPay.js"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=1.0.0"></script>
+    <script src="${ctxStatic}/js/cardPay.js?v=1.0.0"></script>
     <script>
         /**
          * 前端框架使用的，不要误删

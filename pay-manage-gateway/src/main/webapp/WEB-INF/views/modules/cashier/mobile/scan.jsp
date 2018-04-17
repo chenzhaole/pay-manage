@@ -8,8 +8,8 @@
     <meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
     <title>扫码支付</title>
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/aui.css" />
-    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css?v=1.0" />
-    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/loading.css?v=1.0" />
+    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css?v=1.0.0" />
+    <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/loading.css?v=1.0.0" />
 </head>
 
 <body id="qrcode" class="default_pop dialog is-loading">
@@ -72,8 +72,8 @@
     </c:if>
 </div>
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
-<script src="${ctxStatic}/js/app.js?v=1.0"></script>
-<script src="${ctxStatic}/js/rotationOrder.js?version=2.1"></script>
+<script src="${ctxStatic}/js/app.js?v=1.0.0"></script>
+<script src="${ctxStatic}/js/rotationOrder.js?version=1.0.0"></script>
 <script type="text/javascript">
     //拼接页面回调地址
     var callbackUrl = "/gateway/cashier/chanCallBack/${platOrderId}/${payType}";
