@@ -4,8 +4,11 @@ package com.sys.admin.modules.platform.controller;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.platform.bo.PlatAccountAdjustBO;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.AuditEnum;
+import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.FeeTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
@@ -15,6 +18,10 @@ import com.sys.core.dao.dmo.PlatAccountAdjust;
 import com.sys.core.service.MchtAccountInfoService;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatAccountAdjustService;
+import org.apache.commons.beanutils.BeanUtils;
+import org.apache.commons.beanutils.ConvertUtils;
+import org.apache.commons.beanutils.converters.BigDecimalConverter;
+import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +35,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -79,6 +87,7 @@ public class PlatAccountAdjustController extends BaseController {
                 platAccountAdjust.setAuditTime(DateUtils.parseDate(request.getParameter("auditTime")));
 
             List<PlatAccountAdjust> list = platAccountAdjustService.list(platAccountAdjust);
+            List<PlatAccountAdjustBO> showList = new ArrayList<>(list.size());
             int count = platAccountAdjustService.count(platAccountAdjust);
 
             Page page = new Page(pageInfo.getPageNo(),pageInfo.getPageSize(),count,true);
@@ -88,11 +97,18 @@ public class PlatAccountAdjustController extends BaseController {
             //初始化商户名称
             Map<String,String> mchtMap = Collections3.extractToMap(
                     merchantService.list(new MchtInfo()),"id","name");
+            ConvertUtils.register(new DateConverter(null), java.util.Date.class);
+            ConvertUtils.register(new BigDecimalConverter(null),BigDecimal.class);
             for(PlatAccountAdjust adjust : list){
-                adjust.setMchtName(mchtMap.get(adjust.getMchtId()));
+                PlatAccountAdjustBO bo = new PlatAccountAdjustBO();
+                BeanUtils.copyProperties(bo,adjust);
+
+
+                bo.setMchtName(mchtMap.get(adjust.getMchtId()));
+                showList.add(bo);
             }
 
-            model.addAttribute("list",list);
+            model.addAttribute("list",showList);
             model.addAttribute("page",page);
             model.addAttribute("createTime",request.getParameter("createTime"));
             model.addAttribute("auditTime",request.getParameter("auditTime"));
@@ -124,7 +140,15 @@ public class PlatAccountAdjustController extends BaseController {
         platAccountAdjust.setCreatorName(operatorName);
 
         platAccountAdjust.setAuditStatus(AuditEnum.AUDITING.getCode());
-        platAccountAdjust.setAdjustAmount(platAccountAdjust.getAdjustAmount().multiply(BigDecimal.valueOf(100)));
+
+
+        if(StringUtils.equals(FeeTypeEnum.FIXED.getCode(),platAccountAdjust.getFeeType())){//固定值
+            platAccountAdjust.setAdjustAmount(platAccountAdjust.getAdjustAmount().multiply(BigDecimal.valueOf(100)));
+            platAccountAdjust.setFeeAmount(platAccountAdjust.getAdjustAmount());
+        }else{
+            platAccountAdjust.setAdjustAmount(BigDecimal.valueOf(0));
+        }
+
         platAccountAdjust.setId(IdUtil.createCommonId());
         platAccountAdjust.setUpdateTime(new Date());
         platAccountAdjust.setCreateTime(new Date());
