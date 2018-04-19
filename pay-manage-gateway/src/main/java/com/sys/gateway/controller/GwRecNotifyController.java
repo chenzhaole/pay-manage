@@ -79,7 +79,7 @@ public class GwRecNotifyController {
             logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
         }
 
-        logger.info(BIZ+platOrderId+"，接收上游通道异步通知接口data数据 [END],返回通道响应: "+resp2chan);
+        logger.info(BIZ+platOrderId+"，接收上游通道异步通知接口data数据 [END],返回通道响应信息为: "+resp2chan);
         return resp2chan;
     }
 
