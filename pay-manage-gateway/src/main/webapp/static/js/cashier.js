@@ -177,17 +177,23 @@ function getAsynQrCode(paymentType) {
             console.log(data);
             if(data.respCode == "0000"){
                 var payJsondata = JSON.parse(data.data);
-                var platOrderId = payJsondata.platOrderId;
-                var payType = payJsondata.payType;
-                //将平台订单存入页面，查单时使用
-                $("#platOrderId").val(platOrderId);
-                $("#payType").val(payType);
                 var payInfo = payJsondata.payInfo;
-                var countdownTimeStr = payJsondata.countdownTime;
-                //开启倒计时及页面轮询查单
-                if(isAjax) {
-                    pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId, payInfo);
+                if(payJsondata.hasOwnProperty("clientPayWay")){
+                    var clientPayWay = payJsondata.clientPayWay;
+                    chanCashierPay(payInfo, clientPayWay);
+                }else{
+                    var platOrderId = payJsondata.platOrderId;
+                    var payType = payJsondata.payType;
+                    //将平台订单存入页面，查单时使用
+                    $("#platOrderId").val(platOrderId);
+                    $("#payType").val(payType);
+                    var countdownTimeStr = payJsondata.countdownTime;
+                    //开启倒计时及页面轮询查单
+                    if(isAjax) {
+                        pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrderId, payInfo);
+                    }
                 }
+
             }else{
                 if(data.respCode == "E8003"){
                     //该笔订单已成功
@@ -488,7 +494,20 @@ function tips(ele) {
     $(ele).addClass("layui-show").siblings().removeClass("layui-show");
 }
 
-
+function chanCashierPay(payInfo, clientPayWay) {
+    if("08" == clientPayWay){
+        //掉起上游收银台支付唤起支付--url方式
+        location.href = payInfo;
+    }else if("09" == clientPayWay){
+        //掉起上游收银台支付唤起支付--form表单方式
+        //往body动态添加form表单，并提交
+        $("body").append(payInfo);
+        $("form")[0].submit();
+    }else if("10" == clientPayWay){
+        //掉起上游收银台支付唤起支付--js方式
+        //TODO
+    }
+}
 
 //---------start------------原生js公众号支付------------
 // function wechat_public_pay(pub_payInfo, paymentType, orderId){

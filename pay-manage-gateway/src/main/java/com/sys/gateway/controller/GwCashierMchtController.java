@@ -96,26 +96,37 @@ public class GwCashierMchtController extends GwCashierBaseController {
 						this.addCashierModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), midoid );
 						logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用收银台页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 					}else{
-						//非收银台页面跳转
-						page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz(), midoid);
-						if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
-							//pc页面操作，将支付地址带到页面
-							this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId(), midoid);
-							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，pc端显示支付，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+						//先判断是否跳转上游收银台
+						if(isUseChanCashierPage(result.getData(), midoid)){
+							//跳转到上游收银台的中转页面
+							page = "modules/chanCashier/chanCashier";
+							//跳转到上游收银台的中转页面，携带的数据
+							this.addChanCashierModelInfo(model, result, midoid);
+							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用上游收银台的中转页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+
 						}else{
-							if(page.endsWith("scan")){
-							    //设置扫码中间页需要的参数
-								this.addScanCentPageModelInfo(model, result, midoid);
-								logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
-							}else if(page.endsWith("center")){
-							    //设置h5中间页需要的参数
-								this.addH5CentPageModelInfo(model, result, userAgent, midoid);
-								logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+							//使用我司页面
+							//非收银台页面跳转
+							page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz(), midoid);
+							if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
+								//pc页面操作，将支付地址带到页面
+								this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId(), midoid);
+								logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，pc端显示支付，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 							}else{
-								result.setRespCode(ErrorCodeEnum.E1018.getCode());
-								result.setRespMsg(ErrorCodeEnum.E1018.getDesc());
-								page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
-								logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，但是未找到对应的中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								if(page.endsWith("scan")){
+									//设置扫码中间页需要的参数
+									this.addScanCentPageModelInfo(model, result, midoid);
+									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								}else if(page.endsWith("center")){
+									//设置h5中间页需要的参数
+									this.addH5CentPageModelInfo(model, result, userAgent, midoid);
+									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								}else{
+									result.setRespCode(ErrorCodeEnum.E1018.getCode());
+									result.setRespMsg(ErrorCodeEnum.E1018.getDesc());
+									page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
+									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，但是未找到对应的中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								}
 							}
 						}
 					}

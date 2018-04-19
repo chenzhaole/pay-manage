@@ -161,7 +161,6 @@ public class GwCashierBaseController {
         model.addAttribute("countdownTime", countdownTime);
 
         logger.info(midoid+",pc页面非收银台支付方式需要的参数："+JSONObject.toJSONString(model));
-
     }
 
     /**
@@ -252,6 +251,18 @@ public class GwCashierBaseController {
         //2表示展示收银台， 1表示不展示收银台
         model.addAttribute("pcIscashier", "2");
         logger.info(midoid+"，收银台页面需要的数据："+JSONObject.toJSONString(model));
+    }
+
+    /**
+     * 跳转上游收银台页面需要的数据
+     * @param model
+     */
+    protected void addChanCashierModelInfo(Model model, CommonResult result, String midoid) {
+        Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
+        Result resultInfo = (Result) retMapInfo.get("result");
+        model.addAttribute("clientPayWay", resultInfo.getClientPayWay());
+        model.addAttribute("payInfo", resultInfo.getPayInfo());
+        logger.info(midoid+"，直接跳转到上游收银台页面需要的数据："+JSONObject.toJSONString(model));
     }
 
     /**
@@ -363,4 +374,40 @@ public class GwCashierBaseController {
         return url;
     }
 
+    /**
+     * 判断是否使用上游收银台页面
+     * @param result
+     * @return
+     */
+    protected boolean isUseChanCashierPage(Object result, String midoid) {
+        Map<String, Object> retMapInfo = ( Map<String, Object>)result;
+        Result resultInfo = (Result) retMapInfo.get("result");
+        String clientPayWay  = resultInfo.getClientPayWay();
+        logger.info(midoid+"，根据clientPayWay的值："+clientPayWay+"，判断是否需要使用上游收银台页面");
+        if(ClientPayWayEnum.CHAN_CASHIER_URL.getCode().equals(clientPayWay) ||
+                ClientPayWayEnum.CHAN_CASHIER_JS.getCode().equals(clientPayWay) ||
+                ClientPayWayEnum.CHAN_CASHIER_FORM.getCode().equals(clientPayWay)){
+            logger.info(midoid+"，根据clientPayWay的值："+clientPayWay+"，判断出需要使用上游收银台页面");
+            return true;
+        }
+        logger.info(midoid+"，根据clientPayWay的值："+clientPayWay+"，判断出不需要使用上游收银台页面");
+        return false;
+    }
+
+    /**
+     * 跳转到上游收银台页面需要的参数
+     * @param resultInfo
+     * @param midoid
+     * @return
+     */
+    protected String returnChanCasgierPageInfo(Result resultInfo, String midoid) {
+        String payInfo = resultInfo.getPayInfo();
+        String clientPayWay = resultInfo.getClientPayWay();
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("payInfo", payInfo);
+        jsonObject.put("clientPayWay", clientPayWay);
+        String data = jsonObject.toString();
+        logger.info(midoid+"，pc端页面异步下单，跳转到上游收银台页面需要的参数："+data);
+        return data;
+    }
 }

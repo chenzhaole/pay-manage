@@ -303,7 +303,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=1.0.0"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=1.0.1"></script>
     <script src="${ctxStatic}/js/cardPay.js?v=1.0.0"></script>
     <script>
         /**
