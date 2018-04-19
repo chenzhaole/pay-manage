@@ -85,6 +85,8 @@
             <option value="3">微信内</option>
             <option value="4">支付宝内</option>
         </select><br>
+        openId: <input type="text" value="" id="openId" name="openId"/><br>
+        IP: <input type="text" value="" id="ip" name="ip"/><br>
         签名Key: <input type="text" value="605091ae24f8404086b56d74a20c9812" id="mchtKey" name="mchtKey"/><br>
         sign: <input type="text" name="sign" id="sign"> <input type="button" value="签名" id="genSign"/><br>
         <input type="submit" value="提交"/>

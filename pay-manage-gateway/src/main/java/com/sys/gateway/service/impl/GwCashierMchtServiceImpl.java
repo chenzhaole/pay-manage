@@ -7,6 +7,7 @@ import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.cashier.CashierRequestBody;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PayTypeEnum;
 import com.sys.gateway.service.GwCashierMchtService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -67,9 +68,13 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
                 logger.error(BIZ + "[orderId],[orderTime],[amount],[goods],[notifyUrl]请求参数值不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
                 return checkResp;
             }
-
-            //校验签名
-
+            //微信公众号支付openid不为空
+            if (StringUtils.isBlank(body.getOrderId()) && PayTypeEnum.WX_PUBLIC.getCode().equals(head.getBiz())) {
+                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
+                checkResp.setRespMsg("openId不能为空");
+                logger.error(BIZ + "公众号支付，openId不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
+                return checkResp;
+            }
 
             checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
             checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
