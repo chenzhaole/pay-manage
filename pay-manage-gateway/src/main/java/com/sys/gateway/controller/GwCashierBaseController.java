@@ -294,7 +294,8 @@ public class GwCashierBaseController {
         //具体页面
         String pageType = "";
         if(PayTypeEnum.WX_WAP.getCode().equals(biz) || //微信h5支付
-                PayTypeEnum.WX_PUBLIC.getCode().equals(biz)  || //微信公众号支付
+                PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(biz)  || //微信原生公众号支付
+                PayTypeEnum.WX_PUBLIC_NOT_NATIVE.getCode().equals(biz)  || //微信非原生公众号支付
                 PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝线上扫码转h5支付
                 PayTypeEnum.ALIPAY_OFFLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝线下扫码转h5支付
                 PayTypeEnum.QQ_WAP.getCode().equals(biz)  || //QQh5支付

@@ -69,7 +69,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
                 return checkResp;
             }
             //微信公众号支付openid不为空
-            if (StringUtils.isBlank(body.getOrderId()) && PayTypeEnum.WX_PUBLIC.getCode().equals(head.getBiz())) {
+            if (StringUtils.isBlank(body.getOrderId()) && (PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(head.getBiz()) || PayTypeEnum.WX_PUBLIC_NOT_NATIVE.getCode().equals(head.getBiz()))) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg("openId不能为空");
                 logger.error(BIZ + "公众号支付，openId不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
