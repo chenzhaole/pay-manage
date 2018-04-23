@@ -130,16 +130,20 @@
     </table>
 </form>
 <table width="100%"  style="border:0" cellspacing="0" cellpadding="1">
-    <tr><td>No.</td> <td>批次编号</td> <td>明细编号</td> <td>收款账号</td> <td>收款户名</td> <td>银行名称</td> <td>付款金额</td></tr>
+    <tr> <td>批次编号</td> <td>明细编号</td> <td>商户序号</td> <td>收款账号</td> <td>收款户名</td> <td>银行名称</td><td>银行编码</td> <td>开户所在城市</td><td>付款金额（元）</td><td>附言</td></tr>
     <c:forEach var="detail" items="${details}" varStatus="vt" >
         <tr>
-            <td>${vt.index+1}</td>
+            <%--<td>${vt.index+1}</td>--%>
             <td>${detail.batchId}</td>
             <td>${detail.id}</td>
+                <td>${detail.mchtOrderId}</td>
             <td>${detail.bankCardNo}</td>
             <td>${detail.bankCardName}</td>
             <td>${detail.bankName}</td>
+                <td>${detail.bankCode}</td>
+                <td>${detail.city}</td>
             <td><fmt:formatNumber type="number" value="${detail.amount*0.01}" maxFractionDigits="2"/> 元</td>
+                <td>${detail.remark}</td>
         </tr>
     </c:forEach>
 </table>
