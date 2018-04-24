@@ -280,7 +280,7 @@
 
     <!-- ********************************************************************** -->
     <%--收银台不展示--%>
-    <c:if test="${paymentType != 'ca001'}">
+    <c:if test="${!subPro}">
 
         <div class="breadcrumb">
             <label>资金结算信息</label>
@@ -480,7 +480,7 @@
 
     <!-- ********************************************************************** -->
     <%--收银台展示--%>
-    <c:if test="${paymentType == 'ca001'}">
+    <c:if test="${subPro}">
     <div class="breadcrumb">
         <label>子产品列表</label>
         <a style="float:right;cursor: pointer;font-size:15px;text-decoration: none;" onclick="addProduct();">新增子产品</a>

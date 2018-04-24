@@ -145,7 +145,7 @@ public class PlatformController {
 									 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 
 		ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
-		ProductFormInfo productFormInfoQuery = new ProductFormInfo();
+		ProductFormInfo productFormInfoQuery = null;
 		String payType = "";
 		if (paramMap.get("op") != null && "add".equals(paramMap.get("op"))) {
 			model.addAttribute("op", "add");
@@ -159,26 +159,49 @@ public class PlatformController {
 
 		List<ChanMchtFormInfo> chanInfoList = chanMchtAdminService.getChannelListSimple(new ChanMchtFormInfo());
 		List<ChanMchtFormInfo> chanMchtFormInfos = new ArrayList<>();
-		List<ProductFormInfo> productInfos = null;
-
+		List<ProductFormInfo> productInfos = new ArrayList<>();
+		boolean subPro = false;
 		//平台收银台产品页面配置子产品
 		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(payType)) {
-			productInfos = productAdminService.getProductList(new ProductFormInfo());
-			if (productFormInfoQuery != null && !StringUtils.isBlank(productFormInfoQuery.getSubId())){
-				List<SubProduct> subProducts = new ArrayList<>();
-				String[] subId = productFormInfoQuery.getSubId().split(",");
-				SubProduct subProduct;
-				for (int i = 0; i < subId.length; i++) {
-					subProduct = new SubProduct();
-					subProduct.setSubProductId(subId[i]);
-					subProduct.setSort(i+1);
-					subProducts.add(subProduct);
+			subPro = true;
+			//子产品不可选收银台和组合产品
+			List<ProductFormInfo> productTemps = productAdminService.getProductList(new ProductFormInfo());
+			if (!CollectionUtils.isEmpty(productTemps)) {
+				for (ProductFormInfo productTemp : productTemps) {
+					if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productTemp.getPayType()) ||
+							productTemp.getPayType().endsWith("000")) {
+						continue;
+					}
+					productInfos.add(productTemp);
 				}
-				productFormInfoQuery.setSubProducts(subProducts);
+			}
+			//读取子产品
+			if (productFormInfoQuery != null && !StringUtils.isBlank(productFormInfoQuery.getSubId())) {
+				getSubProducts(productFormInfoQuery);
 			}
 
 			//组合支付方式配置
 		} else if (payType.endsWith("000")) {
+			subPro = true;
+			String payChan = payType.split("000")[0];
+
+			//子产品不可选收银台和组合产品，只可选组合产品相关的产品
+			List<ProductFormInfo> productTemps = productAdminService.getProductList(new ProductFormInfo());
+			if (!CollectionUtils.isEmpty(productTemps)) {
+				for (ProductFormInfo productTemp : productTemps) {
+					if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productTemp.getPayType()) ||
+							productTemp.getPayType().endsWith("000")) {
+						continue;
+					}
+					if (productTemp.getPayType().startsWith(payChan)){
+						productInfos.add(productTemp);
+					}
+				}
+			}
+			//读取子产品
+			if (productFormInfoQuery != null && !StringUtils.isBlank(productFormInfoQuery.getSubId())) {
+				getSubProducts(productFormInfoQuery);
+			}
 
 		} else {
 			chanMchtFormInfos = new ArrayList<>();
@@ -200,9 +223,23 @@ public class PlatformController {
 		model.addAttribute("chanInfoList", chanMchtFormInfos);
 		model.addAttribute("subProductLists", productInfos);
 		model.addAttribute("paymentType", payType);
+		model.addAttribute("subPro", subPro);
 
 		return "modules/platform/platProductEdit";
 
+	}
+
+	private void getSubProducts(ProductFormInfo productFormInfo){
+		List<SubProduct> subProducts = new ArrayList<>();
+		String[] subId = productFormInfo.getSubId().split(",");
+		SubProduct subProduct;
+		for (int i = 0; i < subId.length; i++) {
+			subProduct = new SubProduct();
+			subProduct.setSubProductId(subId[i]);
+			subProduct.setSort(i + 1);
+			subProducts.add(subProduct);
+		}
+		productFormInfo.setSubProducts(subProducts);
 	}
 
 	/**
@@ -507,7 +544,6 @@ public class PlatformController {
 		model.addAttribute("mchtInfos", mchtInfosResult);
 
 		model.addAttribute("productInfos", productFormInfos);
-
 
 
 		model.addAttribute("paramMap", paramMap);

@@ -145,7 +145,8 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 			}
 		}
 		//保存产品的子产品集
-		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productInfo.getPayType())) {
+		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productInfo.getPayType()) ||
+				productInfo.getPayType().endsWith("000")) {
 			List<SubProduct> subProducts = productFormInfo.getSubProducts();
 			if (CollectionUtils.isEmpty(subProducts)) {
 				return 0;
@@ -194,7 +195,8 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 			}
 		}
 		//保存产品的子产品集
-		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productInfo.getPayType())) {
+		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productInfo.getPayType()) ||
+				productInfo.getPayType().endsWith("000")) {
 			List<SubProduct> subProducts = productFormInfo.getSubProducts();
 			if (CollectionUtils.isEmpty(subProducts)) {
 				return 0;
