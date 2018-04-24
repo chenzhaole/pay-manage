@@ -429,7 +429,7 @@ public class PayGwServiceImpl implements PayGwService {
 		String bankCard = authCardElementRequestBody.getBankCard();//	银行卡号
 		String mobile = authCardElementRequestBody.getMobile();//手机号
 		PlatBankcardValid platBankcardValid = new PlatBankcardValid();
-		platBankcardValid.setPayType(PayTypeEnum.REAL_AUTH.getCode());
+		platBankcardValid.setPayType(PayTypeEnum.QUICK_REAL_AUTH.getCode());
 		platBankcardValid.setCertId(idCard);
 		platBankcardValid.setCardName(userName);
 		platBankcardValid.setCardNo(bankCard);
@@ -669,7 +669,7 @@ public class PayGwServiceImpl implements PayGwService {
 		//鉴权状态 0:初始创建,-1:未知失败,2:支付成功,3:处理中，6:鉴权交易成功，鉴权结果失败,4006:鉴权交易失败，7:组合支付--鉴权成功待支付
 		platBankcardValid.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
 		//必须是快捷支付
-		platBankcardValid.setPayType(PayTypeEnum.COMB_DK.getCode());
+		platBankcardValid.setPayType(PayTypeEnum.QUICK_COMB_DK.getCode());
 		List<PlatBankcardValid> listPlatBankcardValid = platBankcardValidService.list(platBankcardValid);
 		//这里目前的处理逻辑是 只根据四要素来判断是否是老用户，如果已经存在就判断为是
 		if(null != listPlatBankcardValid && listPlatBankcardValid.size()>0){

@@ -43,7 +43,7 @@ import javax.servlet.http.HttpServletResponse;
 public class BankCardOwnershipGwController {
 
 	protected final Logger logger = LoggerFactory.getLogger(BankCardOwnershipGwController.class);
-	private final String BIZ_NAME = PayTypeEnum.OWNERSHIP.getDesc()+"-";
+	private final String BIZ_NAME = PayTypeEnum.QUICK_OWNERSHIP.getDesc()+"-";
 	
 	@Autowired
 	private BankCardOwnershipGwService bankCardOwnershipGwService;

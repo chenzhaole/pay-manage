@@ -46,7 +46,7 @@ public class MchtRegisteController {
     @Autowired
     ITradeMchtRegisteHandler tradeMchtRegisteHandler;
 
-    private final String BIZ = PayTypeEnum.MERCHANT_REGISTER.getDesc() + "-";
+    private final String BIZ = PayTypeEnum.QUICK_REGISTER.getDesc() + "-";
 
 
     @RequestMapping(value = "/gateway/mchtRegiste")
