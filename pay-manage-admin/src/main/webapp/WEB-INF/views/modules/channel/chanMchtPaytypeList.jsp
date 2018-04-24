@@ -119,10 +119,7 @@
 				<c:when test="${chanInfo.settleMode == 4}"><td>银行直清</td></c:when>
                     <c:otherwise><td></td></c:otherwise></c:choose>
 
-                <c:choose><c:when test="${chanInfo.settleCycle == 1}"><td>D0</td></c:when>
-				<c:when test="${chanInfo.settleCycle == 2}"><td>T0</td></c:when>
-				<c:when test="${chanInfo.settleCycle == 3}"><td>T1</td></c:when>
-                    <c:otherwise><td></td></c:otherwise></c:choose>
+				<td>${chanInfo.settleCycle}</td>
 
                 <c:choose><c:when test="${chanInfo.status == 1}"><td>启用</td></c:when>
 				<c:when test="${chanInfo.status == 2}"><td>停用</td></c:when><c:otherwise><td></td></c:otherwise></c:choose>

@@ -30,6 +30,8 @@ public class MchtProductFormInfo {
 
 	private String productName;
 
+	private String payType;
+
 	private Integer isValid;
 
 	private Date createTime;
@@ -116,6 +118,14 @@ public class MchtProductFormInfo {
 
 	public void setProductId(String productId) {
 		this.productId = productId;
+	}
+
+	public String getPayType() {
+		return payType;
+	}
+
+	public void setPayType(String payType) {
+		this.payType = payType;
 	}
 
 	public Integer getIsValid() {

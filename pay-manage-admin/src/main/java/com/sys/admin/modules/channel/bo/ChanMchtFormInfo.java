@@ -58,7 +58,7 @@ public class ChanMchtFormInfo {
 
 	private Integer settleMode;
 
-	private Integer settleCycle;
+	private String settleCycle;
 
 	private String feeType;
 
@@ -305,11 +305,11 @@ public class ChanMchtFormInfo {
 		this.settleMode = settleMode;
 	}
 
-	public Integer getSettleCycle() {
+	public String getSettleCycle() {
 		return settleCycle;
 	}
 
-	public void setSettleCycle(Integer settleCycle) {
+	public void setSettleCycle(String settleCycle) {
 		this.settleCycle = settleCycle;
 	}
 
@@ -714,7 +714,7 @@ public class ChanMchtFormInfo {
 			this.feeStatus = requestMap.get("feeStatus");
 			this.settleCategory = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleCategory")) ? "0" : requestMap.get("settleCategory"));
 			this.settleMode = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleMode")) ? "0" : requestMap.get("settleMode"));
-			this.settleCycle = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleCycle")) ? "0" : requestMap.get("settleCycle"));
+			this.settleCycle = requestMap.get("settleCycle");
 			this.feeType = requestMap.get("feeType");
 			this.feeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeRate")) ? "0" : requestMap.get("feeRate"));
 			this.feeAmount = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeAmount")) ? "0" : requestMap.get("feeAmount"));
@@ -782,7 +782,7 @@ public class ChanMchtFormInfo {
 		platFeerate.setFeeAmount(new BigDecimal(this.feeAmount != null ? this.feeAmount : 0));
 		platFeerate.setSettleType(this.settleCategory != null ? this.settleCategory + "" : "");
 		platFeerate.setSettleMode(this.settleMode != null ? this.settleMode + "" : "");
-		platFeerate.setSettleCycle(this.settleCycle != null ? this.settleCycle + "" : "");
+		platFeerate.setSettleCycle(this.settleCycle);
 		platFeerate.setSettleLowestAmount(new BigDecimal(this.lowestFee != null ? this.lowestFee : 0));
 
 		platFeerate.setPerdayPayMaxAmount(new BigDecimal(this.perdayPayMaxAmount != null ? this.perdayPayMaxAmount : 0));
@@ -805,7 +805,7 @@ public class ChanMchtFormInfo {
 		this.feeAmount = platFeerate.getFeeAmount() != null ? platFeerate.getFeeAmount().doubleValue() : null;
 		this.settleCategory = Integer.parseInt(platFeerate.getSettleType() != null ? platFeerate.getSettleType() : "0");
 		this.settleMode = Integer.parseInt(platFeerate.getSettleMode()  != null ? platFeerate.getSettleMode() : "0");
-		this.settleCycle = Integer.parseInt(platFeerate.getSettleCycle()  != null ? platFeerate.getSettleCycle() : "0");
+		this.settleCycle = platFeerate.getSettleCycle();
 		this.lowestFee = platFeerate.getSettleLowestAmount() != null ? platFeerate.getSettleLowestAmount().doubleValue() : null;
 		this.activeTime = DateUtils.formatDate(platFeerate.getActiveTime(), "yyyy-MM-dd HH:mm:ss");
 

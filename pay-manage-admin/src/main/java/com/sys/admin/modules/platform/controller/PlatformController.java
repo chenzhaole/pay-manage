@@ -10,16 +10,22 @@ import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.MchtChanFormInfo;
 import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.bo.ProductFormInfo;
+import com.sys.admin.modules.platform.bo.SubProduct;
 import com.sys.admin.modules.platform.service.MchtChanAdminService;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
 import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
+import com.sys.core.dao.dmo.ChanMchtPaytype;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PaymentTypeInfo;
+import com.sys.core.dao.dmo.PlatSdkConfig;
 import com.sys.core.service.ChanMchtPaytypeService;
 import com.sys.core.service.ConfigSysService;
 import com.sys.core.service.PlatSDKService;
@@ -139,23 +145,41 @@ public class PlatformController {
 									 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 
 		ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
+		ProductFormInfo productFormInfoQuery = new ProductFormInfo();
 		String payType = "";
 		if (paramMap.get("op") != null && "add".equals(paramMap.get("op"))) {
 			model.addAttribute("op", "add");
 			payType = paramMap.get("paymentType");
 		} else if (!StringUtils.isBlank(productFormInfo.getId())) {
-			ProductFormInfo productFormInfoQuery = productAdminService.getPlatProductById(productFormInfo.getId());
-			model.addAttribute("productInfo", productFormInfoQuery);
+			productFormInfoQuery = productAdminService.getPlatProductById(productFormInfo.getId());
+
 			model.addAttribute("op", "edit");
 			payType = productFormInfoQuery.getPayType();
 		}
 
 		List<ChanMchtFormInfo> chanInfoList = chanMchtAdminService.getChannelListSimple(new ChanMchtFormInfo());
-		List<ChanMchtFormInfo> chanMchtFormInfos;
+		List<ChanMchtFormInfo> chanMchtFormInfos = new ArrayList<>();
+		List<ProductFormInfo> productInfos = null;
 
-		//平台收银台可用所有支付方式
+		//平台收银台产品页面配置子产品
 		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(payType)) {
-			chanMchtFormInfos = chanInfoList;
+			productInfos = productAdminService.getProductList(new ProductFormInfo());
+			if (productFormInfoQuery != null && !StringUtils.isBlank(productFormInfoQuery.getSubId())){
+				List<SubProduct> subProducts = new ArrayList<>();
+				String[] subId = productFormInfoQuery.getSubId().split(",");
+				SubProduct subProduct;
+				for (int i = 0; i < subId.length; i++) {
+					subProduct = new SubProduct();
+					subProduct.setSubProductId(subId[i]);
+					subProduct.setSort(i+1);
+					subProducts.add(subProduct);
+				}
+				productFormInfoQuery.setSubProducts(subProducts);
+			}
+
+			//组合支付方式配置
+		} else if (payType.endsWith("000")) {
+
 		} else {
 			chanMchtFormInfos = new ArrayList<>();
 			for (ChanMchtFormInfo chanMchtFormInfo : chanInfoList) {
@@ -172,8 +196,9 @@ public class PlatformController {
 			}
 		}
 
+		model.addAttribute("productInfo", productFormInfoQuery);
 		model.addAttribute("chanInfoList", chanMchtFormInfos);
-
+		model.addAttribute("subProductLists", productInfos);
 		model.addAttribute("paymentType", payType);
 
 		return "modules/platform/platProductEdit";
@@ -214,7 +239,8 @@ public class PlatformController {
 		String messageType;
 		try {
 			ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
-			if (!CollectionUtils.isEmpty(productFormInfo.getProductRelas())) {
+			if (!CollectionUtils.isEmpty(productFormInfo.getProductRelas()) ||
+					!CollectionUtils.isEmpty(productFormInfo.getSubProducts())) {
 
 				if (StringUtils.isBlank(productFormInfo.getCode())) {
 					productFormInfo.setCode(IdUtil.createCode());
@@ -444,8 +470,15 @@ public class PlatformController {
 		pageInfo.setPageNo(pageNo);
 		productFormInfo.setPageInfo(pageInfo);
 
+		//所有产品
+		List<ProductFormInfo> productFormInfos = productAdminService.getProductList(new ProductFormInfo());
+		Map<String, String> productPaytypeMap = Collections3.extractToMap(productFormInfos, "id", "payType");
+
 		List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(productFormInfo);
-//		model.addAttribute("productInfos", mchtProductFormInfos);
+		for (MchtProductFormInfo mchtProductFormInfo : mchtProductFormInfos) {
+			mchtProductFormInfo.setPayType(productPaytypeMap.get(mchtProductFormInfo.getProductId()));
+		}
+
 		int orderCount = mchtProductAdminService.mchtProductCount(productFormInfo);
 
 		Page page;
@@ -473,9 +506,9 @@ public class PlatformController {
 		}
 		model.addAttribute("mchtInfos", mchtInfosResult);
 
-		//所有产品
-		List<ProductFormInfo> productFormInfos = productAdminService.getProductList(new ProductFormInfo());
 		model.addAttribute("productInfos", productFormInfos);
+
+
 
 		model.addAttribute("paramMap", paramMap);
 		return "modules/platform/platConfMchtProductList";

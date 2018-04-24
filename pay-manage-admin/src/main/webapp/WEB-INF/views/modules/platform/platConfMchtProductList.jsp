@@ -76,10 +76,11 @@
 				<th>NO</th>
 	        	<th>商户名称</th>
 	        	<th>商户编码</th>
+	        	<th>支付类型</th>
 	        	<th>产品名称</th>
 	        	<th>产品编码</th>
-	        	<th>结算方式</th>
-	        	<th>结算周期</th>
+	        	<%--<th>结算方式</th>--%>
+	        	<%--<th>结算周期</th>--%>
 	        	<th>状态</th>
 	        	<th>操作</th>
 			</tr>
@@ -92,21 +93,17 @@
 				<td><%=i%></td>
 				<td>${productInfo.mchtName}</td>
 				<td>${productInfo.mchtCode}</td>
+				<td>${productInfo.payType}</td>
 				<td>${productInfo.productName}</td>
 				<td>${productInfo.productCode}</td>
 
-				<c:choose><c:when test="${productInfo.settleMode == 1}"><td>收单对公</td></c:when>
-					<c:when test="${productInfo.settleMode == 2}"><td>收单对私</td></c:when>
-					<c:when test="${productInfo.settleMode == 3}"><td>代付</td></c:when>
-					<c:when test="${productInfo.settleMode == 4}"><td>银行直清</td></c:when>
-					<c:otherwise><td></td></c:otherwise></c:choose>
+				<%--<c:choose><c:when test="${productInfo.settleMode == 1}"><td>收单对公</td></c:when>--%>
+					<%--<c:when test="${productInfo.settleMode == 2}"><td>收单对私</td></c:when>--%>
+					<%--<c:when test="${productInfo.settleMode == 3}"><td>代付</td></c:when>--%>
+					<%--<c:when test="${productInfo.settleMode == 4}"><td>银行直清</td></c:when>--%>
+					<%--<c:otherwise><td></td></c:otherwise></c:choose>--%>
 
-				<c:choose>
-					<c:when test="${productInfo.settleCycle == D0}"><td>D0</td></c:when>
-					<c:when test="${productInfo.settleCycle == D1}"><td>D1</td></c:when>
-					<c:when test="${productInfo.settleCycle == T0}"><td>T0</td></c:when>
-					<c:when test="${productInfo.settleCycle == T1}"><td>T1</td></c:when>
-					<c:otherwise><td></td></c:otherwise></c:choose>
+				<%--<<td>${productInfo.settleCycle}</td>--%>
 
 				<c:choose><c:when test="${productInfo.isValid == 1}"><td>启用</td></c:when>
 					<c:when test="${productInfo.isValid == 0}"><td>禁用</td></c:when><c:otherwise><td></td></c:otherwise></c:choose>

@@ -15,18 +15,18 @@
     </style>
     <script type="text/javascript">
         
-        function rateOrAmount() {
-            if ( $("#feeType").val() === "1"){
-                $("#feeRate").attr("disabled", "disabled");
-                $("#feeAmount").attr("disabled", false);
-            }else if ($("#feeType").val() === "2") {
-                $("#feeAmount").attr("disabled", "disabled");
-                $("#feeRate").attr("disabled", false);
-            } else if ($("#feeType").val() === "3") {
-                $("#feeAmount").attr("disabled", false);
-                $("#feeRate").attr("disabled", false);
-            }
-        }
+        // function rateOrAmount() {
+        //     if ( $("#feeType").val() === "1"){
+        //         $("#feeRate").attr("disabled", "disabled");
+        //         $("#feeAmount").attr("disabled", false);
+        //     }else if ($("#feeType").val() === "2") {
+        //         $("#feeAmount").attr("disabled", "disabled");
+        //         $("#feeRate").attr("disabled", false);
+        //     } else if ($("#feeType").val() === "3") {
+        //         $("#feeAmount").attr("disabled", false);
+        //         $("#feeRate").attr("disabled", false);
+        //     }
+        // }
 
         //商户信息级联
         function mchtChange() {
@@ -249,7 +249,7 @@
     </table>
 
     <!-- ********************************************************************** -->
-    <div class="breadcrumb">
+    <%--<div class="breadcrumb">
         <label>资金结算信息</label>
     </div>
     <tags:message content="${message}" type="${messageType}"/>
@@ -375,6 +375,7 @@
             </td>
         </tr>
     </table>
+    --%>
 
     <div class="breadcrumb">
         <input id="btnCancel" class="btn center-block" type="button" value="返 回" onclick="window.history.go(-1);"

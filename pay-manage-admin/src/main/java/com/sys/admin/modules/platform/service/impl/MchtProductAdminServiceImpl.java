@@ -40,8 +40,8 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 	@Autowired
 	private MchtProductService mchtProductService;
 
-	@Autowired
-	private PlatFeerateService platFeerateService;
+//	@Autowired
+//	private PlatFeerateService platFeerateService;
 
 	@Autowired
 	private MerchantService merchantService;
@@ -88,9 +88,9 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 			}
 
 			//查找最新费率
-			PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode(),
-					product.getMchtId() + "&" + product.getProductId());
-			mchtProductFormInfo.setFee(platFeerate);
+//			PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode(),
+//					product.getMchtId() + "&" + product.getProductId());
+//			mchtProductFormInfo.setFee(platFeerate);
 
 			mchtProductFormInfos.add(mchtProductFormInfo);
 		}
@@ -184,9 +184,10 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 		}
 
 		//查找最新费率
-		PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode(),
-				mchtProduct.getMchtId() + "&" + mchtProduct.getProductId());
-		productFormInfo.setFee(platFeerate);
+//		PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode(),
+//				mchtProduct.getMchtId() + "&" + mchtProduct.getProductId());
+//		productFormInfo.setFee(platFeerate);
+
 		return productFormInfo;
 	}
 

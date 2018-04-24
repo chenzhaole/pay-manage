@@ -2,9 +2,12 @@ package com.sys.admin.modules.platform.service.impl;
 
 import com.sys.admin.modules.platform.bo.ProductFormInfo;
 import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
+import com.sys.admin.modules.platform.bo.SubProduct;
 import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils2;
 import com.sys.common.util.RandomNumberUtil;
 import com.sys.core.dao.dmo.*;
@@ -27,6 +30,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 /**
  * 支付产品后台接口
@@ -61,6 +65,11 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 		if (CollectionUtils.isEmpty(platProducts)) {
 			return null;
 		}
+
+		//所有通道商户支付方式
+		List<ChanMchtPaytype> chanMchtPaytypes = chanMchtPaytypeService.list(new ChanMchtPaytype());
+		Map<String, String> cmpStatusMap = Collections3.extractToMap(chanMchtPaytypes, "id", "status");
+
 		List<ProductFormInfo> productFormInfos = new ArrayList<>();
 		ProductFormInfo productFormInfoTemp;
 
@@ -88,11 +97,7 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 
 			int invaildCount = 0;
 			for (ProductRelaFormInfo relaFormInfo : productRelaFormInfos) {
-				ChanMchtPaytype chanMchtPaytype = chanMchtPaytypeService.queryByKey(relaFormInfo.getChanMchtPaytypeId());
-				if (chanMchtPaytype == null) {
-					continue;
-				}
-				if (StatusEnum.INVALID.getCode().equals(chanMchtPaytype.getStatus())){
+				if (StatusEnum.INVALID.getCode().equals(cmpStatusMap.get(relaFormInfo.getChanMchtPaytypeId()))){
 					invaildCount ++ ;
 				}
 			}
@@ -126,20 +131,35 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 
 		//保存产品与通道商户支付方式对应关系
 		List<ProductRelaFormInfo> productRelaFormInfos = productFormInfo.getProductRelas();
-		if (CollectionUtils.isEmpty(productRelaFormInfos)) {
-			return 0;
+		List<PlatProductRela> platProductRelaList = null;
+		if (!CollectionUtils.isEmpty(productRelaFormInfos)) {
+			PlatProductRela platProductRela;
+			for (ProductRelaFormInfo productRelaFormInfo : productRelaFormInfos) {
+				platProductRelaList = new ArrayList<>();
+				platProductRela = new PlatProductRela();
+				BeanUtils.copyProperties(productRelaFormInfo, platProductRela);
+				platProductRela.setIsValid(1);//默认生效状态
+				platProductRela.setCreateTime(new Date());
+				platProductRela.setUpdateTime(new Date());
+				platProductRelaList.add(platProductRela);
+			}
 		}
-		List<PlatProductRela> platProductRelaList = new ArrayList<>();
-		PlatProductRela platProductRela;
-		for (ProductRelaFormInfo productRelaFormInfo : productRelaFormInfos) {
-			platProductRela = new PlatProductRela();
-			BeanUtils.copyProperties(productRelaFormInfo, platProductRela);
-			platProductRela.setIsValid(1);//默认生效状态
-			platProductRela.setCreateTime(new Date());
-			platProductRela.setUpdateTime(new Date());
-			platProductRelaList.add(platProductRela);
+		//保存产品的子产品集
+		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productInfo.getPayType())) {
+			List<SubProduct> subProducts = productFormInfo.getSubProducts();
+			if (CollectionUtils.isEmpty(subProducts)) {
+				return 0;
+			}
+			StringBuffer subIds = new StringBuffer();
+			for (int i = 0; i < subProducts.size(); i++) {
+				if (i != 0) {
+					subIds.append(",");
+				}
+				subIds.append(subProducts.get(i).getSubProductId());
+			}
+			productInfo.setSubId(subIds.toString());
 		}
-		
+
 		return productService.create(productInfo,platFeerate,platProductRelaList);
 	}
 
@@ -162,17 +182,31 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 
 		//产品与通道商户支付方式对应关系
 		List<ProductRelaFormInfo> productRelaFormInfos = productFormInfo.getProductRelas();
-		if (CollectionUtils.isEmpty(productRelaFormInfos)) {
-			return 0;
-		}
-		PlatProductRela platProductRela;
 		List<PlatProductRela> platProductRelaList = new ArrayList<>();
-		for (ProductRelaFormInfo productRelaFormInfo : productRelaFormInfos) {
-			platProductRela = new PlatProductRela();
-			BeanUtils.copyProperties(productRelaFormInfo, platProductRela);
-			platProductRela.setIsValid(1);//默认生效状态
-			platProductRela.setUpdateTime(new Date());
-			platProductRelaList.add(platProductRela);
+		if (!CollectionUtils.isEmpty(productRelaFormInfos)) {
+			PlatProductRela platProductRela;
+			for (ProductRelaFormInfo productRelaFormInfo : productRelaFormInfos) {
+				platProductRela = new PlatProductRela();
+				BeanUtils.copyProperties(productRelaFormInfo, platProductRela);
+				platProductRela.setIsValid(1);//默认生效状态
+				platProductRela.setUpdateTime(new Date());
+				platProductRelaList.add(platProductRela);
+			}
+		}
+		//保存产品的子产品集
+		if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productInfo.getPayType())) {
+			List<SubProduct> subProducts = productFormInfo.getSubProducts();
+			if (CollectionUtils.isEmpty(subProducts)) {
+				return 0;
+			}
+			StringBuffer subIds = new StringBuffer();
+			for (int i = 0; i < subProducts.size(); i++) {
+				if (i != 0) {
+					subIds.append(",");
+				}
+				subIds.append(subProducts.get(i).getSubProductId());
+			}
+			productInfo.setSubId(subIds.toString());
 		}
 
 		return productService.saveByKey(productInfo,platFeerate,platProductRelaList);

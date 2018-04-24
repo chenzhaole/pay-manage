@@ -54,6 +54,7 @@
         $(function () {
             getName();
             cascadeSmsContent();
+            rateOrAmount();
 
             $("#chanMchtForm").validate({
                 debug: true, //调试模式取消submit的默认提交功能
@@ -586,13 +587,16 @@
                         <select name="settleCycle" class="input-xlarge" id="settleCycle">
                             <option value="">--请选择--</option>
                             <option
-                                    <c:if test="${chanMchPaytye.settleCycle == 1}">selected</c:if> value="1">D0
+                                    <c:if test="${chanMchPaytye.settleCycle == 'D0'}">selected</c:if> value="D0">D0
                             </option>
                             <option
-                                    <c:if test="${chanMchPaytye.settleCycle == 2}">selected</c:if> value="2">T0
+                                    <c:if test="${chanMchPaytye.settleCycle == 'D1'}">selected</c:if> value="D1">D1
                             </option>
                             <option
-                                    <c:if test="${chanMchPaytye.settleCycle == 3}">selected</c:if> value="3">T1
+                                    <c:if test="${chanMchPaytye.settleCycle == 'T0'}">selected</c:if> value="T0">T0
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.settleCycle == 'T1'}">selected</c:if> value="T1">T1
                             </option>
                         </select>
                     </div>
