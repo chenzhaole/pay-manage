@@ -140,7 +140,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             Order order = null;
             //金额
             String amount = "";
-            if (PayTypeEnum.QUICK_TX.getCode().equals(payType) || PayTypeEnum.QUICK.getCode().equals(payType) || PayTypeEnum.COMB_DK.getCode().equals(payType)){
+            String biz = "";
+            if (PayTypeEnum.QUICK_TX.getCode().equals(payType) || PayTypeEnum.QUICK_PAY.getCode().equals(payType) || PayTypeEnum.QUICK_COMB_DK.getCode().equals(payType)){
                 quick = trade.getQuickPay();
                 amount = quick.getAmount();
                 bankCardNo = quick.getBankCardNo();
@@ -152,9 +153,10 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                     Object prePayRequest = cacheTrade.getTradeBaseRequest();
                     TXQuickPrePayRequest tXQuickPrePayRequest = JSON.parseObject(JSON.toJSONString(prePayRequest), TXQuickPrePayRequest.class);
                     notifyUrl = tXQuickPrePayRequest.getBody().getNotifyUrl();
+                    biz = tXQuickPrePayRequest.getHead().getBiz();
                 }
                 logger.info(BIZ+",此订单是快捷支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
-            } else if (PayTypeEnum.MERCHANT_REGISTER.equals(payType)) {
+            } else if (PayTypeEnum.QUICK_REGISTER.equals(payType)) {
                 //TODO 商户入驻
             }else{
                 //第三方支付
@@ -168,6 +170,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                 }else{
                     TradeCashierRequest tradeCashierRequest = JSON.parseObject(JSONObject.toJSONString(cacheTrade.getTradeBaseRequest()), TradeCashierRequest.class);
                     notifyUrl = tradeCashierRequest.getBody().getNotifyUrl();
+                    biz = tradeCashierRequest.getHead().getBiz();
                 }
                 logger.info(BIZ+",此订单第三方支付流水，"+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",notifyUrl："+notifyUrl);
             }
@@ -187,7 +190,11 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             body.setBankCardNo(bankCardNo);
             body.setSeq(IdUtil.getUUID());
             body.setChargeTime(DateUtils.getNoSpSysTimeString());
-            body.setBiz(payType);
+            if(StringUtils.isBlank(biz)){
+               biz = payType;
+            }
+            body.setBiz(biz);
+            body.setPayType(payType.substring(0, 2));
 
             tradeNotifyResponse.setHead(head);
             tradeNotifyResponse.setBody(body);
