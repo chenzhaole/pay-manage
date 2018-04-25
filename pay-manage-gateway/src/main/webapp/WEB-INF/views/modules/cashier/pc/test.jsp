@@ -30,13 +30,11 @@
             <option value="wx601">微信小程序支付</option>
             <option value="al000">支付宝组合支付类型</option>
             <option value="al101">支付宝h5支付</option>
-            <option value="al102">支付宝线上扫码转h5支付</option>
-            <option value="al103">支付宝线下扫码转h5支付</option>
+            <option value="al102">支付宝扫码转h5支付</option>
             <option value="al104">支付宝pc支付</option>
             <option value="al201">支付宝APP支付</option>
             <option value="al301">支付宝服务窗支付</option>
-            <option value="al401">支付宝线上扫码支付</option>
-            <option value="al402">支付宝线下扫码支付</option>
+            <option value="al401">支付宝扫码支付</option>
             <option value="al501">支付宝条码-声波支付</option>
             <option value="al502">支付宝付款码包装成PC支付</option>
             <option value="al503">支付宝付款码包装成h5支付</option>
