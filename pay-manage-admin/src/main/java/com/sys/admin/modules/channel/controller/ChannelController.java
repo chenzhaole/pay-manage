@@ -13,14 +13,20 @@ import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
 import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.ConfigSysService;
 import com.sys.core.service.PlatFeerateService;
+import com.sys.trans.api.entry.Config;
+import com.sys.trans.api.entry.Result;
+import com.sys.trans.api.entry.SingleDF;
+import com.sys.trans.api.entry.Trade;
+import com.sys.trans.api.handler.TransDFBalanceHandler;
+import com.sys.trans.exception.TransException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -28,11 +34,13 @@ import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -59,6 +67,8 @@ public class ChannelController extends BaseController {
 	@Autowired
 	ProductAdminService productAdminService;
 
+	@Autowired
+	TransDFBalanceHandler transDFBalanceHandler;
 
 	/**
 	 * 通道列表
@@ -401,4 +411,53 @@ public class ChannelController extends BaseController {
 		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:" + GlobalConfig.getAdminPath() + "/channel/mchPaytypeList";
 	}
+
+	/**
+	 * 商户支付通道余额查询
+	 */
+	@RequestMapping(value = {"queryBalance"})
+	@ResponseBody
+	public String queryBalance(HttpServletRequest request, HttpServletResponse response, Model model,
+							   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
+
+		ChanMchtFormInfo chanMchtFormInfo = chanMchtAdminService.getChanMchtPaytypeById(paramMap.get("chanId"));
+
+		Config config = new Config();
+		config.setChannelCode(chanMchtFormInfo.getChanCode());
+		config.setMchtId(chanMchtFormInfo.getChanMchtNo());//平台商户ID
+		config.setMchtKey(chanMchtFormInfo.getCertContent1());//平台商户密码
+		config.setQueryUrl(chanMchtFormInfo.getQueryBalanceUrl());//代付余额url
+
+		//特殊字段
+		config.setMerchantName(chanMchtFormInfo.getTerminalNo());
+
+		SingleDF df = new SingleDF();
+		df.setOrderNo("ADMIN000");
+
+		Trade trade = new Trade();
+		trade.setConfig(config);
+		trade.setSingleDF(df);
+
+		String massage = "";
+		try {
+
+			Result processResult = transDFBalanceHandler.process(trade);
+
+			if (processResult == null || processResult.getBalance() == null) {
+				massage = "查询余额失败";
+			}else {
+
+				massage = "上游返回余额为：" + processResult.getBalance() + "分";
+			}
+		} catch (TransException e) {
+			logger.error("查询余额失败", e);
+			massage = "查询余额失败";
+		}
+
+		return massage;
+	}
+
+
 }
+
+

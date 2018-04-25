@@ -78,6 +78,7 @@
                     payUrl: {maxlength: 255, required: true},
                     synNotifyUrl: {maxlength: 255},
                     refundUrl: {maxlength: 255},
+                    queryBalanceUrl: {maxlength: 255},
                     tranUrl: {maxlength: 255},
                     extend1: {maxlength: 255},
                     checkUrl: {maxlength: 255},
@@ -369,6 +370,18 @@
                     <div class="controls">
                         <input name="checkUrl" value="${chanMchPaytye.checkUrl }" placeholder=""
                                style="width:500px;" type="text" id="checkUrl" class=" {required:true,url:true}">
+                    </div>
+                </div>
+            </td>
+        </tr>
+
+        <tr>
+            <td colspan="2">
+                <div class="control-group">
+                    <label class="control-label" for="queryUrl">查余额地址<span style="color: red;">*</span></label>
+                    <div class="controls">
+                        <input name="queryBalanceUrl" value="${chanMchPaytye.queryBalanceUrl }" placeholder=""
+                               style="width:500px;" type="text" id="queryBalanceUrl" class=" {required:true,url:true}">
                     </div>
                 </div>
             </td>

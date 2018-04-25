@@ -25,6 +25,23 @@
             return false;
         }
 
+        function queryBalance(chanId) {
+            var checkUrl = "/admin/channel/queryBalance";
+            $.ajax({
+                url: checkUrl, //服务器端请求地址
+                data: chanId,
+                dataType: 'json', //返回值类型 一般设置为json
+                type: "post",
+                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                success: function (data) {  //服务器成功响应处理函数
+                        alert(data);
+                },
+                error: function (data, e) {//服务器响应失败处理函数
+                    console.log(data);
+                }
+            })
+        }
+
 	</script>
 </head>
 <body>
@@ -126,6 +143,8 @@
 				<td>
 					<a href="${ctx}/channel/addChanMchtPayTypePage?id=${chanInfo.id}">修改</a>|
 					<a href="${ctx}/channel/deleteChanMchPayType?id=${chanInfo.id}" onclick="return confirmx('是否确认删除“${chanInfo.name}”？', this.href)">删除</a>
+					<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
+						|<a href="" onclick="queryBalance(${chanInfo.id})">查询余额</a> </c:if>
 				</td>
 			</tr>
 		</c:forEach>

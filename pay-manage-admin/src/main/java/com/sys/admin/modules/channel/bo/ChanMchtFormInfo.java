@@ -86,6 +86,8 @@ public class ChanMchtFormInfo {
 
 	private String queryUrl;
 
+	private String queryBalanceUrl;
+
 	private String queryRefundUrl;
 
 	private String checkUrl;
@@ -425,6 +427,14 @@ public class ChanMchtFormInfo {
 		this.queryUrl = queryUrl;
 	}
 
+	public String getQueryBalanceUrl() {
+		return queryBalanceUrl;
+	}
+
+	public void setQueryBalanceUrl(String queryBalanceUrl) {
+		this.queryBalanceUrl = queryBalanceUrl;
+	}
+
 	public String getQueryRefundUrl() {
 		return queryRefundUrl;
 	}
@@ -729,6 +739,7 @@ public class ChanMchtFormInfo {
 			this.synRefundNotifyUrl = requestMap.get("synRefundNotifyUrl");
 			this.asynRefundNotifyUrl = requestMap.get("asynRefundNotifyUrl");
 			this.queryUrl = requestMap.get("queryUrl");
+			this.queryBalanceUrl = requestMap.get("queryBalanceUrl");
 			this.queryRefundUrl = requestMap.get("queryRefundUrl");
 			this.checkUrl = requestMap.get("checkUrl");
 			this.checkRefundUrl = requestMap.get("checkRefundUrl");

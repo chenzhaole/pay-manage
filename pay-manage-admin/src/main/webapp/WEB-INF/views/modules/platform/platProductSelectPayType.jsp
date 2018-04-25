@@ -44,7 +44,15 @@
                         <select name="paymentType" class="input-xlarge" id="paymentType"
                                 <c:if test="${op == 'edit'}">disabled="disabled"</c:if>>
                             <c:forEach items="${paymentTypeInfos}" var="paymentTypeInfo">
-                                <option <c:if test="${chanMchPaytye.payType == paymentTypeInfo.code}">selected</c:if> value="${paymentTypeInfo.code}">${paymentTypeInfo.desc}</option>
+                                <option <c:if test="${chanMchPaytye.payType == paymentTypeInfo.code}">selected</c:if>
+                                        <c:if test="${paymentTypeInfo.code == 'ca001'}"> style="color: red" </c:if>
+                                        <c:if test="${paymentTypeInfo.code == 'wx000'}"> style="color: red" </c:if>
+                                        <c:if test="${paymentTypeInfo.code == 'al000'}"> style="color: red" </c:if>
+                                        <c:if test="${paymentTypeInfo.code == 'jd000'}"> style="color: red" </c:if>
+                                        <c:if test="${paymentTypeInfo.code == 'yl000'}"> style="color: red" </c:if>
+                                        <c:if test="${paymentTypeInfo.code == 'qq000'}"> style="color: red" </c:if>
+                                        <c:if test="${paymentTypeInfo.code == 'sn000'}"> style="color: red" </c:if>
+                                        value="${paymentTypeInfo.code}">${paymentTypeInfo.desc}</option>
                             </c:forEach>
                         </select>
                     </div>

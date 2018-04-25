@@ -493,6 +493,11 @@
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-test</artifactId>
 		</dependency>
+        <dependency>
+            <groupId>com.sys.trans</groupId>
+            <artifactId>pay-trans-api</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <!-- TEST end -->
 
 
