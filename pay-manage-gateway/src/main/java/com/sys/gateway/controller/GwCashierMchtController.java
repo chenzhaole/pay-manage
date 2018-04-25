@@ -78,7 +78,6 @@ public class GwCashierMchtController extends GwCashierBaseController {
 				//商户请求参数校验通过
 				requestInfo = (TradeCashierRequest) result.getData();
 				//获取请求ip，值必须真实，某些上游通道要求必须是真实ip
-				//老网关转发的请求，会带过来真实ip,另外商户也可以传ip，如果请求参数的ip为空，我们才通过程序获取
 				String ip = requestInfo.getBody().getIp();
 				if(StringUtils.isBlank(ip)){
 					ip = IpUtil.getRemoteHost(request);
