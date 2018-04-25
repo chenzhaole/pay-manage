@@ -109,9 +109,11 @@
             var param = $("#search").serialize();
             param= decodeURIComponent(param,true);
             param= encodeURI(encodeURI(param));
-            param = param.replace("testNotify","testNotify/"+mchtKey);
-            notifyUrl = notifyUrl.replace("testNotify","testNotify/"+mchtKey);
-            $("#notifyUrl").val(notifyUrl);
+            if(param.indexOf("testNotify/&") != -1){
+                param = param.replace("testNotify","testNotify/"+mchtKey);
+                notifyUrl = notifyUrl.replace("testNotify","testNotify/"+mchtKey);
+                $("#notifyUrl").val(notifyUrl);
+            }
             console.log(param);
             $.ajax({
                 type:"POST",

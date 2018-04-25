@@ -185,6 +185,8 @@ public class GwCashierBaseController {
         model.addAttribute("platOrderId", resultInfo.getOrderNo());
         model.addAttribute("payInfo", payInfo);
         model.addAttribute("payType", resultInfo.getPaymentType());
+        String paymentType = resultInfo.getPaymentType().substring(0, 2);
+        model.addAttribute("paymentType", paymentType);
         //qq和手机
         model.addAttribute("qq", mapQQandMobile.get("qq"));
         model.addAttribute("mobile", mapQQandMobile.get("mobile"));
