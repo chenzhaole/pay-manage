@@ -63,7 +63,7 @@ public class GwCashierBaseController {
             if(browserbSupportQQScan2H5(userAgent, midoid)){
                iframe = "0";
             }
-        }else if(PayTypeEnum.ALIPAY_OFFLINE_SCAN2WAP.getCode().equals(payType) || PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) ){
+        }else if(PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) ){
             if(browserbSupportAliScan2H5(userAgent, midoid)){
                 iframe = "0";
             }
@@ -298,8 +298,7 @@ public class GwCashierBaseController {
         if(PayTypeEnum.WX_WAP.getCode().equals(biz) || //微信h5支付
                 PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(biz)  || //微信原生公众号支付
                 PayTypeEnum.WX_PUBLIC_NOT_NATIVE.getCode().equals(biz)  || //微信非原生公众号支付
-                PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝线上扫码转h5支付
-                PayTypeEnum.ALIPAY_OFFLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝线下扫码转h5支付
+                PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝扫码转h5支付
                 PayTypeEnum.QQ_WAP.getCode().equals(biz)  || //QQh5支付
                 PayTypeEnum.QQ_SCAN2WAP.getCode().equals(biz)  || //QQ扫码转h5支付
                 PayTypeEnum.SUNING_SCAN2WAP.getCode().equals(biz)  || //苏宁扫码转h5支付
@@ -312,8 +311,7 @@ public class GwCashierBaseController {
 
         }else if(PayTypeEnum.COMBINE_QRCODE.getCode().equals(biz) || //聚合二维码
                 PayTypeEnum.WX_QRCODE.getCode().equals(biz)  || //微信扫码支付
-                PayTypeEnum.ALIPAY_ONLINE_QRCODE.getCode().equals(biz)  || //支付宝线上扫码
-                PayTypeEnum.ALIPAY_OFFLINE_QRCODE.getCode().equals(biz)  || //支付宝线下扫码
+                PayTypeEnum.ALIPAY_ONLINE_QRCODE.getCode().equals(biz)  || //支付宝扫码
                 PayTypeEnum.SUNING_QRCODE.getCode().equals(biz)  || //苏宁扫码
                 PayTypeEnum.QQ_QRCODE.getCode().equals(biz)  || //QQ扫码支付
                 PayTypeEnum.JD_SCAN.getCode().equals(biz)  || //京东扫码支付
