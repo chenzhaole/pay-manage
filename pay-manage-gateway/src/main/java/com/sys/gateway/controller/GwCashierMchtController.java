@@ -10,6 +10,7 @@ import com.sys.common.util.IdUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwCashierMchtService;
+import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -107,7 +108,14 @@ public class GwCashierMchtController extends GwCashierBaseController {
 						}else{
 							//使用我司页面
 							//非收银台页面跳转
-							page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz(), midoid);
+							if(requestInfo.getHead().getBiz().endsWith("000")){
+								//组合支付类型从result返回值取具体支付类型，找对应中间页
+								Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
+								Result resultInfo = (Result) retMapInfo.get("result");
+								page = this.chooseNotCashierPage(deviceType, resultInfo.getPaymentType(), midoid);
+							}else{
+								page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz(), midoid);
+							}
 							if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
 								//pc页面操作，将支付地址带到页面
 								this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId(), midoid);
@@ -165,19 +173,6 @@ public class GwCashierMchtController extends GwCashierBaseController {
 		model.addAttribute("respMsg",result.getRespMsg());
 		logger.info(BIZ+midoid+"处理完业务之后，返回给页面的数据为："+JSONObject.toJSONString(model));
 		return page;
-	}
-
-	/**
-	 * 收银台页面需要的数据
-	 * @param model
-	 */
-	private void addCashierModelInfo(Model model, CommonResult result, String goods, String amount) {
-		model.addAttribute("goods", goods);
-		model.addAttribute("amount", amount);
-		Map mapData = (Map) result.getData();
-		model.addAttribute("paymentTypes", mapData.get("paymentTypes"));
-		model.addAttribute("mchtOrderId", mapData.get("mchtOrderId"));
-		model.addAttribute("extraData", mapData.get("extraData"));
 	}
 
 	/**

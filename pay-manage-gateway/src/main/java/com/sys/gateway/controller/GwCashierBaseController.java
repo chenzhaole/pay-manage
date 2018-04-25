@@ -271,7 +271,7 @@ public class GwCashierBaseController {
      * 非收银台选择跳转页面
      * @return
      */
-    protected String chooseNotCashierPage(String deviceType, String biz, String midoid) {
+    protected String chooseNotCashierPage(String deviceType, String biz,  String midoid) {
         //根据设备类型，确定跳转页面
         String page = "";
         if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
