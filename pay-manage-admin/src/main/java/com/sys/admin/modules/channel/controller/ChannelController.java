@@ -1,5 +1,6 @@
 package com.sys.admin.modules.channel.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
@@ -454,7 +455,11 @@ public class ChannelController extends BaseController {
 			massage = "查询余额失败";
 		}
 
-		return massage;
+
+		JSONObject data = new JSONObject();
+		data.put("massage", massage);
+
+		return data.toJSONString();
 	}
 
 
