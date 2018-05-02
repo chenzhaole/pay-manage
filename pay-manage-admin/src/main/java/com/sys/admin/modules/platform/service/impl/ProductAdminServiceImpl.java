@@ -47,9 +47,6 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 	private ProductService productService;
 
 	@Autowired
-	private PlatFeerateService platFeerateService;
-
-	@Autowired
 	private ProductRelaService productRelaService;
 
 	@Autowired
@@ -117,18 +114,6 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 		productInfo.setCreateTime(new Date());
 		productInfo.setUpdateTime(new Date());
 
-		//保存最新费率
-		PlatFeerate platFeerate = new PlatFeerate();
-		productFormInfo.getFee(platFeerate);
-		//系统生成feeID，“F”+yyyyMMdd+四位随机数
-		String feeID = "F"+ DateUtils2.getNowTimeStr("yyyyMMddHHmmssSSS")+ RandomNumberUtil.getRandNumber(4);
-		platFeerate.setId(feeID);
-		platFeerate.setBizName(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getdesc());
-		platFeerate.setBizType(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getCode());
-		platFeerate.setBizRefId(productInfo.getId());
-		platFeerate.setStatus(productFormInfo.getFeeStatus());
-		platFeerate.setCreateTime(new Date());
-
 		//保存产品与通道商户支付方式对应关系
 		List<ProductRelaFormInfo> productRelaFormInfos = productFormInfo.getProductRelas();
 		List<PlatProductRela> platProductRelaList = null;
@@ -161,7 +146,7 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 			productInfo.setSubId(subIds.toString());
 		}
 
-		return productService.create(productInfo,platFeerate,platProductRelaList);
+		return productService.create(productInfo, platProductRelaList);
 	}
 
 	@Override
@@ -211,7 +196,7 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 			productInfo.setSubId(subIds.toString());
 		}
 
-		return productService.saveByKey(productInfo,platFeerate,platProductRelaList);
+		return productService.saveByKey(productInfo, platProductRelaList);
 	}
 
 	@Override
@@ -253,24 +238,21 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 			productRelaFormInfos.add(productRelaFormInfo);
 		}
 
-		Collections.sort(productRelaFormInfos, new Comparator<ProductRelaFormInfo>() {
-			@Override
-			public int compare(ProductRelaFormInfo o1, ProductRelaFormInfo o2) {
-				if (o1.getSort() > o2.getSort()) {
-					return 1;
-				}
-				if (o1.getSort() < o2.getSort()) {
-					return -1;
-				}
-				return 0;
+		Collections.sort(productRelaFormInfos, (o1, o2) -> {
+			if (o1.getSort() > o2.getSort()) {
+				return 1;
 			}
+			if (o1.getSort() < o2.getSort()) {
+				return -1;
+			}
+			return 0;
 		});
 
 		productFormInfoTemp.setProductRelas(productRelaFormInfos);
 
 		//查找最新费率
-		PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getCode(), platProduct.getId());
-		productFormInfoTemp.setFee(platFeerate);
+//		PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getCode(), platProduct.getId());
+//		productFormInfoTemp.setFee(platFeerate);
 
 		return productFormInfoTemp;
 	}

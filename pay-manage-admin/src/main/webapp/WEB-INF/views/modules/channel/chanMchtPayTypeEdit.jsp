@@ -452,7 +452,7 @@
                 </div>
             </td>
         </tr>
-        <tr>
+        <%--<tr>
 
             <td colspan="1">
                 <div class="control-group">
@@ -522,7 +522,7 @@
                 </div>
             </td>
 
-        </tr>
+        </tr>--%>
     </table>
 
     <!-- ********************************************************************** -->
@@ -604,9 +604,6 @@
                             </option>
                             <option
                                     <c:if test="${chanMchPaytye.settleCycle == 'D1'}">selected</c:if> value="D1">D1
-                            </option>
-                            <option
-                                    <c:if test="${chanMchPaytye.settleCycle == 'T0'}">selected</c:if> value="T0">T0
                             </option>
                             <option
                                     <c:if test="${chanMchPaytye.settleCycle == 'T1'}">selected</c:if> value="T1">T1

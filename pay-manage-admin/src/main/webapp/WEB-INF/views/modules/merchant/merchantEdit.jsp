@@ -392,7 +392,7 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label" for="extend1">商户IP</label>
+                    <label class="control-label" for="extend1">商户IP（半角逗号分隔）</label>
                     <div class="controls">
                         <textarea name="clientIp" placeholder="" style="width:350px;" id="extend1"
                                   rows="3">${merchant.clientIp}</textarea>
@@ -782,7 +782,7 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">上级商户</label>
+                    <label class="control-label">上级代理商户</label>
                     <div class="controls">
                         <select id="parentId" name="parentId">
                             <option value="0">无</option>

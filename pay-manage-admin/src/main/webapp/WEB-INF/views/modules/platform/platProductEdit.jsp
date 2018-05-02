@@ -17,19 +17,6 @@
 
     <script type="text/javascript">
 
-        function rateOrAmount() {
-            if ( $("#feeType").val() === "1"){
-                $("#feeRate").attr("disabled", "disabled");
-                $("#feeAmount").attr("disabled", false);
-            }else if ($("#feeType").val() === "2") {
-                $("#feeAmount").attr("disabled", "disabled");
-                $("#feeRate").attr("disabled", false);
-            } else if ($("#feeType").val() === "3") {
-                $("#feeAmount").attr("disabled", false);
-                $("#feeRate").attr("disabled", false);
-            }
-        }
-
         $(function(){
             rateOrAmount();
 
@@ -279,7 +266,7 @@
 
 
     <!-- ********************************************************************** -->
-    <%--收银台不展示--%>
+    <%--费率移除--
     <c:if test="${!subPro}">
 
         <div class="breadcrumb">
@@ -475,7 +462,7 @@
         </c:forEach>
     </table>
     </c:if>
-
+    %>
     <!-- ********************************************************************** -->
 
     <!-- ********************************************************************** -->
