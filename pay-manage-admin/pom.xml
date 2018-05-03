@@ -8,7 +8,6 @@
 		<artifactId>pay-manage</artifactId>
 		<version>0.0.1-SNAPSHOT</version>
 	</parent>
-	<groupId>pay-manage-admin</groupId>
 	<artifactId>pay-manage-admin</artifactId>
 	<version>0.0.1-SNAPSHOT</version>
 	<packaging>war</packaging>

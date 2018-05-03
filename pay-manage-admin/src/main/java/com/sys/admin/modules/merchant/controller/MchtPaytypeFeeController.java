@@ -32,7 +32,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping(value = "${adminPath}/merchant")
-public class MerchantFeeController extends BaseController {
+public class MchtPaytypeFeeController extends BaseController {
 
 	@Autowired
 	private MerchantAdminService merchantAdminService;
@@ -51,7 +51,7 @@ public class MerchantFeeController extends BaseController {
 	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap
 	) {
 
-		String mchtId = paramMap.get("mchtId");
+		String mchtId = paramMap.get("`");
 		//根据商户查费率
 		List<PlatFeerate> platFeerates = platFeerateService.getMchtFee(mchtId);
 		//商户费率关系

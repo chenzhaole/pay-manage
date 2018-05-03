@@ -88,12 +88,12 @@
                 </td>
                 <td >
                     <div class="controls">
-                        <input name="feeRate${mchtFee.paytypeCode}" value="${mchtFee.feeRate}" type="text" maxlength="6" >
+                        <input name="feeRate${mchtFee.paytypeCode}" value="${mchtFee.feeRate}" placeholder="请填写费率（‰）" type="text" maxlength="6" >
                     </div>
                 </td>
                 <td >
                     <div class="controls">
-                        <input name="feeAmount${mchtFee.paytypeCode}" value="${mchtFee.feeAmount}" type="text" maxlength="8">
+                        <input name="feeAmount${mchtFee.paytypeCode}" value="${mchtFee.feeAmount}" placeholder="请填写手续费（分）" type="text" maxlength="8">
                     </div>
                 </td>
                 <td >
