@@ -47,7 +47,7 @@ public class MerchantFeeController extends BaseController {
 	/**
 	 * 商户支付方式费率列表
 	 */
-	@RequestMapping(value = {"mchtFeePage", ""})
+	@RequestMapping(value = {"mchtPaytypeFeePage", ""})
 	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap
 	) {
 
@@ -80,15 +80,15 @@ public class MerchantFeeController extends BaseController {
 		model.addAttribute("mchtFees", merchantFees);
 		model.addAttribute("paymentTypeInfos", payTypeList);
 
-		return "modules/merchant/mchtFeePage";
+		return "modules/merchant/mchtPaytypeFeePage";
 	}
 
 
 	/**
 	 * 商户支付方式费率修改
 	 */
-	@RequestMapping(value = {"updateMchtFee"})
-	public String addChanMchPayType(HttpServletRequest request, HttpServletResponse response, Model model,
+	@RequestMapping(value = {"updateMchtPaytypeFee"})
+	public String updateMchtPaytypeFee(HttpServletRequest request, HttpServletResponse response, Model model,
 									@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 
 		int result = 0;

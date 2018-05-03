@@ -41,7 +41,7 @@
 </head>
 <body>
 
-<form id="channelForm" action="${ctx}/merchant/updateMchtFee" method="post">
+<form id="channelForm" action="${ctx}/merchant/updateMchtPaytypeFee" method="post">
     <input type="hidden" name="id" value="${mchtId }"/>
 
     <div class="breadcrumb">

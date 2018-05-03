@@ -113,7 +113,7 @@
                 <c:if test="${mcht.status == 2}">停用</c:if>
                 <c:if test="${mcht.status == 3}">待审核</c:if></td>
             <td>
-                <a href="${ctx}/merchant/mchtFeePage?mchtId=${mcht.id}">费率</a>|
+                <a href="${ctx}/merchant/mchtPaytypeFeePage?mchtId=${mcht.id}">费率</a>|
                 <a href="${ctx}/merchant/edit?id=${mcht.id}">修改</a>|
                 <a href="${ctx}/merchant/deleteMcht?id=${mcht.id}&mchtCode=${mcht.mchtCode}"
                    onclick="return confirmx('是否删除编号为“${mcht.mchtCode}”的记录？', this.href)">删除</a>

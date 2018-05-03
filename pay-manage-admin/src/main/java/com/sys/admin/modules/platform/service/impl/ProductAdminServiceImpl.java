@@ -238,14 +238,17 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 			productRelaFormInfos.add(productRelaFormInfo);
 		}
 
-		Collections.sort(productRelaFormInfos, (o1, o2) -> {
-			if (o1.getSort() > o2.getSort()) {
-				return 1;
+		productRelaFormInfos.sort(new Comparator<ProductRelaFormInfo>() {
+			@Override
+			public int compare(ProductRelaFormInfo o1, ProductRelaFormInfo o2) {
+				if (o1.getSort() > o2.getSort()) {
+					return 1;
+				}
+				if (o1.getSort() < o2.getSort()) {
+					return -1;
+				}
+				return 0;
 			}
-			if (o1.getSort() < o2.getSort()) {
-				return -1;
-			}
-			return 0;
 		});
 
 		productFormInfoTemp.setProductRelas(productRelaFormInfos);
