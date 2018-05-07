@@ -356,7 +356,7 @@
              * 创建一个[Deferred](http://api.jquery.com/category/deferred-object/)对象。
              * 详细的Deferred用法说明，请参照jQuery的API文档。
              *
-             * Deferred对象在钩子回掉函数中经常要用到，用来处理需要等待的异步操作。
+             * Deferred对象在钩子回调函数中经常要用到，用来处理需要等待的异步操作。
              *
              * @for  Base
              * @method Deferred

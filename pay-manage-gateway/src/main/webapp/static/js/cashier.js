@@ -105,7 +105,7 @@ $(".qrcode .btn").on("click", function() {
     queryOrderStatus(platOrderId);
     var status = $("#status").val();
     if("2" == status) {
-        //跳转回掉页面
+        //跳转回调页面
         refuse();
     }else{
         var ctxStatic = $("#ctxStatic").val();
