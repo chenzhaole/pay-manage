@@ -149,7 +149,7 @@
                     <dt>异步通知地址：</dt>
                     <dd>
                         <span class="null-star"></span>
-                        <input name="notifyUrl" value="http://103.235.224.144:8081/CzlTest/noticeRcvServlet" maxlength="128" size="30"  placeholder="长度128"/>
+                        <input name="notifyUrl" value="http://103.235.224.17:8081/CzlTest/noticeRcvServlet" maxlength="128" size="30"  placeholder="长度128"/>
                         <span class="null-star">(notifyUrl)*</span>
                         <span></span>
                     </dd>
