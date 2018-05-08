@@ -106,15 +106,10 @@ public class GwCashierMchtController extends GwCashierBaseController {
 
 						}else{
 							//使用我司页面
-							//非收银台页面跳转
-							if(requestInfo.getHead().getBiz().endsWith("000")){
-								//组合支付类型从result返回值取具体支付类型，找对应中间页
-								Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
-								Result resultInfo = (Result) retMapInfo.get("result");
-								page = this.chooseNotCashierPage(deviceType, resultInfo.getPaymentType(), midoid);
-							}else{
-								page = this.chooseNotCashierPage(deviceType, requestInfo.getHead().getBiz(), midoid);
-							}
+							//非收银台页面跳转,支付类型从result返回值取具体支付类型，找对应中间页
+							Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
+							Result resultInfo = (Result) retMapInfo.get("result");
+							page = this.chooseNotCashierPage(deviceType, resultInfo.getPaymentType(), midoid);
 							if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
 								//pc页面操作，将支付地址带到页面
 								this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId(), midoid);

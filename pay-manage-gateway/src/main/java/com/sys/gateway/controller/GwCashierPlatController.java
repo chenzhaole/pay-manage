@@ -136,7 +136,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 if (null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode()) && null != result.getData()) {
                     Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
                     Result resultInfo = (Result) retMapInfo.get("result");
-                    String biz = resultInfo.getPaymentType();
+                    String payType = resultInfo.getPaymentType();
                     //先判断是否跳转上游收银台
                     if(isUseChanCashierPage(result.getData(), midoid)){
                         //跳转到上游收银台的中转页面
@@ -146,7 +146,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
                         this.addChanCashierModelInfo(model, result, midoid);
                     }else {
                         //非收银台页面跳转
-                        page = this.chooseNotCashierPage(deviceType, biz, midoid);
+                        page = this.chooseNotCashierPage(deviceType, payType, midoid);
                         if (page.endsWith("scan")) {
                             //设置扫码中间页需要的参数
                             this.addScanCentPageModelInfo(model, result, midoid);
