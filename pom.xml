@@ -10,6 +10,7 @@
 		<module>pay-manage-admin</module>
 		<module>pay-manage-gateway</module>
 		<module>pay-manage-notify</module>
+		<module>pay-manage-task</module>
 	</modules>
 
 	<!-- 项目属性 -->

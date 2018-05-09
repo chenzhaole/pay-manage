@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.code.platform.task.dao.TaskConfigDAO">
+    <resultMap id="BaseResultMap" type="com.code.platform.task.dmo.TaskConfig">
+        <id column="TASK_ID" jdbcType="DECIMAL" property="taskId"/>
+        <result column="TRIGGER_NAME" jdbcType="VARCHAR" property="triggerName"/>
+        <result column="TRIGGER_GROUP" jdbcType="VARCHAR" property="triggerGroup"/>
+        <result column="TRIGGER_URL" jdbcType="VARCHAR" property="triggerUrl"/>
+        <result column="BUSINESS_TYPE" jdbcType="VARCHAR" property="businessType"/>
+        <result column="BUSINESS_ID" jdbcType="VARCHAR" property="businessId"/>
+    </resultMap>
+    <sql id="Example_Where_Clause">
+        <trim prefix="where" prefixOverrides="and|or">
+            <if test="condition.triggerName != null">
+                <![CDATA[ and TRIGGER_NAME = #{condition.triggerName}]]>
+            </if>
+            <if test="condition.triggerGroup != null">
+                and TRIGGER_GROUP = #{condition.triggerGroup}
+            </if>
+            <if test="condition.businessType != null">
+                and BUSINESS_TYPE = #{condition.businessType}
+            </if>
+            <if test="condition.businessId != null">
+                and BUSINESS_ID = #{condition.businessId}
+            </if>
+        </trim>
+    </sql>
+    <sql id="Base_Column_List">
+        TASK_ID, TRIGGER_NAME, TRIGGER_GROUP, TRIGGER_URL, BUSINESS_TYPE, BUSINESS_ID
+    </sql>
+    <select id="selectByExample" parameterType="com.code.platform.task.util.Criteria"
+            resultMap="BaseResultMap">
+        select
+        <if test="distinct">
+            distinct
+        </if>
+        <include refid="Base_Column_List"/>
+        from TASK_CONFIG
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+        <if test="orderByClause != null">
+            order by ${orderByClause}
+        </if>
+    </select>
+    <select id="checkExistsTask" parameterType="map" resultType="java.lang.Integer">
+        select count(*) from TASK_CONFIG where
+        <if test="taskId!=0">
+            task_id !=#{taskId} and
+        </if>
+        trigger_name = #{triggerName} and trigger_group =#{triggerGroup}
+    </select>
+    <select id="selectByPrimaryKey" parameterType="java.lang.Long" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from TASK_CONFIG
+        where TASK_ID = #{taskId,jdbcType=DECIMAL}
+    </select>
+    <delete id="deleteByPrimaryKey" parameterType="java.lang.Long">
+        delete from TASK_CONFIG
+        where TASK_ID = #{taskId,jdbcType=DECIMAL}
+    </delete>
+    <delete id="deleteByExample" parameterType="com.code.platform.task.util.Criteria">
+        delete from TASK_CONFIG
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </delete>
+    <insert id="insert" parameterType="com.code.platform.task.dmo.TaskConfig">
+        insert into TASK_CONFIG (TRIGGER_NAME, TRIGGER_GROUP, TRIGGER_URL,BUSINESS_TYPE,BUSINESS_ID
+        )
+        values (#{triggerName,jdbcType=VARCHAR}, #{triggerGroup,jdbcType=VARCHAR},
+        #{triggerUrl,jdbcType=VARCHAR},#{businessType,jdbcType=VARCHAR},#{businessId,jdbcType=VARCHAR}
+        )
+    </insert>
+    <update id="updateByExampleSelective" parameterType="map">
+        update TASK_CONFIG
+        <set>
+            <if test="record.taskId != null">
+                TASK_ID = #{record.taskId,jdbcType=DECIMAL},
+            </if>
+            <if test="record.triggerName != null">
+                TRIGGER_NAME = #{record.triggerName,jdbcType=VARCHAR},
+            </if>
+            <if test="record.triggerGroup != null">
+                TRIGGER_GROUP = #{record.triggerGroup,jdbcType=VARCHAR},
+            </if>
+            <if test="record.triggerUrl != null">
+                TRIGGER_URL = #{record.triggerUrl,jdbcType=VARCHAR},
+            </if>
+        </set>
+        <if test="_parameter != null">
+            <include refid="Example_Where_Clause"/>
+        </if>
+    </update>
+    <update id="updateByPrimaryKeySelective"
+            parameterType="com.code.platform.task.dmo.TaskConfig">
+        update TASK_CONFIG
+        <set>
+            <if test="triggerName != null">
+                TRIGGER_NAME = #{triggerName,jdbcType=VARCHAR},
+            </if>
+            <if test="triggerGroup != null">
+                TRIGGER_GROUP = #{triggerGroup,jdbcType=VARCHAR},
+            </if>
+            <if test="triggerUrl != null">
+                TRIGGER_URL = #{triggerUrl,jdbcType=VARCHAR},
+            </if>
+        </set>
+        where TASK_ID = #{taskId,jdbcType=DECIMAL}
+    </update>
+
+    <select id="checkExistsTaskEx" parameterType="map" resultType="java.lang.Integer">
+        select count(1) from TASK_CONFIG
+        where business_type=#{businessType} and business_Id=#{businessId}
+        and trigger_name = #{triggerName} and trigger_group =#{triggerGroup}
+    </select>
+</mapper>
