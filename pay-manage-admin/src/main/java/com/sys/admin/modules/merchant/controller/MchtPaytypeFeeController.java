@@ -51,7 +51,7 @@ public class MchtPaytypeFeeController extends BaseController {
 	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap
 	) {
 
-		String mchtId = paramMap.get("`");
+		String mchtId = paramMap.get("mchtId");
 		//根据商户查费率
 		List<PlatFeerate> platFeerates = platFeerateService.getMchtFee(mchtId);
 		//商户费率关系
@@ -153,9 +153,24 @@ public class MchtPaytypeFeeController extends BaseController {
 			}
 
 
+			boolean save = false;
 			if (!CollectionUtils.isEmpty(feerates)){
+				List<PlatFeerate> platFeerates = platFeerateService.getMchtFee(mchtId);
 				for (PlatFeerate platFeerate : feerates) {
-					platFeerateService.createFirstTime(platFeerate);
+
+					if (!CollectionUtils.isEmpty(platFeerates)){
+						for (PlatFeerate mchtFee : platFeerates) {
+							if (platFeerate.getBizRefId().equals(mchtFee.getBizRefId())){
+								save = true;
+							}
+						}
+					}
+					if (save){
+						platFeerateService.saveByKey(platFeerate);
+					}else {
+						platFeerateService.createFirstTime(platFeerate);
+					}
+
 				}
 			}
 

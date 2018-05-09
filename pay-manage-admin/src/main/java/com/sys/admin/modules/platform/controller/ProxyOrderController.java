@@ -332,9 +332,12 @@ public class ProxyOrderController extends BaseController {
         String mchtId = UserUtils.getUser().getLoginName();
         BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
         MchtInfo mcht = merchantService.queryByKey(mchtId);
-        model.addAttribute("balance",balance);
-        model.addAttribute("mchtName",mcht.getName());
-        return "modules/proxy/commitBatch";
+        if (mcht != null){
+            model.addAttribute("balance",balance);
+            model.addAttribute("mchtName",mcht.getName());
+            return "modules/proxy/commitBatch";
+        }
+        return null;
     }
 
     /**
