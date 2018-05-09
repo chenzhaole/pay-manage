@@ -155,16 +155,16 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 		BeanUtils.copyProperties(productFormInfo, productInfo);
 		productInfo.setUpdateTime(new Date());
 		
-		PlatFeerate platFeerate = new PlatFeerate();
-		productFormInfo.getFee(platFeerate);
-		//系统生成feeID，“F”+yyyyMMdd+四位随机数
-		String feeID = "F"+ DateUtils2.getNowTimeStr("yyyyMMddHHmmssSSS")+ RandomNumberUtil.getRandNumber(4);
-		platFeerate.setId(feeID);
-		platFeerate.setBizName(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getdesc());
-		platFeerate.setBizType(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getCode());
-		platFeerate.setBizRefId(productInfo.getId());
-		platFeerate.setCreateTime(new Date());
-		platFeerate.setStatus(productFormInfo.getFeeStatus());
+//		PlatFeerate platFeerate = new PlatFeerate();
+//		productFormInfo.getFee(platFeerate);
+//		//系统生成feeID，“F”+yyyyMMdd+四位随机数
+//		String feeID = "F"+ DateUtils2.getNowTimeStr("yyyyMMddHHmmssSSS")+ RandomNumberUtil.getRandNumber(4);
+//		platFeerate.setId(feeID);
+//		platFeerate.setBizName(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getdesc());
+//		platFeerate.setBizType(FeeRateBizTypeEnum.PLAT_PRODUCT_BIZTYPE.getCode());
+//		platFeerate.setBizRefId(productInfo.getId());
+//		platFeerate.setCreateTime(new Date());
+//		platFeerate.setStatus(productFormInfo.getFeeStatus());
 
 		//产品与通道商户支付方式对应关系
 		List<ProductRelaFormInfo> productRelaFormInfos = productFormInfo.getProductRelas();
