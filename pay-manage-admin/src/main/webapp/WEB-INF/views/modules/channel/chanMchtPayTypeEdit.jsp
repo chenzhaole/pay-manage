@@ -203,7 +203,7 @@
                             <c:forEach items="${mchtInfos}" var="mchtInfo">
                                 <option
                                         <c:if test="${chanMchPaytye.mchtId == mchtInfo.id}">selected</c:if>
-                                        data-mchtCode="${mchtInfo.mchtCode}" data-shortName="${mchtInfo.shortName}"
+                                        data-mchtCode="${mchtInfo.mchtCode}" data-shortName="${mchtInfo.name}"
                                         value="${mchtInfo.id}">${mchtInfo.name}</option>
                             </c:forEach>
                         </select>
