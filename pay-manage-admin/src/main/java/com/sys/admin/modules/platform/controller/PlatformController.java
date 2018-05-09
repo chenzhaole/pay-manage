@@ -168,8 +168,7 @@ public class PlatformController {
 			List<ProductFormInfo> productTemps = productAdminService.getProductList(new ProductFormInfo());
 			if (!CollectionUtils.isEmpty(productTemps)) {
 				for (ProductFormInfo productTemp : productTemps) {
-					if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productTemp.getPayType()) ||
-							productTemp.getPayType().endsWith("000")) {
+					if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productTemp.getPayType())) {
 						continue;
 					}
 					productInfos.add(productTemp);

@@ -18,7 +18,6 @@
     <script type="text/javascript">
 
         $(function(){
-            rateOrAmount();
 
             $("#platProductForm").validate({
                 debug: true, //调试模式取消submit的默认提交功能
