@@ -181,7 +181,7 @@
                     <label class="control-label">所属上级</label>
                     <div class="controls">
                         <select class="input-xlarge" name="parentId" id="parentId">
-                            <option>无</option>
+                            <option value="">无</option>
                             <c:forEach items="${chanMchts}" var="chanMcht">
                                 <option
                                         <c:if test="${chanMchPaytye.parentId == chanMcht.id}">selected</c:if>
