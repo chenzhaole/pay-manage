@@ -153,11 +153,11 @@ public class MchtPaytypeFeeController extends BaseController {
 			}
 
 
-			boolean save = false;
+			boolean save;
 			if (!CollectionUtils.isEmpty(feerates)){
 				List<PlatFeerate> platFeerates = platFeerateService.getMchtFee(mchtId);
 				for (PlatFeerate platFeerate : feerates) {
-
+					save = false;
 					if (!CollectionUtils.isEmpty(platFeerates)){
 						for (PlatFeerate mchtFee : platFeerates) {
 							if (platFeerate.getBizRefId().equals(mchtFee.getBizRefId())){
