@@ -495,7 +495,7 @@
                 </div>
             </td>
 
-        </tr>
+        </tr>--%>
         <tr>
 
             <td>
@@ -522,47 +522,9 @@
                 </div>
             </td>
 
-        </tr>--%>
+        </tr>
     </table>
 
-    <!-- ********************************************************************** -->
-    <%--<div class="breadcrumb">--%>
-    <%--<label>商务合作信息</label>--%>
-    <%--</div>--%>
-    <%--<tags:message content="${message}" type="${messageType}"/>--%>
-    <%--<table class="table">--%>
-    <%--<tr>--%>
-
-    <%--<td>--%>
-    <%--<div class="control-group">--%>
-    <%--<label class="control-label">合同类型<span style="color: red;">*</span></label>--%>
-    <%--<div class="controls">--%>
-    <%--<select name="contractType" class="input-xlarge" id="contractType">--%>
-    <%--<option value="">--请选择--</option>--%>
-    <%--<option <c:if test="${chanMchPaytye.contractType == 1}">selected</c:if> value="1">商户合同</option>--%>
-    <%--<option <c:if test="${chanMchPaytye.contractType == 2}">selected</c:if> value="2">服务商合同</option>--%>
-    <%--</select>--%>
-    <%--</div>--%>
-    <%--</div>--%>
-    <%--</td>--%>
-
-    <%--<td>--%>
-    <%--<div class="control-group">--%>
-    <%--<label class="control-label">所属上级</label>--%>
-    <%--<div class="controls">--%>
-    <%--<select name="parentId">--%>
-    <%--<option>请选择</option>--%>
-    <%--<c:forEach items="${chanMchts}" var="chanMcht">--%>
-    <%--<option <c:if test="${chanMchPaytye.parentId == chanMcht.id}">selected</c:if>--%>
-    <%--value="${chanMcht.id}">${chanMcht.name}</option>--%>
-    <%--</c:forEach>--%>
-    <%--</select>--%>
-    <%--</div>--%>
-    <%--</div>--%>
-    <%--</td>--%>
-    <%--</tr>--%>
-
-    <%--</table>--%>
     <!-- ********************************************************************** -->
     <div class="breadcrumb">
         <label>资金结算信息</label>
