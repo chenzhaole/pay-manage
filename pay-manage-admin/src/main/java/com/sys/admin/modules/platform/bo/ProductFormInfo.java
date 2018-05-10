@@ -410,9 +410,13 @@ public class ProductFormInfo {
 			}else {
 				productRelaFormInfo.setIsValid(Integer.parseInt(StatusEnum.TOBEVALID.getCode()));
 			}
+
+			if (StringUtils.isBlank(paramMap.get(key))){
+				continue;
+			}
+			productRelaFormInfo.setChanMchtPaytypeId(paramMap.get(key));
 			productRelaFormInfo.setIsDelete(Integer.parseInt(StatusEnum.TOBEVALID.getCode()));
 			productRelaFormInfo.setProductId(this.id);
-			productRelaFormInfo.setChanMchtPaytypeId(paramMap.get(key));
 			productRelaFormInfo.setSort(Integer.parseInt(paramMap.get("sort" + number)));
 			productRelaFormInfos.add(productRelaFormInfo);
 		}
@@ -435,6 +439,9 @@ public class ProductFormInfo {
 			subProduct = new SubProduct();
 			String number = productkey.substring(12, productkey.length());
 			subProduct.setSubProductId(paramMap.get("subProductId" + number));
+			if (StringUtils.isBlank(subProduct.getSubProductId())){
+				continue;
+			}
 			subProduct.setSort(Integer.parseInt(paramMap.get("sort" + number)));
 			subProducts.add(subProduct);
 		}

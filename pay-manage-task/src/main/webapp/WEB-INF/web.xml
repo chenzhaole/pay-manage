@@ -28,4 +28,15 @@
     <servlet-name>Dispatcher</servlet-name>
     <url-pattern>/</url-pattern>
   </servlet-mapping>
+
+  <session-config>
+    <!--session失效时间，单位分钟-->
+    <session-timeout>30</session-timeout>
+    <cookie-config>
+      <name>payManageTaskSessionId</name>
+      <domain>localhost</domain>
+      <path>/</path>
+    </cookie-config>
+    <tracking-mode>COOKIE</tracking-mode>
+  </session-config>
 </web-app>

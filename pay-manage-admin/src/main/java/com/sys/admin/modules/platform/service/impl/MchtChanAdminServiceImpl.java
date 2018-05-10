@@ -3,6 +3,7 @@ package com.sys.admin.modules.platform.service.impl;
 import com.sys.admin.modules.platform.bo.MchtChanFormInfo;
 import com.sys.admin.modules.platform.service.MchtChanAdminService;
 import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.Collections3;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtChan;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -20,6 +21,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -86,6 +88,9 @@ public class MchtChanAdminServiceImpl implements MchtChanAdminService {
 		MchtInfo mchtInfo;
 		List<String> mchtIds = new ArrayList<>();
 
+		List<MchtInfo> mchts = merchantService.list(new MchtInfo());
+		Map<String, MchtInfo> mchtMap = Collections3.extractToMap(mchts, "id");
+
 		for (MchtChan mchtChanTemp : mchtInfos) {
 
 			boolean hasMcht = false;
@@ -106,7 +111,7 @@ public class MchtChanAdminServiceImpl implements MchtChanAdminService {
 			}
 			mchtIds.add(mchtChanTemp.getMchtId());
 
-			mchtInfo = merchantService.queryByKey(mchtChanTemp.getMchtId());
+			mchtInfo = mchtMap.get(mchtChanTemp.getMchtId());
 			if (mchtInfo == null) {
 				continue;
 			}

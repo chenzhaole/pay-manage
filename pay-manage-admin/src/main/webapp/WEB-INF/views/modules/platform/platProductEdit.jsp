@@ -18,7 +18,6 @@
     <script type="text/javascript">
 
         $(function(){
-            rateOrAmount();
 
             $("#platProductForm").validate({
                 debug: true, //调试模式取消submit的默认提交功能
@@ -266,8 +265,7 @@
 
 
     <!-- ********************************************************************** -->
-    <%--费率移除--
-    <c:if test="${!subPro}">
+    <%--费率移除
 
         <div class="breadcrumb">
             <label>资金结算信息</label>
@@ -394,9 +392,10 @@
                     </div>
                 </td>
             </tr>
-        </table>
+        </table> --%>
 
     <!-- ********************************************************************** -->
+    <c:if test="${!subPro}">
     <div class="breadcrumb">
         <label>通道商户支付方式</label>
         <a style="float:right;cursor: pointer;font-size:15px;text-decoration: none;" onclick="addPayType();">新增支付方式</a>
@@ -462,7 +461,7 @@
         </c:forEach>
     </table>
     </c:if>
-    %>
+
     <!-- ********************************************************************** -->
 
     <!-- ********************************************************************** -->

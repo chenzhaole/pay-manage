@@ -110,7 +110,7 @@
             <label class="control-label">生效时间</label>
             <div class="controls">
                 <label class="control-label" for="activeNow">立即</label>
-                <input name="feeStatus" value="1" placeholder="" class="input-xlarge"
+                <input name="feeStatus" value="1" checked class="input-xlarge"
                        type="radio" id="activeNow">
                 <label class="control-label" for="activeThan">定时</label>
                 <input name="feeStatus" value="0" placeholder="" class="input-xlarge"
