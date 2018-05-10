@@ -5,18 +5,16 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.boss.api.entry.cache.CacheMcht;
+import com.sys.boss.api.entry.cache.CacheMchtAccount;
+import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
 import com.sys.common.enums.ProxyPayRequestEnum;
 import com.sys.common.enums.StatusEnum;
-import com.sys.common.util.Collections3;
-import com.sys.common.util.DateUtils2;
-import com.sys.common.util.IdUtil;
-import com.sys.common.util.JedisUtil;
-import com.sys.common.util.PostUtil;
-import com.sys.common.util.SignUtil;
+import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -128,20 +126,20 @@ public class ProxyOrderController extends BaseController {
         model.addAttribute("mchtInfos", mchtInfos);
 //		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
 
-		//查询商户列表
-		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
+        //查询商户列表
+        Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
         Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 
         int proxyCount = proxyBatchService.count(proxyBatch);
 
         List<PlatProxyBatch> proxyInfoList = proxyBatchService.list(proxyBatch);
 
-        if (!CollectionUtils.isEmpty(proxyInfoList)){
-			for (PlatProxyBatch platProxyBatch : proxyInfoList) {
-				platProxyBatch.setMchtId(mchtMap.get(platProxyBatch.getMchtId()));
-				platProxyBatch.setChanId(channelMap.get(platProxyBatch.getChanId()));
-			}
-		}
+        if (!CollectionUtils.isEmpty(proxyInfoList)) {
+            for (PlatProxyBatch platProxyBatch : proxyInfoList) {
+                platProxyBatch.setMchtId(mchtMap.get(platProxyBatch.getMchtId()));
+                platProxyBatch.setChanId(channelMap.get(platProxyBatch.getChanId()));
+            }
+        }
         Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
         model.addAttribute("page", page);
         model.addAttribute("paramMap", paramMap);
@@ -328,12 +326,12 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("toCommitBatch")
     @RequiresPermissions("mcht:proxy:commit")
-    public String toCommitBatch(Model model){
+    public String toCommitBatch(Model model) {
         String mchtId = UserUtils.getUser().getLoginName();
-        BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
+        BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId, null);
         MchtInfo mcht = merchantService.queryByKey(mchtId);
-        model.addAttribute("balance",balance);
-        model.addAttribute("mchtName",mcht.getName());
+        model.addAttribute("balance", balance);
+        model.addAttribute("mchtName", mcht.getName());
         return "modules/proxy/commitBatch";
     }
 
@@ -342,57 +340,60 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("commitBatch")
     @RequiresPermissions("mcht:proxy:commit")
-    public String commitBatch(MultipartFile file,Model model,RedirectAttributes redirectAttributes){
+    public String commitBatch(MultipartFile file, Model model, RedirectAttributes redirectAttributes) {
         String mchtId = UserUtils.getUser().getLoginName();
         String messageType = null;
         String message = null;
         try {
             //检验excel文件
-            Sheet sheet = checkFile(mchtId,file);
+            Sheet sheet = checkFile(mchtId, file);
             //查询代付手续费
             BigDecimal fee = queryFee(mchtId);
-            if(fee != null){
+            if (fee != null) {
                 PlatProxyBatch batch = new PlatProxyBatch();
                 List<PlatProxyDetail> details = new ArrayList<>();
                 //读取数据
-                readExcel(mchtId,sheet,fee,batch,details);
+                readExcel(mchtId, sheet, fee, batch, details);
 
-                BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
+                BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId, null);
+                logger.info(mchtId + " 查询mchtAccountInfo表商户余额,返回值=" + balance);
                 BigDecimal proxyAmount = batch.getTotalAmount().add(batch.getTotalFee());//所需总金额=代付金额+代付手续费
-                logger.info("【提交代付】商户ID={} 余额={} 手续费={} 代付金额={}",
-                        mchtId,balance,batch.getTotalFee().stripTrailingZeros().toPlainString(),proxyAmount.stripTrailingZeros().toPlainString());
+                logger.info(mchtId + "【提交代付】商户ID={} 余额={} 手续费={} 代付金额={}",
+                        mchtId, balance, batch.getTotalFee().stripTrailingZeros().toPlainString(), proxyAmount.stripTrailingZeros().toPlainString());
                 //余额是否充足校验
-                if(balance.compareTo(proxyAmount)>=0){
-                    JedisUtil.set(IdUtil.REDIS_PROXYPAY_BATCH+batch.getId(),JSON.toJSONString(batch),2*3600);
-                    JedisUtil.set(IdUtil.REDIS_PROXYPAY_DETAILS+batch.getId(),JSON.toJSONString(details),2*3600);
+                if (balance.compareTo(proxyAmount) >= 0) {
+                    JedisUtil.set(IdUtil.REDIS_PROXYPAY_BATCH + batch.getId(), JSON.toJSONString(batch), 2 * 3600);
+                    JedisUtil.set(IdUtil.REDIS_PROXYPAY_DETAILS + batch.getId(), JSON.toJSONString(details), 2 * 3600);
 
                     MchtInfo mcht = merchantService.queryByKey(mchtId);
-                    String phone = mcht.getPhone();
-                    phone = phone.substring(0, 3) + "****"
-                            + phone.substring(7, phone.length());
+                    String mobile = DesUtil32.decode(mcht.getFinanceMobile(), "ZhrtZhrt");
+                    logger.info(mchtId + "【提交代付】商户ID="+mchtId+" 数据库加密代付手机号码="+mcht+" 解密后手机号码="+mobile+" 页面显示手机号码隐藏中间7位数字");
+                    mobile = mobile.substring(0, 2) + "*****" + mobile.substring(7, mobile.length());
 
-                    model.addAttribute("batch",batch);
-                    model.addAttribute("details",details);
-                    model.addAttribute("proxyFee",batch.getTotalFee().doubleValue());
-                    model.addAttribute("proxyAmount",proxyAmount.doubleValue());
-                    model.addAttribute("phone",phone);
+                    model.addAttribute("batch", batch);
+                    model.addAttribute("details", details);
+                    model.addAttribute("proxyFee", batch.getTotalFee().doubleValue());
+                    model.addAttribute("proxyAmount", proxyAmount.doubleValue());
+                    model.addAttribute("phone", mobile);
 
-                }else{
+                } else {
                     messageType = "error";
                     message = "代付失败，商户余额不足！";
                 }
-            }else{
+            } else {
                 messageType = "error";
                 message = "代付失败，商户未配置代付产品！";
             }
         } catch (Exception e) {
             messageType = "error";
             message = e.getMessage();
+            logger.error(e.getMessage());
+            e.printStackTrace();
         }
-        if(StringUtils.equals("error",messageType)){
-            redirectAttributes.addFlashAttribute("messageType",messageType);
-            redirectAttributes.addFlashAttribute("message",message);
-            return "redirect:"+GlobalConfig.getAdminPath()+"/proxy/toCommitBatch";
+        if (StringUtils.equals("error", messageType)) {
+            redirectAttributes.addFlashAttribute("messageType", messageType);
+            redirectAttributes.addFlashAttribute("message", message);
+            return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
         }
         return "modules/proxy/confirmCommitBatch";
     }
@@ -402,47 +403,48 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("confirmCommitBatch")
     @RequiresPermissions("mcht:proxy:commit")
-    public void confirmCommitBatch(String batchId,String smsCode,HttpServletResponse response)throws IOException {
-        logger.info("【确认代付】接受参数 代付批次ID={} 验证码={}",batchId,smsCode);
+    public void confirmCommitBatch(String batchId, String smsCode, HttpServletResponse response) throws IOException {
+        logger.info("【确认代付】接受参数 代付批次ID={} 验证码={}", batchId, smsCode);
         String mchtId = UserUtils.getUser().getLoginName();
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
             //校验代付批次
-            if(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId)!=null){
-                Map<String,Object> paramsMap = new HashMap<>();
-                paramsMap.put("version","1.0");
+            if (JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + batchId) != null) {
+                Map<String, Object> paramsMap = new HashMap<>();
+                paramsMap.put("version", "1.0");
                 paramsMap.put("mchtId", mchtId);
-                paramsMap.put("biz","df01");
-                paramsMap.put("orderId",batchId);
-                paramsMap.put("verifyCode",smsCode);
-                paramsMap.put("opType","2");
+                paramsMap.put("biz", "df01");
+                paramsMap.put("orderId", batchId);
+                paramsMap.put("verifyCode", smsCode);
+                paramsMap.put("opType", "2");
 
-                String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
-                paramsMap.put("sign",sign);
+                String sign = SignUtil.md5Sign(paramsMap, "ZhrtZhrt");
+                paramsMap.put("sign", sign);
 
-                String url = sms_send+"/gateway/sms/verify";
-                logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
-                String postResp = PostUtil.postForm(url,paramsMap);
-                logger.info("商户代付校验短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
+                String url = sms_send + "/gateway/sms/verify";
+                logger.info("商户代付校验短信验证码  url=" + url + " 参数=" + JSON.toJSONString(paramsMap));
+                String postResp = PostUtil.postForm(url, paramsMap);
+                logger.info("商户代付校验短信验证码  url=" + url + " 参数=" + JSON.toJSONString(paramsMap) + " 响应=" + postResp);
 
                 //校验验证码
-                if(StringUtils.equals(postResp,"0000")){
+                if (StringUtils.equals(postResp, "0000")) {
+                    logger.info("商户代付校验短信验证码,代付批次ID="+batchId+" 回填校验成功");
                     PlatProxyBatch batch = proxyBatchService.queryByKey(batchId);
                     //判断数据库是否存在该批次
-                    if(batch == null){
-                        batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId),PlatProxyBatch.class);
-                        List<PlatProxyDetail> details = JSON.parseArray(
-                                JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS+batchId),PlatProxyDetail.class);
-                        proxyBatchService.saveBatchAndDetails(batch,details);
+                    if (batch == null) {
+                        batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + batchId), PlatProxyBatch.class);
+                        List<PlatProxyDetail> details = JSON.parseArray(JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS + batchId), PlatProxyDetail.class);
+                        int rs = proxyBatchService.saveBatchAndDetails(batch, details);
+                        logger.info("代付批次和代付明细入库返回结果 rs="+rs);
                         respMsg = "ok";
-                    }else{
+                    } else {
                         respMsg = "batch exist in db";
                     }
-                }else{
+                } else {
                     respMsg = "smscode error";
                 }
-            }else{
+            } else {
                 respMsg = "batch not exist in redis";
             }
         } catch (Exception e) {
@@ -454,38 +456,41 @@ public class ProxyOrderController extends BaseController {
         response.getWriter().print(respMsg);
     }
 
+
+
+
     /**
      * 发送短信验证码
      */
     @RequestMapping("sendMsg")
     @RequiresPermissions("mcht:proxy:commit")
-    public void sendMsg(String batchId,HttpServletResponse response) throws IOException {
+    public void sendMsg(String batchId, HttpServletResponse response) throws IOException {
         String mchtId = UserUtils.getUser().getLoginName();
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
 
-            if(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH+batchId)!=null){
-                Map<String,Object> paramsMap = new HashMap<>();
-                paramsMap.put("version","1.0");
+            if (JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + batchId) != null) {
+                Map<String, Object> paramsMap = new HashMap<>();
+                paramsMap.put("version", "1.0");
                 paramsMap.put("mchtId", mchtId);
-                paramsMap.put("biz","df01");
-                paramsMap.put("orderId",batchId);
-                paramsMap.put("opType","1");
+                paramsMap.put("biz", "df01");
+                paramsMap.put("orderId", batchId);
+                paramsMap.put("opType", "1");
 
-                String sign = SignUtil.md5Sign(paramsMap,"ZhrtZhrt");
-                paramsMap.put("sign",sign);
+                String sign = SignUtil.md5Sign(paramsMap, "ZhrtZhrt");
+                paramsMap.put("sign", sign);
 
 
-                String url = sms_send+"/gateway/sms/send";
-                logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap));
-                String postResp = PostUtil.postForm(url,paramsMap);
-                logger.info("商户代付发送短信验证码  url="+url+" 参数="+ JSON.toJSONString(paramsMap)+" 响应="+postResp);
+                String url = sms_send + "/gateway/sms/send";
+                logger.info("商户代付发送短信验证码  url=" + url + " 参数=" + JSON.toJSONString(paramsMap));
+                String postResp = PostUtil.postForm(url, paramsMap);
+                logger.info("商户代付发送短信验证码  url=" + url + " 参数=" + JSON.toJSONString(paramsMap) + " 响应=" + postResp);
 
-                if(StringUtils.equals(postResp,"0000")){
+                if (StringUtils.equals(postResp, "0000")) {
                     respMsg = "ok";
                 }
-            }else{
+            } else {
                 respMsg = "batch not exist in redis";
             }
         } catch (Exception e) {
@@ -500,30 +505,30 @@ public class ProxyOrderController extends BaseController {
     /**
      * 校验excel
      */
-    private Sheet checkFile(String mchtId,MultipartFile file) throws Exception {
+    private Sheet checkFile(String mchtId, MultipartFile file) throws Exception {
         String fileName = file.getOriginalFilename();
         InputStream is = file.getInputStream();
         Workbook wb;
 
-        if (StringUtils.isBlank(fileName)){
+        if (StringUtils.isBlank(fileName)) {
             throw new RuntimeException("导入文档为空!");
-        }else if(fileName.toLowerCase().endsWith("xls") || fileName.toLowerCase().endsWith("xlsx")){
+        } else if (fileName.toLowerCase().endsWith("xls") || fileName.toLowerCase().endsWith("xlsx")) {
             wb = new HSSFWorkbook(is);
-        }else{
+        } else {
             throw new RuntimeException("文档格式不正确!");
         }
-        if (wb.getNumberOfSheets()< 0){
+        if (wb.getNumberOfSheets() < 0) {
             throw new RuntimeException("文档中没有工作表!");
         }
 
         Sheet sheet = wb.getSheetAt(0);
 
         int rowCount = sheet.getLastRowNum();
-        logger.info("商户ID: {} 代付笔数: {}",mchtId,rowCount);
-        if(rowCount>100){
+        logger.info("商户ID: {} 代付笔数: {}", mchtId, rowCount);
+        if (rowCount > 100) {
             throw new RuntimeException("总笔数大于100条，如果空行较多，为避免提示笔数超限，请在EXCEL文件中选择多行进行整行删除！");
         }
-        if(rowCount==0){
+        if (rowCount == 0) {
             throw new RuntimeException("EXCEL文件中无代付信息！");
         }
 
@@ -533,12 +538,12 @@ public class ProxyOrderController extends BaseController {
     /**
      * 读取数据
      */
-    private void readExcel(String mchtId,Sheet sheet,BigDecimal fee,PlatProxyBatch batch,List<PlatProxyDetail> details){
-        Set<String> bankCodeSet = getBankCodeSet();
+    private void readExcel(String mchtId, Sheet sheet, BigDecimal fee, PlatProxyBatch batch, List<PlatProxyDetail> details) {
+        Map<String, String> platBankMap = getPlatBankMap();
         BigDecimal totalAmount = BigDecimal.valueOf(0);// 累计交易金额
         int totalCount = 0;// 累计交易条数
 
-        String batchId= IdUtil.createProxBatchId("0");//代付批次ID
+        String batchId = IdUtil.createProxBatchId("0");//代付批次ID
         batch.setRequesetType(ProxyPayRequestEnum.PLATFORM.getCode());
         batch.setId(batchId);
         batch.setMchtId(mchtId);
@@ -551,15 +556,15 @@ public class ProxyOrderController extends BaseController {
         Set<String> seqSet = new HashSet<>();
         //创建代付批次
         for (int i = 1; i <= sheet.getLastRowNum(); i++) {
-            int k=i+1;//用于提示错误行号
+            int k = i + 1;//用于提示错误行号
             Row row = sheet.getRow(i);
-            if(row!=null){
-                PlatProxyDetail detail = buildProxyDetail(row,k,batch,fee,bankCodeSet,seqSet);
+            if (row != null) {
+                PlatProxyDetail detail = buildProxyDetail(row, k, batch, fee, platBankMap, seqSet);
                 details.add(detail);
                 totalAmount = totalAmount.add(detail.getAmount());
                 totalCount++;
-            }else{
-                throw new RuntimeException("第"+k+"行为空，如果空行较多，为避免提示空行，请在EXCEL文件中选择多行进行整行删除!");
+            } else {
+                throw new RuntimeException("第" + k + "行为空，如果空行较多，为避免提示空行，请在EXCEL文件中选择多行进行整行删除!");
             }
         }
 
@@ -572,24 +577,44 @@ public class ProxyOrderController extends BaseController {
     /**
      * 查询代付手续费
      */
-    private BigDecimal queryFee(String mchtId){
+    private BigDecimal queryFee_old(String mchtId) {
         MchtProduct queryBO = new MchtProduct();
         queryBO.setMchtId(mchtId);
         queryBO.setIsValid(Integer.parseInt(StatusEnum.VALID.getCode()));
         List<MchtProduct> mchtProductList = mchtProductService.list(queryBO);
 
-        if(!Collections3.isEmpty(mchtProductList)){
-            for(MchtProduct mchtProduct : mchtProductList){
+        if (!Collections3.isEmpty(mchtProductList)) {
+            for (MchtProduct mchtProduct : mchtProductList) {
                 PlatProduct product = productService.queryByKey(mchtProduct.getProductId());
-                if(StringUtils.equals(product.getPayType(),PayTypeEnum.BATCH_DF.getCode())){
+                if (StringUtils.equals(product.getPayType(), PayTypeEnum.BATCH_DF.getCode())) {
                     String bizType = FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode();
                     String bizRefId = mchtId + "&" + product.getId();
                     PlatFeerate feerate = feerateService.getValidFeerate(bizType, bizRefId);
-                    return feerate.getFeeAmount()==null?BigDecimal.valueOf(0):feerate.getFeeAmount();
+                    return feerate.getFeeAmount() == null ? BigDecimal.valueOf(0) : feerate.getFeeAmount();
                 }
             }
         }
         return null;
+    }
+
+    /**
+     * 查询代付手续费
+     */
+    private BigDecimal queryFee(String mchtId) {
+        logger.info(mchtId + " 查询代付手续费[start]");
+        BigDecimal rtn = null;
+        String bizType = FeeRateBizTypeEnum.MCHT_PAYTYPE_BIZTYPE.getCode();
+        String bizRefId = mchtId + "&" + PayTypeEnum.SINGLE_DF.getCode();
+        logger.info(mchtId + " 查询代付手续费,查询条件:bizType=" + bizType + ",bizRefId=" + bizRefId);
+        PlatFeerate feerate = feerateService.getValidFeerate(bizType, bizRefId);
+        logger.info(mchtId + " 查询代付手续费,查询结果feerate:" + JSON.toJSON(feerate));
+
+        if (feerate != null) {
+            rtn = feerate.getFeeAmount() == null ? BigDecimal.valueOf(0) : feerate.getFeeAmount();
+        }
+
+        logger.info(mchtId + " 查询代付手续费[end] 费率返回值=" + rtn);
+        return rtn;
     }
 
 
@@ -616,7 +641,7 @@ public class ProxyOrderController extends BaseController {
     /**
      * 构造代付明细对象
      */
-    private PlatProxyDetail buildProxyDetail(Row row,int k,PlatProxyBatch proxyBatch,BigDecimal fee,Set<String> bankCodeSet,Set<String> seqSet){
+    private PlatProxyDetail buildProxyDetail(Row row, int k, PlatProxyBatch proxyBatch, BigDecimal fee, Map<String, String> platBankMap, Set<String> seqSet) {
         String bankCity = null;
         String batchId = proxyBatch.getId();
         String mchtId = proxyBatch.getMchtId();
@@ -633,54 +658,54 @@ public class ProxyOrderController extends BaseController {
         //序号
         Cell cell0 = row.getCell(0);
         seq = getStringData(cell0).trim();
-        if(cell0==null || StringUtils.isBlank(seq)){
-            throw new RuntimeException("第"+k+"行的序号为空!");
+        if (cell0 == null || StringUtils.isBlank(seq)) {
+            throw new RuntimeException("第" + k + "行的序号为空!");
         }
-        if(seqSet.contains(seq)){
-            throw new RuntimeException("第"+k+"行的序号重复!");
+        if (seqSet.contains(seq)) {
+            throw new RuntimeException("第" + k + "行的序号重复!");
         }
         seqSet.add(seq);
 
         //收款人卡号
         Cell cell1 = row.getCell(1);
         bankCardNo = getStringData(cell1).trim();
-        if(cell1==null || StringUtils.isBlank(bankCardNo)){
-            throw new RuntimeException("第"+k+"行的收款人卡号为空!");
+        if (cell1 == null || StringUtils.isBlank(bankCardNo)) {
+            throw new RuntimeException("第" + k + "行的收款人卡号为空!");
         }
         //收款人户名
         Cell cell2 = row.getCell(2);
         bankCardName = getStringData(cell2).trim();
-        if(cell2==null || StringUtils.isBlank(bankCardName)){
-            throw new RuntimeException("第"+k+"行的收款人户名为空!");
+        if (cell2 == null || StringUtils.isBlank(bankCardName)) {
+            throw new RuntimeException("第" + k + "行的收款人户名为空!");
         }
         //身份证号
         Cell cell3 = row.getCell(3);
         certId = getStringData(cell3).trim();
-        if(cell3==null || StringUtils.isBlank(certId)){
-            throw new RuntimeException("第"+k+"行的收款人身份证号为空!");
+        if (cell3 == null || StringUtils.isBlank(certId)) {
+            throw new RuntimeException("第" + k + "行的收款人身份证号为空!");
         }
         //银行编码
         Cell cell4 = row.getCell(4);
         bankCode = getStringData(cell4).trim();
-        if(cell4==null || StringUtils.isBlank(bankCode)){
-            throw new RuntimeException("第"+k+"行的收款人银行编码为空!");
-        }else{
-            if(!bankCodeSet.contains(bankCode)){
-                throw new RuntimeException("第"+k+"行的收款人银行编码错误!");
+        if (cell4 == null || StringUtils.isBlank(bankCode)) {
+            throw new RuntimeException("第" + k + "行的收款人银行编码为空!");
+        } else {
+            if (!platBankMap.containsKey(bankCode)) {
+                throw new RuntimeException("第" + k + "行的收款人银行编码错误!");
             }
         }
 
         //金额
         Cell cell5 = row.getCell(5);
         amount = new BigDecimal(getStringData(cell5).trim());
-        if(cell5==null){
-            throw new RuntimeException("第"+k+"行的代付金额为空!");
-        }else{
-            if(amount.compareTo(BigDecimal.valueOf(30)) == -1){
-                throw new RuntimeException("第"+k+"行的代付金额不能小于30元!");
+        if (cell5 == null) {
+            throw new RuntimeException("第" + k + "行的代付金额为空!");
+        } else {
+            if (amount.compareTo(BigDecimal.valueOf(30)) == -1) {
+                throw new RuntimeException("第" + k + "行的代付金额不能小于30元!");
             }
-            if(amount.compareTo(BigDecimal.valueOf(50000)) == 1){
-                throw new RuntimeException("第"+k+"行的代付金额大于50000元!");
+            if (amount.compareTo(BigDecimal.valueOf(50000)) == 1) {
+                throw new RuntimeException("第" + k + "行的代付金额大于50000元!");
             }
         }
 
@@ -689,15 +714,14 @@ public class ProxyOrderController extends BaseController {
         bankCity = getStringData(cell6).trim();
 
         //银行名称
-        Cell cell7 = row.getCell(7);
-        bankName = getStringData(cell7).trim();
-        if(cell7==null || StringUtils.isBlank(bankName)){
-            throw new RuntimeException("第"+k+"行的开户行名称为空!");
+        bankName = platBankMap.get(bankCode);
+        if (StringUtils.isBlank(bankName)) {
+            throw new RuntimeException("第" + k + "行的开户行名称错误!");
         }
 
         //附言
-        Cell cell8 = row.getCell(8);
-        remark = getStringData(cell8).trim();
+        Cell cell7 = row.getCell(7);
+        remark = getStringData(cell7).trim();
 
         //创建明细对象
         PlatProxyDetail detail = new PlatProxyDetail();
@@ -725,11 +749,11 @@ public class ProxyOrderController extends BaseController {
     /**
      * 查询平台银行code
      */
-    private Set<String> getBankCodeSet(){
-        Set<String> bankCodeSet = new HashSet<>();
-        for(PlatBank bank : platBankService.list(new PlatBank())){
-            bankCodeSet.add(bank.getBankCode());
+    private Map<String, String> getPlatBankMap() {
+        Map<String, String> map = new HashMap<String, String>();
+        for (PlatBank bank : platBankService.list(new PlatBank())) {
+            map.put(bank.getBankCode(), bank.getBankName());
         }
-        return bankCodeSet;
+        return map;
     }
 }
