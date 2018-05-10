@@ -93,9 +93,6 @@
     <servlet-name>ValidateCodeServlet</servlet-name>
     <url-pattern>/servlet/validateCodeServlet</url-pattern>
   </servlet-mapping>
-  <session-config>
-    <session-timeout>20</session-timeout>
-  </session-config>
   <error-page>
     <exception-type>java.lang.Throwable</exception-type>
     <location>/WEB-INF/views/error/500.jsp</location>
@@ -108,4 +105,14 @@
     <error-code>404</error-code>
     <location>/WEB-INF/views/error/404.jsp</location>
   </error-page>
+  <session-config>
+    <!--session失效时间，单位分钟-->
+    <session-timeout>30</session-timeout>
+    <cookie-config>
+      <name>payManageAdminSessionId</name>
+      <domain>localhost</domain>
+      <path>/</path>
+    </cookie-config>
+    <tracking-mode>COOKIE</tracking-mode>
+  </session-config>
 </web-app>
