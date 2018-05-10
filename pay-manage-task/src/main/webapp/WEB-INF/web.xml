@@ -34,8 +34,6 @@
     <session-timeout>30</session-timeout>
     <cookie-config>
       <name>payManageTaskSessionId</name>
-      <domain>localhost</domain>
-      <path>/</path>
     </cookie-config>
     <tracking-mode>COOKIE</tracking-mode>
   </session-config>
