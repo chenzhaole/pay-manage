@@ -19,19 +19,14 @@ import com.sys.core.service.MchtGwOrderService;
 import com.sys.core.service.MerchantService;
 import com.sys.gateway.service.GwRecNotifyService;
 import com.sys.gateway.service.GwSendNotifyService;
-import com.sys.trans.api.entry.Config;
-import com.sys.trans.api.entry.Order;
-import com.sys.trans.api.entry.QuickPay;
-import com.sys.trans.api.entry.Trade;
+import com.sys.trans.api.entry.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
+
+import java.util.*;
 
 /**
  * @Description:网关支付业务处理实现类
@@ -74,9 +69,21 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             logger.info(BIZ+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",异步通知商户信息为："+content);
             String mchtRes = HttpUtil.postConnManager(url, content, contentType, "UTF-8", "UTF-8");
             logger.info(BIZ+"商户订单号："+mchtOrderId+"，平台订单号："+platOrderId+",异步通知商户信息为："+content+",商户返回的结果为："+mchtRes);
+
+            //补发通知成功后，修改补发状态
+            MchtGatewayOrder order = new MchtGatewayOrder();
+            order.setSuffix(IdUtil.getPlatOrderIdSuffix(platOrderId));
+            MchtGatewayOrder selectiveOrder = new MchtGatewayOrder();
+            selectiveOrder.setPlatOrderId(platOrderId);
             if ("SUCCESS".equals(mchtRes)) {
                 commonResult.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
+                //补单是否成功:0：成功，1：失败
+                order.setSupplyStatus("0");
+            }else{
+                //补单是否成功:0：成功，1：失败
+                order.setSupplyStatus("1");
             }
+            mchtGwOrderService.updateBySelective(order,selectiveOrder);
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(BIZ+"异步通知商户系统异常,e.msg:" + e.getMessage());
@@ -84,6 +91,20 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         }
         logger.info(BIZ+"异步通知商户信息后返回给上层的commonResult："+content+",请求参数源CacheTrade为："+JSONObject.toJSONString(cacheTrade));
         return commonResult;
+    }
+
+    private int updateDbStatus(String platOrderId, Result result){
+        MchtGatewayOrder order = new MchtGatewayOrder();
+
+        if(StringUtils.isNotBlank(result.getRespMsg())){
+            order.setChan2platResMsg(result.getRespMsg());
+        }
+        order.setSuffix(IdUtil.getPlatOrderIdSuffix(platOrderId));
+        order.setUpdateTime(new Date());
+
+        MchtGatewayOrder selectiveOrder = new MchtGatewayOrder();
+        selectiveOrder.setPlatOrderId(platOrderId);
+        return mchtGwOrderService.updateBySelective(order,selectiveOrder);
     }
 
     /**
