@@ -389,4 +389,5 @@ public class MerchantController extends BaseController {
 		response.setCharacterEncoding("UTF-8");
 		return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 	}
+
 }

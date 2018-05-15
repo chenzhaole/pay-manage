@@ -29,6 +29,8 @@ import com.sys.core.dao.dmo.PlatSdkConfig;
 import com.sys.core.service.ChanMchtPaytypeService;
 import com.sys.core.service.ConfigSysService;
 import com.sys.core.service.PlatSDKService;
+import org.apache.commons.beanutils.BeanComparator;
+import org.apache.commons.collections.comparators.ComparatorChain;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -40,7 +42,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.text.Collator;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 
@@ -540,6 +545,9 @@ public class PlatformController {
 				}
 			}
 		}
+
+		//根据名称排序
+		Collections3.sortByName(mchtInfosResult, "name");
 		model.addAttribute("mchtInfos", mchtInfosResult);
 
 		model.addAttribute("productInfos", productFormInfos);
@@ -583,6 +591,8 @@ public class PlatformController {
 				}
 			}
 		}
+		//根据名称排序
+		Collections3.sortByName(mchtInfosResult, "name");
 		model.addAttribute("mchtInfos", mchtInfosResult);
 
 		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();

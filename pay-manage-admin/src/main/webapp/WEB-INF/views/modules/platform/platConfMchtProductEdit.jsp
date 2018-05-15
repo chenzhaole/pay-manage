@@ -14,19 +14,6 @@
         }
     </style>
     <script type="text/javascript">
-        
-        // function rateOrAmount() {
-        //     if ( $("#feeType").val() === "1"){
-        //         $("#feeRate").attr("disabled", "disabled");
-        //         $("#feeAmount").attr("disabled", false);
-        //     }else if ($("#feeType").val() === "2") {
-        //         $("#feeAmount").attr("disabled", "disabled");
-        //         $("#feeRate").attr("disabled", false);
-        //     } else if ($("#feeType").val() === "3") {
-        //         $("#feeAmount").attr("disabled", false);
-        //         $("#feeRate").attr("disabled", false);
-        //     }
-        // }
 
         //商户信息级联
         function mchtChange() {
@@ -39,18 +26,21 @@
             }else {
                 mchtStatus = "禁用"
             }
-            $("#mchtCode").val(code);
-            $("#mchtStatus").val(mchtStatus);
-            $("#description").val(description);
+            $("#mchtCode").html(code);
+            $("#mchtStatus").html(mchtStatus);
+            $("#description").html(description);
         }
 
         //商户信息级联
         function productChange() {
             var code = $("#productId").find("option:selected").data("productcode");
-            $("#productCode").val(code);
+            $("#productCode").html(code);
         }
 
         $(function () {
+
+            mchtChange();
+
             $("#mchtProductForm").validate({
                 debug: true, //调试模式取消submit的默认提交功能
                 //errorClass: "label.error", //默认为错误的样式类为：error
@@ -136,7 +126,7 @@
     <table class="table">
         <tr>
 
-            <td>
+            <td width="33%">
                 <div class="control-group">
                     <label class="control-label">商户名称</label>
                     <div class="controls">
@@ -154,12 +144,11 @@
                 </div>
             </td>
 
-            <td>
+            <td width="33%">
                 <div class="control-group">
                     <label class="control-label">商户编码</label>
                     <div class="controls">
-                        <input name="mchtCode" placeholder="" value="${productInfo.mchtCode}"
-                               class="input-medium" type="text" id="mchtCode" readonly="readonly"/>
+                        <label id="mchtCode">${productInfo.mchtCode}</label>
                     </div>
                 </div>
             </td>
@@ -168,11 +157,8 @@
                     <label class="control-label">商户状态</label>
                       <div class="control-group">
                         <div class="controls">
-                        <select name="mchtStatus" class="input-medium" id="status" disabled="disabled">
-                            <option <c:if test="${mchtInfo.status == '1'}"> selected</c:if> value="1">启用</option>
-                            <option <c:if test="${mchtInfo.status == '2'}"> selected</c:if> value="2">无效</option>
-                            <option <c:if test="${mchtInfo.status == '3'}"> selected</c:if> value="3">待审核</option>
-                        </select>
+                            <label id="mchtStatus">
+                            </label>
                         </div>
                       </div>
                 </div>
@@ -180,7 +166,7 @@
             <%--<td>--%>
                 <%--<div class="control-group">--%>
                     <%--<label class="control-label">说明</label>--%>
-                    <%--<div class="controls">--%>
+                    <%--<di v class="controls">--%>
                         <%--<textarea name="description" class="input-xlarge" id="description" readonly></textarea>--%>
                     <%--</div>--%>
                 <%--</div>--%>
@@ -209,7 +195,7 @@
                     <%--</div>--%>
                 <%--</div>--%>
             <%--</td>--%>
-            <td>
+            <td width="33%">
                 <div class="control-group">
                     <label class="control-label">支付产品</label>
                     <div class="controls">
@@ -225,18 +211,28 @@
                 </div>
             </td>
 
-            <td>
+            <td width="33%">
                 <div class="control-group">
                     <label class="control-label">产品编码</label>
                     <div class="controls">
-                        <input name="productCode" placeholder="" value="${productInfo.productCode}"
-                               class="input-medium" type="text" id="productCode"  readonly="readonly"/>
+                        <label class="control-label" id="productCode" >${productInfo.productCode}</label>
                     </div>
                 </div>
             </td>
+        </tr>
+    </table>
+
+        <!-- ********************************************************************** -->
+        <div class="breadcrumb">
+            <label>商户产品</label>
+        </div>
+        <tags:message content="${message}" type="${messageType}"/>
+        <table class="table" id="payTypeTable">
+            <tr>
+
             <td>
                 <div class="control-group">
-                    <label class="control-label">状态</label>
+                    <label class="control-label">此商户产品状态</label>
                     <div class="controls">
                         <select name="isValid" class="input-xlarge" id="isValid">
                             <option <c:if test="${productInfo.isValid == 1}">selected</c:if> value="1">启用</option>
