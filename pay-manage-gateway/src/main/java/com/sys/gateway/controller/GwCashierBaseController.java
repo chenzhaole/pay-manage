@@ -3,7 +3,10 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.*;
+import com.sys.common.util.DesUtil32;
+import com.sys.common.util.IdUtil;
 import com.sys.common.util.NumberUtils;
+import com.sys.common.util.SignUtil;
 import com.sys.gateway.common.ConfigUtil;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -13,6 +16,7 @@ import org.springframework.ui.Model;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -157,7 +161,7 @@ public class GwCashierBaseController {
         model.addAttribute("mchtId", mchtId);
         model.addAttribute("goods", goods);
         model.addAttribute("mchtOrderId", mchtOrderId);
-        String countdownTime  = ConfigUtil.getValue("qrCode.countdownTime");
+        String countdownTime  = String.valueOf(resultInfo.getCountdownTime());
         model.addAttribute("countdownTime", countdownTime);
 
         logger.info(midoid+",pc页面非收银台支付方式需要的参数："+JSONObject.toJSONString(model));
@@ -203,9 +207,15 @@ public class GwCashierBaseController {
     private String geneQrcodeUrl(String qrCodeDomain, String qrCodepayInfo, String midoid) {
         String payInfo = "";
         try {
+            String seq = IdUtil.getUUID();
             String url = "http://"+qrCodeDomain+"/qrCode/gen";
-            payInfo = url + "?uuid=" + URLEncoder.encode(qrCodepayInfo, "UTF-8");
-        } catch (UnsupportedEncodingException e) {
+            Map<String, String> desData = new HashMap();
+            desData.put("seq", seq);
+            desData.put("qrCodepayInfo", qrCodepayInfo);
+            String desResult = DesUtil32.encode(JSONObject.toJSONString(desData), "Zhrt2018");
+            logger.info("生成二维码之前对数据进行des加密，密钥为：Zhrt2018"+"，加密后的值为："+desResult);
+            payInfo = url + "?uuid=" + URLEncoder.encode(qrCodepayInfo, "UTF-8")+"&seq="+seq+"&data="+desResult;
+        } catch (Exception e) {
             e.printStackTrace();
         }
         logger.info(midoid+"，扫码支付，自己封装的二维码url："+payInfo);
@@ -224,7 +234,7 @@ public class GwCashierBaseController {
         JSONObject jsonObject = new JSONObject();
         jsonObject.put("payInfo", payInfo);
         jsonObject.put("platOrderId", platOrderId);
-        String countdownTime = ConfigUtil.getValue("qrCode.countdownTime");
+        String countdownTime = String.valueOf(result.getCountdownTime());
         jsonObject.put("countdownTime",countdownTime);
         jsonObject.put("payType",payType);
         String data = jsonObject.toString();

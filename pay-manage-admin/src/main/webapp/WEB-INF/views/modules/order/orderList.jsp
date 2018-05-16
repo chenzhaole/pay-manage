@@ -66,23 +66,23 @@
 		   $(content).remove();
         }
 
-        function supplyNotify(orderId,suffix){
-            if(confirm("确认补发通知吗？")){
-                $.ajax({
-                    url:'${ctx}/order/supplyNotify',
-                    type:'POST', //GET
-                    async:true,    //或false,是否异步
-                    data:{
-                        'orderId':orderId,'suffix':suffix
-                    },
-                    timeout:5000,    //超时时间
-                    dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
-                    success:function(data){
-                        alert(data);
-                    }
-                });
-			}
-		}
+        <%--function supplyNotify(orderId,suffix){--%>
+            <%--if(confirm("确认补发通知吗？")){--%>
+                <%--$.ajax({--%>
+                    <%--url:'${ctx}/order/supplyNotify',--%>
+                    <%--type:'POST', //GET--%>
+                    <%--async:true,    //或false,是否异步--%>
+                    <%--data:{--%>
+                        <%--'orderId':orderId,'suffix':suffix--%>
+                    <%--},--%>
+                    <%--timeout:5000,    //超时时间--%>
+                    <%--dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text--%>
+                    <%--success:function(data){--%>
+                        <%--alert(data);--%>
+                    <%--}--%>
+                <%--});--%>
+			<%--}--%>
+		<%--}--%>
 
 	</script>
 </head>
@@ -265,10 +265,9 @@
 	<table id="contentTable" class="table table-striped table-bordered table-condensed table-hover" style="word-wrap:break-word; word-break:break-all;">
 		<thead>
 			<tr >
-				<th >商户名称</th>
-				<th >上游通道</th>
+				<th>商户名称</th>
+				<th>通道商户支付方式</th>
 				<th>产品名称</th>
-				<th>支付类型</th>
 				<th>商户订单号</th>
 				<th>平台订单号</th>
 				<th>上游通道订单号</th>
@@ -286,9 +285,8 @@
 		<c:forEach items="${page.list}" var="orderInfo">
 			<tr>
 				<td>${orderInfo.mchtCode}</td>
-				<td>${orderInfo.chanCode}</td>
+				<td>${orderInfo.chanMchtPaytypeId}</td>
 				<td>${orderInfo.platProductId}</td>
-				<td>${fns:getDictLabel(orderInfo.payType, "pay_type","" )}</td>
 				<td>${orderInfo.mchtOrderId}</td>
 				<td><a href="${ctx}/order/detail?id=${orderInfo.id}
 				&beginDate=<fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>">
@@ -305,9 +303,9 @@
 				<td><fmt:formatDate value="${orderInfo.updateTime}"  pattern="yyyy-MM-dd  HH:mm:ss"/></td>
 				<shiro:hasPermission name="order:list:op">
 				<td>
-					<a href="javascript:void(0);" onclick="supplyNotify('${orderInfo.id}','<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>')">补发通知</a>
-					|
-					<a href="${ctx}/order/querySupply?orderId=${orderInfo.id}">查单</a>
+					<c:if test="${orderInfo.status == '2'}">
+					<a href="${ctx}/order/supplyNotify?orderId=${orderInfo.id}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>">补发通知</a> </c:if>
+					<c:if test="${orderInfo.status != '2'}"><a href="${ctx}/order/querySupply?orderId=${orderInfo.id}">|查单|</a></c:if>
 						<%--|
                         <a href="${ctx}/process/question/form?orderId=${orderInfo.id}">同步状态</a>  --%>
 				</td>

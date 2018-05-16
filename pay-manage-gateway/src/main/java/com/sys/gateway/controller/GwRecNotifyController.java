@@ -6,6 +6,7 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PageTypeEnum;
 import com.sys.common.util.BeanUtils;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.service.GwRecNotifyService;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLDecoder;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.TreeMap;
@@ -57,28 +59,33 @@ public class GwRecNotifyController {
         logger.info(BIZ+" data数据 [START] chanCode=" + chanCode + " platOrderId=" + platOrderId + " 异步通知原始报文data="+ data + "");
 
         String resp2chan = "FAILURE";
-        //解析并校验签名上游通道异步通知的数据
-        CommonResult tradeResult = recNotifyService.reciveNotify(chanCode, platOrderId, payType, data);
-        if(ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode()) || ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())){
-            //解析通道数据成功,更新数据库订单状态成功
-            //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
-            resp2chan = tradeResult.getRespMsg();
-            //数据不为空，才会给商户通知
-            if(null != tradeResult.getData()){
-                //通知商户信息源
-                CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
-                logger.info(BIZ+platOrderId+"，bossTrade查询的缓存订单Trade对象:"+JSON.toJSONString(redisOrderTrade));
-                CommonResult serviceResult = sendNotifyService.sendNotify(payType,redisOrderTrade);
-                if(ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())){
-                    logger.info(BIZ+platOrderId+"，通知商户成功");
-                }else{
-                    logger.info(BIZ+platOrderId+"，通知商户失败");
+        try {
+            data = URLDecoder.decode(data, "utf-8");
+            //解析并校验签名上游通道异步通知的数据
+            CommonResult tradeResult = recNotifyService.reciveNotify(chanCode, platOrderId, payType, data);
+            if (ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode()) || ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())) {
+                //解析通道数据成功,更新数据库订单状态成功
+                //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
+                resp2chan = tradeResult.getRespMsg();
+                //数据不为空，才会给商户通知
+                if (null != tradeResult.getData()) {
+                    //通知商户信息源
+                    CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
+                    logger.info(BIZ + platOrderId + "，bossTrade查询的缓存订单Trade对象:" + JSON.toJSONString(redisOrderTrade));
+                    CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
+                    if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
+                        logger.info(BIZ + platOrderId + "，通知商户成功");
+                    } else {
+                        logger.info(BIZ + platOrderId + "，通知商户失败");
+                    }
                 }
+            } else {
+                logger.info(BIZ + platOrderId + "，bossTrade处理上游通道异步通知请求失败." + JSON.toJSONString(tradeResult));
             }
-        }else{
-            logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error(BIZ+platOrderId+"接收上游通道异步通知请求异常："+e.getMessage());
         }
-
         logger.info(BIZ+platOrderId+"，接收上游通道异步通知接口data数据 [END],返回通道响应信息为: "+resp2chan);
         return resp2chan;
     }
@@ -91,42 +98,45 @@ public class GwRecNotifyController {
     @RequestMapping("/recNotify/param/{chanCode}/{platOrderId}/{payType}")
     @ResponseBody
     public String recNotifyParam(HttpServletRequest request, HttpServletResponse response, @PathVariable String chanCode, @PathVariable String platOrderId, @PathVariable String payType) throws TransException {
-
-        TreeMap<String, String> dataMap = new TreeMap<String, String>();
-        Enumeration<?> temp = request.getParameterNames();
-        if (null != temp) {
-            while (temp.hasMoreElements()) {
-                String en = (String) temp.nextElement();
-                String value = request.getParameter(en);
-                dataMap.put(en, value);
-            }
-        }
-        String data = JSON.toJSONString(dataMap);
-        logger.info(BIZ+" parameter数据 [START] chanCode=" + chanCode + " platOrderId=" + platOrderId + " 异步通知原始报文data="+ data + "");
-        logger.info(BIZ+"[START] data=" + data);
         String resp2chan = "FAILURE";
-        //解析并校验签名上游通道异步通知的数据
-        CommonResult tradeResult = recNotifyService.reciveNotify(chanCode, platOrderId, payType, data);
-        if(ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode())|| ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())){
-            //解析通道数据成功,更新数据库订单状态成功
-            //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
-            resp2chan = tradeResult.getRespMsg();
-            //数据不为空，才会给商户通知
-            if(null != tradeResult.getData()) {
-                //通知商户信息源
-                CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
-                logger.info(BIZ + platOrderId + "，bossTrade查询的缓存订单Trade对象:" + JSON.toJSONString(redisOrderTrade));
-                CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
-                if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
-                    logger.info(BIZ + platOrderId + "，通知商户成功");
-                } else {
-                    logger.info(BIZ + platOrderId + "，通知商户失败");
+        try {
+            TreeMap<String, String> dataMap = new TreeMap<String, String>();
+            Enumeration<?> temp = request.getParameterNames();
+            if (null != temp) {
+                while (temp.hasMoreElements()) {
+                    String en = (String) temp.nextElement();
+                    String value = request.getParameter(en);
+                    dataMap.put(en, value);
                 }
             }
-        }else{
-            logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
+            String data = JSON.toJSONString(dataMap);
+            logger.info(BIZ+" parameter数据 [START] chanCode=" + chanCode + " platOrderId=" + platOrderId + " 异步通知原始报文data="+ data + "");
+            logger.info(BIZ+"[START] data=" + data);
+            //解析并校验签名上游通道异步通知的数据
+            CommonResult tradeResult = recNotifyService.reciveNotify(chanCode, platOrderId, payType, data);
+            if(ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode())|| ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())){
+                //解析通道数据成功,更新数据库订单状态成功
+                //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
+                resp2chan = tradeResult.getRespMsg();
+                //数据不为空，才会给商户通知
+                if(null != tradeResult.getData()) {
+                    //通知商户信息源
+                    CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
+                    logger.info(BIZ + platOrderId + "，bossTrade查询的缓存订单Trade对象:" + JSON.toJSONString(redisOrderTrade));
+                    CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
+                    if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
+                        logger.info(BIZ + platOrderId + "，通知商户成功");
+                    } else {
+                        logger.info(BIZ + platOrderId + "，通知商户失败");
+                    }
+                }
+            }else{
+                logger.info(BIZ+platOrderId+"，bossTrade处理上游通道异步通知请求失败."+JSON.toJSONString(tradeResult));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error(BIZ+platOrderId+"接收上游通道异步通知请求异常："+e.getMessage());
         }
-
         logger.info(BIZ+platOrderId+"，接收上游通道异步通知接口parameter数据 [END],返回通道响应: "+resp2chan);
         return resp2chan;
     }
@@ -141,25 +151,28 @@ public class GwRecNotifyController {
         logger.info("模拟商户接收异步通知，收到的data="+ data);
         String ret = "FAIL";
         String mchtOrdertId = "";
-        if(StringUtils.isBlank(data)){
-          logger.info("模拟商户接收异步通知，收到的data = null");
-        }else{
-            TradeNotifyResponse tradeNotifyResponse = JSON.parseObject(data, TradeNotifyResponse.class);
-            mchtOrdertId = tradeNotifyResponse.getBody().getOrderId();
-            String retSign = tradeNotifyResponse.getSign();
-                logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的tradeNotifyResponse="+JSONObject.toJSONString(tradeNotifyResponse));
-            String sign = "";
-            try {
-                TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(tradeNotifyResponse.getBody());
-                logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名key="+mchtKey+"，签名treeMap="+ treeMap);
-                sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
-                logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名结果sign="+ sign);
-            } catch (Exception e) {
-                e.printStackTrace();
+        try {
+            if(StringUtils.isBlank(data)){
+              logger.info("模拟商户接收异步通知，收到的data = null");
+            }else{
+                data = URLDecoder.decode(data,"utf-8");
+                TradeNotifyResponse tradeNotifyResponse = JSON.parseObject(data, TradeNotifyResponse.class);
+                mchtOrdertId = tradeNotifyResponse.getBody().getOrderId();
+                String retSign = tradeNotifyResponse.getSign();
+                    logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的tradeNotifyResponse="+JSONObject.toJSONString(tradeNotifyResponse));
+                String sign = "";
+                    TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(tradeNotifyResponse.getBody());
+                    logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名key="+mchtKey+"，签名treeMap="+ treeMap);
+                    sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
+                    logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名结果sign="+ sign);
+
+                if(sign.equals(retSign)){
+                    ret = "SUCCESS";
+                }
             }
-            if(sign.equals(retSign)){
-                ret = "SUCCESS";
-            }
+        } catch (Exception e) {
+             e.printStackTrace();
+            logger.error("商户订单号："+mchtOrdertId+"模拟商户接收异步通知请求异常："+e.getMessage());
         }
         logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知,返回的结果="+ ret);
         return ret;

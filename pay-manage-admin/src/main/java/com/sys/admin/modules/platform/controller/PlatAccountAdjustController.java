@@ -1,14 +1,19 @@
 package com.sys.admin.modules.platform.controller;
 
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.platform.bo.PlatAccountAdjustBO;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.boss.api.entry.cache.CacheMcht;
+import com.sys.boss.api.entry.cache.CacheMchtAccount;
+import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.AuditEnum;
-import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.enums.FeeTypeEnum;
+import com.sys.common.enums.MchtAccountTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
@@ -30,6 +35,10 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -133,7 +142,7 @@ public class PlatAccountAdjustController extends BaseController {
      */
     @RequestMapping("save")
     @RequiresPermissions("platform:adjust:apply")
-    public String save(PlatAccountAdjust platAccountAdjust){
+    public String save(PlatAccountAdjust platAccountAdjust, RedirectAttributes redirectAttributes){
         Long operatorId =  UserUtils.getUser().getId();
         String operatorName = UserUtils.getUser().getName();
         platAccountAdjust.setCreatorId(operatorId.toString());
@@ -152,8 +161,19 @@ public class PlatAccountAdjustController extends BaseController {
         platAccountAdjust.setId(IdUtil.createCommonId());
         platAccountAdjust.setUpdateTime(new Date());
         platAccountAdjust.setCreateTime(new Date());
-        platAccountAdjustService.create(platAccountAdjust);
+        int result = platAccountAdjustService.create(platAccountAdjust);
 
+        String message, messageType;
+        if (result == 1) {
+            message = "保存成功";
+            messageType = "success";
+        } else {
+            message = "保存失败";
+            messageType = "error";
+        }
+
+        redirectAttributes.addFlashAttribute("messageType", messageType);
+        redirectAttributes.addFlashAttribute("message", message);
         return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/adjust/list";
     }
 
@@ -162,7 +182,7 @@ public class PlatAccountAdjustController extends BaseController {
      */
     @RequestMapping("audit")
     @RequiresPermissions("platform:adjust:audit")
-    public String audit(PlatAccountAdjust platAccountAdjust){
+    public String audit(PlatAccountAdjust platAccountAdjust, RedirectAttributes redirectAttributes){
         Long operatorId =  UserUtils.getUser().getId();
         String operatorName = UserUtils.getUser().getName();
 
@@ -170,7 +190,35 @@ public class PlatAccountAdjustController extends BaseController {
         platAccountAdjust.setAuditorName(operatorName);
         platAccountAdjust.setAuditTime(new Date());
         platAccountAdjust.setUpdateTime(new Date());
-        platAccountAdjustService.saveByKey(platAccountAdjust);
+        int result = platAccountAdjustService.saveByKey(platAccountAdjust);
+
+        String message, messageType;
+        if (result == 1) {
+            message = "保存成功";
+            messageType = "success";
+
+            if (AuditEnum.AUDITED.getCode().equals(platAccountAdjust.getAuditStatus())){
+
+                CacheMchtAccount cacheMchtAccount =  new CacheMchtAccount();
+
+                CacheMcht cacheMcht = new CacheMcht();
+                cacheMcht.setMchtId(platAccountAdjust.getMchtId());
+                cacheMchtAccount.setCacheMcht(cacheMcht);
+
+                cacheMchtAccount.setType(Integer.valueOf(MchtAccountTypeEnum.ADJUSTMENT_ACCOUNT.getCode()));
+                cacheMchtAccount.setPlatAccountAdjust(platAccountAdjust);
+
+
+                logger.info("调账ID："+platAccountAdjust.getId()+"，调账功能（插入CacheMchtAccount）信息为："+JSONObject.toJSONString(cacheMchtAccount));
+                insertMchtAccountInfo2redis(cacheMchtAccount);
+            }
+        } else {
+            message = "保存失败";
+            messageType = "error";
+        }
+
+        redirectAttributes.addFlashAttribute("messageType", messageType);
+        redirectAttributes.addFlashAttribute("message", message);
         return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/adjust/list";
     }
 
@@ -188,6 +236,25 @@ public class PlatAccountAdjustController extends BaseController {
         response.setContentType(contentType);
         response.setCharacterEncoding("utf-8");
         response.getWriter().print(balance.stripTrailingZeros().toPlainString());
+    }
+
+    protected void insertMchtAccountInfo2redis(CacheMchtAccount cacheMchtAccount) {
+        JedisPool pool = null;
+        Jedis jedis = null;
+        try {
+            pool = JedisConnPool.getPool("缓存插入cacheMchtAccount信息");
+            jedis = pool.getResource();
+            long rsPay = jedis.lpush(IdUtil.REDIS_ACCT_MCHT_ACCOUNT_TASK_LIST, JSON.toJSONString(cacheMchtAccount));
+            System.out.println("插入了一个新的任务： rsPay = " + rsPay);
+        } catch (JedisConnectionException je) {
+            je.printStackTrace();
+            logger.error("Redis Jedis连接异常：" + je.getMessage());
+        } catch (Exception e) {
+            logger.info("<insertData-error>error[" + e.getMessage() + "]</insertData-error>");
+            e.printStackTrace();
+        } finally {
+            JedisConnPool.returnResource(pool, jedis, "");
+        }
     }
 
 }

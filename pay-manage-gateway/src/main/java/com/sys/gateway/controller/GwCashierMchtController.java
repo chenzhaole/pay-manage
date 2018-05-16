@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.io.UnsupportedEncodingException;
@@ -41,9 +42,9 @@ public class GwCashierMchtController extends GwCashierBaseController {
     private static final String BIZ = "网页支付GwCashierMchtController，商户发起支付请求->";
 
 	/**
-	 * 处理商户请求
+	 * 处理商户请求,仅支持Post请求
 	 */
-	@RequestMapping(value="mchtCall")
+	@RequestMapping(value="mchtCall", method = RequestMethod.POST)
 	public String mchtCall(HttpServletRequest request, Model model) throws Exception {
 		CommonResult result = new CommonResult();
         result.setRespCode(ErrorCodeEnum.FAILURE.getCode());
@@ -59,17 +60,12 @@ public class GwCashierMchtController extends GwCashierBaseController {
         String mobile = "";
 		try {
 			midoid = "商户号："+request.getParameter("mchtId")+"-->支付类型："+request.getParameter("biz")+"-->商户订单号："+request.getParameter("orderId")+"-->";
-			//设备类型 如果商户没有传，就由我们自己来通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
-			deviceType = request.getParameter("deviceType");
-			logger.info(BIZ+midoid+"请求参数中获取的deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+			//设备类型由我们自己来通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
 			//根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
 			String userAgent = this.getUserAgentInfoByRequest(request, midoid);
 			logger.info(BIZ+midoid+"根据请求头获取的user-agent为："+userAgent);
-			if(StringUtils.isEmpty(deviceType)){
-				logger.info(BIZ+midoid+"请求参数中未获取到deviceType，需要通过程序获取deviceType的值");
-				deviceType = HttpUtil.getDeviceType(userAgent);
-				logger.info(BIZ+midoid+"商户没传设备类型，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
-			}
+			deviceType = HttpUtil.getDeviceType(userAgent);
+			logger.info(BIZ+midoid+"通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 			TradeCashierRequest requestInfo = null;
 			//解析并校验商户请求参数
 			result = gwCashierService.resolveAndcheckParam(request);
@@ -180,12 +176,12 @@ public class GwCashierMchtController extends GwCashierBaseController {
     public String queryResult(HttpServletRequest request) throws Exception {
         String status = PayStatusEnum.CREATE_SUCCESS.getCode();
         String platOrderId = "";
-        String deviceType = "";
+//        String deviceType = "";
         try {
-			String userAgent = this.getUserAgentInfoByRequest(request, "");
-			logger.info("页面轮询，根据请求头获取的user-agent为："+userAgent);
-			deviceType = HttpUtil.getDeviceType(userAgent);
-			logger.info("页面轮询，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+//			String userAgent = this.getUserAgentInfoByRequest(request, "");
+//			logger.info("页面轮询，根据请求头获取的user-agent为："+userAgent);
+//			deviceType = HttpUtil.getDeviceType(userAgent);
+//			logger.info("页面轮询，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
             String ip = IpUtil.getRemoteHost(request);
             platOrderId = request.getParameter("platOrderId");
             //调用handler处理业务
@@ -202,7 +198,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
             e.printStackTrace();
             logger.error(platOrderId+"页面轮训查单请求异常："+e.getMessage());
         }
-        logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询此订单结果，返回页面status="+status);
+//        logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询此订单结果，返回页面status="+status);
         return status;
     }
 	/**
@@ -217,6 +213,9 @@ public class GwCashierMchtController extends GwCashierBaseController {
 
 		paramMap.put("amount",request.getParameter("amount"));
 		System.out.println(request.getParameter("amount"));
+		paramMap.put("currencyType",request.getParameter("currencyType"));
+		System.out.println(request.getParameter("currencyType"));
+
 		if(StringUtils.isNotBlank(request.getParameter("appId"))){
 			paramMap.put("appId",request.getParameter("appId"));
 			System.out.println(request.getParameter("appId"));
