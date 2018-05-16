@@ -60,6 +60,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
             if (StringUtils.isBlank(body.getOrderId())
                     || StringUtils.isBlank(body.getOrderTime())
                     || StringUtils.isBlank(body.getAmount())
+                    || StringUtils.isBlank(body.getCurrencyType())
                     || StringUtils.isBlank(body.getGoods())
                     || StringUtils.isBlank(body.getNotifyUrl())
                     ) {
@@ -100,6 +101,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
         cashierRequestBody.setOrderId(request.getParameter("orderId"));
         cashierRequestBody.setOrderTime(request.getParameter("orderTime"));
         cashierRequestBody.setAmount(request.getParameter("amount"));
+        cashierRequestBody.setCurrencyType(request.getParameter("currencyType"));
         cashierRequestBody.setGoods(request.getParameter("goods"));
         cashierRequestBody.setNotifyUrl(request.getParameter("notifyUrl"));
         cashierRequestBody.setCallBackUrl(request.getParameter("callBackUrl"));
@@ -108,7 +110,6 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
         cashierRequestBody.setAppName(request.getParameter("appName"));
         cashierRequestBody.setOperator(request.getParameter("operator"));
         cashierRequestBody.setExpireTime(request.getParameter("expireTime"));
-        cashierRequestBody.setDeviceType(request.getParameter("deviceType"));
         cashierRequestBody.setOpenId(request.getParameter("openId"));
         cashierRequestBody.setIp(request.getParameter("ip"));
 

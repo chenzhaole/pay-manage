@@ -226,29 +226,56 @@ function pcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOrder
     if(paymentType == 'wx'){
         $("#wxqrcode").attr("src",payInfo);
         countDown(countDownTime,"wxTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime
+            queryResult(platOrderId, countDownTime, "wxTimeout");
+        }, 3000);
     }else if(paymentType == 'al'){
         $("#aliqrcode").attr("src",payInfo);
         countDown(countDownTime,"alTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime
+            queryResult(platOrderId, countDownTime, "alTimeout");
+        }, 3000);
     }else if(paymentType == 'qq'){
         $("#qqWalletQrcode").attr("src",payInfo);
         countDown(countDownTime,"qqTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime
+            queryResult(platOrderId, countDownTime, "qqTimeout");
+        }, 3000);
     }else if(paymentType == 'jd'){
         $("#jdqrcode").attr("src",payInfo);
         countDown(countDownTime,"jdTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime
+            queryResult(platOrderId, countDownTime, "jdTimeout");
+        }, 3000);
     }else if(paymentType == 'sn'){
         $("#snWalletQrcode").attr("src",payInfo);
         countDown(countDownTime,"snTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime
+            queryResult(platOrderId, countDownTime, "snTimeout");
+        }, 3000);
     }else if(paymentType == 'yl'){
         $("#unionQrCode").attr("src",payInfo);
         countDown(countDownTime,"ylTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime
+            queryResult(platOrderId, countDownTime, "ylTimeout");
+        }, 3000);
     }else if(paymentType == 'other_cardpay'){
         $("#other_cardpay").html(payInfo);
         //form表单提交
     }
-    //3秒后，开启轮询查单
-    setTimeout(function () {
-        queryResult(platOrderId);
-    }, 3000);
+
 }
 /**
  *  end pc收银台方式，点击某种支付方式后，开启倒计时，并开始轮询查单
@@ -265,19 +292,47 @@ function notPcCashierDownTimeAndStartQuery(paymentType, countdownTimeStr, platOr
 
     if(paymentType == 'wx'){
         countDown(countDownTime,"wxTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime秒
+            queryResult(platOrderId, countDownTime, "wxTimeout");
+        }, 3000);
     }else if(paymentType == 'al'){
         countDown(countDownTime,"alTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime秒
+            queryResult(platOrderId, countDownTime ,"alTimeout");
+        }, 3000);
     }else if(paymentType == 'qq'){
         countDown(countDownTime,"qqTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime秒
+            queryResult(platOrderId, countDownTime ,"qqTimeout");
+        }, 3000);
     }else if(paymentType == 'jd'){
         countDown(countDownTime,"jdTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime秒
+            queryResult(platOrderId, countDownTime ,"jdTimeout");
+        }, 3000);
     }else if(paymentType == 'sn'){
         countDown(countDownTime,"snTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime秒
+            queryResult(platOrderId, countDownTime ,"snTimeout");
+        }, 3000);
     }else if(paymentType == 'yl'){
         countDown(countDownTime,"ylTimeout",paymentType);
+        //3秒后，开启轮询查单
+        setTimeout(function () {
+            //查单时间-countDownTime秒
+            queryResult(platOrderId, countDownTime ,"ylTimeout");
+        }, 3000);
     }
-    //开启轮询查单
-    queryResult(platOrderId);
 
 }
 /**
@@ -349,8 +404,12 @@ function queryOrderStatus(platOrderId){
 /**
  *  start 页面轮询时使用，查询订单状态
  **/
-function queryResult(platOrderId){
-    if(platOrderId != null && platOrderId != ""){
+function queryResult(platOrderId, queryCountDownTime, queryPayType){
+    //获取当前时间戳
+    var nowTime = Date.parse(new Date())/1000;
+    //用预设时间戳-当前时间戳获得倒计时时间
+    var cdTime = queryCountDownTime-nowTime;
+    if (cdTime >= 1 && platOrderId != null && platOrderId != ""){
         $.ajax({
             type:"POST",
             url: "/gateway/cashier/queryResult",
@@ -361,7 +420,7 @@ function queryResult(platOrderId){
                 if(data == "2"){
                     refuse();
                 }else{
-                    setTimeout("queryResult('"+platOrderId+"')",1000);
+                    setTimeout("queryResult('"+platOrderId+"','"+queryCountDownTime+"')",1000);
                 }
             },
             error:function(){

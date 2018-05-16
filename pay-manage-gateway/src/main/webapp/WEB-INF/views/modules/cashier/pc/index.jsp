@@ -100,7 +100,7 @@
                                         <p>距离二维码过期还剩<span class="timeout" id="wxTimeout"></span></p>
                                         <div class="qrcode">
                                             <div class="overdue" onclick="javascript:reGetAsynQrCode('${paymentType}',this)">
-                                                二维码已过期,请重新获取
+                                                二维码过期,点击此处重新获取
                                             </div>
                                             <img src="${payInfo}" alt="" class="photo" id="wxqrcode"/>
                                             <div class="wx-tip clearfix">
@@ -126,7 +126,7 @@
                                     <p>距离二维码过期还剩<span class="timeout" id="alTimeout"></span></p>
                                     <div class="qrcode">
                                         <div class="overdue" onclick="javascript:reGetAsynQrCode('${paymentType}',this)">
-                                            二维码已过期,请重新获取
+                                            二维码过期,点击此处重新获取
                                         </div>
                                         <img src="${payInfo}" alt="" class="photo" id="aliqrcode"/>
                                         <div class="wx-tip clearfix">
@@ -144,7 +144,7 @@
                                     <p>距离二维码过期还剩<span class="timeout" id="qqTimeout"></span></p>
                                     <div class="qrcode">
                                         <div class="overdue" onclick="javascript:reGetAsynQrCode('${paymentType}',this)">
-                                            二维码已过期,请重新获取
+                                            二维码过期,点击此处重新获取
                                         </div>
 
                                         <img src="${payInfo}" alt="" class="photo" id="qqWalletQrcode"/>
@@ -163,7 +163,7 @@
                                     <p>距离二维码过期还剩<span class="timeout" id="jdTimeout"></span></p>
                                     <div class="qrcode">
                                         <div class="overdue" onclick="javascript:reGetAsynQrCode('${paymentType}',this)">
-                                            二维码已过期,请重新获取
+                                            二维码过期,点击此处重新获取
                                         </div>
                                         <img src="${payInfo}" alt="" class="photo" id="jdqrcode"/>
                                         <div class="wx-tip clearfix">
@@ -181,7 +181,7 @@
                                     <p>距离二维码过期还剩<span class="timeout" id="snTimeout"></span></p>
                                     <div class="qrcode">
                                         <div class="overdue" onclick="javascript:reGetAsynQrCode('${paymentType}',this)">
-                                            二维码已过期,请重新获取
+                                            二维码过期,点击此处重新获取
                                         </div>
 
                                         <img src="${payInfo}" alt="" class="photo" id="snWalletQrcode"/>
@@ -200,7 +200,7 @@
                                     <p>距离二维码过期还剩<span class="timeout" id="ylTimeout"></span></p>
                                     <div class="qrcode">
                                         <div class="overdue" onclick="javascript:reGetAsynQrCode('${paymentType}',this)">
-                                            二维码已过期,请重新获取
+                                            二维码过期,点击此处重新获取
                                         </div>
                                         <img src="${payInfo}" alt="" class="photo" id="unionQrCode"/>
                                         <div class="wx-tip clearfix union-tip">
@@ -303,7 +303,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=1.0.1"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=1.0.5"></script>
     <script src="${ctxStatic}/js/cardPay.js?v=1.0.0"></script>
     <script>
         /**
