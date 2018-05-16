@@ -20,6 +20,7 @@ import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.OrderAdminService;
 import com.sys.boss.api.service.order.OrderProxypay4ManageService;
+import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.Collections3;
@@ -27,8 +28,20 @@ import com.sys.common.util.DateUtils;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
-import com.sys.core.service.*;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.ChanMchtPaytype;
+import com.sys.core.dao.dmo.CpInfo;
+import com.sys.core.dao.dmo.MchtGatewayOrder;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.PlatProduct;
+import com.sys.core.service.ChanMchtPaytypeService;
+import com.sys.core.service.ChannelService;
+import com.sys.core.service.ConfigSysService;
+import com.sys.core.service.MchtGwOrderService;
+import com.sys.core.service.MchtProductService;
+import com.sys.core.service.MerchantService;
+import com.sys.core.service.ProductService;
+import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -58,7 +71,6 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
-import java.util.TreeMap;
 
 @SuppressWarnings("MVCPathVariableInspection")
 @Controller
@@ -107,6 +119,7 @@ public class OrderController extends BaseController {
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 		//查询商户列表
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
+		Map<String, String> chanMPMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
 		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
 
@@ -151,6 +164,7 @@ public class OrderController extends BaseController {
 			gwOrder.setMchtId(mchtMap.get(gwOrder.getMchtId()));
 			gwOrder.setPlatProductId(productMap.get(gwOrder.getPlatProductId()));
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
+			gwOrder.setChanMchtPaytypeId(chanMPMap.get(gwOrder.getChanMchtPaytypeId()));
 		}
 		Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
 		model.addAttribute("page", page);
@@ -329,7 +343,7 @@ public class OrderController extends BaseController {
 	@RequestMapping("querySupply")
 	public String querySupply(HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes,
 							  Model model, @RequestParam Map<String, String> paramMap) {
-		String message = "";
+		String message = "查单失败";
 		try {
 			String gatewayUrl = ConfigUtil.getValue("gateway.url");
 			String queryUrl = gatewayUrl + "/queryOrder";
@@ -372,10 +386,11 @@ public class OrderController extends BaseController {
 			String respStr = HttpUtil.post(queryUrl, data.toJSONString());
 			logger.info("gateway查单返回：" + respStr);
 			JSONObject result = JSON.parseObject(respStr);
+			JSONObject resultHead = result.getJSONObject("head");
 			JSONObject resultBody = result.getJSONObject("body");
-			if (resultBody != null) {
+			if (resultBody != null && ErrorCodeEnum.SUCCESS.getCode().equals(resultHead.getString("respCode"))) {
 				String resultStatus = resultBody.getString("status");
-				if ("SUCCESS".equals(resultStatus)) {
+				if (Result.STATUS_SUCCESS.equals(resultStatus)) {
 
 					//补发通知
 					String supplyUrl = gatewayUrl + "/renotify";
@@ -396,12 +411,12 @@ public class OrderController extends BaseController {
 					redirectAttributes.addFlashAttribute("message", "查单成功," + message);
 					redirectAttributes.addFlashAttribute("messageType", "success");
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
-				} else if ("FAILURE".equals(resultStatus)) {
+				} else if (Result.STATUS_FAIL.equals(resultStatus)) {
 					redirectAttributes.addFlashAttribute("message", "查单成功, 支付状态为失败");
 					redirectAttributes.addFlashAttribute("messageType", "success");
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
-				} else if ("FAILURE".equals(resultStatus)) {
-					redirectAttributes.addFlashAttribute("message", "查单成功, 支付状态为失败");
+				} {
+					redirectAttributes.addFlashAttribute("message", "查单成功, 支付状态未知");
 					redirectAttributes.addFlashAttribute("messageType", "success");
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
 				}
@@ -416,12 +431,14 @@ public class OrderController extends BaseController {
 		} finally {
 
 		}
-		return message;
+		redirectAttributes.addFlashAttribute("message", message);
+		redirectAttributes.addFlashAttribute("messageType", "error");
+		return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
 	}
 
 	@RequestMapping("supplyNotify")
 	public String supplyNotify(String orderId, String suffix, RedirectAttributes redirectAttributes, HttpServletResponse response) {
-		String message = "";
+		String message = "补发通知失败";
 		try {
 			String gatewayUrl = ConfigUtil.getValue("gateway.url");
 			String supplyUrl = gatewayUrl + "/renotify";
@@ -430,6 +447,11 @@ public class OrderController extends BaseController {
 			data.put("suffix", suffix);
 			String respStr = HttpUtil.post(supplyUrl, data);
 			logger.info("gateway补发通知返回：" + respStr);
+			if ("SUCCESS".equalsIgnoreCase(respStr)) {
+				message = "补发成功";
+			} else {
+				message = "已补发，商户响应：" + respStr;
+			}
 			redirectAttributes.addFlashAttribute("message", message);
 			redirectAttributes.addFlashAttribute("messageType", "success");
 			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
@@ -440,10 +462,10 @@ public class OrderController extends BaseController {
 			message = "补发失败，" + e.getMessage();
 			redirectAttributes.addFlashAttribute("message", message);
 			redirectAttributes.addFlashAttribute("messageType", "error");
-			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+
 		} finally {
 			logger.info(message);
-			return message;
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
 		}
 	}
 

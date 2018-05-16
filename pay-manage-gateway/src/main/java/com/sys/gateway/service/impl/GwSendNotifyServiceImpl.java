@@ -2,6 +2,7 @@ package com.sys.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
+import com.alibaba.fastjson.TypeReference;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheOrder;
@@ -258,7 +259,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                 String requestUrl = tradeNotify.getUrl();
                 String requestMsg = JSON.toJSONString(tradeNotify.getResponse());
                 logger.info("[start] 异步通知商户开始，请求地址：{} 请求内容：{}", requestUrl, requestMsg);
-                String result = PostUtil.postMsg(requestUrl, requestMsg);
+                String result = HttpUtil.postConnManager(requestUrl, requestMsg, "application/json", "UTF-8", "UTF-8");
                 logger.info("[end] 异步通知商户结束，请求地址：{} 请求内容：{} 商户响应：", requestUrl, requestMsg);
 
                 if ("SUCCESS".equalsIgnoreCase(result)) {
@@ -309,6 +310,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         String sign = SignUtil.md5Sign(new HashMap<>(treeMap), mchtKey);
 
         tradeNotifyResponse.setSign(sign);
+        tradeNotifyResponse.setHead(head);
         tradeNotifyResponse.setBody(body);
         tradeNotify.setResponse(tradeNotifyResponse);
         return tradeNotify;
