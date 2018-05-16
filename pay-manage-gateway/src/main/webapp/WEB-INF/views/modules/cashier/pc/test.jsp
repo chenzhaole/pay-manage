@@ -80,7 +80,16 @@
             <option value="CNY">人民币</option>
         </select>
         <br>
-
+        设备类型:
+        <select name="deviceType">
+            <option value="">--不指定--</option>
+            <option value="1">手机端</option>
+            <option value="2">pc端</option>
+            <option value="3">微信内</option>
+            <option value="4">支付宝内</option>
+        </select><br>
+        支付场景:
+        <input type="text" value="" name="payScene"/><br>
         商品名称: <input type="text" value="游戏充值" name="goods"/><br>
         notifyUrl: <input id="notifyUrl" type="text" value="http://${testUrl}/testNotify/" name="notifyUrl"/><br>
         callBackUrl: <input type="text" value="http://${testUrl}/gateway/cashier/testResult/${mchtOrderId}" name="callBackUrl"/><br>
