@@ -66,7 +66,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
                     ) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg(ErrorCodeEnum.E1003.getDesc());
-                logger.error(BIZ + "[orderId],[orderTime],[amount],[goods],[notifyUrl],[currencyType]请求参数值不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
+                logger.error(BIZ + "[orderId],[orderTime],[amount],[goods],[notifyUrl]请求参数值不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
                 return checkResp;
             }
             //微信公众号支付openid不为空
@@ -102,8 +102,6 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
         cashierRequestBody.setOrderTime(request.getParameter("orderTime"));
         cashierRequestBody.setAmount(request.getParameter("amount"));
         cashierRequestBody.setCurrencyType(request.getParameter("currencyType"));
-        cashierRequestBody.setDeviceType(request.getParameter("deviceType"));
-        cashierRequestBody.setPayScene(request.getParameter("payScene"));
         cashierRequestBody.setGoods(request.getParameter("goods"));
         cashierRequestBody.setNotifyUrl(request.getParameter("notifyUrl"));
         cashierRequestBody.setCallBackUrl(request.getParameter("callBackUrl"));
