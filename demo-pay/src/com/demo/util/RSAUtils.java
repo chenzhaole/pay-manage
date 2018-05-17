@@ -1,4 +1,4 @@
-package com.sys.admin.common.security;
+package com.demo.util;
 
 
 import javax.crypto.Cipher;
@@ -6,7 +6,14 @@ import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
-import java.security.*;
+import java.security.Key;
+import java.security.KeyFactory;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.Signature;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
@@ -251,42 +258,6 @@ public class RSAUtils {
     }
 
     /**
-     * 私钥解密
-     *
-     * @param encryptedData 已加密数据
-     * @param privateKey    私钥(BASE64编码)
-     * @return 解密后的字节数组
-     * @throws Exception
-     */
-    public static byte[] decryptByPrivateKeyAndroid(byte[] encryptedData, String privateKey) throws Exception {
-        byte[] keyBytes = Base64.decode(privateKey);
-        PKCS8EncodedKeySpec pkcs8KeySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key privateK = keyFactory.generatePrivate(pkcs8KeySpec);
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm(), new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        cipher.init(Cipher.DECRYPT_MODE, privateK);
-        int inputLen = encryptedData.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段解密
-        while (inputLen - offSet > 0) {
-            if (inputLen - offSet > MAX_DECRYPT_BLOCK) {
-                cache = cipher.doFinal(encryptedData, offSet, MAX_DECRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(encryptedData, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_DECRYPT_BLOCK;
-        }
-        byte[] decryptedData = out.toByteArray();
-        out.close();
-        return decryptedData;
-    }
-
-    /**
      * 公钥解密
      *
      * @param encryptedData 已加密数据
@@ -359,42 +330,6 @@ public class RSAUtils {
         return encryptedData;
     }
 
-    /**
-     * 针对安卓客户端公钥加密
-     *
-     * @param data      源数据
-     * @param publicKey 公钥(BASE64编码)
-     * @return 公钥加密后字节数组
-     * @throws Exception
-     */
-    public static byte[] encryptByPublicKeyAndroid(byte[] data, String publicKey) throws Exception {
-        byte[] keyBytes = Base64.decode(publicKey);
-        X509EncodedKeySpec x509KeySpec = new X509EncodedKeySpec(keyBytes);
-        KeyFactory keyFactory = KeyFactory.getInstance(KEY_ALGORITHM);
-        Key publicK = keyFactory.generatePublic(x509KeySpec);
-        // 对数据加密
-        Cipher cipher = Cipher.getInstance(keyFactory.getAlgorithm(), new org.bouncycastle.jce.provider.BouncyCastleProvider());
-        cipher.init(Cipher.ENCRYPT_MODE, publicK);
-        int inputLen = data.length;
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        int offSet = 0;
-        byte[] cache;
-        int i = 0;
-        // 对数据分段加密
-        while (inputLen - offSet > 0) {
-            if (inputLen - offSet > MAX_ENCRYPT_BLOCK) {
-                cache = cipher.doFinal(data, offSet, MAX_ENCRYPT_BLOCK);
-            } else {
-                cache = cipher.doFinal(data, offSet, inputLen - offSet);
-            }
-            out.write(cache, 0, cache.length);
-            i++;
-            offSet = i * MAX_ENCRYPT_BLOCK;
-        }
-        byte[] encryptedData = out.toByteArray();
-        out.close();
-        return encryptedData;
-    }
 
     /**
      * 私钥加密
@@ -490,17 +425,6 @@ public class RSAUtils {
     }
 
     /**
-     * 针对安卓客户端使用公钥加密
-     * @param source 明文
-     * @param publicKey 公钥
-     * @return 加密后的字符串
-     */
-    public static String encryptAndroid(String source, String publicKey) throws Exception {
-        byte[] encryptData = RSAUtils.encryptByPublicKeyAndroid(source.getBytes("utf-8"), publicKey);
-        return Base64.encode(encryptData);
-    }
-
-    /**
      * 使用私钥解密
      * @param cipher 密文
      * @param privateKey 公钥
@@ -508,17 +432,6 @@ public class RSAUtils {
      */
     public static String decrypt(String cipher, String privateKey) throws Exception {
         byte[] decryptData = RSAUtils.decryptByPrivateKey(Base64.decode(cipher), privateKey);
-        return new String(decryptData, "utf-8");
-    }
-
-    /**
-     * 针对安卓客户端使用私钥解密
-     * @param cipher 密文
-     * @param privateKey 公钥
-     * @return 加密后的字符串
-     */
-    public static String decryptAndroid(String cipher, String privateKey) throws Exception {
-        byte[] decryptData = RSAUtils.decryptByPrivateKeyAndroid(Base64.decode(cipher), privateKey);
         return new String(decryptData, "utf-8");
     }
 
