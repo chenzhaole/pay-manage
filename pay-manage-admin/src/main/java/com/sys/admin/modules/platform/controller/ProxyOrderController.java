@@ -546,7 +546,6 @@ public class ProxyOrderController extends BaseController {
         batch.setId(batchId);
         batch.setMchtId(mchtId);
         batch.setUserId(UserUtils.getUser().getId().toString());
-        batch.setPayType(PayTypeEnum.BATCH_DF.getCode());
         batch.setPayStatus(ProxyPayBatchStatusEnum.AUDIT_SUCCESS.getCode());
         batch.setCreateTime(new Date());
         batch.setUpdateTime(new Date());
@@ -584,7 +583,8 @@ public class ProxyOrderController extends BaseController {
         if(!Collections3.isEmpty(mchtProductList)){
             for(MchtProduct mchtProduct : mchtProductList){
                 PlatProduct product = productService.queryByKey(mchtProduct.getProductId());
-                if(StringUtils.equals(product.getPayType(),PayTypeEnum.BATCH_DF.getCode())){
+                if(StringUtils.equals(product.getPayType(),PayTypeEnum.BATCH_DF.getCode()) ||
+                        StringUtils.equals(product.getPayType(),PayTypeEnum.SINGLE_DF.getCode())){
                     String bizType = FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode();
                     String bizRefId = mchtId + "&" + product.getId();
                     PlatFeerate feerate = feerateService.getValidFeerate(bizType, bizRefId);
@@ -708,7 +708,6 @@ public class ProxyOrderController extends BaseController {
         detail.setMchtOrderId(seq);
         detail.setBatchId(batchId);
         detail.setMchtId(mchtId);
-        detail.setPayType(PayTypeEnum.BATCH_DF.getCode());
         detail.setChannelTradeId(detail.getId());
         detail.setBankCardNo(bankCardNo);
         detail.setBankCardName(bankCardName);

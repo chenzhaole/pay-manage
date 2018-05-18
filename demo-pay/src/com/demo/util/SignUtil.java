@@ -25,6 +25,7 @@ public class SignUtil {
         platSignStr = MD5Util.MD5Encode(platSignOrigStr);
         if(platSignStr.equalsIgnoreCase(mchtSignStr)){
             //验签-结果正确
+			System.out.println("验签-结果正确");
             return true;
         }
         return false;
