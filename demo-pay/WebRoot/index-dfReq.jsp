@@ -92,7 +92,7 @@
                 <dt>商户编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="mchtId" value="17b1652b" maxlength="32" size="16"  placeholder="长度32"/>
+                    <input name="mchtId" value="18d3a7e9" maxlength="32" size="16"  placeholder="长度32"/>
                     <span class="null-star">(mchtId)*</span>
                     <span></span>
                 </dd>
@@ -142,7 +142,7 @@
                 <dt>异步通知地址：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="notifyUrl" value="" maxlength="128" size="30"  placeholder="长度128"/>
+                    <input name="notifyUrl" value="127.0.0.1:12080/testNotify/4da5ebede6574a699cf307dd7c746ada" maxlength="128" size="30"  placeholder="长度128"/>
                     <span class="null-star">(notifyUrl)</span>
                     <span></span>
                 </dd>
@@ -181,11 +181,17 @@
                 <dt>商户秘钥：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="key" value="36c7675514eb435aafcd774e2c81d67d" maxlength="32"  size="40" placeholder=""/>
+                    <input name="key" value="4da5ebede6574a699cf307dd7c746ada" maxlength="32"  size="40" placeholder=""/>
                     <span class="null-star">(key)*</span>
                     <span></span>
                 </dd>
 
+                <dt>平台公钥：</dt>
+                <dd>
+                    <span class="null-star"></span>
+                    <input name="publicKey" value="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCm++Z9qgw6HxIOKWbAx1hbVU7PokmBBFlomwFhBdU2LInAQWfHEJTGM+2EX9D559J3XXxcPSVanVdM4LcTiJyVJoFSulIg01wR26yk7pzGqy+QJRv1uffL1+otRbgmDLhjeV16148CmwGG3j7xkVOqrv/fsiOViYd1EZdsit+vlQIDAQAB" maxlength="32"  size="40" placeholder=""/>
+                    <span class="null-star">(publicKey)*</span>
+                    <span></span>
                 </dd>
                 <dd>
                         <span class="new-btn-login-sp">

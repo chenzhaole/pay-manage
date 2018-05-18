@@ -438,6 +438,7 @@
   		height: 36px!important;
   		line-height: 36px!important;
   		background-color: #62B900;
+		margin: 0 auto;
   	}
   	
   	.warn-content p {

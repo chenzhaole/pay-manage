@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>收银台pc</title>
     <link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css">
-    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.0.0">
+    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.0.1">
     <link rel="stylesheet" href="${ctxStatic}/css/jquery.mCustomScrollbar.min.css" />
 
 </head>

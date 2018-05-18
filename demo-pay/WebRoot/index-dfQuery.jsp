@@ -60,7 +60,7 @@
 <div id="main">
     <div class="cashier-nav">
         <ol>
-            <li class="current">提交信息（代付请求） </li>
+            <li class="current">提交信息（代付查单） </li>
         </ol>
     </div>
     <form action="testDFQuery" method="post"  target="_blank">
@@ -70,7 +70,7 @@
                 <dt>代付查单地址：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="payUrl" value="http://localhost:12080/df/gateway/req/" maxlength="128" size="40"  placeholder="长度128"/>
+                    <input name="payUrl" value="http://localhost:12080/df/gateway/query/" maxlength="128" size="40"  placeholder="长度128"/>
                     <span class="null-star">(payUrl)*</span>
                     <span></span>
                 </dd>
@@ -78,7 +78,7 @@
                 <dt>商户编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="mchtId" value="17b1652b" maxlength="32" size="16"  placeholder="长度32"/>
+                    <input name="mchtId" value="18d3a7e9" maxlength="32" size="16"  placeholder="长度32"/>
                     <span class="null-star">(mchtId)*</span>
                     <span></span>
                 </dd>
@@ -119,11 +119,17 @@
                 <dt>商户秘钥：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="key" value="36c7675514eb435aafcd774e2c81d67d" maxlength="32"  size="40" placeholder=""/>
+                    <input name="key" value="4da5ebede6574a699cf307dd7c746ada" maxlength="32"  size="40" placeholder=""/>
                     <span class="null-star">(key)*</span>
                     <span></span>
                 </dd>
 
+                <dt>平台公钥：</dt>
+                <dd>
+                    <span class="null-star"></span>
+                    <input name="publicKey" value="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCm++Z9qgw6HxIOKWbAx1hbVU7PokmBBFlomwFhBdU2LInAQWfHEJTGM+2EX9D559J3XXxcPSVanVdM4LcTiJyVJoFSulIg01wR26yk7pzGqy+QJRv1uffL1+otRbgmDLhjeV16148CmwGG3j7xkVOqrv/fsiOViYd1EZdsit+vlQIDAQAB" maxlength="32"  size="40" placeholder=""/>
+                    <span class="null-star">(publicKey)*</span>
+                    <span></span>
                 </dd>
                 <dd>
                         <span class="new-btn-login-sp">

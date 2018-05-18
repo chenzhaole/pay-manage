@@ -31,7 +31,7 @@ public class GwSmsServiceImpl implements GwSmsService {
 
     protected final Logger logger = LoggerFactory.getLogger(GwSmsServiceImpl.class);
 
-    //TODO
+    //TODO 通用加密KEY,数据库统一管理
     public final String SMS_KEY = "ZhrtZhrt";
 
 

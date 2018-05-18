@@ -160,10 +160,9 @@ public class GwRecNotifyController {
                 mchtOrdertId = tradeNotifyResponse.getBody().getOrderId();
                 String retSign = tradeNotifyResponse.getSign();
                     logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的tradeNotifyResponse="+JSONObject.toJSONString(tradeNotifyResponse));
-                String sign = "";
                     TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(tradeNotifyResponse.getBody());
                     logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名key="+mchtKey+"，签名treeMap="+ treeMap);
-                    sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
+                    String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
                     logger.info("商户订单号："+mchtOrdertId+"，模拟商户接收异步通知，对接收的数据签名，签名结果sign="+ sign);
 
                 if(sign.equals(retSign)){
