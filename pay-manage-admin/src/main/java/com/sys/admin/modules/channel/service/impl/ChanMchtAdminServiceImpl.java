@@ -199,6 +199,25 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		ChanMchtPaytype chanMchtPaytype = chanMchtPaytypeService.queryByKey(id);
 		BeanUtils.copyProperties(chanMchtPaytype, chanMchtFormInfo);
 
+		if (StringUtils.isNotBlank(chanMchtPaytype.getTradeStartTime())){
+			String[] startTime = chanMchtPaytype.getTradeStartTime().split(":");
+			chanMchtFormInfo.setTradeStartTimeH(startTime[0]);
+			if (startTime.length > 1){
+				chanMchtFormInfo.setTradeStartTimeS(startTime[1]);
+			}
+		}
+
+		if (StringUtils.isNotBlank(chanMchtPaytype.getTradeEndTime())){
+			String[] endTime = chanMchtPaytype.getTradeEndTime().split(":");
+			chanMchtFormInfo.setTradeEndTimeH(endTime[0]);
+			if (endTime.length > 1){
+				chanMchtFormInfo.setTradeEndTimeS(endTime[1]);
+			}
+		}else {
+			chanMchtFormInfo.setTradeEndTimeH("23");
+			chanMchtFormInfo.setTradeEndTimeS("59");
+		}
+
 		//商户名称
 		if (StringUtils.isNotBlank(chanMchtPaytype.getMchtId())) {
 			MchtInfo mchtInfo = merchantService.queryByKey(chanMchtPaytype.getMchtId());

@@ -153,7 +153,84 @@ public class ChanMchtFormInfo {
 
 	private String deviceType; //调用收银台页面的设备类型：1-手机端，2-PC端，3-微信内，4-支付宝内，5-APP。多选项，各值用半角逗号分隔
 
+	private BigDecimal tradeMinMoney;
+
+	private BigDecimal tradeMaxMoney;
+
+	private String tradeStartTime;
+
+	private String tradeEndTime;
+
+	private String tradeStartTimeH;
+	private String tradeStartTimeS;
+	private String tradeEndTimeH;
+	private String tradeEndTimeS;
+
 	private static final long serialVersionUID = 1L;
+
+	public String getTradeStartTimeH() {
+		return tradeStartTimeH;
+	}
+
+	public void setTradeStartTimeH(String tradeStartTimeH) {
+		this.tradeStartTimeH = tradeStartTimeH;
+	}
+
+	public String getTradeStartTimeS() {
+		return tradeStartTimeS;
+	}
+
+	public void setTradeStartTimeS(String tradeStartTimeS) {
+		this.tradeStartTimeS = tradeStartTimeS;
+	}
+
+	public String getTradeEndTimeH() {
+		return tradeEndTimeH;
+	}
+
+	public void setTradeEndTimeH(String tradeEndTimeH) {
+		this.tradeEndTimeH = tradeEndTimeH;
+	}
+
+	public String getTradeEndTimeS() {
+		return tradeEndTimeS;
+	}
+
+	public void setTradeEndTimeS(String tradeEndTimeS) {
+		this.tradeEndTimeS = tradeEndTimeS;
+	}
+
+	public BigDecimal getTradeMinMoney() {
+		return tradeMinMoney;
+	}
+
+	public void setTradeMinMoney(BigDecimal tradeMinMoney) {
+		this.tradeMinMoney = tradeMinMoney;
+	}
+
+	public BigDecimal getTradeMaxMoney() {
+		return tradeMaxMoney;
+	}
+
+	public void setTradeMaxMoney(BigDecimal tradeMaxMoney) {
+		this.tradeMaxMoney = tradeMaxMoney;
+	}
+
+	public String getTradeStartTime() {
+		return tradeStartTime;
+	}
+
+	public void setTradeStartTime(String tradeStartTime) {
+		this.tradeStartTime = tradeStartTime;
+	}
+
+	public String getTradeEndTime() {
+		return tradeEndTime;
+	}
+
+	public void setTradeEndTime(String tradeEndTime) {
+		this.tradeEndTime = tradeEndTime;
+	}
 
 	public Integer getPerdayPayMaxAmount() {
 		return perdayPayMaxAmount;
@@ -783,6 +860,12 @@ public class ChanMchtFormInfo {
 				String signType = signTypeTemp.toString();
 				this.deviceType = signType.substring(0, signType.length() - 1);
 			}
+
+			this.tradeStartTime = requestMap.get("tradeStartTimeH") + ":" + requestMap.get("tradeStartTimeS");
+			this.tradeEndTime = requestMap.get("tradeEndTimeH") + ":" + requestMap.get("tradeEndTimeS");
+
+			this.tradeMaxMoney = new BigDecimal(requestMap.get("tradeMaxMoney") == null ? "0" : requestMap.get("tradeMaxMoney"));
+			this.tradeMinMoney = new BigDecimal(requestMap.get("tradeMinMoney") == null ? "0" : requestMap.get("tradeMinMoney"));
 		}
 	}
 

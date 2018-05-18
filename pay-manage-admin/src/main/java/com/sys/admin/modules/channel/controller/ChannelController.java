@@ -279,13 +279,17 @@ public class ChannelController extends BaseController {
 			model.addAttribute("chanMchPaytye", chanMchtFormInfo);
 			model.addAttribute("op", "edit");
 		} else {
+			ChanMchtFormInfo chanMchtFormInfo = new ChanMchtFormInfo();
+			chanMchtFormInfo.setTradeEndTimeH("23");
+			chanMchtFormInfo.setTradeEndTimeS("59");
+			model.addAttribute("chanMchPaytye", chanMchtFormInfo);
 			model.addAttribute("op", "add");
 		}
 
 		List<ChanInfo> chanInfos = channelAdminService.getChannelList(new ChanInfo());
 		model.addAttribute("chanInfos", chanInfos);
 
-		//商户列表 只展示申报商户及服务商
+		//商户列表 只展示申报商户及服务商`
 		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
 		List<MerchantForm> mchtInfosResult = new ArrayList<>();
 		for (MerchantForm mchtInfo : mchtInfos) {

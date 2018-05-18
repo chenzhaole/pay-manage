@@ -62,6 +62,20 @@
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
                 onkeyup: false,
                 submitHandler: function (form) {   //表单提交句柄,为一回调函数，带一个参数：form
+
+                    if ( $("#tradeStartTimeH").val() > $("#tradeEndTimeH").val()){
+                        alert("开始时间必须小于结束时间");
+                        return false;
+                    }if ( $("#tradeStartTimeH").val() == $("#tradeEndTimeH").val()){
+                        if ( $("#tradeStartTimeS").val() >= $("#tradeEndTimeS").val()){
+                            alert("开始时间必须小于结束时间");
+                            return false;
+                        }
+                    }
+                    if ( $("#tradeMinMoney").val() >= $("#tradeMaxMoney").val()){
+                        alert("最低金额必须小于最高金额");
+                        return false;
+                    }
                     form.submit();   //提交表单
                 },
 
@@ -107,7 +121,16 @@
                     feeAmount: {
                         max: 99999999999,
                         number: true
+                    },
+                    tradeMinMoney: {
+                        max: 99999999999,
+                        number: true
+                    },
+                    tradeMaxMoney: {
+                        max: 99999999999,
+                        number: true
                     }
+
                 }
             });
             $("#chanId").change(function () {
@@ -667,6 +690,19 @@
     <tags:message content="${message}" type="${messageType}"/>
     <table class="table">
         <tr>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">状态</label>
+                    <div class="controls">
+                        <select name="status" class="input-xlarge" id="status">
+                            <option value="1">启用</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.status == 2}">selected</c:if> value="2">停用
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </td>
             <td colspan="2">
                 <div class="control-group">
                     <label class="control-label" for="tranUrl">平台接口地址<span style="color: red;"></span></label>
@@ -681,35 +717,84 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">状态</label>
+                    <label class="control-label" for="feeAmount">每日交易时段</label>
                     <div class="controls">
-                        <select name="status" class="input-xlarge" id="status">
-                            <option value="1">启用</option>
-                            <option
-                                    <c:if test="${chanMchPaytye.status == 2}">selected</c:if> value="2">停用
-                            </option>
+                        <select name="tradeStartTimeH" class="input-small" id="tradeStartTimeH">
+                            <c:forEach var="x" begin="0" end="23">
+                                <option
+                                        <c:if test="${chanMchPaytye.tradeStartTimeH == x}">selected</c:if> value="${x}">
+                                        ${x}
+                                </option>
+                            </c:forEach>
                         </select>
+                        :
+                        <select name="tradeStartTimeS" class="input-small" id="tradeStartTimeS">
+                            <c:forEach var="x" begin="0" end="59">
+                                <option
+                                        <c:if test="${chanMchPaytye.tradeStartTimeS == x}">selected</c:if> value="${x}">
+                                        ${x}
+                                </option>
+                            </c:forEach>
+                        </select>
+                        开始时间
+                    </div>
+                    <div class="controls">
+                        <select name="tradeEndTimeH" class="input-small" id="tradeEndTimeH">
+                            <c:forEach var="x" begin="0" end="23">
+                                <option
+                                        <c:if test="${chanMchPaytye.tradeEndTimeH == x}">selected</c:if> value="${x}">
+                                        ${x}
+                                </option>
+                            </c:forEach>
+                        </select>
+                        :
+                        <select name="tradeEndTimeS" class="input-small" id="tradeEndTimeS">
+                            <c:forEach var="x" begin="0" end="59">
+                                <option
+                                        <c:if test="${chanMchPaytye.tradeEndTimeS == x}">selected</c:if> value="${x}">
+                                        ${x}
+                                </option>
+                            </c:forEach>
+                        </select>
+                        结束时间
                     </div>
                 </div>
             </td>
+
+
             <td>
                 <div class="control-group">
-                    <label class="control-label">SDK类型</label>
+                    <label class="control-label" for="feeAmount">每笔交易限额(分)</label>
                     <div class="controls">
-                        <select name="sdkType" class="input-xlarge" id="sdkType">
-                            <option
-                                    <c:if test="${chanMchPaytye.sdkType == 1}">selected</c:if> value="1">实时
-                            </option>
-                            <option
-                                    <c:if test="${chanMchPaytye.sdkType == 2}">selected</c:if> value="2">循环
-                            </option>
-                            <option
-                                    <c:if test="${chanMchPaytye.sdkType == 3}">selected</c:if> value="3">一次
-                            </option>
-                        </select>
+                        <input name="tradeMinMoney" value="${chanMchPaytye.tradeMinMoney }" placeholder="最低金额(分)"
+                               class="input-large"
+                               type="text" id="tradeMinMoney">
+                        -
+                        <input name="tradeMaxMoney" value="${chanMchPaytye.tradeMaxMoney }" placeholder="最高金额(分)"
+                               class="input-large"
+                               type="text" id="tradeMaxMoney">
                     </div>
                 </div>
             </td>
+
+            <%--<td>--%>
+            <%--<div class="control-group">--%>
+            <%--<label class="control-label">SDK类型</label>--%>
+            <%--<div class="controls">--%>
+            <%--<select name="sdkType" class="input-xlarge" id="sdkType">--%>
+            <%--<option--%>
+            <%--<c:if test="${chanMchPaytye.sdkType == 1}">selected</c:if> value="1">实时--%>
+            <%--</option>--%>
+            <%--<option--%>
+            <%--<c:if test="${chanMchPaytye.sdkType == 2}">selected</c:if> value="2">循环--%>
+            <%--</option>--%>
+            <%--<option--%>`
+            <%--<c:if test="${chanMchPaytye.sdkType == 3}">selected</c:if> value="3">一次--%>
+            <%--</option>--%>
+            <%--</select>--%>
+            <%--</div>--%>
+            <%--</div>--%>
+            <%--</td>--%>
         </tr>
 
         <tr>
