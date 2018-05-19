@@ -126,7 +126,7 @@
                 <dt>商户代付笔数：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="totalNum" value="" maxlength="127" size="30"  placeholder="长度127"/>
+                    <input name="totalNum" value="2" maxlength="127" size="30"  placeholder="长度127"/>
                     <span class="null-star">(totalNum)*</span>
                     <span></span>
                 </dd>
@@ -134,7 +134,7 @@
                 <dt>商户代付总金额：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="totalAmount" value="" size="10" placeholder="单位：分"/> 分
+                    <input name="totalAmount" value="200" size="10" placeholder="单位：分"/> 分
                     <span class="null-star">(totalAmount)*</span>
                     <span></span>
                 </dd>
@@ -150,7 +150,8 @@
                 <dt>代付订单明细：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <textarea rows="10" cols="40" name="detail" id="detail"></textarea>
+                    <textarea rows="10" cols="40" name="detail" id="detail" >[{"accType":"0","amount":"100","bankCardName":"lucy","bankCardNo":"622620011234876","seq":"0"},{"accType":"0","amount":"100","bankCardName":"lucy","bankCardNo":"622620011234876","seq":"1"}]
+</textarea>
                     <span class="null-star">(detail)*</span>
                     <span></span>
                 </dd>
