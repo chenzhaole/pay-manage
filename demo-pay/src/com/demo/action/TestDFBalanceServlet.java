@@ -64,6 +64,7 @@ public class TestDFBalanceServlet extends HttpServlet {
             data.put("sign", sign);
 
             data.put("head", head);
+            System.out.println(data.toJSONString());
             respStr = PostUtil.post(payUrl, data.toJSONString());
             System.out.println(respStr);
 

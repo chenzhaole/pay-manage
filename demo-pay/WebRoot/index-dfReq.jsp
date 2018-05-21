@@ -108,7 +108,7 @@
                 <dd>
                     <span class="null-star"></span>
                     <select name="biz">
-                        <option value="aliJspay">代付</option>
+                        <option value="df102">代付</option>
                     </select>
                     <span class="null-star">(biz)*</span>
                     <span></span>
