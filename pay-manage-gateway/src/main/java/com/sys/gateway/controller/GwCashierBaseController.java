@@ -309,6 +309,8 @@ public class GwCashierBaseController {
                 PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(biz)  || //微信原生公众号支付
                 PayTypeEnum.WX_PUBLIC_NOT_NATIVE.getCode().equals(biz)  || //微信非原生公众号支付
                 PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(biz)  || //支付宝扫码转h5支付
+                PayTypeEnum.ALIPAY_H5.getCode().equals(biz)  || //支付宝h5支付
+                PayTypeEnum.ALIPAY_PC.getCode().equals(biz)  || //支付宝PC支付
                 PayTypeEnum.QQ_WAP.getCode().equals(biz)  || //QQh5支付
                 PayTypeEnum.QQ_SCAN2WAP.getCode().equals(biz)  || //QQ扫码转h5支付
                 PayTypeEnum.SUNING_SCAN2WAP.getCode().equals(biz)  || //苏宁扫码转h5支付
