@@ -6,6 +6,8 @@ import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.merchant.bo.MerchantForm;
+import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.PlatAccountAdjustBO;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
@@ -14,6 +16,7 @@ import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.AuditEnum;
 import com.sys.common.enums.FeeTypeEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
@@ -61,6 +64,8 @@ public class PlatAccountAdjustController extends BaseController {
     private MerchantService merchantService;
     @Autowired
     private MchtAccountInfoService mchtAccountInfoService;
+    @Autowired
+    MerchantAdminService merchantAdminService;
 
     @ModelAttribute
     public PlatAccountAdjust get(@RequestParam(required = false) String id){
@@ -133,6 +138,22 @@ public class PlatAccountAdjustController extends BaseController {
     @RequestMapping(value="form")
     @RequiresPermissions("platform:adjust:apply")
     public String form(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model){
+        //所有可配商户
+        List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
+        List<MerchantForm> mchtInfosResult = new ArrayList<>();
+        for (MerchantForm mchtInfo : mchtInfos) {
+            if (StringUtils.isBlank(mchtInfo.getSignType())) {
+                continue;
+            }
+            if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
+                    || mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
+                mchtInfosResult.add(mchtInfo);
+            }
+        }
+
+        //根据名称排序
+        Collections3.sortByName(mchtInfosResult, "name");
+        model.addAttribute("mchtInfos", mchtInfosResult);
         return "modules/platform/platAccountAdjustForm";
     }
 

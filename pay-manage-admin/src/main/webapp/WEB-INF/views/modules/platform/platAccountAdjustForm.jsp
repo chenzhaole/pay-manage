@@ -9,13 +9,12 @@
 
         //下拉搜索框初始化
         $(window).on('load', function () {
-            $('.selectpicker').selectpicker({
-            });
+            $('.selectpicker').selectpicker({});
         });
 
 
         $(function () {
-           $("#inputForm").validate({
+            $("#inputForm").validate({
                 rules: {
                     loginName: {remote: "${ctx}/sys/user/checkLoginName?oldLoginName=" + encodeURIComponent('${user.loginName}')}
                 },
@@ -23,14 +22,14 @@
                     loginName: {remote: "用户登录名已存在"},
                     confirmNewPassword: {equalTo: "输入与上面相同的密码"}
                 },
-                submitHandler: function(form){
+                submitHandler: function (form) {
                     loading('正在提交，请稍等...');
                     form.submit();
                 },
                 errorContainer: "#messageBox",
-                errorPlacement: function(error, element) {
+                errorPlacement: function (error, element) {
                     $("#messageBox").text("输入有误，请先更正。");
-                    if (element.is(":checkbox")||element.is(":radio")||element.parent().is(".input-append")){
+                    if (element.is(":checkbox") || element.is(":radio") || element.parent().is(".input-append")) {
                         error.appendTo(element.parent().parent());
                     } else {
                         error.insertAfter(element);
@@ -40,19 +39,19 @@
 
             $("#balanceBtn").click(function () {
                 var mchtId = $("#mchtId").val();
-                if(mchtId == ''){
+                if (mchtId == '') {
                     alert("请输入商户号");
-                }else{
+                } else {
                     $.ajax({
-                        url:'${ctx}/platform/adjust/balance',
-                        type:'POST', //GET
-                        async:true,    //或false,是否异步
-                        data:{
-                            'mchtId':mchtId
+                        url: '${ctx}/platform/adjust/balance',
+                        type: 'POST', //GET
+                        async: true,    //或false,是否异步
+                        data: {
+                            'mchtId': mchtId
                         },
-                        timeout:5000,    //超时时间
-                        dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
-                        success:function(data){
+                        timeout: 5000,    //超时时间
+                        dataType: 'text',    //返回的数据格式：json/xml/html/script/jsonp/text
+                        success: function (data) {
                             console.log(data);
                             $("#balance").val(data);
                         }
@@ -63,14 +62,14 @@
 
         function rateOrAmount() {
             var val = $("#feeType").val();
-            if(val == "1"){
-                $("input[name='adjustAmount']").attr("disabled",false);
-                $("input[name='feeRate']").attr("disabled",true);
+            if (val == "1") {
+                $("input[name='adjustAmount']").attr("disabled", false);
+                $("input[name='feeRate']").attr("disabled", true);
                 $("input[name='adjustAmount']").addClass("required");
                 $("input[name='feeRate']").removeClass("required");
-            }else{
-                $("input[name='adjustAmount']").attr("disabled",true);
-                $("input[name='feeRate']").attr("disabled",false);
+            } else {
+                $("input[name='adjustAmount']").attr("disabled", true);
+                $("input[name='feeRate']").attr("disabled", false);
                 $("input[name='adjustAmount']").removeClass("required");
                 $("input[name='feeRate']").addClass("required");
             }
@@ -85,7 +84,8 @@
     <li><a href="${ctx}/platform/adjust">调账列表</a></li>
     <li class="active"><a href="${ctx}/platform/adjust/form">调账添加</a></li>
 </ul>
-<form:form id="inputForm" modelAttribute="platAccountAdjust" action="${ctx}/platform/adjust/save" method="post" class="form-horizontal">
+<form:form id="inputForm" modelAttribute="platAccountAdjust" action="${ctx}/platform/adjust/save" method="post"
+           class="form-horizontal">
     <form:hidden path="id"/>
     <tags:message content="${message}"/>
     <table class="table">
@@ -95,9 +95,10 @@
                     <label class="control-label">调账方向<span style="color: red;">*</span></label>
                     <div class="controls">
 
-                       <form:select path="adjustType">
-                            <form:options items="${fns:getDictList('account_adjust_type')}" itemValue="value" itemLabel="label"/>
-                       </form:select>
+                        <form:select path="adjustType">
+                            <form:options items="${fns:getDictList('account_adjust_type')}" itemValue="value"
+                                          itemLabel="label"/>
+                        </form:select>
                     </div>
                 </div>
             </td>
@@ -105,9 +106,16 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">商户号<span style="color: red;">*</span></label>
+                    <label class="control-label">商户名称：</label>
                     <div class="controls">
-                        <form:input path="mchtId" class="required"/>
+                        <label>
+                            <select id="mchtId" name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
+                                <option value="">--请选择--</option>
+                                <c:forEach items="${mchtInfos}" var="mchtInfo">
+                                    <option value="${mchtInfo.id}">${mchtInfo.name}</option>
+                                </c:forEach>
+                            </select>
+                        </label>
                     </div>
                 </div>
             </td>
@@ -117,7 +125,8 @@
                     <label class="control-label">账户类型<span style="color: red;">*</span></label>
                     <div class="controls">
                         <form:select path="accountType">
-                            <form:options items="${fns:getDictList('account_type')}" itemValue="value" itemLabel="label"/>
+                            <form:options items="${fns:getDictList('account_type')}" itemValue="value"
+                                          itemLabel="label"/>
                         </form:select>
                     </div>
                 </div>
@@ -128,7 +137,8 @@
                 <div class="control-group">
                     <label class="control-label">账户余额（元）</label>
                     <div class="controls">
-                        <input type="text" readonly disabled id="balance"/> <input type="button" value="查询" id="balanceBtn"/>
+                        <input type="text" readonly disabled id="balance"/> <input type="button" value="查询"
+                                                                                   id="balanceBtn"/>
                     </div>
                 </div>
             </td>
@@ -178,7 +188,8 @@
             <td colspan="2">
                 <div class="form-actions">
                     <input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>&nbsp;
-                    <input id="btnCancel" class="btn" type="button" value="返 回" onclick="window.location.href='${ctx}/platform/adjust'"/>
+                    <input id="btnCancel" class="btn" type="button" value="返 回"
+                           onclick="window.location.href='${ctx}/platform/adjust'"/>
                 </div>
             </td>
         </tr>
