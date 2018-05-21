@@ -236,6 +236,8 @@ public class MerchantForm {
 		this.clientIp = requestMap.get("clientIp");
 		this.mchtKey = requestMap.get("mchtKey");
 
+		this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
+
 		String[] signTypes = request.getParameterValues("signType");
 
 		if (signTypes != null && signTypes.length > 0){
