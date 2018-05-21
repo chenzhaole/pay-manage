@@ -753,20 +753,20 @@
 
     <table class="table">
         <tr>
-            <%--<td>--%>
-            <%--<label class="control-label">产品名称受控</label>--%>
-            <%--<div class="controls">--%>
-            <%--<div class="input-prepend">--%>
-            <%--<select style="width:50px;" name="isProductControl">--%>
-            <%--<option value="1" <c:if test="${merchant.isProductControl == '1'}">selected</c:if>>是--%>
-            <%--</option>--%>
-            <%--<option value="0" <c:if test="${merchant.isProductControl == '0'}">selected</c:if>>否--%>
-            <%--</option>--%>
-            <%--</select>--%>
-            <%--</div>--%>
-            <%--<p class="help-block"></p>--%>
-            <%--</div>--%>
-            <%--</td>--%>
+            <td>
+                <label class="control-label">产品名称受控</label>
+                <div class="controls">
+                    <div class="input-prepend">
+                        <select style="width:50px;" name="isProductControl">
+                            <option value="0" <c:if test="${merchant.isProductControl == '0'}">selected</c:if>>否
+                            </option>
+                            <option value="1" <c:if test="${merchant.isProductControl == '1'}">selected</c:if>>是
+                            </option>
+                        </select>
+                    </div>
+                    <p class="help-block"></p>
+                </div>
+            </td>
             <td>
                 <div class="control-group">
                     <label class="control-label">商户状态</label>
