@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
     <title>收银台pc</title>
     <link rel="stylesheet" href="${ctxStatic}/layui/css/layui.css">
-    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.0.1">
+    <link rel="stylesheet" href="${ctxStatic}/css/pc.css?v=1.0.4">
     <link rel="stylesheet" href="${ctxStatic}/css/jquery.mCustomScrollbar.min.css" />
 
 </head>
@@ -49,7 +49,7 @@
 
             <div class="layui-tab layui-tab-brief" lay-filter="pay">
                 <p class="paytitle">请选择支付方式</p>
-                <ul class="layui-tab-title">
+                <ul class="layui-tab-title no-p-r">
                     <c:forEach items="${paymentTypes}" var="paymentType">
                         <c:if test="${paymentType == 'wx'}">
                             <li id="${paymentType}">
@@ -69,6 +69,16 @@
                         <c:if test="${paymentType=='jd'}">
                             <li id="${paymentType}">
                                 <div class="jdpay"><img class="timg" src="${ctxStatic}/images/jd.png" alt="" />京东支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                            </li>
+                        </c:if>
+                        <c:if test="${paymentType=='sn'}">
+                            <li id="${paymentType}">
+                                <div class="snpay"><img class="timg" src="${ctxStatic}/images/sn.png" alt="" />苏宁扫码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                            </li>
+                        </c:if>
+                        <c:if test="${paymentType=='yl'}">
+                            <li id="${paymentType}">
+                                <div class="unionpay"><img class="timg" src="${ctxStatic}/images/union.png" alt="" />银联二维码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
                             </li>
                         </c:if>
                         <c:if test="${paymentType=='sn'}">

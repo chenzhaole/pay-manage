@@ -25,6 +25,7 @@
   		margin-right: 10px;
   		height: 40px;
   		width: 120px;
+		margin-bottom: 10px
   	}
   	
   	.paytitle {
@@ -48,6 +49,7 @@
   	
   	.layui-tab-title {
   		border: none;
+		height: auto;
   	}
   	
   	.orderTip,
@@ -882,6 +884,11 @@
 	.union-tip >span >a:hover{
 		color: #62B900;
 	}
+
+	.no-p-r{
+		padding-right: 0!important;
+	}
+
 /*滚动条*/
 /*.bar{
 	position:relative;
