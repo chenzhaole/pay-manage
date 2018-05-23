@@ -63,14 +63,14 @@
         function rateOrAmount() {
             var val = $("#feeType").val();
             if (val == "1") {
-                $("input[name='adjustAmount']").attr("disabled", false);
+                $("input[name='feeAmount']").attr("disabled", false);
                 $("input[name='feeRate']").attr("disabled", true);
-                $("input[name='adjustAmount']").addClass("required");
+                $("input[name='feeAmount']").addClass("required");
                 $("input[name='feeRate']").removeClass("required");
             } else {
-                $("input[name='adjustAmount']").attr("disabled", true);
+                $("input[name='feeAmount']").attr("disabled", true);
                 $("input[name='feeRate']").attr("disabled", false);
-                $("input[name='adjustAmount']").removeClass("required");
+                $("input[name='feeAmount']").removeClass("required");
                 $("input[name='feeRate']").addClass("required");
             }
         }
@@ -145,10 +145,10 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">调账类型<span style="color: red;">*</span></label>
+                    <label class="control-label">收费类型<span style="color: red;"></span></label>
                     <div class="controls">
                         <select name="feeType" class="input-xlarge" id="feeType" onchange="rateOrAmount()">
-                            <option value="1">固定值</option>
+                            <option value="1">固定手续费</option>
                             <option value="2">按比例收费</option>
                         </select>
                     </div>
@@ -167,7 +167,7 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">调账比例（‰）<span style="color: red;">*</span></label>
+                    <label class="control-label">调账费率（‰）<span style="color: red;"></span></label>
                     <div class="controls">
                         <form:input path="feeRate" class="number required" disabled="true"/>
                     </div>
@@ -175,11 +175,20 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td>
                 <div class="control-group">
                     <label class="control-label">备注</label>
                     <div class="controls">
                         <form:textarea path="remark" cols="20" rows="5"/>
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                <div class="control-group">
+                    <label class="control-label">调账手续费（元）<span style="color: red;"></span></label>
+                    <div class="controls">
+                        <form:input path="feeAmount" class="number required"/>
                     </div>
                 </div>
             </td>

@@ -21,9 +21,10 @@ import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatAccountAdjust;
-import com.sys.core.service.MchtAccountInfoService;
+import com.sys.core.service.MchtAccountDetailService;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatAccountAdjustService;
 import org.apache.commons.beanutils.BeanUtils;
@@ -35,6 +36,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -63,7 +65,7 @@ public class PlatAccountAdjustController extends BaseController {
     @Autowired
     private MerchantService merchantService;
     @Autowired
-    private MchtAccountInfoService mchtAccountInfoService;
+    private MchtAccountDetailService mchtAccountDetailService;
     @Autowired
     MerchantAdminService merchantAdminService;
 
@@ -249,14 +251,25 @@ public class PlatAccountAdjustController extends BaseController {
     @RequestMapping("balance")
     @RequiresPermissions("platform:adjust:apply")
     public void balance(String mchtId,HttpServletResponse response) throws IOException {
-        BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId,null);
-        balance = balance.divide(BigDecimal.valueOf(100));
+
+        MchtAccountDetail mchtAccountDetail = null;
+        BigDecimal platBalance = null;
+        MchtAccountDetail detailQuery = new MchtAccountDetail();
+        detailQuery.setMchtId(mchtId);
+        detailQuery.setSuffix(DateUtils.formatDate(new Date(),"yyyyMM"));
+        List<MchtAccountDetail> details = mchtAccountDetailService.list(detailQuery);
+        if (!CollectionUtils.isEmpty(details)){
+            mchtAccountDetail = details.get(0);
+            platBalance = mchtAccountDetail.getCashTotalAmount();
+        }
+		//余额 = 现金金额 - 成功代付金额 - 代付冻结金额 - 代付手续费
+        platBalance = platBalance.divide(BigDecimal.valueOf(100));
 
         String contentType = "text/plain";
         response.reset();
         response.setContentType(contentType);
         response.setCharacterEncoding("utf-8");
-        response.getWriter().print(balance.stripTrailingZeros().toPlainString());
+        response.getWriter().print(platBalance.stripTrailingZeros().toPlainString());
     }
 
     protected void insertMchtAccountInfo2redis(CacheMchtAccount cacheMchtAccount) {
@@ -265,7 +278,7 @@ public class PlatAccountAdjustController extends BaseController {
         try {
             pool = JedisConnPool.getPool("缓存插入cacheMchtAccount信息");
             jedis = pool.getResource();
-            long rsPay = jedis.lpush(IdUtil.REDIS_ACCT_MCHT_ACCOUNT_TASK_LIST, JSON.toJSONString(cacheMchtAccount));
+            long rsPay = jedis.lpush(IdUtil.REDIS_ACCT_MCHT_ACCOUNT_ADJUST_TASK_LIST, JSON.toJSONString(cacheMchtAccount));
             System.out.println("插入了一个新的任务： rsPay = " + rsPay);
         } catch (JedisConnectionException je) {
             je.printStackTrace();
