@@ -197,7 +197,7 @@ function getAsynQrCode(paymentType) {
             }else{
                 if(data.respCode == "E8003"){
                     //该笔订单已成功
-                    $("#alreadySucc").css("display","block");
+                    // $("#alreadySucc").css("display","block");
                 }
                 $("#respCode").html(data.respCode);
                 $("#respMsg").html(data.respMsg);

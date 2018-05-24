@@ -182,11 +182,12 @@ public class GwCashierMchtController extends GwCashierBaseController {
 //			logger.info("页面轮询，根据请求头获取的user-agent为："+userAgent);
 //			deviceType = HttpUtil.getDeviceType(userAgent);
 //			logger.info("页面轮询，通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
-            String ip = IpUtil.getRemoteHost(request);
+//            String ip = IpUtil.getRemoteHost(request);
+			String ip = "";
             platOrderId = request.getParameter("platOrderId");
             //调用handler处理业务
             CommonResult result = iTradeCashierMchtHandler.queryStatus(ip, platOrderId);
-            logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询结果：CommonResult="+ JSONObject.toJSONString(result));
+//            logger.info("页面轮训查单，订单platOrderId="+platOrderId+"，查询结果：CommonResult="+ JSONObject.toJSONString(result));
             if(null != result &&  null != result.getData()){
                 status = (String) result.getData();
                 if(PayStatusEnum.PAY_SUCCESS.getCode().equals(status)){

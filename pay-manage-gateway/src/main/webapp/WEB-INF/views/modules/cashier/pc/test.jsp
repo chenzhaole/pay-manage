@@ -78,6 +78,7 @@
         <select name="currencyType">
             <option value="">--不指定--</option>
             <option value="CNY">人民币</option>
+            <option value="USD">美元</option>
         </select>
         <br>
 

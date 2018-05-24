@@ -77,6 +77,15 @@ public class GwRecNotifyController {
                         logger.info(BIZ + platOrderId + "，通知商户成功");
                     } else {
                         logger.info(BIZ + platOrderId + "，通知商户失败");
+                        //开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
+                        new Thread("Thread-name-"+platOrderId){
+                            @Override
+                            public void run() {
+                                int count = 1;//开始补抛
+                                logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,count="+count+",payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                                throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count);
+                            }
+                        }.start();
                     }
                 }
             } else {
@@ -88,6 +97,58 @@ public class GwRecNotifyController {
         }
         logger.info(BIZ+platOrderId+"，接收上游通道异步通知接口data数据 [END],返回通道响应信息为: "+resp2chan);
         return resp2chan;
+    }
+
+    /**
+     * 补抛商户异步通知流水
+     * @param BIZ
+     * @param platOrderId
+     * @param payType
+     * @param redisOrderTrade
+     * @param count  补抛次数
+     */
+    private void throwMchtNotifyInfo(String BIZ, String platOrderId,String payType, CacheTrade redisOrderTrade, int count) {
+        //总共补抛四次
+        int totalCount = 4;
+        try{
+            if(count > totalCount){
+                logger.info(BIZ+platOrderId+"，当前补抛次数是"+count+",补抛次数已经超过"+totalCount+"次，不再对商户异步通知进行补抛");
+                return;
+            }
+            switch (count){
+                case 1 :
+                    logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,当前是第"+count+"次补抛,payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                    break;
+                case 2 :
+                    Thread.sleep(60000);
+                    logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,当前是第"+count+"次补抛,payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                    break;
+                case 3 :
+                    Thread.sleep(60000);
+                    logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,当前是第"+count+"次补抛,payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                    break;
+                case 4 :
+                    Thread.sleep(60000);
+                    logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,当前是第"+count+"次补抛,payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                    break;
+            }
+            CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
+            logger.info(BIZ + platOrderId +"，异步通知商户失败，执行补抛，当前是第"+count+"次补抛，补抛后sendNotifyService返回的CommonResult="+JSONObject.toJSONString(serviceResult));
+
+            if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
+                logger.info(BIZ + platOrderId +"，异步通知商户失败，执行补抛，当前是第"+count+"次补抛，补抛结果为：通知商户成功");
+                return;
+            } else {
+                logger.info(BIZ + platOrderId +"，异步通知商户失败，执行补抛，当前是第"+count+"次补抛，补抛结果为：通知商户失败");
+                throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count+1);
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.info(BIZ+platOrderId+"，异步通知商户失败，执行补抛，当前是第"+count+"次补抛，抛异常，Exception="+e.getMessage());
+            if(count <= totalCount){
+                throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count+1);
+            }
+        }
     }
 
 
@@ -128,6 +189,15 @@ public class GwRecNotifyController {
                         logger.info(BIZ + platOrderId + "，通知商户成功");
                     } else {
                         logger.info(BIZ + platOrderId + "，通知商户失败");
+                        //开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
+                        new Thread("Thread-name-"+platOrderId){
+                            @Override
+                            public void run() {
+                                int count = 1;//开始补抛
+                                logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,count="+count+",payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                                throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count);
+                            }
+                        }.start();
                     }
                 }
             }else{

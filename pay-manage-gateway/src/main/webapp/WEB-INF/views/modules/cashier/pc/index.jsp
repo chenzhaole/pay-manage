@@ -81,21 +81,11 @@
                                 <div class="unionpay"><img class="timg" src="${ctxStatic}/images/union.png" alt="" />银联二维码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
                             </li>
                         </c:if>
-                        <c:if test="${paymentType=='sn'}">
+                        <c:if test="${paymentType=='qj'}">
                             <li id="${paymentType}">
-                                <div class="snpay"><img class="timg" src="${ctxStatic}/images/sn.png" alt="" />苏宁扫码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
+                                <div class="cardpay"><img class="timg" src="${ctxStatic}/images/bank.png" alt="" />银行卡支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
                             </li>
                         </c:if>
-                        <c:if test="${paymentType=='yl'}">
-                            <li id="${paymentType}">
-                                <div class="unionpay"><img class="timg" src="${ctxStatic}/images/union.png" alt="" />银联二维码<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
-                            </li>
-                        </c:if>
-                    <c:if test="${paymentType=='qj'}">
-                        <li id="${paymentType}">
-                            <div class="cardpay"><img class="timg" src="${ctxStatic}/images/bank.png" alt="" />银行卡支付<i class="selected"><img src="${ctxStatic}/images/gou.png" alt="" /></i></div>
-                        </li>
-                    </c:if>
                     </c:forEach>
                 </ul>
 
@@ -293,7 +283,7 @@
                             <p>
                                 状态码:<span id="respCode"></span>，错误描述:<span id="respMsg"></span>
                             </p>
-                            <button class="layui-btn" id="alreadySucc" onclick="refuse()" style="display: none;">确定</button>
+                            <%--<button class="layui-btn" id="alreadySucc" onclick="refuse()" style="display: none;">确定</button>--%>
                         </div>
                     </div>
 
@@ -313,7 +303,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=1.0.5"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=1.0.7"></script>
     <script src="${ctxStatic}/js/cardPay.js?v=1.0.0"></script>
     <script>
         /**

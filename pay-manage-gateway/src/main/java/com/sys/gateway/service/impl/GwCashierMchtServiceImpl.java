@@ -76,6 +76,13 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
                 logger.error(BIZ + "公众号支付，openId不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
                 return checkResp;
             }
+            //货币类型 人民币：CNY，美元： USD
+            if(!"CNY".equals(body.getCurrencyType()) && !"USD".equals(body.getCurrencyType())){
+                checkResp.setRespCode(ErrorCodeEnum.E1019.getCode());
+                checkResp.setRespMsg(ErrorCodeEnum.E1019.getDesc());
+                logger.error(BIZ + "商户传入的货币种类为:"+body.getCurrencyType()+"，与平台货币类型不一致");
+                return checkResp;
+            }
 
             checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
             checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
