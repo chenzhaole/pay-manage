@@ -277,8 +277,11 @@
                     <div class="layui-tab-item nouse" id="alipay">
                         <div class="warn-content">
                             <img src="${ctxStatic}/images/pop3.png" alt="暂未支付" />
-                            <p>
+                            <p id="alreadyError">
                                 下单失败，请尝试其他支付方式
+                            </p>
+                            <p id="alreadySucc" style="display: none;">
+                                该笔订单已支付成功，请重新下单
                             </p>
                             <p>
                                 状态码:<span id="respCode"></span>，错误描述:<span id="respMsg"></span>
@@ -303,7 +306,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=1.0.7"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=1.0.8"></script>
     <script src="${ctxStatic}/js/cardPay.js?v=1.0.0"></script>
     <script>
         /**
