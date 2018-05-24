@@ -135,7 +135,6 @@
                         <select id="status" name="status">
                             <option value="">---请选择---</option>
                             <option value="1" <c:if test="${paramMap.status eq '1'}">selected</c:if>  >提交成功</option>
-                            <option value="4001" <c:if test="${paramMap.status eq '4001'}">selected</c:if> >提交失败</option>
                             <option value="2" <c:if test="${paramMap.status eq '2'}">selected</c:if> >支付成功</option>
                             <option value="4002" <c:if test="${paramMap.status eq '4002'}">selected</c:if> >支付失败</option>
                         </select>

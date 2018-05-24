@@ -144,19 +144,19 @@ public class MchtOrderController extends BaseController {
 		model.addAttribute("page", page);
 
 		//金额总数
-		BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+//		BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
 
 		//支付成功
-		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+//		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
 		//支付成功总数
-		long successCount = orderAdminService.ordeCount(order);
+//		long successCount = orderAdminService.ordeCount(order);
 		//支付成功金额总数
-		BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+//		BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
 
 		model.addAttribute("orderCount", orderCount);
-		model.addAttribute("successCount", successCount);
-		model.addAttribute("amount", amount.toString());
-		model.addAttribute("successAmount", successAmount.toString());
+//		model.addAttribute("successCount", successCount);
+//		model.addAttribute("amount", amount.toString());
+//		model.addAttribute("successAmount", successAmount.toString());
 
 		return "modules/order/mchtOrderList";
 	}
@@ -615,6 +615,9 @@ public class MchtOrderController extends BaseController {
 		//订单状态
 		if (StringUtils.isNotBlank(paramMap.get("status"))) {
 			order.setStatus(paramMap.get("status"));
+		}else{
+			//不显示下单失败的流水,使用!做个标记
+			order.setStatus("!"+PayStatusEnum.SUBMIT_FAIL.getCode());
 		}
 
 		//补单状态
