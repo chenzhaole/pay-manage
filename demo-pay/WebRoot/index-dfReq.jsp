@@ -150,8 +150,8 @@
                 <dt>代付订单明细：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <textarea rows="10" cols="40" name="detail" id="detail" >[{"accType":"0","amount":"100","bankCardName":"lucy","bankCardNo":"622620011234876","seq":"0"},{"accType":"0","amount":"100","bankCardName":"lucy","bankCardNo":"622620011234876","seq":"1"}]
-</textarea>
+                    <textarea rows="10" cols="40" name="detail" id="detail" >[{"accType":"0","amount":"100","bankLineCode":"102","bankCardName":"黎健畅","bankCardNo":"6222030200005664549","bankName":"中国工商银行","seq":"0"}]
+                    </textarea>
                     <span class="null-star">(detail)*</span>
                     <span></span>
                 </dd>

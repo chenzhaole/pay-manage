@@ -20,6 +20,7 @@ import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
+import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -170,17 +171,14 @@ public class PlatAccountAdjustController extends BaseController {
         String operatorName = UserUtils.getUser().getName();
         platAccountAdjust.setCreatorId(operatorId.toString());
         platAccountAdjust.setCreatorName(operatorName);
-
-        platAccountAdjust.setAuditStatus(AuditEnum.AUDITING.getCode());
-
-
-        if(StringUtils.equals(FeeTypeEnum.FIXED.getCode(),platAccountAdjust.getFeeType())){//固定值
-            platAccountAdjust.setAdjustAmount(platAccountAdjust.getAdjustAmount().multiply(BigDecimal.valueOf(100)));
-            platAccountAdjust.setFeeAmount(platAccountAdjust.getAdjustAmount());
-        }else{
-            platAccountAdjust.setAdjustAmount(BigDecimal.valueOf(0));
-        }
-
+		//元转分
+		if (platAccountAdjust.getAdjustAmount() != null) {
+			platAccountAdjust.setAdjustAmount(platAccountAdjust.getAdjustAmount().multiply(BigDecimal.valueOf(100)));
+		}
+		if (platAccountAdjust.getFeeAmount() != null) {
+			platAccountAdjust.setFeeAmount(platAccountAdjust.getFeeAmount().multiply(BigDecimal.valueOf(100)));
+		}
+		platAccountAdjust.setAuditStatus(AuditEnum.AUDITING.getCode());
         platAccountAdjust.setId(IdUtil.createCommonId());
         platAccountAdjust.setUpdateTime(new Date());
         platAccountAdjust.setCreateTime(new Date());
@@ -262,8 +260,17 @@ public class PlatAccountAdjustController extends BaseController {
             mchtAccountDetail = details.get(0);
             platBalance = mchtAccountDetail.getCashTotalAmount();
         }
-		//余额 = 现金金额 - 成功代付金额 - 代付冻结金额 - 代付手续费
-        platBalance = platBalance.divide(BigDecimal.valueOf(100));
+		//余额 = 现金金额 - 冻结金额
+        if (mchtAccountDetail != null && mchtAccountDetail.getFreezeTotalAmount() != null){
+            platBalance = platBalance.subtract(mchtAccountDetail.getFreezeTotalAmount());
+        }
+
+        if (platBalance != null){
+            //分转元
+            platBalance = platBalance.divide(BigDecimal.valueOf(100));
+        }else {
+            platBalance = BigDecimal.ZERO;
+        }
 
         String contentType = "text/plain";
         response.reset();
