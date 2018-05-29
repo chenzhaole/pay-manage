@@ -152,7 +152,7 @@ public class MerchantController extends BaseController {
 			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes) {
 		try {
 			//系统生成8位MerchantNo
-			String mchtNo = IdUtil.createCode();
+			String mchtNo = IdUtil.createMchtId();
 			//创建者UserId
 			Long operatorId =  UserUtils.getUser().getId();
 			//将页面请求参数转换成商户实体bo
