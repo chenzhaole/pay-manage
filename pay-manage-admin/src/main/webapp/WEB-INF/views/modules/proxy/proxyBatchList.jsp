@@ -78,13 +78,11 @@
                 <label>代付状态：</label>
                 <select name="payStatus" class="input-medium" id="">
                     <option <c:if test="${paramMap.payStatus == ''}">selected</c:if> value="">--请选择--</option>
-                    <option <c:if test="${paramMap.payStatus == '0'}">selected</c:if> value="0">未处理</option>
-                    <option <c:if test="${paramMap.payStatus == '1'}">selected</c:if> value="1">已处理</option>
-                    <option <c:if test="${paramMap.payStatus == '2'}">selected</c:if> value="2">处理中</option>
-                    <option <c:if test="${paramMap.payStatus == '3'}">selected</c:if> value="3">不能处理</option>
-                    <option <c:if test="${paramMap.payStatus == '4'}">selected</c:if> value="4">部分失败</option>
-                    <option <c:if test="${paramMap.payStatus == '5'}">selected</c:if> value="5">全部失败</option>
-                    <option <c:if test="${paramMap.payStatus == '6'}">selected</c:if> value="6">全部成功</option>
+                    <option <c:if test="${paramMap.payStatus == '0'}">selected</c:if> value="10">审核中</option>
+                    <option <c:if test="${paramMap.payStatus == '1'}">selected</c:if> value="11">审核通过</option>
+                    <option <c:if test="${paramMap.payStatus == '2'}">selected</c:if> value="12">审核未通过</option>
+                    <option <c:if test="${paramMap.payStatus == '5'}">selected</c:if> value="23">代付处理中</option>
+                    <option <c:if test="${paramMap.payStatus == '6'}">selected</c:if> value="24">代付结束</option>
                 </select>&nbsp;&nbsp;&nbsp;
             </td>
 
@@ -124,15 +122,9 @@
             <td><c:if test="${proxyBatch.dataSource == 0}">线上接口</c:if>
                 <c:if test="${proxyBatch.dataSource == 1}">线下手工</c:if></td>
             <td>${proxyBatch.totalNum}</td>
-            <td><fmt:formatNumber type="number" value="${proxyDetail.totalAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
-            <td><fmt:formatNumber type="number" value="${proxyDetail.totalFee*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
-            <td><c:if test="${proxyBatch.payStatus == 0}">未处理</c:if>
-                <c:if test="${proxyBatch.payStatus == 1}">已处理</c:if>
-                <c:if test="${proxyBatch.payStatus == 2}">处理中</c:if>
-                <c:if test="${proxyBatch.payStatus == 3}">不能处理</c:if>
-                <c:if test="${proxyBatch.payStatus == 4}">部分失败</c:if>
-                <c:if test="${proxyBatch.payStatus == 5}">全部失败</c:if>
-                <c:if test="${proxyBatch.payStatus == 6}">全部成功</c:if></td>
+            <td><fmt:formatNumber type="number" value="${proxyBatch.totalAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
+            <td><fmt:formatNumber type="number" value="${proxyBatch.totalFee*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
+            <td>${proxyBatch.payStatus}</td>
             <td><fmt:formatDate value="${proxyBatch.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td><fmt:formatDate value="${proxyBatch.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>

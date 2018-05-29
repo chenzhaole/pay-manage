@@ -59,7 +59,7 @@
             </td>
             <td>
                 <label>记账类型：</label>
-                <form:select path="recordType" >
+                <form:select path="opType" >
                     <form:option value=""/>
                     <form:options items="${fns:getDictList('record_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
@@ -82,11 +82,11 @@
         <th>账户类型</th>
         <th>记账类型</th>
         <th>交易类型</th>
-        <th>订单金额（元）</th>
+        <th>交易金额（元）</th>
         <th>增加（元）</th>
         <th>减少（元）</th>
-        <th>原金额（元）</th>
-        <th>当前金额（元）</th>
+        <th>冻结金额（元）</th>
+        <th>现金余额（元）</th>
         <th>记账时间</th>
     </tr>
     </thead>
@@ -100,13 +100,13 @@
             <td>${accountDetail.mchtOrderId}</td>
             <td>${accountDetail.platOrderId}</td>
             <td>${fns:getDictLabel(accountDetail.accountType,'account_type' ,'' )}</td>
-            <td>${fns:getDictLabel(accountDetail.recordType,'record_type' ,'' )}</td>
+            <td>${fns:getDictLabel(accountDetail.opType,'record_type' ,'' )}</td>
             <td>${fns:getDictLabel(accountDetail.payType,'pay_type' ,'' )}</td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.orderAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${accountDetail.tradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${accountDetail.addAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${accountDetail.reduceAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.oriAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.finalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${accountDetail.freezeTotalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${accountDetail.cashTotalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatDate value="${accountDetail.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
         </tr>
     </c:forEach>
