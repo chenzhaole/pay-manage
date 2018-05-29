@@ -5,18 +5,23 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.boss.api.entry.cache.CacheMcht;
-import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
 import com.sys.common.enums.ProxyPayRequestEnum;
 import com.sys.common.enums.StatusEnum;
-import com.sys.common.util.*;
+import com.sys.common.util.Collections3;
+import com.sys.common.util.DateUtils;
+import com.sys.common.util.DateUtils2;
+import com.sys.common.util.DesUtil32;
+import com.sys.common.util.IdUtil;
+import com.sys.common.util.JedisUtil;
+import com.sys.common.util.PostUtil;
+import com.sys.common.util.SignUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.MchtProduct;
 import com.sys.core.dao.dmo.PlatBank;
@@ -25,6 +30,7 @@ import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.core.dao.dmo.PlatProxyBatch;
 import com.sys.core.dao.dmo.PlatProxyDetail;
 import com.sys.core.service.ChannelService;
+import com.sys.core.service.MchtAccountDetailService;
 import com.sys.core.service.MchtAccountInfoService;
 import com.sys.core.service.MchtProductService;
 import com.sys.core.service.MerchantService;
@@ -57,7 +63,13 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Controller
 @RequestMapping(value = "${adminPath}/proxy")
@@ -85,6 +97,8 @@ public class ProxyOrderController extends BaseController {
     private PlatFeerateService feerateService;
     @Autowired
     private MchtAccountInfoService mchtAccountInfoService;
+    @Autowired
+    private MchtAccountDetailService mchtAccountDetailService;
     @Autowired
     private PlatBankService platBankService;
 
@@ -138,6 +152,7 @@ public class ProxyOrderController extends BaseController {
             for (PlatProxyBatch platProxyBatch : proxyInfoList) {
                 platProxyBatch.setMchtId(mchtMap.get(platProxyBatch.getMchtId()));
                 platProxyBatch.setChanId(channelMap.get(platProxyBatch.getChanId()));
+                platProxyBatch.setPayStatus(ProxyPayBatchStatusEnum.toEnum(platProxyBatch.getPayStatus()).getDesc());
             }
         }
         Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
@@ -328,10 +343,24 @@ public class ProxyOrderController extends BaseController {
     @RequiresPermissions("mcht:proxy:commit")
     public String toCommitBatch(Model model) {
         String mchtId = UserUtils.getUser().getLoginName();
-        BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId, null);
         MchtInfo mcht = merchantService.queryByKey(mchtId);
-        model.addAttribute("balance", balance);
         model.addAttribute("mchtName", mcht.getName());
+
+        BigDecimal platBalance = null;
+        MchtAccountDetail detailQuery = new MchtAccountDetail();
+        MchtAccountDetail mchtAccountDetail;
+        detailQuery.setMchtId(mchtId);
+        detailQuery.setSuffix(DateUtils.formatDate(new Date(),"yyyyMM"));
+        List<MchtAccountDetail> accountDetails = mchtAccountDetailService.list(detailQuery);
+        if (!CollectionUtils.isEmpty(accountDetails)){
+            mchtAccountDetail = accountDetails.get(0);
+            platBalance = mchtAccountDetail.getCashTotalAmount().subtract(mchtAccountDetail.getFreezeTotalAmount());
+            if (platBalance.compareTo(BigDecimal.ZERO) < 0){
+                platBalance = BigDecimal.ZERO;
+            }
+        }
+        model.addAttribute("balance", platBalance);
+
         return "modules/proxy/commitBatch";
     }
 
@@ -355,7 +384,20 @@ public class ProxyOrderController extends BaseController {
                 //读取数据
                 readExcel(mchtId, sheet, fee, batch, details);
 
-                BigDecimal balance = mchtAccountInfoService.queryBalance(mchtId, null);
+                BigDecimal balance = null;
+                MchtAccountDetail detailQuery = new MchtAccountDetail();
+                MchtAccountDetail mchtAccountDetail;
+                detailQuery.setMchtId(mchtId);
+                detailQuery.setSuffix(DateUtils.formatDate(new Date(),"yyyyMM"));
+                List<MchtAccountDetail> accountDetails = mchtAccountDetailService.list(detailQuery);
+                if (!CollectionUtils.isEmpty(accountDetails)){
+                    mchtAccountDetail = accountDetails.get(0);
+                    balance = mchtAccountDetail.getCashTotalAmount().subtract(mchtAccountDetail.getFreezeTotalAmount());
+                    if (balance.compareTo(BigDecimal.ZERO) < 0){
+                        balance = BigDecimal.ZERO;
+                    }
+                }
+
                 logger.info(mchtId + " 查询mchtAccountInfo表商户余额,返回值=" + balance);
                 BigDecimal proxyAmount = batch.getTotalAmount().add(batch.getTotalFee());//所需总金额=代付金额+代付手续费
                 logger.info(mchtId + "【提交代付】商户ID={} 余额={} 手续费={} 代付金额={}",
@@ -414,7 +456,7 @@ public class ProxyOrderController extends BaseController {
                 Map<String, Object> paramsMap = new HashMap<>();
                 paramsMap.put("version", "1.0");
                 paramsMap.put("mchtId", mchtId);
-                paramsMap.put("biz", "df01");
+                paramsMap.put("biz", PayTypeEnum.SINGLE_DF.getCode());
                 paramsMap.put("orderId", batchId);
                 paramsMap.put("verifyCode", smsCode);
                 paramsMap.put("opType", "2");
@@ -716,7 +758,7 @@ public class ProxyOrderController extends BaseController {
         //银行名称
         bankName = platBankMap.get(bankCode);
         if (StringUtils.isBlank(bankName)) {
-            throw new RuntimeException("第" + k + "行的开户行名称错误!");
+            throw new RuntimeException("第" + k + "行使用的银行不在平台支持的银行列表中!");
         }
 
         //附言

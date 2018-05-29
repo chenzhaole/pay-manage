@@ -144,13 +144,11 @@
 
         <td>
             <label>代付状态：</label>
-            <c:if test="${proxyBatch.payStatus == 0}"><input value="未处理" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 1}"><input value="已处理" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 2}"><input value="处理中" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 3}"><input value="不能处理" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 4}"><input value="部分失败" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 5}"><input value="全部失败" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 6}"><input value="全部成功" type="text" class="input-small" readonly /></c:if>
+            <c:if test="${proxyBatch.payStatus == 10}"><input value="审核中" type="text" class="input-small" readonly /></c:if>
+            <c:if test="${proxyBatch.payStatus == 11}"><input value="审核通过" type="text" class="input-small" readonly /></c:if>
+            <c:if test="${proxyBatch.payStatus == 12}"><input value="审核未通过" type="text" class="input-small" readonly /></c:if>
+            <c:if test="${proxyBatch.payStatus == 23}"><input value="代付处理中" type="text" class="input-small" readonly /></c:if>
+            <c:if test="${proxyBatch.payStatus == 24}"><input value="代付结束" type="text" class="input-small" readonly /></c:if>
         </td>
 
         <td>
