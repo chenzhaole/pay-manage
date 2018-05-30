@@ -1,15 +1,20 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.HttpClient;
 import com.sys.boss.api.entry.CommonResult;
+import com.sys.boss.api.entry.cache.CacheMcht;
+import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.MchtAccountTypeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
@@ -106,6 +111,8 @@ public class ProxyOrderController extends BaseController {
 	private MchtAccountDetailService mchtAccountDetailService;
 	@Autowired
 	private PlatBankService platBankService;
+	@Autowired
+	private AccountAdminService accountAdminService;
 
 	@Value("${sms_send}")
 	private String sms_send;
@@ -489,6 +496,18 @@ public class ProxyOrderController extends BaseController {
 					if (batch == null) {
 						batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + batchId), PlatProxyBatch.class);
 						List<PlatProxyDetail> details = JSON.parseArray(JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS + batchId), PlatProxyDetail.class);
+
+						for (PlatProxyDetail detail : details) {
+							// 账户缓存数据
+							CacheMcht cacheMcht = accountAdminService.queryCacheMcht(mchtId);
+							CacheMchtAccount cacheMchtAccount = new CacheMchtAccount();
+							cacheMchtAccount.setType(Integer.valueOf(MchtAccountTypeEnum.PROXYPAY_ACCOUNT.getCode()));
+							cacheMchtAccount.setCacheMcht(cacheMcht);
+							cacheMchtAccount.setPlatProxyDetail(detail);
+							logger.info("代付的入账功能（插入CacheMchtAccount）信息为：" + JSONObject.toJSONString(cacheMchtAccount));
+							int rs = accountAdminService.insert2redisAccTask(cacheMchtAccount);
+							logger.info("代付的入账功能返回结果 rs=" + rs);
+						}
 						int rs = proxyBatchService.saveBatchAndDetails(batch, details);
 						logger.info("代付批次和代付明细入库返回结果 rs=" + rs);
 						respMsg = "ok";
