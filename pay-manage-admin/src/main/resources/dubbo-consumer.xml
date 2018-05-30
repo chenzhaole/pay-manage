@@ -24,10 +24,10 @@
  	<dubbo:reference id="productRelaService" interface="com.sys.core.service.ProductRelaService" />
  	<dubbo:reference id="merchantService" interface="com.sys.core.service.MerchantService" />
 	<dubbo:reference id="channelService" interface="com.sys.core.service.ChannelService" />
-	<dubbo:reference id="configSysService" interface="com.sys.core.service.ConfigSysService" />
+	<!--<dubbo:reference id="configSysService" interface="com.sys.core.service.ConfigSysService" />-->
 	<dubbo:reference id="platFeerateService" interface="com.sys.core.service.PlatFeerateService" />
 	<dubbo:reference id="mchtGwOrderService" interface="com.sys.core.service.MchtGwOrderService" />
-	<dubbo:reference id="orderProxypay4ManageService" interface="com.sys.boss.api.service.order.OrderProxypay4ManageService"/>
+	<!--<dubbo:reference id="orderProxypay4ManageService" interface="com.sys.boss.api.service.order.OrderProxypay4ManageService"/>-->
 	<dubbo:reference id="areaService" interface="com.sys.core.service.AreaService" />
 	<dubbo:reference id="statReportService" interface="com.sys.boss.api.service.stat.StatReportService" />
 	<dubbo:reference id="chanPaytypeBankService" interface="com.sys.core.service.ChanPaytypeBankService" />
