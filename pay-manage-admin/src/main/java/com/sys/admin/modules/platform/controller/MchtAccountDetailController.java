@@ -3,6 +3,8 @@ package com.sys.admin.modules.platform.controller;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.utils.Collections3;
 import com.sys.admin.common.web.BaseController;
+import com.sys.common.enums.AccOpTypeEnum;
+import com.sys.common.enums.AccTradeTypeEnum;
 import com.sys.common.util.DateUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
@@ -65,6 +67,8 @@ public class MchtAccountDetailController extends BaseController{
                 merchantService.list(new MchtInfo()),"id","name");
         for(MchtAccountDetail detail : list){
             detail.setMchtName(mchtMap.get(detail.getMchtId()));
+            detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
+            detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
         }
 
         Page page = new Page(pageInfo.getPageNo(),pageInfo.getPageSize(),count,true);

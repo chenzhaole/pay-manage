@@ -100,8 +100,8 @@
             <td>${accountDetail.mchtOrderId}</td>
             <td>${accountDetail.platOrderId}</td>
             <td>${fns:getDictLabel(accountDetail.accountType,'account_type' ,'' )}</td>
-            <td>${fns:getDictLabel(accountDetail.opType,'record_type' ,'' )}</td>
-            <td>${fns:getDictLabel(accountDetail.payType,'pay_type' ,'' )}</td>
+            <td>${accountDetail.opType}</td>
+            <td>${accountDetail.tradeType}</td>
             <td><fmt:formatNumber type="number" value="${accountDetail.tradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${accountDetail.addAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${accountDetail.reduceAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>

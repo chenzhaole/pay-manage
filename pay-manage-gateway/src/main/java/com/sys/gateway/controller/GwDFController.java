@@ -140,6 +140,8 @@ public class GwDFController {
         logger.info("代付API，【代付余额查询接口】收到Admin请求参数：mchtId="+mchtId);
         CommonResult balanceResponse = new CommonResult();
         try {
+            String ip = IpUtil.getRemoteHost(request);//请求ip
+            logger.info("代付API，【代付请求接口】获取到客户端请求ip为：ip="+ip);
             balanceResponse = tradeDFBalancePlatHandler.process(mchtId);
             logger.info("代付API，【代付余额查询接口】返回的信息为：="+JSONObject.toJSONString(balanceResponse));
 
