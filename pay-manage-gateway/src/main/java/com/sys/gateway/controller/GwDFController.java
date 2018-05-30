@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.CommonResult;
+import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.df.TradeDFCreateOrderRequest;
 import com.sys.boss.api.entry.trade.request.df.TradeDFQueryBalanceRequest;
 import com.sys.boss.api.entry.trade.request.df.TradeDFQueryOrderRequest;
@@ -128,6 +129,28 @@ public class GwDFController {
         }
         logger.info("代付API，【代付余额查询接口】返回下游商户值："+JSON.toJSONString(resp));
         return JSON.toJSONString(resp);
+    }
+
+    /**
+     *  代付余额查询（admin使用）
+     */
+    @RequestMapping(value="balanceForAdmin")
+    @ResponseBody
+    public String balanceForAdmin(String mchtId, HttpServletRequest request){
+        logger.info("代付API，【代付余额查询接口】收到Admin请求参数：mchtId="+mchtId);
+        CommonResult balanceResponse = new CommonResult();
+        try {
+            balanceResponse = tradeDFBalancePlatHandler.process(mchtId);
+            logger.info("代付API，【代付余额查询接口】返回的信息为：="+JSONObject.toJSONString(balanceResponse));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("代付API，【代付余额查询接口】接口抛异常"+e.getMessage());
+            balanceResponse.setRespCode(ErrorCodeEnum.FAILURE.getCode());
+            balanceResponse.setRespMsg("代付网关错误："+e.getMessage());
+        }
+        logger.info("代付API，【代付余额查询接口】返回下游商户值："+JSON.toJSONString(balanceResponse));
+        return balanceResponse.getData().toString();
     }
 
     /**

@@ -346,7 +346,7 @@ public class OrderController extends BaseController {
 		String message = "查单失败";
 		try {
 			String gatewayUrl = ConfigUtil.getValue("gateway.url");
-			String queryUrl = gatewayUrl + "/queryOrder";
+			String queryUrl = gatewayUrl + "/gateway/queryOrder";
 			MchtGatewayOrder searchBo = new MchtGatewayOrder();
 			searchBo.setId(paramMap.get("orderId"));
 			String suffix = "20" + searchBo.getId().substring(1, 5);
@@ -441,7 +441,7 @@ public class OrderController extends BaseController {
 		String message = "补发通知失败";
 		try {
 			String gatewayUrl = ConfigUtil.getValue("gateway.url");
-			String supplyUrl = gatewayUrl + "/renotify";
+			String supplyUrl = gatewayUrl + "/gateway/renotify";
 			Map<String, String> data = new HashMap<>();
 			data.put("orderId", orderId);
 			data.put("suffix", suffix);
