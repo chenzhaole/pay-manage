@@ -23,7 +23,7 @@ import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.ChanMchtPaytypeService;
-import com.sys.core.service.ConfigSysService;
+//import com.sys.core.service.ConfigSysService;
 import com.sys.core.service.PlatSDKService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,8 +70,8 @@ public class PlatformController {
 	@Autowired
 	MchtChanAdminService mchtChanAdminService;
 
-	@Autowired
-	ConfigSysService configSysService;
+//	@Autowired
+//	ConfigSysService configSysService;
 
 	@Autowired
 	ChanMchtPaytypeService chanMchtPaytypeService;
@@ -585,7 +585,8 @@ public class PlatformController {
 		Collections3.sortByName(mchtInfosResult, "name");
 		model.addAttribute("mchtInfos", mchtInfosResult);
 
-		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();
+//		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();
+		List paymentTypeInfos = new ArrayList<>();
 		model.addAttribute("paymentTypeInfos", paymentTypeInfos);
 
 		List<ProductFormInfo> productFormInfos = productAdminService.getProductList(new ProductFormInfo());

@@ -19,7 +19,7 @@ import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.OrderAdminService;
-import com.sys.boss.api.service.order.OrderProxypay4ManageService;
+//import com.sys.boss.api.service.order.OrderProxypay4ManageService;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
@@ -72,10 +72,10 @@ public class MchtOrderController extends BaseController {
 	private MchtGwOrderService mchtGwOrderService;
 	@Autowired
 	private MerchantService merchantService;
-	@Autowired
-	private OrderProxypay4ManageService orderProxypay4ManageService;
-	@Autowired
-	private ConfigSysService configSysService;
+//	@Autowired
+//	private OrderProxypay4ManageService orderProxypay4ManageService;
+//	@Autowired
+//	private ConfigSysService configSysService;
 	@Autowired
 	private MchtProductService mchtProductService;
 	@Autowired
@@ -262,25 +262,27 @@ public class MchtOrderController extends BaseController {
 		try {
 			String mchtId = StringUtils.isNotBlank(request.getParameter("mchtId")) ? request.getParameter("mchtId") : "";
 			String queryDay = StringUtils.isNotBlank(request.getParameter("queryDay")) ? request.getParameter("queryDay") : "";
-			List<CpInfo> cpInfoList = new ArrayList<CpInfo>();
-			Map<String, BigDecimal> balanceMap = new HashMap<String, BigDecimal>();
-
-			if (StringUtils.isNotBlank(mchtId) || StringUtils.isNotBlank(queryDay)) {
-				cpInfoList = configSysService.listAllCpInfo();
-				balanceMap = orderProxypay4ManageService.listMerchantsBalance(mchtId, "1", queryDay);
-				for (Iterator<CpInfo> it = cpInfoList.iterator(); it.hasNext(); ) {
-					String cpId = it.next().getCpId().toString();
-					if (balanceMap.get(cpId) == null) {
-						it.remove();
-					} else {
-						balanceMap.put(cpId, balanceMap.get(cpId)
-								.divide(BigDecimal.valueOf(100)).setScale(4, BigDecimal.ROUND_DOWN));
-					}
-				}
-			}
-
-			model.addAttribute("cpInfoList", cpInfoList);
-			model.addAttribute("balanceMap", balanceMap);
+//			List<CpInfo> cpInfoList = new ArrayList<CpInfo>();
+//			Map<String, BigDecimal> balanceMap = new HashMap<String, BigDecimal>();
+//
+//			if (StringUtils.isNotBlank(mchtId) || StringUtils.isNotBlank(queryDay)) {
+//				cpInfoList = configSysService.listAllCpInfo();
+//				balanceMap = orderProxypay4ManageService.listMerchantsBalance(mchtId, "1", queryDay);
+//				for (Iterator<CpInfo> it = cpInfoList.iterator(); it.hasNext(); ) {
+//					String cpId = it.next().getCpId().toString();
+//					if (balanceMap.get(cpId) == null) {
+//						it.remove();
+//					} else {
+//						balanceMap.put(cpId, balanceMap.get(cpId)
+//								.divide(BigDecimal.valueOf(100)).setScale(4, BigDecimal.ROUND_DOWN));
+//					}
+//				}
+//			}
+//
+//			model.addAttribute("cpInfoList", cpInfoList);
+//			model.addAttribute("balanceMap", balanceMap);
+			model.addAttribute("cpInfoList", new ArrayList());
+			model.addAttribute("balanceMap", new HashMap());
 			model.addAttribute("mchtId", mchtId);
 			model.addAttribute("queryDay", queryDay);
 		} catch (Exception e) {

@@ -39,8 +39,8 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 	@Autowired
 	MerchantService merchantService;
 
-	@Autowired
-	ConfigSysService configSysService;
+//	@Autowired
+//	ConfigSysService configSysService;
 
 	@Autowired
 	PlatFeerateService platFeerateService;
@@ -76,13 +76,13 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 			chanMchtFormInfoTemp.setMchtName(mchtMap.get(mchtPaytype.getMchtId()));
 			chanMchtFormInfoTemp.setMchtCode(mchtCodeMap.get(mchtPaytype.getMchtId()));
 
-			//支付类型
-			if (StringUtils.isNotBlank(mchtPaytype.getPayType())) {
-				PaymentTypeInfo paymentType = configSysService.findPaymentType(mchtPaytype.getPayType());
-				if (paymentType != null) {
-					chanMchtFormInfoTemp.setPayType(paymentType.getPaymentName());
-				}
-			}
+//			//支付类型
+//			if (StringUtils.isNotBlank(mchtPaytype.getPayType())) {
+//				PaymentTypeInfo paymentType = configSysService.findPaymentType(mchtPaytype.getPayType());
+//				if (paymentType != null) {
+//					chanMchtFormInfoTemp.setPayType(paymentType.getPaymentName());
+//				}
+//			}
 
 			//查找最新费率
 			PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.CHAN_MCHT_PAYTYPE_BIZTYPE.getCode(), mchtPaytype.getId());

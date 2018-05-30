@@ -37,8 +37,8 @@ public class ChanBankAdminServiceImpl extends BaseService implements ChanBankAdm
 	@Autowired
 	MerchantService merchantService;
 
-	@Autowired
-	ConfigSysService configSysService;
+//	@Autowired
+//	ConfigSysService configSysService;
 
 	@Autowired
 	PlatFeerateService platFeerateService;
