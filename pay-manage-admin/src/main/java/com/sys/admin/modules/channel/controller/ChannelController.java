@@ -20,7 +20,7 @@ import com.sys.common.enums.StatusEnum;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.service.ConfigSysService;
+//import com.sys.core.service.ConfigSysService;
 import com.sys.core.service.PlatFeerateService;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.Result;
@@ -59,8 +59,8 @@ public class ChannelController extends BaseController {
 	@Autowired
 	ChanMchtAdminService chanMchtAdminService;
 
-	@Autowired
-	ConfigSysService configSysService;
+//	@Autowired
+//	ConfigSysService configSysService;
 
 	@Autowired
 	PlatFeerateService platFeerateService;
