@@ -359,7 +359,7 @@ public class ProxyOrderController extends BaseController {
         detailQuery.setMchtId(mchtId);
         detailQuery.setSuffix(DateUtils.formatDate(new Date(), "yyyyMM"));
 
-        //校验余额是否充足
+        //查询余额
         BigDecimal balance = queryPlatBalance(mchtId);
         model.addAttribute("balance", balance);
 
