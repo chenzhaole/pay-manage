@@ -31,9 +31,6 @@ public class GwSmsServiceImpl implements GwSmsService {
 
     protected final Logger logger = LoggerFactory.getLogger(GwSmsServiceImpl.class);
 
-    //TODO 通用加密KEY,数据库统一管理
-    public final String SMS_KEY = "ZhrtZhrt";
-
 
     @Autowired
     MerchantService merchantService;
@@ -54,6 +51,7 @@ public class GwSmsServiceImpl implements GwSmsService {
 
         String version = (String) data.get("version");
         String mchtId = (String) data.get("mchtId");
+        String SMS_KEY = mchtId;
         String biz = (String) data.get("biz");
         String orderId = (String) data.get("orderId");
         String opType = (String) data.get("opType");
