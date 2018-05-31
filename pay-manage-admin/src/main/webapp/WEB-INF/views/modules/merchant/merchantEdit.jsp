@@ -50,9 +50,9 @@
         function accountType() {
             if ($('#fundSettleAccountType').val() == 1) {
                 $('#fundSettleSubbranchName').attr("class", "required");
-                $('#subbranchName').html("支行<span style='color: red;'>*</span>");
+                $('#subbranchName').html("支行<span style='color: red;'></span>");
                 $('#fundSettleLinkBankNo').attr("class", "required");
-                $('#linkBankNo').html("联行号<span style='color: red;'>*</span>");
+                $('#linkBankNo').html("联行号<span style='color: red;'></span>");
             } else {
                 $('#fundSettleSubbranchName').attr("class", "span3");
                 $('#subbranchName').text("支行");
@@ -107,30 +107,30 @@
                 rules: {
                     shortName: {maxlength: 32, required: true},
                     mchtKey: {maxlength: 255},
-                    mchtType: {maxlength: 8, required: true},
+                    // mchtType: {maxlength: 8, required: true},
                     clientIp: {maxlength: 255},
                     synNotifyUrl: {maxlength: 255},
                     asynNotifyUrl: {maxlength: 255},
-                    legalPerson: {maxlength: 32, required: true},
-                    legalCardNo: {maxlength: 32, required: true},
-                    city: {maxlength: 32, required: true},
+                    // legalPerson: {maxlength: 32, required: true},
+                    // legalCardNo: {maxlength: 32, required: true},
+                    // city: {maxlength: 32, required: true},
                     businessLicenseCode: {maxlength: 32},
-                    companyAdr: {maxlength: 128, required: true},
-                    contactName: {maxlength: 32, required: true},
-                    mobile: {maxlength: 16, required: true},
-                    phone: {maxlength: 20, required: true},
-                    serviceMobile: {maxlength: 16, required: true},
+                    // companyAdr: {maxlength: 128, required: true},
+                    // contactName: {maxlength: 32, required: true},
+                    // mobile: {maxlength: 16, required: true},
+                    // phone: {maxlength: 20, required: true},
+                    // serviceMobile: {maxlength: 16, required: true},
                     servicePhone: {maxlength: 20},
                     serviceQq: {maxlength: 20},
                     serviceWx: {maxlength: 64},
-                    fundSettleAccountName: {maxlength: 64, required: true},
-                    fundSettleBankCard: {maxlength: 64, required: true},
-                    fundSettleBankName: {maxlength: 64, required: true},
-                    fundSettleProvince: {maxlength: 64, required: true},
-                    fundSettleCity: {maxlength: 64, required: true},
-                    fundSettleSubbranchName: {maxlength: 64},
-                    fundSettleLinkBankNo: {maxlength: 64},
-                    fundSettleAccountType: {maxlength: 64, required: true},
+                    // fundSettleAccountName: {maxlength: 64, required: true},
+                    // fundSettleBankCard: {maxlength: 64, required: true},
+                    // fundSettleBankName: {maxlength: 64, required: true},
+                    // fundSettleProvince: {maxlength: 64, required: true},
+                    // fundSettleCity: {maxlength: 64, required: true},
+                    // fundSettleSubbranchName: {maxlength: 64},
+                    // fundSettleLinkBankNo: {maxlength: 64},
+                    // fundSettleAccountType: {maxlength: 64, required: true},
 
 //                    blcPath: {required: true},
 //                    contractFilePath: {required: true},
@@ -143,9 +143,9 @@
                         required: true,
                         maxlength: 64
                     },
-                    email: {
-                        email: true, required: true
-                    },
+                    // email: {
+                    //     email: true, required: true
+                    // },
                     website: {maxlength: 64}
                 },
                 messages: {
@@ -263,7 +263,7 @@
                 <%--</div>--%>
 
                 <div class="control-group">
-                    <label class="control-label">省市区<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">省市区<span style="color: red;"></span></label>
                     <div class="controls" id="demo">
                         <input id="cityCode" name="cityCode" type="hidden" class="sg-area-resultCode"/>
                         <input id="city" name="city" type="text" value="${merchant.city}" class="sg-area-result"/>
@@ -274,7 +274,7 @@
             <td>
 
                 <div class="control-group">
-                    <label class="control-label">注册地址<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">注册地址<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="companyAdr" value="${merchant.companyAdr}" placeholder="" class="input-xlarge"
                                type="text">
@@ -285,7 +285,7 @@
             <td>
 
                 <div class="control-group">
-                    <label class="control-label">行业类别<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">行业类别<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="mchtType" value="${merchant.mchtType}" placeholder="" class="input-xlarge"
                                type="text">
@@ -298,7 +298,7 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">联系电话<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">联系电话<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="phone" value="${merchant.phone}" placeholder="" class="input-xlarge" type="text">
                     </div>
@@ -307,8 +307,7 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">邮箱<span style="color: red;"><span
-                            style="color: red;">*</span></span></label>
+                    <label class="control-label">邮箱<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="email" value="${merchant.email}" placeholder="" class="input-xlarge" type="text">
                     </div>
@@ -359,7 +358,7 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">联系人<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">联系人<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="contactName" value="${merchant.contactName}" placeholder="" class="input-xlarge"
                                type="text">
@@ -369,8 +368,7 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">联系人手机<span style="color: red;"><span
-                            style="color: red;">*</span></span></label>
+                    <label class="control-label">联系人手机<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="serviceMobile" value="${merchant.serviceMobile}" placeholder=""
                                class="input-xlarge" type="text">
@@ -414,7 +412,7 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">法人姓名<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">法人姓名<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="legalPerson" value="${merchant.legalPerson}" placeholder="" class="input-xlarge"
                                type="text">
@@ -423,7 +421,7 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">证件号码<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">证件号码<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="legalCardNo" value="${merchant.legalCardNo}" placeholder="" class="input-xlarge"
                                type="text">
@@ -432,7 +430,7 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">联系电话<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">联系电话<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="mobile" value="${merchant.mobile}" placeholder="" class="input-xlarge" type="text">
                     </div>
@@ -454,8 +452,7 @@
                 <label class="control-label"></label>
                 <div class="controls">
                     <div class="input-prepend">
-                        <span class="add-on">开户行<span style="color: red;"><span
-                                style="color: red;">*</span></span></span>
+                        <span class="add-on">开户行<span style="color: red;"></span></span>
                         <input name="fundSettleBankName" value="${merchant.fundSettleBankName}" class="span3"
                                placeholder="" type="text">
                     </div>
@@ -466,16 +463,16 @@
                 <label class="control-label"></label>
                 <div class="controls">
                     <div class="input-prepend">
-                        <span class="add-on">账户类型<span style="color: red;">*</span></span>
+                        <span class="add-on">账户类型</span>
                         <select id="fundSettleAccountType" name="fundSettleAccountType" class="input-xlarge"
                                 onchange="accountType()">
                             <option
-                                    <c:if test="${merchant.fundSettleAccountType == '1'}">selected</c:if>
-                                    value="1">对公
-                            </option>
-                            <option
                                     <c:if test="${merchant.fundSettleAccountType == '2'}">selected</c:if>
                                     value="2">对私
+                            </option>
+                            <option
+                                    <c:if test="${merchant.fundSettleAccountType == '1'}">selected</c:if>
+                                    value="1">对公
                             </option>
                             <option
                                     <c:if test="${merchant.fundSettleAccountType == '3'}">selected</c:if>
@@ -490,7 +487,7 @@
                 <label class="control-label"></label>
                 <div class="controls">
                     <div class="input-prepend">
-                        <span class="add-on">银行账号<span style="color: red;">*</span></span>
+                        <span class="add-on">银行账号</span>
                         <input name="fundSettleBankCard" value="${merchant.fundSettleBankCard}" class="span3"
                                placeholder="" type="text">
                     </div>
@@ -503,7 +500,7 @@
                 <label class="control-label"></label>
                 <div class="controls">
                     <div class="input-prepend">
-                        <span class="add-on">开户省<span style="color: red;">*</span></span>
+                        <span class="add-on">开户省</span>
                         <input name="fundSettleProvince" value="${merchant.fundSettleProvince}" class="span3"
                                placeholder="" type="text">
                     </div>
@@ -514,7 +511,7 @@
                 <label class="control-label"></label>
                 <div class="controls">
                     <div class="input-prepend">
-                        <span class="add-on">开户市<span style="color: red;">*</span></span>
+                        <span class="add-on">开户市</span>
                         <input name="fundSettleCity" value="${merchant.fundSettleCity}" class="span3"
                                placeholder="" type="text">
                     </div>
@@ -525,7 +522,7 @@
                 <label class="control-label"></label>
                 <div class="controls">
                     <div class="input-prepend">
-                        <span class="add-on">账户名<span style="color: red;">*</span></span>
+                        <span class="add-on">账户名</span>
                         <input name="fundSettleAccountName" value="${merchant.fundSettleAccountName}" class="span3"
                                placeholder="" type="text">
                     </div>
@@ -680,7 +677,7 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">开户许可证<span style="color: red;"><span
-                            style="color: red;">*</span></span></label>
+                            style="color: red;"></span></span></label>
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
@@ -701,7 +698,7 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">银行卡正面照<span style="color: red;"><span
-                            style="color: red;">*</span></span></label>
+                            style="color: red;"></span></span></label>
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
@@ -798,7 +795,7 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">商户类别<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">商户类别<span style="color: red;"></span></label>
                     <div class="controls">
                         <c:choose>
                             <c:when test="${!fn:contains(merchant.signType, '5')}">

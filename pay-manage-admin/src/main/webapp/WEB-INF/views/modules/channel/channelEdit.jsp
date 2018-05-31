@@ -101,6 +101,7 @@
 <input type="hidden" name="id" value="${channel.id }"/>
 
 <div class="breadcrumb">
+	<tags:message content="${message}" type="${messageType}"/>
 	<label><th>基本信息</th></label>
 </div>
 <table class="table">
@@ -168,7 +169,6 @@
 <div class="breadcrumb">
 	<label><th>联络信息</th></label>
 </div>
-<tags:message content="${message}" type="${messageType}"/>
 <table class="table">
 <tr>
 <td>

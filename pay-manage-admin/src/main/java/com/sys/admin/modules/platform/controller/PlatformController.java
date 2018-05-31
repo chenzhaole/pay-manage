@@ -36,6 +36,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
@@ -506,14 +507,16 @@ public class PlatformController {
 		Map<String, String> productPaytypeMap = Collections3.extractToMap(productFormInfos, "id", "payType");
 
 		List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(productFormInfo);
-		for (MchtProductFormInfo mchtProductFormInfo : mchtProductFormInfos) {
-			mchtProductFormInfo.setPayType(productPaytypeMap.get(mchtProductFormInfo.getProductId()));
+		if(!CollectionUtils.isEmpty(mchtProductFormInfos)){
+			for (MchtProductFormInfo mchtProductFormInfo : mchtProductFormInfos) {
+				mchtProductFormInfo.setPayType(productPaytypeMap.get(mchtProductFormInfo.getProductId()));
+			}
 		}
 
 		int orderCount = mchtProductAdminService.mchtProductCount(productFormInfo);
 
 		Page page;
-		if (mchtProductFormInfos != null && mchtProductFormInfos.size() != 0) {
+		if (!CollectionUtils.isEmpty(mchtProductFormInfos)) {
 			page = new Page(pageNo, pageInfo.getPageSize(), orderCount, mchtProductFormInfos, true);
 		} else {
 			page = new Page();
@@ -524,16 +527,19 @@ public class PlatformController {
 		//所有可配商户
 		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
 		List<MerchantForm> mchtInfosResult = new ArrayList<>();
-		for (MerchantForm mchtInfo : mchtInfos) {
-			if (StringUtils.isBlank(mchtInfo.getSignType())) {
-				continue;
-			}
-			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
-				if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
-						|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
-					mchtInfosResult.add(mchtInfo);
+		if(!CollectionUtils.isEmpty(mchtInfos)){
+			for (MerchantForm mchtInfo : mchtInfos) {
+				if (StringUtils.isBlank(mchtInfo.getSignType())) {
+					continue;
+				}
+				if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
+					if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
+							|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
+						mchtInfosResult.add(mchtInfo);
+					}
 				}
 			}
+
 		}
 
 		//根据名称排序

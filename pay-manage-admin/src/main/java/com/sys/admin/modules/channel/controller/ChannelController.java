@@ -142,6 +142,16 @@ public class ChannelController extends BaseController {
 			String userId = String.valueOf(UserUtils.getUser().getId());
 			paramMap.put("userId", userId);
 			ChannelFormInfo channelFormInfo = new ChannelFormInfo(request);
+			ChannelFormInfo oldChannelFormInfo= channelAdminService.getChanInfoById(channelFormInfo.getChanCode());
+			if(null != oldChannelFormInfo && channelFormInfo.getChanCode().equals(oldChannelFormInfo.getChanCode())){
+				redirectAttributes.addFlashAttribute("message", "通道编号已存在！");
+				redirectAttributes.addFlashAttribute("messageType", "error");
+				model.addAttribute("channel", paramMap);
+				model.addAttribute("message", "通道编号已存在！");
+				model.addAttribute("messageType", "error！");
+				return "modules/channel/channelEdit";
+			}
+
 			if (ErrorCodeEnum.SUCCESS.getCode().equalsIgnoreCase(channelFormInfo.getCode())) {
 				channelFormInfo.setOperatorId(Long.valueOf(userId));
 				//进行新增操作
@@ -179,6 +189,12 @@ public class ChannelController extends BaseController {
 			String userId = String.valueOf(UserUtils.getUser().getId());
 			paramMap.put("userId", userId);
 			ChannelFormInfo channelFormInfo = new ChannelFormInfo(request);
+			ChannelFormInfo oldChannelFormInfo= channelAdminService.getChanInfoById(channelFormInfo.getChanCode());
+			if(null != oldChannelFormInfo && channelFormInfo.getChanCode().equals(oldChannelFormInfo.getChanCode())){
+				redirectAttributes.addFlashAttribute("message", "通道编号已存在！");
+				redirectAttributes.addFlashAttribute("messageType", "error");
+				return "modules/channel/channelEdit";
+			}
 			if (ErrorCodeEnum.SUCCESS.getCode().equalsIgnoreCase(channelFormInfo.getCode())) {
 				channelFormInfo.setOperatorId(Long.valueOf(userId));
 				//进行更新操作
