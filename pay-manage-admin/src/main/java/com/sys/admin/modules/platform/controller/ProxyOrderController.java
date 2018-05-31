@@ -403,7 +403,13 @@ public class ProxyOrderController extends BaseController {
                     JedisUtil.set(IdUtil.REDIS_PROXYPAY_DETAILS + batch.getId(), JSON.toJSONString(details), 2 * 3600);
 
                     MchtInfo mcht = merchantService.queryByKey(mchtId);
-                    String mobile = DesUtil32.decode(mcht.getFinanceMobile(), "ZhrtZhrt");
+                    String financeMobile = mcht.getFinanceMobile();
+                    if(StringUtils.isBlank(financeMobile)){
+                        redirectAttributes.addFlashAttribute("messageType", "error");
+                        redirectAttributes.addFlashAttribute("message", "代付用手机号为空");
+                        return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
+                    }
+                    String mobile = DesUtil32.decode(mcht.getFinanceMobile(), mchtId);
                     logger.info(mchtId + "【提交代付】商户ID=" + mchtId + " 数据库加密代付手机号码=" + mcht + " 解密后手机号码=" + mobile + " 页面显示手机号码隐藏中间7位数字");
                     mobile = mobile.substring(0, 2) + "*****" + mobile.substring(7, mobile.length());
 
@@ -443,7 +449,11 @@ public class ProxyOrderController extends BaseController {
     private BigDecimal queryPlatBalance(String mchtId){
         BigDecimal balance = BigDecimal.ZERO;
         try {
-            String gatewayUrl = ConfigUtil.getValue("gateway.url") + "/df/gateway/balanceForAdmin";
+            String topUrl = ConfigUtil.getValue("gateway.url");
+            if(topUrl.endsWith("/")){
+                topUrl = topUrl.substring(0,topUrl.length()-1);
+            }
+            String gatewayUrl = topUrl + "/df/gateway/balanceForAdmin";
             Map<String, String> params = new HashMap<>();
             params.put("mchtId", mchtId);
             logger.info(mchtId + " 查询mchtAccountInfo表商户余额,请求URL: "+gatewayUrl+" 请求参数: "+JSON.toJSONString(params));
@@ -480,7 +490,7 @@ public class ProxyOrderController extends BaseController {
                 paramsMap.put("verifyCode", smsCode);
                 paramsMap.put("opType", "2");
 
-                String sign = SignUtil.md5Sign(paramsMap, "ZhrtZhrt");
+                String sign = SignUtil.md5Sign(paramsMap, mchtId);
                 paramsMap.put("sign", sign);
 
                 String url = sms_send + "/gateway/sms/verify";
@@ -548,7 +558,7 @@ public class ProxyOrderController extends BaseController {
                 paramsMap.put("orderId", batchId);
                 paramsMap.put("opType", "1");
 
-                String sign = SignUtil.md5Sign(paramsMap, "ZhrtZhrt");
+                String sign = SignUtil.md5Sign(paramsMap, mchtId);
                 paramsMap.put("sign", sign);
 
 
