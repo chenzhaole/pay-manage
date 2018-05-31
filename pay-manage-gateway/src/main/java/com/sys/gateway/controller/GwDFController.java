@@ -15,6 +15,7 @@ import com.sys.boss.api.service.trade.handler.*;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.core.service.TaskLogService;
 import com.sys.gateway.common.IpUtil;
+import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -138,6 +139,9 @@ public class GwDFController {
     @ResponseBody
     public String balanceForAdmin(String mchtId, HttpServletRequest request){
         logger.info("代付API，【代付余额查询接口】收到Admin请求参数：mchtId="+mchtId);
+        if (StringUtils.isBlank(mchtId)){
+            return "0";
+        }
         CommonResult balanceResponse = new CommonResult();
         try {
             String ip = IpUtil.getRemoteHost(request);//请求ip
