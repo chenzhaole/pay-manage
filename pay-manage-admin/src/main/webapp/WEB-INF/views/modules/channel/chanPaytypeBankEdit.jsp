@@ -18,6 +18,29 @@
             jQuery.validator.addMethod("alnum", function (value, element) {
                 return this.optional(element) || /^[a-zA-Z0-9]+$/.test(value);
             }, "只能包括英文字母和数字");
+
+            jQuery.validator.addMethod("MaxMoneyCheck", function (value, element) {
+                var maxMoney = value;
+                var minMoneyEle = $(element).siblings("input").val();
+                var maxMoneyInt = parseInt(maxMoney);
+                var minMoneyEleInt = parseInt(minMoneyEle);
+                if(maxMoneyInt < minMoneyEleInt){
+                    return false;
+                }
+                return true;
+            }, "开始金额不能大于结束金额");
+
+            jQuery.validator.addMethod("MinMoneyCheck", function (value, element) {
+                var minMoney = value;
+                var maxMoneyEle = $(element).siblings("input").val();
+                var minMoneyInt = parseInt(minMoney);
+                var maxMoneyEleInt = parseInt(maxMoneyEle);
+                if(minMoneyInt > maxMoneyEleInt){
+                    return false;
+                }
+                return true;
+            }, "开始金额不能大于结束金额");
+
             $("#channelForm").validate({
                 debug: false, //调试模式取消submit的默认提交功能
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
@@ -50,11 +73,13 @@
                     },
                     debitMinMoney: {
                         number: true,
-                        max: 999999
+                        max: 999999,
+                        MinMoneyCheck:true
                     },
                     debitMaxMoney: {
                         number: true,
-                        max: 999999
+                        max: 999999,
+                        MaxMoneyCheck:true
                     },
                     debitTotalMoney: {
                         number: true,
@@ -62,11 +87,13 @@
                     },
                     creditMinMoney: {
                         number: true,
-                        max: 999999
+                        max: 999999,
+                        MinMoneyCheck:true
                     },
                     creditMaxMoney: {
                         number: true,
-                        max: 999999
+                        max: 999999,
+                        MaxMoneyCheck:true
                     },
                     creditTotalMoney: {
                         number: true,
@@ -74,11 +101,13 @@
                     },
                     passbookMinMoney: {
                         number: true,
-                        max: 999999
+                        max: 999999,
+                        MinMoneyCheck:true
                     },
                     passbookMaxMoney: {
                         number: true,
-                        max: 999999
+                        max: 999999,
+                        MaxMoneyCheck:true
                     },
                     passbookTotalMoney: {
                         number: true
