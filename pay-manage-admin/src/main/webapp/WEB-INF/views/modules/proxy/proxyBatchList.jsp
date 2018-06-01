@@ -78,11 +78,11 @@
                 <label>代付状态：</label>
                 <select name="payStatus" class="input-medium" id="">
                     <option <c:if test="${paramMap.payStatus == ''}">selected</c:if> value="">--请选择--</option>
-                    <option <c:if test="${paramMap.payStatus == '0'}">selected</c:if> value="10">审核中</option>
-                    <option <c:if test="${paramMap.payStatus == '1'}">selected</c:if> value="11">审核通过</option>
-                    <option <c:if test="${paramMap.payStatus == '2'}">selected</c:if> value="12">审核未通过</option>
-                    <option <c:if test="${paramMap.payStatus == '5'}">selected</c:if> value="23">代付处理中</option>
-                    <option <c:if test="${paramMap.payStatus == '6'}">selected</c:if> value="24">代付结束</option>
+                    <option <c:if test="${paramMap.payStatus == '10'}">selected</c:if> value="10">审核中</option>
+                    <option <c:if test="${paramMap.payStatus == '11'}">selected</c:if> value="11">审核通过</option>
+                    <option <c:if test="${paramMap.payStatus == '12'}">selected</c:if> value="12">审核未通过</option>
+                    <option <c:if test="${paramMap.payStatus == '23'}">selected</c:if> value="23">代付处理中</option>
+                    <option <c:if test="${paramMap.payStatus == '24'}">selected</c:if> value="24">代付结束</option>
                 </select>&nbsp;&nbsp;&nbsp;
             </td>
 
