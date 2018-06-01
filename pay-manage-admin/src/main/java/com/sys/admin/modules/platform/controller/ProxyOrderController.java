@@ -182,7 +182,7 @@ public class ProxyOrderController extends BaseController {
         proxyDetail.setId(paramMap.get("detailId"));
         proxyDetail.setPayStatus(paramMap.get("payStatus"));
         proxyDetail.setCheckStatus(paramMap.get("checkStatus"));
-        proxyDetail.setBatchId(paramMap.get("batchId"));
+        proxyDetail.setPlatBatchId(paramMap.get("batchId"));
 
         //分页
         String pageNoString = paramMap.get("pageNo");
@@ -727,8 +727,8 @@ public class ProxyOrderController extends BaseController {
         PlatProxyDetail detail = new PlatProxyDetail();
         String detailId = batchId + "W" + i;
         detail.setId(detailId);
-        detail.setMchtOrderId(seq);
-        detail.setBatchId(batchId);
+        detail.setPlatBatchId(batchId);
+        detail.setMchtSeq(seq);
         detail.setMchtId(mchtId);
         detail.setPayType(PayTypeEnum.BATCH_DF.getCode());
         detail.setChannelTradeId(detail.getId());
