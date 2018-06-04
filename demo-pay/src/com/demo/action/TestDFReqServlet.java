@@ -23,8 +23,6 @@ import java.util.UUID;
 
 public class TestDFReqServlet extends HttpServlet {
 
-	private static final String PRIVATE_KEY = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAJtQHqwOEDlfE9gryafuEloaYAWC+Wbb7p23XlKyw/IH+mtD+924qqad6wM8OfQkVjINhpBS25y5qQH3MuAmRWdfa958SH8yWSJyx6ugPc7q0az9ZzaKyEVJmiXckLvqJOpX28FscJuz01d0v+bsAP2FnBo+8mtIHwqUnP8ZnjpbAgMBAAECgYBtbYre0N3PflS+B0QCpLObdl/XIkvUk/rQdqTngXqbadGfh/vKYVUjJbqywdlXUc7FX1BDGY4QI6OXdfMLiQt2S9ihZLKN65pMFsjnhSrt6ozEmCqXVHKFG9fwRLRPg0gY9ofTRrvWDwhlgxV0qUnbqcca1/uRYOt89/xUqxKJOQJBAM5LFpO3b3tJwaq+wyl5+dr0aSU8L7/oBF9fG+lgP74eg0FCd5WoSdIUQ75ixoLBry8Yd9EGb+d2IlJFXsYUSM0CQQDAvGGIzDa6bJUBsC2diyu8ddJpdkHv324R4ccfgBj04TeFkM0rshmjLEEjZQzydiYVhY4LC6uPx7HE08FwbC/HAkBw0wpnAaUcFauw+aH9VjO7d37mGXO4DmoNyxOV4Mkb7s40a+jBVggBuImQX69YJhvsswIctNuRCMAepMf/p2plAkEAnQWc7Md7Wvx1lU+EilLFCiBvkW5AH/5G/ZiVEsvZCUCnbFDhZtUN4AuA8iY0myC4vFX3uHYEivolkXb3pPDvJwJBAKjXYfpjgJ7NqWsFaUx+GDIPaOuzCHJ8wUl62IZol1fBe0QMeb+dwVEBfSK/l/443aQO6WcbT2yp2FWkuBlcaFE=";
-
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
 		super.doGet(req, resp);
@@ -39,6 +37,7 @@ public class TestDFReqServlet extends HttpServlet {
 		try {
 			String payUrl = request.getParameter("payUrl");
 			String key = request.getParameter("key");
+			String PRIVATE_KEY = request.getParameter("publicKey");
 
 			JSONObject data = new JSONObject();
 
