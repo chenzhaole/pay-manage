@@ -110,9 +110,11 @@ public class MchtProxyOrderController extends BaseController {
         //页面带过来isSearch值为1
         int proxyCount = 0;
         List<PlatProxyBatch> proxyInfoList = null;
+        MchtInfo mchtInfo = null;
         if(StringUtils.isNotBlank(isSearch) && "1".equals(isSearch)){
             proxyCount = proxyBatchService.count(proxyBatch);
             proxyInfoList = proxyBatchService.list(proxyBatch);
+            mchtInfo = merchantService.queryByKey(loginName);
         }
         BigDecimal divide = new BigDecimal(100);
         if (!CollectionUtils.isEmpty(proxyInfoList)) {
@@ -128,6 +130,11 @@ public class MchtProxyOrderController extends BaseController {
                 if(null != totalFee){
                     totalFee = totalFee.divide(divide, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyBatch.setTotalFee(totalFee);
+                }
+
+                //商户名称
+                if(null != mchtInfo){
+                    platProxyBatch.setMchtId(mchtInfo.getName());
                 }
             }
         }
@@ -169,8 +176,8 @@ public class MchtProxyOrderController extends BaseController {
         }
         //商户号
         proxyDetail.setMchtId(loginName);
-        //商户代付详情流水号
-        proxyDetail.setId(paramMap.get("detailId"));
+        //商户代付详情流水号M
+        proxyDetail.setMchtSeq(paramMap.get("mchtSeq"));
         //代付状态
         proxyDetail.setPayStatus(paramMap.get("payStatus"));
         //商户代付批次流水号
@@ -178,24 +185,31 @@ public class MchtProxyOrderController extends BaseController {
 
         //如果是从批次页面，查询明细信息
         String platBatchId = paramMap.get("platBatchId");
+        proxyDetail.setPlatBatchId(platBatchId);
+        paramMap.put("platBatchId", platBatchId);
         if(StringUtils.isNotBlank(platBatchId)){
-            proxyDetail.setPlatBatchId(platBatchId);
             //查出批次信息
             PlatProxyBatch platProxyBatch = proxyBatchService.queryByKey(platBatchId);
             if(null != platProxyBatch && loginName.equals(platProxyBatch.getMchtId())){
-                //失败金额，保留4为小数
+                //金额，保留4为小数
                 BigDecimal divice = new BigDecimal(100);
+
+                BigDecimal totalAmount = platProxyBatch.getTotalAmount();
+                if(null != totalAmount){
+                    totalAmount = totalAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
+                    platProxyBatch.setTotalAmount(totalAmount);
+                }
+
                 BigDecimal successAmount = platProxyBatch.getSuccessAmount();
                 if(null != successAmount){
-                    platProxyBatch.setSuccessAmount(successAmount.divide(successAmount, 4, BigDecimal.ROUND_HALF_UP));
+                    successAmount = successAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
+                    platProxyBatch.setSuccessAmount(successAmount);
                 }
+
                 BigDecimal failAmount = platProxyBatch.getFailAmount();
                 if(null != failAmount){
-                    platProxyBatch.setFailAmount(failAmount.divide(failAmount, 4, BigDecimal.ROUND_HALF_UP));
-                }
-                MchtInfo mchtInfo = merchantService.queryByKey(loginName);
-                if(null != mchtInfo){
-                    platProxyBatch.setExtend3(mchtInfo.getName());
+                    failAmount = failAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
+                    platProxyBatch.setFailAmount(failAmount);
                 }
                 model.addAttribute("proxyBatch", platProxyBatch);
             }
@@ -212,15 +226,17 @@ public class MchtProxyOrderController extends BaseController {
         proxyDetail.setPageInfo(pageInfo);
         int proxyCount = 0;
         List<PlatProxyDetail> proxyDetailInfoList = null;
+        MchtInfo mchtInfo = null;
         //页面带过来isSearch值为1
         if(StringUtils.isNotBlank(isSearch) && "1".equals(isSearch)){
             proxyCount = proxyDetailService.count(proxyDetail);
             proxyDetailInfoList =  proxyDetailService.list(proxyDetail);
+            mchtInfo = merchantService.queryByKey(loginName);
         }
         BigDecimal divide = new BigDecimal(100);
         if(!CollectionUtils.isEmpty(proxyDetailInfoList)){
             for(PlatProxyDetail platProxyDetail : proxyDetailInfoList){
-                platProxyDetail.setPayStatus(ProxyPayBatchStatusEnum.toEnum(platProxyDetail.getPayStatus()).getDesc());
+//                platProxyDetail.setPayStatus(ProxyPayBatchStatusEnum.toEnum(platProxyDetail.getPayStatus()).getDesc());
                 //金额和手续费，转成元,保留四位小数点
                 BigDecimal amount = platProxyDetail.getAmount();
                 if(null != amount){
@@ -232,6 +248,8 @@ public class MchtProxyOrderController extends BaseController {
                     totalFee = totalFee.divide(divide, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyDetail.setMchtFee(totalFee);
                 }
+
+                platProxyDetail.setExtend1(mchtInfo.getName());
             }
         }
 
@@ -240,4 +258,30 @@ public class MchtProxyOrderController extends BaseController {
         model.addAttribute("paramMap", paramMap);
         return "modules/proxy/mchtProxyDetailList";
     }
+
+    /**
+     * 代付详情
+     */
+    @RequestMapping(value = {"proxyDetail", ""})
+    public String proxyDetail(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
+        String detailId = paramMap.get("detailId");
+        PlatProxyDetail proxyDetail = proxyDetailService.queryByKey(detailId);
+        //批次信息
+        PlatProxyBatch proxyBatch = null;
+        if (proxyDetail != null) {
+            //登陆用户
+            User user = UserUtils.getUser();
+            String loginName = user.getLoginName();
+            MchtInfo mchtInfo = merchantService.queryByKey(loginName);
+            if(null != mchtInfo){
+                proxyDetail.setExtend2(mchtInfo.getName());
+            }
+            proxyBatch = proxyBatchService.queryByKey(proxyDetail.getPlatBatchId());
+        }
+        model.addAttribute("proxyBatch", proxyBatch);
+        model.addAttribute("proxyDetail", proxyDetail);
+        model.addAttribute("paramMap", paramMap);
+        return "modules/proxy/mchtProxyDetail";
+    }
+
 }

@@ -270,7 +270,9 @@ public class ProxyOrderController extends BaseController {
     public String toCommitBatch(Model model) {
         String mchtId = UserUtils.getUser().getLoginName();
         MchtInfo mcht = merchantService.queryByKey(mchtId);
-        model.addAttribute("mchtName", mcht.getName());
+        if(null != mcht){
+            model.addAttribute("mchtName", mcht.getName());
+        }
 
         MchtAccountDetail detailQuery = new MchtAccountDetail();
         detailQuery.setMchtId(mchtId);

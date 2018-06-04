@@ -26,25 +26,25 @@
 		</tr>
 	<tbody>
 	<tr>
-		<td width="25%"><b>代付状态:</b></td>	<td width="25%">${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}</td>
-		<td width="25%"><b>上游响应信息:</b></td>	<td width="25%"> ${proxyDetail.returnMessage2}</td>
+		<td width="25%"><b>商户代付批次订单号:</b></td>	<td width="25%"> ${proxyDetail.mchtBatchId}</td>
+		<td width="25%"><b>商户代付明细订单号:</b></td>	<td width="25%"> ${proxyDetail.mchtSeq}</td>
 	</tr>
-		<tr>
-	        <td width="25%"><b>批次订单号:</b></td>	<td width="25%"> ${proxyDetail.platBatchId}</td>
-			<td width="25%"><b>明细订单号:</b></td>	<td width="25%"> ${proxyDetail.id}</td>
-   		</tr>
-		<tr>
-			<td width="25%"><b>上游流水号:</b></td>	<td width="25%"> ${proxyDetail.channelSeq}</td>
-			<td width="25%"><b>商户流水号:</b></td>	<td width="25%"> ${proxyDetail.mchtSeq}</td>
-		</tr>
 	<tr>
-		<td width="25%"><b>代付金额:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
-		<td width="25%"><b>手续费:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.mchtFee*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
+		<td width="25%"><b>代付金额:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.amount}" pattern="0.0000" maxFractionDigits="4"/>元</td>
+		<td width="25%"><b>手续费:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.mchtFee}" pattern="0.0000" maxFractionDigits="4"/>元</td>
 	</tr>
-		<tr>
-			<td width="25%"><b>创建时间:</b></td>	<td width="25%"> <fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
-			<td width="25%"><b>更新时间:</b></td>	<td width="25%"> <fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
-		</tr>
+	<tr>
+		<td width="25%"><b>创建时间:</b></td>	<td width="25%"> <fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+		<td width="25%"><b>更新时间:</b></td>	<td width="25%"> <fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+	</tr>
+
+	<tr>
+		<td width="25%"><b>代付状态:</b></td>	<td width="25%">${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}</td>
+		<td width="25%"><b>代付来源:</b></td>	<td width="25%">
+			<c:if test="${proxyBatch.dataSource == 0}">线上接口</c:if>
+			<c:if test="${proxyBatch.dataSource == 1}">线下手工</c:if>
+		</td>
+	</tr>
 	</tbody>
 	</table>
 	<table class="table table-striped table-bordered table-condensed">
@@ -56,10 +56,6 @@
 		<tr>
 			<td width="25%"><b>商户编码:</b></td>	<td width="25%"> ${proxyDetail.mchtId}</td>
 			<td width="25%"><b>商户名称:</b></td>	<td width="25%"> ${proxyDetail.extend2}</td>
-		</tr>
-		<tr>
-			<td width="25%"><b>通道编码:</b></td>	<td width="25%"> ${proxyDetail.chanId}</td>
-			<td width="25%"><b>通道名称:</b></td>	<td width="25%"> ${proxyDetail.extend3}</td>
 		</tr>
 
 		<tr>
