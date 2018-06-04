@@ -191,16 +191,25 @@ public class MchtProxyOrderController extends BaseController {
             //查出批次信息
             PlatProxyBatch platProxyBatch = proxyBatchService.queryByKey(platBatchId);
             if(null != platProxyBatch && loginName.equals(platProxyBatch.getMchtId())){
-                //失败金额，保留4为小数
+                //金额，保留4为小数
                 BigDecimal divice = new BigDecimal(100);
+
+                BigDecimal totalAmount = platProxyBatch.getTotalAmount();
+                if(null != totalAmount){
+                    totalAmount = totalAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
+                    platProxyBatch.setTotalAmount(totalAmount);
+                }
+
                 BigDecimal successAmount = platProxyBatch.getSuccessAmount();
                 if(null != successAmount){
-                    platProxyBatch.setSuccessAmount(successAmount.divide(successAmount, 4, BigDecimal.ROUND_HALF_UP));
+                    successAmount = successAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
+                    platProxyBatch.setSuccessAmount(successAmount);
                 }
 
                 BigDecimal failAmount = platProxyBatch.getFailAmount();
                 if(null != failAmount){
-                    platProxyBatch.setFailAmount(failAmount.divide(failAmount, 4, BigDecimal.ROUND_HALF_UP));
+                    failAmount = failAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
+                    platProxyBatch.setFailAmount(failAmount);
                 }
                 model.addAttribute("proxyBatch", platProxyBatch);
             }
@@ -217,10 +226,12 @@ public class MchtProxyOrderController extends BaseController {
         proxyDetail.setPageInfo(pageInfo);
         int proxyCount = 0;
         List<PlatProxyDetail> proxyDetailInfoList = null;
+        MchtInfo mchtInfo = null;
         //页面带过来isSearch值为1
         if(StringUtils.isNotBlank(isSearch) && "1".equals(isSearch)){
             proxyCount = proxyDetailService.count(proxyDetail);
             proxyDetailInfoList =  proxyDetailService.list(proxyDetail);
+            mchtInfo = merchantService.queryByKey(loginName);
         }
         BigDecimal divide = new BigDecimal(100);
         if(!CollectionUtils.isEmpty(proxyDetailInfoList)){
@@ -237,6 +248,8 @@ public class MchtProxyOrderController extends BaseController {
                     totalFee = totalFee.divide(divide, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyDetail.setMchtFee(totalFee);
                 }
+
+                platProxyDetail.setExtend1(mchtInfo.getName());
             }
         }
 

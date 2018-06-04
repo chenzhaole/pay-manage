@@ -131,6 +131,20 @@
     </label>
 </div>
 <table>
+
+    <tr>
+        <td>
+            <label>总笔数&nbsp;&nbsp;&nbsp;&nbsp;：</label>
+            <input value="${proxyBatch.totalNum}" type="text" class="input-small" readonly />
+        </td>
+
+        <td>
+            <label>&nbsp;&nbsp;&nbsp;总金额&nbsp;&nbsp;&nbsp;&nbsp;（元）：</label>
+            <input value="${proxyBatch.totalAmount}" type="text" class="input-small" readonly />
+        </td>
+
+    </tr>
+
     <tr>
         <td>
             <label>成功笔数：</label>
@@ -177,6 +191,7 @@
         <th>NO</th>
         <th>商户代付批次订单号</th>
         <th>商户代付明细订单号</th>
+        <th>商户名称</th>
         <th>收款人户名</th>
         <th>收款人账号</th>
         <th>金额（元）</th>
@@ -196,6 +211,7 @@
             </td>
             <td>${proxyDetail.mchtBatchId}</td>
             <td>${proxyDetail.mchtSeq}</td>
+            <td>${proxyDetail.extend1}</td>
             <td>${proxyDetail.bankCardName}</td>
             <td>${proxyDetail.bankCardNo}</td>
             <td><fmt:formatNumber type="number" value="${proxyDetail.amount}" pattern="0.0000" maxFractionDigits="4"/></td>
