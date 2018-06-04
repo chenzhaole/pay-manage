@@ -31,13 +31,13 @@
             $("#sendMsg").click(function () {
                 curCount = count;
 
-                var batchId = $("#batchId").val();
+                var platBatchId = $("#platBatchId").val();
                 $.ajax({
                     url:'${ctx}/proxy/sendMsg',
                     type:'POST', //GET
                     async:true,    //或false,是否异步
                     data:{
-                        'batchId':batchId
+                        'platBatchId':platBatchId
                     },
                     timeout:5000,    //超时时间
                     dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -59,7 +59,7 @@
 
             //提交确认代付
             $("#submitBut").click(function () {
-                var batchId = $("#batchId").val();
+                var platBatchId = $("#platBatchId").val();
                 var smsCode = $("#smsCode").val().trim();
                 if(smsCode == ""){
                     alert("请输入验证码！");
@@ -69,7 +69,7 @@
                         type:'POST', //GET
                         async:true,    //或false,是否异步
                         data:{
-                            'batchId':batchId,'smsCode':smsCode
+                            'platBatchId':platBatchId,'smsCode':smsCode
                         },
                         timeout:5000,    //超时时间
                         dataType:'text',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -111,7 +111,7 @@
 </head>
 <body>
 <form action="${ctx}/proxy/confirmCommitBatch" method="post" id="inputForm">
-    <input type="hidden" value="${batch.id}" name="batchId" id="batchId"/>
+    <input type="hidden" value="${batch.id}" name="platBatchId" id="platBatchId"/>
     <table width="100%"  style="border:0" cellspacing="0" cellpadding="1">
         <tr>
             <td align="left">提现总金额：<fmt:formatNumber type="number" value="${batch.totalAmount*0.01}" maxFractionDigits="2"/> 元</td>
@@ -134,9 +134,9 @@
     <c:forEach var="detail" items="${details}" varStatus="vt" >
         <tr>
             <%--<td>${vt.index+1}</td>--%>
-            <td>${detail.batchId}</td>
+            <td>${detail.platBatchId}</td>
             <td>${detail.id}</td>
-                <td>${detail.mchtOrderId}</td>
+                <td>${detail.mchtBatchId}</td>
             <td>${detail.bankCardNo}</td>
             <td>${detail.bankCardName}</td>
             <td>${detail.bankName}</td>
