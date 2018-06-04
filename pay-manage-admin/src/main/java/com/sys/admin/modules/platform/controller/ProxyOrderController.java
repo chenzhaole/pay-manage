@@ -19,7 +19,6 @@ import com.sys.common.enums.ProxyPayRequestEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
-import com.sys.common.util.DateUtils2;
 import com.sys.common.util.DesUtil32;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
@@ -68,7 +67,6 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.InvocationTargetException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
@@ -393,19 +391,19 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("confirmCommitBatch")
     @RequiresPermissions("mcht:proxy:commit")
-    public void confirmCommitBatch(String batchId, String smsCode, HttpServletResponse response) throws IOException {
-        logger.info("【确认代付】接受参数 代付批次ID={} 验证码={}", batchId, smsCode);
+    public void confirmCommitBatch(String platBatchId, String smsCode, HttpServletResponse response) throws IOException {
+        logger.info("【确认代付】接受参数 代付批次ID={} 验证码={}", platBatchId, smsCode);
         String mchtId = UserUtils.getUser().getLoginName();
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
             //校验代付批次
-            if (JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + batchId) != null) {
+            if (JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + platBatchId) != null) {
                 Map<String, Object> paramsMap = new HashMap<>();
                 paramsMap.put("version", "1.0");
                 paramsMap.put("mchtId", mchtId);
                 paramsMap.put("biz", PayTypeEnum.SINGLE_DF.getCode());
-                paramsMap.put("orderId", batchId);
+                paramsMap.put("orderId", platBatchId);
                 paramsMap.put("verifyCode", smsCode);
                 paramsMap.put("opType", "2");
 
@@ -419,12 +417,12 @@ public class ProxyOrderController extends BaseController {
 
                 //校验验证码
                 if (StringUtils.equals(postResp, "0000")) {
-                    logger.info("商户代付校验短信验证码,代付批次ID=" + batchId + " 回填校验成功");
-                    PlatProxyBatch batch = proxyBatchService.queryByKey(batchId);
+                    logger.info("商户代付校验短信验证码,代付批次ID=" + platBatchId + " 回填校验成功");
+                    PlatProxyBatch batch = proxyBatchService.queryByKey(platBatchId);
                     //判断数据库是否存在该批次
                     if (batch == null) {
-                        batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + batchId), PlatProxyBatch.class);
-                        List<PlatProxyDetail> details = JSON.parseArray(JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS + batchId), PlatProxyDetail.class);
+                        batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + platBatchId), PlatProxyBatch.class);
+                        List<PlatProxyDetail> details = JSON.parseArray(JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS + platBatchId), PlatProxyDetail.class);
 						for (PlatProxyDetail detail : details) {
 							// 账户缓存数据
 							CacheMcht cacheMcht = accountAdminService.queryCacheMcht(mchtId);
@@ -463,18 +461,18 @@ public class ProxyOrderController extends BaseController {
      */
     @RequestMapping("sendMsg")
     @RequiresPermissions("mcht:proxy:commit")
-    public void sendMsg(String batchId, HttpServletResponse response) throws IOException {
+    public void sendMsg(String platBatchId, HttpServletResponse response) throws IOException {
         String mchtId = UserUtils.getUser().getLoginName();
         String contentType = "text/plain";
         String respMsg = "fail";
         try {
 
-            if (JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + batchId) != null) {
+            if (JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + platBatchId) != null) {
                 Map<String, Object> paramsMap = new HashMap<>();
                 paramsMap.put("version", "1.0");
                 paramsMap.put("mchtId", mchtId);
                 paramsMap.put("biz", "df01");
-                paramsMap.put("orderId", batchId);
+                paramsMap.put("orderId", platBatchId);
                 paramsMap.put("opType", "1");
 
                 String sign = SignUtil.md5Sign(paramsMap, mchtId);
