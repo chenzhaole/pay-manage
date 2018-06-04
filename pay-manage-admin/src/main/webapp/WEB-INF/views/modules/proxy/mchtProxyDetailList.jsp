@@ -12,12 +12,12 @@
             $('.selectpicker').selectpicker({});
         });
 
-        function del(id) {
-            if (confirm("是否确认删除ID为“" + id + "”的记录？")) {
-                document.forms[0].action = "${ctx}/proxy/deleteMcht?id=" + id;
-                document.forms[0].submit();
-            }
-        }
+        <%--function del(id) {--%>
+            <%--if (confirm("是否确认删除ID为“" + id + "”的记录？")) {--%>
+                <%--document.forms[0].action = "${ctx}/proxy/deleteMcht?id=" + id;--%>
+                <%--document.forms[0].submit();--%>
+            <%--}--%>
+        <%--}--%>
 
         function page(n, s) {
             $("#pageNo").val(n);
@@ -26,6 +26,13 @@
             return false;
         }
 
+        //返回到代付批次页面
+        function goBackProxyBatchPage() {
+            var beginDate = $("#beginDate").val();
+            var endDate = $("#endDate").val();
+            var url = "${ctx}/mchtProxy/proxyBatchList?1=1&isSearch=1&beginDate="+beginDate+"&endDate="+endDate;
+            location.href = url;
+        }
     </script>
 </head>
 <body>
@@ -37,7 +44,7 @@
 
 <tags:message content="${message}" type="${messageType}"/>
 
-<form id="searchForm" action="${ctx}/proxy/proxyDetailList" method="post" class="breadcrumb form-search">
+<form id="searchForm" action="${ctx}/mchtProxy/proxyDetailList" method="post" class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
     <input id="batchId" name="batchId" type="hidden" value="${proxyBatch.id}"/>
@@ -47,15 +54,7 @@
                 <div class="control-group">
                     <div class="controls">
                         <label>商户代付明细订单号：</label>
-                        <input value="${paramMap.detailId}" name="detailId" type="text" maxlength="64" class="input-medium"/>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="control-group">
-                    <div class="controls">
-                        <label>商户代付批次订单号：</label>
-                        <input value="${paramMap.mchtBatchId}" name="mchtBatchId" type="text" maxlength="64" class="input-medium"/>
+                        <input value="${paramMap.mchtSeq}" name="mchtSeq" type="text" maxlength="64" class="input-medium"/>
                     </div>
                 </div>
             </td>
@@ -82,6 +81,18 @@
         </tr>
 
         <tr>
+            <c:if test="${empty paramMap.platBatchId}">
+                <td>
+                    <div class="control-group">
+                        <div class="controls">
+                            <label>商户代付批次订单号：</label>
+                            <input value="${paramMap.mchtBatchId}" name="mchtBatchId" type="text" maxlength="64" class="input-medium"/>
+                        </div>
+                    </div>
+                </td>
+            </c:if>
+
+            <input value="${paramMap.platBatchId}" name="platBatchId" type="hidden" maxlength="64" class="input-medium"/>
             <td style="margin-top: 20px;">
                 <div class="control-group">
                     <div class="controls">
@@ -102,6 +113,9 @@
                 <div class="control-group">
                     <div class="controls">
                         <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 25px;">
+                        <c:if test="${!empty paramMap.platBatchId}">
+                            <input id="callback" class="btn btn-primary" type="button" onclick="goBackProxyBatchPage()" value="返回" style="margin-left: 25px;">
+                        </c:if>
                         <input id="isSearch" name="isSearch" type="hidden" value="1">
                     </div>
                 </div>
@@ -118,19 +132,19 @@
 </div>
 <table>
     <tr>
-
         <td>
-            <label>平台批次号：</label>
-            <textarea readonly>${proxyBatch.platOrderId}</textarea>
+            <label>成功笔数：</label>
+            <input value="${proxyBatch.successNum}" type="text" class="input-small" readonly />
         </td>
 
-
         <td>
-            <label>商户批次号：</label>
-            <textarea readonly>${proxyBatch.mchtOrderId}</textarea>
+            <label>&nbsp;&nbsp;&nbsp;成功金额（元）：</label>
+            <input value="${proxyBatch.successAmount}" type="text" class="input-small" readonly />
         </td>
 
+    </tr>
 
+    <tr>
         <td>
             <label>失败笔数：</label>
             <input value="${proxyBatch.failNum}" type="text" class="input-small" readonly />
@@ -138,19 +152,9 @@
 
 
         <td>
-            <label>失败金额：</label>
+            <label>&nbsp;&nbsp;&nbsp;失败金额（元）：</label>
             <input value="${proxyBatch.failAmount}" type="text" class="input-small" readonly />
         </td>
-
-    </tr>
-
-    <tr>
-
-        <td>
-            <label>支付方式：</label>
-            <input value="${fns:getDictLabel(proxyDetail.payType, "pay_type","" )}" type="text" class="input-small" readonly />
-        </td>
-
         <td>
             <label>代付状态：</label>
             <c:if test="${proxyBatch.payStatus == 10}"><input value="审核中" type="text" class="input-small" readonly /></c:if>
@@ -159,63 +163,20 @@
             <c:if test="${proxyBatch.payStatus == 23}"><input value="代付处理中" type="text" class="input-small" readonly /></c:if>
             <c:if test="${proxyBatch.payStatus == 24}"><input value="代付结束" type="text" class="input-small" readonly /></c:if>
         </td>
-
-        <td>
-            <label>成功笔数：</label>
-            <input value="${proxyBatch.successNum}" type="text" class="input-small" readonly />
-        </td>
-
-        <td>
-            <label>成功金额：</label>
-            <input value="${proxyBatch.successAmount}" type="text" class="input-small" readonly />
-        </td>
-
-    </tr>
-    <tr>
-
-        <td colspan="2">
-            <label>商户名称：</label>
-            <input value="${proxyBatch.extend3}" type="text" class="input-small" readonly />
-        </td>
-
-        <td colspan="2">
-            <label>商户编号：</label>
-            <input value="${proxyBatch.mchtId}" type="text" class="input-small" readonly />
-        </td>
-
-    </tr>
-
-    <tr>
-
-        <td>
-            <label>备注说明：</label>
-            <input value="${proxyBatch.extend1}" type="text" class="input-small" readonly />
-        </td>
-
-        <td>
-            <label>商户手续费：</label>
-            <input value="${proxyBatch.totalFee}" type="text" class="input-small" readonly />
-        </td>
-
-        <td>
-            <label>提交时间：</label>
-            <textarea readonly><fmt:formatDate value="${proxyBatch.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></textarea>
-        </td>
-
-        <td>
-            <label>更新时间：</label>
-            <input value="<fmt:formatDate value="${proxyBatch.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>" type="text" class="input-small" readonly />
-            <textarea readonly><fmt:formatDate value="${proxyBatch.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/></textarea>
-        </td>
-
     </tr>
 </table>
 </c:if>
-
+<div class="breadcrumb">
+    <label>
+        <th>明细信息</th>
+    </label>
+</div>
 <table id="contentTable" class="table table-striped table-bordered table-condensed">
     <thead>
     <tr>
-        <th>明细订单号</th>
+        <th>NO</th>
+        <th>商户代付批次订单号</th>
+        <th>商户代付明细订单号</th>
         <th>收款人户名</th>
         <th>收款人账号</th>
         <th>金额（元）</th>
@@ -227,17 +188,18 @@
     </tr>
     </thead>
     <tbody>
-    <%--<%int i = 0; %>--%>
+    <%int i = 0; %>
     <c:forEach items="${page.list}" var="proxyDetail">
-        <%--<%i++; %>--%>
+        <%i++; %>
         <tr>
-            <%--<td><%=i%>--%>
+            <td><%=i%>
             </td>
-            <td>${proxyDetail.id}</td>
+            <td>${proxyDetail.mchtBatchId}</td>
+            <td>${proxyDetail.mchtSeq}</td>
             <td>${proxyDetail.bankCardName}</td>
             <td>${proxyDetail.bankCardNo}</td>
-            <td><fmt:formatNumber type="number" value="${proxyDetail.amount}" pattern="0.0000" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${proxyDetail.mchtFee}" pattern="0.0000" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${proxyDetail.amount}" pattern="0.0000" maxFractionDigits="4"/></td>
+            <td><fmt:formatNumber type="number" value="${proxyDetail.mchtFee}" pattern="0.0000" maxFractionDigits="4"/></td>
             <td>
                 ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
             </td>

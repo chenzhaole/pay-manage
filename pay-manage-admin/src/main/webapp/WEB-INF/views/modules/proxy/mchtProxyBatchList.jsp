@@ -26,6 +26,15 @@
             return false;
         }
 
+        //显示代付详情信息
+        function toShowDetailInfo(platOrderId) {
+           var beginDate = $("#beginDate").val();
+           var endDate = $("#endDate").val();
+           var url = "${ctx}/mchtProxy/proxyDetailList?platBatchId="+platOrderId+"&isSearch=1&beginDate="+beginDate+"&endDate="+endDate;
+            location.href = url;
+        }
+
+
     </script>
 </head>
 <body>
@@ -99,13 +108,12 @@
     <thead>
     <tr>
         <th>NO</th>
-        <th>平台代付批次流水号</th>
         <th>商户代付批次流水号</th>
         <th>代付商户</th>
         <th>来源</th>
         <th>总笔数</th>
         <th>总金额(元)</th>
-        <th>手续费()</th>
+        <th>手续费(元)</th>
         <th>代付批次状态</th>
         <th>创建时间</th>
         <th>更新时间</th>
@@ -119,7 +127,6 @@
         <tr>
             <td><%=i%>
             </td>
-            <td>${proxyBatch.platOrderId}</td>
             <td>${proxyBatch.mchtOrderId}</td>
             <td>${proxyBatch.mchtId}</td>
             <td><c:if test="${proxyBatch.dataSource == 0}">线上接口</c:if>
@@ -131,7 +138,7 @@
             <td><fmt:formatDate value="${proxyBatch.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td><fmt:formatDate value="${proxyBatch.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
-                <a href="${ctx}/mchtProxy/proxyDetailList?platBatchId=${proxyBatch.platOrderId}&isSearch=1">明细</a>
+                <a href="javaScript:void(0)" onclick="toShowDetailInfo('${proxyBatch.platOrderId}')">明细</a>
             </td>
         </tr>
     </c:forEach>
