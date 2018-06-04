@@ -30,12 +30,12 @@
 		<td width="25%"><b>上游响应信息:</b></td>	<td width="25%"> ${proxyDetail.returnMessage2}</td>
 	</tr>
 		<tr>
-	        <td width="25%"><b>批次订单号:</b></td>	<td width="25%"> ${proxyDetail.batchId}</td>
+	        <td width="25%"><b>批次订单号:</b></td>	<td width="25%"> ${proxyDetail.platBatchId}</td>
 			<td width="25%"><b>明细订单号:</b></td>	<td width="25%"> ${proxyDetail.id}</td>
    		</tr>
 		<tr>
 			<td width="25%"><b>上游流水号:</b></td>	<td width="25%"> ${proxyDetail.channelSeq}</td>
-			<td width="25%"><b>商户流水号:</b></td>	<td width="25%"> ${proxyDetail.mchtOrderId}</td>
+			<td width="25%"><b>商户流水号:</b></td>	<td width="25%"> ${proxyDetail.mchtSeq}</td>
 		</tr>
 	<tr>
 		<td width="25%"><b>代付金额:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
