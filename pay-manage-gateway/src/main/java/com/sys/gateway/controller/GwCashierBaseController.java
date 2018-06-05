@@ -164,6 +164,10 @@ public class GwCashierBaseController {
         String countdownTime  = String.valueOf(resultInfo.getCountdownTime());
         model.addAttribute("countdownTime", countdownTime);
 
+        //非收银台模式下，extraData字段存入平台订单号，以便pc端扫码从新下单，从缓存中获取商户请求信息
+        model.addAttribute("extraData", resultInfo.getOrderNo());
+
+
         logger.info(midoid+",pc页面非收银台支付方式需要的参数："+JSONObject.toJSONString(model));
     }
 
