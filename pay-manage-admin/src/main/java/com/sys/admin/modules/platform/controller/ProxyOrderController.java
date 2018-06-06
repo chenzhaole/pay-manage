@@ -545,6 +545,7 @@ public class ProxyOrderController extends BaseController {
         String batchId = IdUtil.createProxBatchId("0");//代付批次ID
         batch.setRequesetType(ProxyPayRequestEnum.PLATFORM.getCode());
         batch.setId(batchId);
+        batch.setPlatOrderId(batchId);
         batch.setMchtId(mchtId);
         batch.setUserId(UserUtils.getUser().getId().toString());
         batch.setPayType(PayTypeEnum.BATCH_DF.getCode());

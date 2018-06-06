@@ -38,8 +38,8 @@
 			<td width="25%"><b>商户流水号:</b></td>	<td width="25%"> ${proxyDetail.mchtSeq}</td>
 		</tr>
 	<tr>
-		<td width="25%"><b>代付金额:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
-		<td width="25%"><b>手续费:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.mchtFee*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
+		<td width="25%"><b>代付金额:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.0000" maxFractionDigits="4"/>元</td>
+		<td width="25%"><b>手续费:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.mchtFee*0.01}" pattern="0.0000" maxFractionDigits="4"/>元</td>
 	</tr>
 		<tr>
 			<td width="25%"><b>创建时间:</b></td>	<td width="25%"> <fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
