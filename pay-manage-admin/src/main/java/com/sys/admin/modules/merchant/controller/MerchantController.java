@@ -101,7 +101,7 @@ public class MerchantController extends BaseController {
 				if (mchtInfoTemp.getId().equals(id)) {
 					continue;
 				}
-				if (mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
+				if (mchtInfoTemp.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
 					mchtInfoResults.add(mchtInfoTemp);
 				}
 			}
