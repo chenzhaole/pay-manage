@@ -213,7 +213,7 @@
         </tr>
     </table>
 </form>
-<tags:message content="${message}"/>
+<tags:message content="${message}" type="${messageType}"/>
 
 <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover"
        style="word-wrap:break-word; word-break:break-all;">

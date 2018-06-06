@@ -44,8 +44,6 @@
     </label>
 </div>
 
-<tags:message content="${message}" type="${messageType}"/>
-
 <form id="searchForm" action="${ctx}/mchtProxy/proxyBatchList" method="post" class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
@@ -104,6 +102,9 @@
          </tr>
 </table>
 </form>
+
+<tags:message content="${message}" type="${messageType}"/>
+
 <table id="contentTable" class="table table-striped table-bordered table-condensed">
     <thead>
     <tr>
