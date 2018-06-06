@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -298,12 +299,15 @@ public class GwCashierMchtController extends GwCashierBaseController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping("test")
-	public String test(HttpServletRequest request, Model model) {
+	@RequestMapping("test/{mchtId}/{key}")
+	public String test(HttpServletRequest request, Model model, @PathVariable String mchtId, @PathVariable String key) {
+
 		System.out.println("测试页面"+request.getServerName()+request.getServerPort());
 		int port = request.getServerPort();
 		model.addAttribute("testUrl", request.getServerName()+(80 == port ? "" : ":" +port));
 		model.addAttribute("mchtOrderId", IdUtil.getUUID());
+		model.addAttribute("mchtId", mchtId);
+		model.addAttribute("key", key);
 		System.out.println("测试页面");
 		return "modules/cashier/pc/test";
 	}
