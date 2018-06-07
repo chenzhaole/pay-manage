@@ -89,7 +89,7 @@ public class GwCashierCallbackController {
         } catch (Exception e) {
             e.printStackTrace();
             result.setRespCode(ErrorCodeEnum.E8001.getCode());
-            result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+            result.setRespMsg("操作失败");
             model.addAttribute("respCode",result.getRespCode());
             model.addAttribute("respMsg",result.getRespMsg());
             page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());

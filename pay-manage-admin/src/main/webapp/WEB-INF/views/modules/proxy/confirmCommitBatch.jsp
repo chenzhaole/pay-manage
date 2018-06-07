@@ -77,7 +77,7 @@
                             console.log(data);
                             if(data=='ok') {
                                 alert("代付提交成功");
-                                window.location.href = "${ctx}/proxy/proxyBatchList";
+                                window.location.href = "${ctx}/mchtProxy/proxyBatchList";
                             }else if(data == 'batch exist in db') {
                                 alert("代付提交失败，该代付批次已经存在！");
                             }else if(data == 'smscode error') {

@@ -78,20 +78,20 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 }else{
                     if(result == null){
                         result.setRespCode(ErrorCodeEnum.E6110.getCode());
-                        result.setRespMsg(ErrorCodeEnum.E6110.getDesc());
+                        result.setRespMsg("操作失败");
                     }
                     logger.info(BIZ+midoid+"调用TradeCashierPlatHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
                 }
             }else{
                 //请求参数不能为空
                 result.setRespCode(ErrorCodeEnum.E1017.getCode());
-                result.setRespMsg(ErrorCodeEnum.E1017.getDesc());
+                result.setRespMsg("操作失败");
                 logger.info(BIZ+midoid+"接收收银台请求，解析请求参数失败，存在未传的参数，返回的CommonResult="+JSONObject.toJSONString(result));
             }
         } catch (Exception e) {
             e.printStackTrace();
             result.setRespCode(ErrorCodeEnum.E8001.getCode());
-            result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+            result.setRespMsg("操作失败");
             logger.error(BIZ+midoid+"接收收银台页面请求异常："+e.getMessage());
         }
         String resultJson = JSONObject.toJSONString(result);
@@ -157,7 +157,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
                             logger.info(BIZ + midoid + "调用TradeCashierPlatHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult=" + JSONObject.toJSONString(result) + "跳转的页面为：" + page);
                         } else {
                             result.setRespCode(ErrorCodeEnum.E1018.getCode());
-                            result.setRespMsg(ErrorCodeEnum.E1018.getDesc());
+                            result.setRespMsg("操作失败");
                             page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
                             logger.info(BIZ + midoid + "调用TradeCashierPlatHandler处理业务逻辑，处理结果为成功，需要使用中间页，但是未找到对应的中间页，返回的CommonResult=" + JSONObject.toJSONString(result) + "跳转的页面为：" + page);
                         }
@@ -172,21 +172,21 @@ public class GwCashierPlatController extends GwCashierBaseController {
                         mobile = pageQQandMobile.get("mobile");
                     }else{
                         result.setRespCode(ErrorCodeEnum.E8001.getCode());
-                        result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+                        result.setRespMsg("操作失败");
                     }
                     logger.info(BIZ+midoid+"调用TradeCashierPlatHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
                 }
             }else{
                 //请求参数不能为空
                 result.setRespCode(ErrorCodeEnum.E1017.getCode());
-                result.setRespMsg(ErrorCodeEnum.E1017.getDesc());
+                result.setRespMsg("操作失败");
                 page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
                 logger.info(BIZ+midoid+"接收收银台请求，解析请求参数失败，存在未传的参数，返回的CommonResult="+JSONObject.toJSONString(result));
             }
         } catch (Exception e) {
             e.printStackTrace();
             result.setRespCode(ErrorCodeEnum.E8001.getCode());
-            result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+            result.setRespMsg("操作失败");
             page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
             logger.error(BIZ+midoid+"接收收银台页面请求异常："+e.getMessage());
         }

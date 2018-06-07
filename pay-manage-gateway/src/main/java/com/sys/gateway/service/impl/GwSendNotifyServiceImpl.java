@@ -55,7 +55,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         TradeNotify tradeNotify = this.geneTradeNotifyInfo(payType, cacheTrade);
         if(null == tradeNotify){
             commonResult.setRespCode(ErrorCodeEnum.E9001.getCode());
-            commonResult.setRespMsg(ErrorCodeEnum.E9001.getDesc());
+            commonResult.setRespMsg("操作失败");
             logger.info(BIZ+"异步通知商户信息TradeNotify为Null，请求参数源CacheTrade="+JSONObject.toJSONString(cacheTrade));
             return commonResult;
         }
@@ -88,7 +88,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(BIZ+"异步通知商户系统异常,e.msg:" + e.getMessage());
-            commonResult.setRespMsg("异步通知商户系统异常");
+            commonResult.setRespMsg("操作失败");
         }
         logger.info(BIZ+"异步通知商户信息后返回给上层的commonResult："+content+",请求参数源CacheTrade为："+JSONObject.toJSONString(cacheTrade));
         return commonResult;

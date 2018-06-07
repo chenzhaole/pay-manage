@@ -76,14 +76,14 @@ public class MchtProxyOrderController extends BaseController {
         //结束时间
         String endDate = paramMap.get("endDate");
         if(StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)){
-            String msg = this.checkDate(beginDate, endDate);
-            if(!"ok".equals(msg)){
-                logger.info(msg);
-                model.addAttribute("message", msg);
-                model.addAttribute("messageType", "error");
-                model.addAttribute("paramMap",paramMap );
-                return "modules/proxy/mchtProxyBatchList";
-            }
+//            String msg = this.checkDate(beginDate, endDate);
+//            if(!"ok".equals(msg)){
+//                logger.info(msg);
+//                model.addAttribute("message", msg);
+//                model.addAttribute("messageType", "error");
+//                model.addAttribute("paramMap",paramMap );
+//                return "modules/proxy/mchtProxyBatchList";
+//            }
         }
 
         PlatProxyBatch proxyBatch = new PlatProxyBatch();
@@ -196,14 +196,14 @@ public class MchtProxyOrderController extends BaseController {
         //结束时间
         String endDate = paramMap.get("endDate");
         if(StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)){
-            String msg = this.checkDate(beginDate, endDate);
-            if(!"ok".equals(msg)){
-                logger.info(msg);
-                model.addAttribute("message", msg);
-                model.addAttribute("messageType", "error");
-                model.addAttribute("paramMap",paramMap );
-                return "modules/proxy/mchtProxyDetailList";
-            }
+//            String msg = this.checkDate(beginDate, endDate);
+//            if(!"ok".equals(msg)){
+//                logger.info(msg);
+//                model.addAttribute("message", msg);
+//                model.addAttribute("messageType", "error");
+//                model.addAttribute("paramMap",paramMap );
+//                return "modules/proxy/mchtProxyDetailList";
+//            }
         }
 
         PlatProxyDetail proxyDetail = new PlatProxyDetail();

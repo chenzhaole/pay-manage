@@ -1,3 +1,6 @@
+<%@ page import="java.util.Date" %>
+<%@ page import="com.sys.common.util.DateUtils" %>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
@@ -36,8 +39,18 @@
         <tr>
             <td>
                 <label>入账日期：</label>
+                <%
+                    request.setAttribute("createTimeMax", new Date());
+                %>
+
                 <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                       value="${createTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,maxDate:$dp.$('createTimeMax').value,isShowOK:false,isShowToday:false});"/>
+
+                <input style="display: none" id="createTimeMax" name="createTimeMax" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                       value="${createTimeMax}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,minDate:$dp.$('createTime').value,isShowOK:false,isShowToday:false});"/>
+
+
+
             </td>
             <td>
                 <label>商户订单号：</label>
@@ -61,7 +74,7 @@
             <td>
                 <label>记账类型：</label>
                 <form:select path="opType" >
-                    <form:option value=""/>
+                    <form:option value="" title="--全部--" />
                     <form:options items="${fns:getDictList('record_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
