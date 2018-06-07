@@ -160,7 +160,7 @@
                 <div class="control-group">
                     <label class="control-label">调账金额（元）<span style="color: red;">*</span></label>
                     <div class="controls">
-                        <form:input path="adjustAmount" class="number required"/>
+                        <form:input path="adjustAmount" class="number required" maxlength="10"/>
                     </div>
                 </div>
             </td>
@@ -169,7 +169,7 @@
                 <div class="control-group">
                     <label class="control-label">调账费率（‰）<span style="color: red;"></span></label>
                     <div class="controls">
-                        <form:input path="feeRate" class="number" disabled="true"/>
+                        <form:input path="feeRate" class="number" disabled="true" maxlength="8"/>
                     </div>
                 </div>
             </td>
@@ -188,7 +188,7 @@
                 <div class="control-group">
                     <label class="control-label">调账手续费（元）<span style="color: red;"></span></label>
                     <div class="controls">
-                        <form:input path="feeAmount" class="number"/>
+                        <form:input path="feeAmount" class="number" maxlength="8"/>
                     </div>
                 </div>
             </td>
