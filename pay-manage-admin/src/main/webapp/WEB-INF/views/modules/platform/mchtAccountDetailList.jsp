@@ -65,14 +65,14 @@
             <td>
                 <label>账户类型：</label>
                 <form:select path="accountType" >
-                    <form:option value=""/>
+                    <form:option value="">--全部--</form:option>
                     <form:options items="${fns:getDictList('account_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
             <td>
                 <label>记账类型：</label>
                 <form:select path="opType" >
-                    <form:option value="" title="--全部--"/>
+                    <form:option value="">--全部--</form:option>
                     <form:options items="${fns:getDictList('record_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
