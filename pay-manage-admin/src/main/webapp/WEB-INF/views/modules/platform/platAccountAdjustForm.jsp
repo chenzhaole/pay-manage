@@ -92,7 +92,7 @@
         <tr>
             <td colspan="2">
                 <div class="control-group">
-                    <label class="control-label">调账方向<span style="color: red;">*</span></label>
+                    <label class="control-label">调账方向</label>
                     <div class="controls">
 
                         <form:select path="adjustType">
@@ -109,7 +109,7 @@
                     <label class="control-label">商户名称：</label>
                     <div class="controls">
                         <label>
-                            <select id="mchtId" name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
+                            <select id="mchtId" name="mchtId" class="required" data-live-search="true">
                                 <option value="">--请选择--</option>
                                 <c:forEach items="${mchtInfos}" var="mchtInfo">
                                     <option value="${mchtInfo.id}">${mchtInfo.name}</option>
@@ -122,7 +122,7 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">账户类型<span style="color: red;">*</span></label>
+                    <label class="control-label">账户类型</label>
                     <div class="controls">
                         <form:select path="accountType">
                             <form:options items="${fns:getDictList('account_type')}" itemValue="value"
