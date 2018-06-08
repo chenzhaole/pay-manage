@@ -41,13 +41,14 @@
         function reSet() {
             $("#customerSeq")[0].value = "";
             $("#platformSeq")[0].value = "";
+            $("#officialSeq")[0].value = "";
             $("#beginDate")[0].value = "";
             $("#endDate")[0].value = "";
             $("input[type='text']").val("");
-            $("#mchtId")[0].value = "";
-            $("#chanId")[0].value = "";
-            $("#platProductId")[0].value = "";
-            $("#chanMchtPaytypeId")[0].value = "";
+            // $("#mchtId")[0].value = "";
+            // $("#chanId")[0].value = "";
+            // $("#platProductId")[0].value = "";
+            // $("#chanMchtPaytypeId")[0].value = "";
             $("#payType")[0].value = "";
             $("#status")[0].value = "";
             $("#supplyStatus")[0].value = "";

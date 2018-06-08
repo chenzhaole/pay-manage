@@ -513,6 +513,12 @@ public class MchtOrderController extends BaseController {
 		redirectAttributes.addAllAttributes(paramMap);
 		//计算条数 上限五万条
 		int orderCount = orderAdminService.ordeCount(order);
+		if (orderCount <= 0) {
+			redirectAttributes.addFlashAttribute("messageType", "fail");
+			redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
+			response.setCharacterEncoding("UTF-8");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/mchtOrder/list";
+		}
 		if (orderCount > 50000) {
 			redirectAttributes.addFlashAttribute("messageType", "fail");
 			redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
