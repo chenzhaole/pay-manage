@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -121,7 +122,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 								}else{
 									result.setRespCode(ErrorCodeEnum.E1018.getCode());
-									result.setRespMsg(ErrorCodeEnum.E1018.getDesc());
+									result.setRespMsg("操作失败");
 									page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
 									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，但是未找到对应的中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 								}
@@ -138,7 +139,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 						mobile = pageQQandMobile.get("mobile");
                     }else{
 						result.setRespCode(ErrorCodeEnum.E8001.getCode());
-						result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+						result.setRespMsg("操作失败");
 					}
 					logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
 				}
@@ -149,7 +150,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 			result.setRespCode(ErrorCodeEnum.E8001.getCode());
-			result.setRespMsg(ErrorCodeEnum.E8001.getDesc());
+			result.setRespMsg("操作失败");
 			page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
 			logger.error(BIZ+midoid+"接收商户请求异常："+e.getMessage());
 		}
@@ -298,12 +299,15 @@ public class GwCashierMchtController extends GwCashierBaseController {
 	 * @param request
 	 * @return
 	 */
-	@RequestMapping("test")
-	public String test(HttpServletRequest request, Model model) {
+	@RequestMapping("test/{mchtId}/{key}")
+	public String test(HttpServletRequest request, Model model, @PathVariable String mchtId, @PathVariable String key) {
+
 		System.out.println("测试页面"+request.getServerName()+request.getServerPort());
 		int port = request.getServerPort();
 		model.addAttribute("testUrl", request.getServerName()+(80 == port ? "" : ":" +port));
 		model.addAttribute("mchtOrderId", IdUtil.getUUID());
+		model.addAttribute("mchtId", mchtId);
+		model.addAttribute("key", key);
 		System.out.println("测试页面");
 		return "modules/cashier/pc/test";
 	}

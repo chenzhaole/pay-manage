@@ -42,7 +42,6 @@
     </label>
 </div>
 
-<tags:message content="${message}" type="${messageType}"/>
 
 <form id="searchForm" action="${ctx}/mchtProxy/proxyDetailList" method="post" class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
@@ -123,6 +122,7 @@
         </tr>
 </table>
 </form>
+<tags:message content="${message}" type="${messageType}"/>
 
 <c:if test="${proxyBatch != null}">
 <div class="breadcrumb">

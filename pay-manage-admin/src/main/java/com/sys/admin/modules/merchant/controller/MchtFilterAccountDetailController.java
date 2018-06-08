@@ -20,6 +20,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import javax.servlet.http.HttpServletRequest;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,8 @@ public class MchtFilterAccountDetailController extends BaseController{
         User user = UserUtils.getUser();
         String loginName = user.getLoginName();
 
+        String createTimeStr = request.getParameter("createTime");
+
         String isSelectInfo = request.getParameter("isSelectInfo");
         PageInfo pageInfo = new PageInfo();
         mchtAccountDetail.setPageInfo(pageInfo);
@@ -65,19 +68,23 @@ public class MchtFilterAccountDetailController extends BaseController{
         }
         List<MchtAccountDetail> list = null;
         int count = 0;
-        if(StringUtils.isNotBlank(isSelectInfo)){
-           list = mchtAccountDetailService.list(mchtAccountDetail);
-           count = mchtAccountDetailService.count(mchtAccountDetail);
-            //初始化商户名称
-            Map<String,String> mchtMap = com.sys.common.util.Collections3.extractToMap(
-                    merchantService.list(new MchtInfo()),"id","name");
-            for(MchtAccountDetail detail : list){
-                detail.setMchtName(mchtMap.get(detail.getMchtId()));
-                detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
-                detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+        if(StringUtils.isNotBlank(createTimeStr) && checkCreateTime(createTimeStr)){
+        //2018年6月之前的日志 不提供查询，因为没用月表
+
+        }else{
+            if(StringUtils.isNotBlank(isSelectInfo)){
+               list = mchtAccountDetailService.list(mchtAccountDetail);
+               count = mchtAccountDetailService.count(mchtAccountDetail);
+                //初始化商户名称
+                Map<String,String> mchtMap = com.sys.common.util.Collections3.extractToMap(
+                        merchantService.list(new MchtInfo()),"id","name");
+                for(MchtAccountDetail detail : list){
+                    detail.setMchtName(mchtMap.get(detail.getMchtId()));
+                    detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
+                    detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+                }
             }
         }
-
 
         Page page = new Page(pageInfo.getPageNo(),pageInfo.getPageSize(),count,true);
 
@@ -86,5 +93,24 @@ public class MchtFilterAccountDetailController extends BaseController{
         model.addAttribute("page",page);
         model.addAttribute("createTime",request.getParameter("createTime"));
         return "modules/merchant/mchtAccountDetailList";
+    }
+
+    /**
+     *  2018年6月之前的日志 不提供查询，因为没用月表
+     * @return
+     */
+    private boolean checkCreateTime(String createTimeStr) {
+        Date createTime = DateUtils.parseDate(createTimeStr,"yyyy-MM-dd");
+        String year = new SimpleDateFormat("yyyy").format(createTime);
+        String month = new SimpleDateFormat("MM").format(createTime);
+        int yearInt = Integer.parseInt(year);
+        if(yearInt < 2018){
+            return true;
+        }
+        int monthInt = Integer.parseInt(month);
+        if(yearInt == 2018 && monthInt < 6 ){
+            return true;
+        }
+        return false;
     }
 }

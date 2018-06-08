@@ -17,7 +17,7 @@
 
         //名字生成
         function getName() {
-            var name = $("#mchtId").find("option:selected").data("shortname") + "-" + $("#chanId option:selected").text() + "-" + $("#payType option:selected").text();
+            var name = $("#chanId option:selected").text() + "-" + $("#mchtId").find("option:selected").data("shortname") + "-" + $("#payType option:selected").text();
             $("#name").attr("value", name);
 
         }

@@ -71,9 +71,23 @@ public class MchtProxyOrderController extends BaseController {
         User user = UserUtils.getUser();
         String loginName = user.getLoginName();
 
+        //开始时间
+        String beginDate = paramMap.get("beginDate");
+        //结束时间
+        String endDate = paramMap.get("endDate");
+        if(StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)){
+//            String msg = this.checkDate(beginDate, endDate);
+//            if(!"ok".equals(msg)){
+//                logger.info(msg);
+//                model.addAttribute("message", msg);
+//                model.addAttribute("messageType", "error");
+//                model.addAttribute("paramMap",paramMap );
+//                return "modules/proxy/mchtProxyBatchList";
+//            }
+        }
+
         PlatProxyBatch proxyBatch = new PlatProxyBatch();
         //初始化页面开始时间
-        String beginDate = paramMap.get("beginDate");
         if (StringUtils.isBlank(beginDate)) {
             proxyBatch.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
             paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
@@ -81,7 +95,6 @@ public class MchtProxyOrderController extends BaseController {
             paramMap.put("beginDate", beginDate);
             proxyBatch.setCreateTime(DateUtils.parseDate(beginDate));
         }
-        String endDate = paramMap.get("endDate");
         //初始化页面结束时间
         if (StringUtils.isBlank(endDate)) {
             proxyBatch.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
@@ -144,6 +157,29 @@ public class MchtProxyOrderController extends BaseController {
         return "modules/proxy/mchtProxyBatchList";
     }
 
+    /**
+     * 开始时间不能大于结束时间，
+     * 不支持跨年查询
+     * 不支持跨月查询
+     * @param beginDateStr
+     * @param endDateStr
+     * @return
+     */
+    private String checkDate(String beginDateStr, String endDateStr) {
+        Date beginDate = DateUtils.parseDate( beginDateStr,"yyyy-MM-dd HH:mm:ss");
+        String beginYearStr = DateUtils.formatDate(beginDate, "yyyy");
+        String beginMonthStr = DateUtils.formatDate(beginDate, "MM");
+        Date endDate = DateUtils.parseDate( endDateStr,"yyyy-MM-dd HH:mm:ss");
+        String endYearStr = DateUtils.formatDate(endDate, "yyyy");
+        String endMonthStr = DateUtils.formatDate(endDate, "MM");
+        if(!beginYearStr.equals(endYearStr)){
+            return "查询时间不能跨年";
+        }
+        if(!beginMonthStr.equals(endMonthStr)){
+            return "暂不支持跨月查询";
+        }
+        return "ok";
+    }
 
     /**
      * 代付明细列表
@@ -155,9 +191,23 @@ public class MchtProxyOrderController extends BaseController {
         User user = UserUtils.getUser();
         String loginName = user.getLoginName();
 
+        //开始时间
+        String beginDate = paramMap.get("beginDate");
+        //结束时间
+        String endDate = paramMap.get("endDate");
+        if(StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)){
+//            String msg = this.checkDate(beginDate, endDate);
+//            if(!"ok".equals(msg)){
+//                logger.info(msg);
+//                model.addAttribute("message", msg);
+//                model.addAttribute("messageType", "error");
+//                model.addAttribute("paramMap",paramMap );
+//                return "modules/proxy/mchtProxyDetailList";
+//            }
+        }
+
         PlatProxyDetail proxyDetail = new PlatProxyDetail();
         //初始化页面开始时间
-        String beginDate = paramMap.get("beginDate");
         if (StringUtils.isBlank(beginDate)) {
             proxyDetail.setCreateDate(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
             paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
@@ -165,7 +215,6 @@ public class MchtProxyOrderController extends BaseController {
             paramMap.put("beginDate", beginDate);
             proxyDetail.setCreateDate(DateUtils.parseDate(beginDate));
         }
-        String endDate = paramMap.get("endDate");
         //初始化页面结束时间
         if (StringUtils.isBlank(endDate)) {
             proxyDetail.setUpdateDate(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));

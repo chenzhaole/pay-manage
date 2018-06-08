@@ -10,7 +10,7 @@
 </head>
 <body style="text-align: center">
     <form id="search" action="${ctx}/gateway/cashier/mchtCall" method="post" >
-        商户编号: <input type="text" value="1848e6fe" name="mchtId"/><br>
+        商户编号: <input type="text" value="${mchtId}" name="mchtId"/><br>
         版本: <input type="text" value="20" name="version"/><br>
         支付类型:
         <select name="biz">
@@ -92,7 +92,7 @@
         订单超时时间: <input type="text" value="" name="expireTime"/><br>
         openId: <input type="text" value="" id="openId" name="openId"/><br>
         IP: <input type="text" value="" id="ip" name="ip"/><br>
-        签名Key: <input type="text" value="605091ae24f8404086b56d74a20c9812" id="mchtKey" name="mchtKey"/><br>
+        签名Key: <input type="text" value="${key}" id="mchtKey" name="mchtKey"/><br>
         sign: <input type="text" name="sign" id="sign"> <input type="button" value="签名" id="genSign"/><br>
         <input type="submit" value="提交"/>
     </form>

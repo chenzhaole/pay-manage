@@ -101,6 +101,21 @@ public class MchtOrderController extends BaseController {
 
 		User user = UserUtils.getUser();
 		String loginName = user.getLoginName();
+		String isSelectInfo = paramMap.get("isSelectInfo");
+		//开始时间
+		String beginDate = paramMap.get("beginDate");
+		//结束时间
+		String endDate = paramMap.get("endDate");
+		if(StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)){
+			String msg = this.checkDate(beginDate, endDate);
+			if(!"ok".equals(msg)){
+				logger.info(msg);
+				model.addAttribute("message", msg);
+				model.addAttribute("messageType", "error");
+				model.addAttribute("paramMap",paramMap );
+				return "modules/order/mchtOrderList";
+			}
+		}
 
 
 		//创建查询实体
@@ -120,7 +135,6 @@ public class MchtOrderController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		order.setPageInfo(pageInfo);
 
-		String isSelectInfo = paramMap.get("isSelectInfo");
 		int orderCount = 0;
 		if(StringUtils.isNotBlank(isSelectInfo)) {
 			orderCount = orderAdminService.ordeCount(order);
@@ -138,6 +152,14 @@ public class MchtOrderController extends BaseController {
 				model.addAttribute("paramMap",paramMap );
 				return "modules/order/mchtOrderList";
 			}
+
+			MchtInfo mchtInfo = merchantService.queryByKey(loginName);
+			if(null != mchtInfo){
+				for(MchtGatewayOrder mchtGatewayOrder : orderList){
+					mchtGatewayOrder.setMchtCode(mchtInfo.getName());
+				}
+			}
+
 		}
 
 		Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
@@ -159,6 +181,30 @@ public class MchtOrderController extends BaseController {
 //		model.addAttribute("successAmount", successAmount.toString());
 
 		return "modules/order/mchtOrderList";
+	}
+
+	/**
+	 * 开始时间不能大于结束时间，
+	 * 不支持跨年查询
+	 * 不支持跨月查询
+	 * @param beginDateStr
+	 * @param endDateStr
+	 * @return
+	 */
+	private String checkDate(String beginDateStr, String endDateStr) {
+		 Date beginDate = DateUtils.parseDate( beginDateStr,"yyyy-MM-dd HH:mm:ss");
+		 String beginYearStr = DateUtils.formatDate(beginDate, "yyyy");
+		 String beginMonthStr = DateUtils.formatDate(beginDate, "MM");
+		 Date endDate = DateUtils.parseDate( endDateStr,"yyyy-MM-dd HH:mm:ss");
+		String endYearStr = DateUtils.formatDate(endDate, "yyyy");
+		String endMonthStr = DateUtils.formatDate(endDate, "MM");
+		if(!beginYearStr.equals(endYearStr)){
+			return "查询时间不能跨年";
+		}
+		if(!beginMonthStr.equals(endMonthStr)){
+			return "暂不支持跨月查询";
+		}
+		return "ok";
 	}
 
 
@@ -455,13 +501,24 @@ public class MchtOrderController extends BaseController {
 	@RequestMapping(value = "/export")
 	public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
 						 @RequestParam Map<String, String> paramMap) throws IOException {
+		User user = UserUtils.getUser();
+		String loginName = user.getLoginName();
 
 		//创建查询实体
 		MchtGatewayOrder order = new MchtGatewayOrder();
+		//过滤商户的流水
+		order.setMchtCode(loginName);
+		order.setMchtId(loginName);
 		assemblySearch(paramMap, order);
 		redirectAttributes.addAllAttributes(paramMap);
 		//计算条数 上限五万条
 		int orderCount = orderAdminService.ordeCount(order);
+		if (orderCount <= 0) {
+			redirectAttributes.addFlashAttribute("messageType", "fail");
+			redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
+			response.setCharacterEncoding("UTF-8");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/mchtOrder/list";
+		}
 		if (orderCount > 50000) {
 			redirectAttributes.addFlashAttribute("messageType", "fail");
 			redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
@@ -489,7 +546,7 @@ public class MchtOrderController extends BaseController {
 			if (PayTypeEnum.toEnum(gwOrder.getPayType()) != null) {
 				gwOrder.setPayType(PayTypeEnum.toEnum(gwOrder.getPayType()).getDesc());
 			}
-			gwOrder.setMchtId(mchtMap.get(gwOrder.getMchtId()));
+			gwOrder.setMchtId(mchtMap.get(gwOrder.getMchtCode()));
 			gwOrder.setPlatProductId(productMap.get(gwOrder.getPlatProductId()));
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
 		}
@@ -499,7 +556,7 @@ public class MchtOrderController extends BaseController {
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
-		response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("收单对公报表.xls", "UTF-8"));
+		response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(loginName+"_"+DateUtils.getNoSpSysTimeString()+".xls", "UTF-8"));
 		OutputStream out = response.getOutputStream();
 
 		// 第一步，创建一个webbook，对应一个Excel文件
@@ -523,7 +580,7 @@ public class MchtOrderController extends BaseController {
 				int cellIndex = 0;
 				row = sheet.createRow(rowIndex);
 				HSSFCell cell = row.createCell(cellIndex);
-				cell.setCellValue(orderTemp.getMchtCode());
+				cell.setCellValue(orderTemp.getMchtId());
 				cellIndex++;
 
 //				cell = row.createCell(cellIndex);

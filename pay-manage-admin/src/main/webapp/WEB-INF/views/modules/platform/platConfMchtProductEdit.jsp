@@ -47,35 +47,51 @@
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
                 onkeyup: false,
                 submitHandler: function (form) {   //表单提交句柄,为一回调函数，带一个参数：form
-                    form.submit();   //提交表单
+                    var action ="${ctx}/platform/addPlatConfMchtProduct"
+                    document.forms[0].action = action;
+                    document.forms[0].submit();
                 },
-
+                errorPlacement: function (error, element) {
+                    error.appendTo(element.parent());
+                },
                 rules: {
-                    lowestFee: {
-                        max: 99999,
-                        number: true
+                    // lowestFee: {
+                    //     max: 99999,
+                    //     number: true
+                    // },
+                    // feeRate: {
+                    //     max: 99999,
+                    //     number: true
+                    // },
+                    // feeAmount: {
+                    //     max: 9999999,
+                    //     number: true
+                    // },
+                    // settleLowestFee: {
+                    //     max: 9999999,
+                    //     number: true
+                    // },
+                    // settleHighestFee: {
+                    //     max: 9999999,
+                    //     number: true
+                    // },
+                    mchtId:{
+                        required:true
                     },
-                    feeRate: {
-                        max: 99999,
-                        number: true
-                    },
-                    feeAmount: {
-                        max: 9999999,
-                        number: true
-                    },
-                    settleLowestFee: {
-                        max: 9999999,
-                        number: true
-                    },
-                    settleHighestFee: {
-                        max: 9999999,
-                        number: true
+                    productId:{
+                        required:true
                     }
                 },
                 messages: {
-                    feeRate: {
-                        required: '必填',
-                        number: '请填写数字'
+                    // feeRate: {
+                    //     required: '必填',
+                    //     number: '请填写数字'
+                    // },
+                    mchtId:{
+                        required:'必填'
+                    },
+                    productId:{
+                        required:'必填'
                     }
                 }
 
@@ -112,7 +128,7 @@
     <label><a href="#">商户产品管理</a> > <a href="#"><b>商户产品编辑</b></a></label>
 </div>
 
-<form id="mchtProductForm" action="${ctx}/platform/addPlatConfMchtProduct" method="post">
+<form id="mchtProductForm" method="post">
     <tags:message content="${message}" type="${messageType}"/>
     <input type="hidden" id="op" name="op" value="${op }"/>
     <c:if test="${op == 'edit'}"> <input type="hidden" name="mchtId" value="${productInfo.mchtId }"/> </c:if>
@@ -132,7 +148,7 @@
                     <div class="controls">
                         <select name="mchtId" class="input-xlarge" id="mchtId" onchange="mchtChange()"
                                 <c:if test="${op == 'edit'}"> disabled="disabled" </c:if>>>
-                            <option>--请选择--</option>
+                            <option value="">--请选择--</option>
                             <c:forEach items="${mchtInfos}" var="mchtInfo">
                                 <option data-mchtStatus="${mchtInfo.status}" data-mchtCode="${mchtInfo.mchtCode}"
                                         data-mchtDescription="${mchtInfo.description}"
@@ -201,7 +217,7 @@
                     <div class="controls">
                         <select name="productId" class="input-xlarge" id="productId" onchange="productChange()"
                                 <c:if test="${op == 'edit'}"> disabled="disabled" </c:if>>
-                            <option>--请选择--</option>
+                            <option value="">--请选择--</option>
                             <c:forEach items="${productFormInfos}" var="productFormInfo">
                                 <option <c:if test="${productInfo.productId == productFormInfo.id}">selected</c:if>
                                         data-productCode="${productFormInfo.code}" value="${productFormInfo.id}">${productFormInfo.name}</option>

@@ -41,13 +41,14 @@
         function reSet() {
             $("#customerSeq")[0].value = "";
             $("#platformSeq")[0].value = "";
+            $("#officialSeq")[0].value = "";
             $("#beginDate")[0].value = "";
             $("#endDate")[0].value = "";
             $("input[type='text']").val("");
-            $("#mchtId")[0].value = "";
-            $("#chanId")[0].value = "";
-            $("#platProductId")[0].value = "";
-            $("#chanMchtPaytypeId")[0].value = "";
+            // $("#mchtId")[0].value = "";
+            // $("#chanId")[0].value = "";
+            // $("#platProductId")[0].value = "";
+            // $("#chanMchtPaytypeId")[0].value = "";
             $("#payType")[0].value = "";
             $("#status")[0].value = "";
             $("#supplyStatus")[0].value = "";
@@ -213,7 +214,7 @@
         </tr>
     </table>
 </form>
-<tags:message content="${message}"/>
+<tags:message content="${message}" type="${messageType}"/>
 
 <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover"
        style="word-wrap:break-word; word-break:break-all;">
