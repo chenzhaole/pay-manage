@@ -247,7 +247,8 @@
             <td>${proxyDetail.auditorName}</td>
             <td>${proxyDetail.auditStatus}</td>
             <td>
-                <a href="${ctx}/proxy/changeProxyStatusAuditEdit?detailId=${proxyDetail.id}">审批</a>
+                <c:if test="${proxyDetail.auditStatus eq '待审核'}">
+                <a href="${ctx}/proxy/changeProxyStatusAuditEdit?detailId=${proxyDetail.id}">审批</a></c:if>
             </td>
         </tr>
     </c:forEach>
