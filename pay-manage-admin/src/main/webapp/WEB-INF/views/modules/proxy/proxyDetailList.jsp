@@ -225,9 +225,6 @@
                 <td><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <a href="${ctx}/proxy/proxyDetail?detailId=${proxyDetail.id}">详情</a>
-                <c:if test="${proxyDetail.payStatus == '22'}">
-                     <a href="${ctx}/proxy/proxyDetailInit?detailId=${proxyDetail.id}" onclick="return confirmx('是否对代付订单“${proxyDetail.id}”重新发起代付？', this.href)">重新代付</a>
-                </c:if>
                     <%--|<a href="${ctx}/platform/deleteCardBin?id=${proxyDetail.id}" onclick="return confirmx('是否确认删除此记录？', this.href)">删除</a>--%>
             </td>
         </tr>
