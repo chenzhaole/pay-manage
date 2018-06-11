@@ -27,6 +27,15 @@
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>TestApiPay</servlet-name>
+		<servlet-class>com.demo.action.TestApiPayServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestApiPay</servlet-name>
+		<url-pattern>/testApiPay</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
 		<servlet-name>TestPayResult</servlet-name>
 		<servlet-class>com.demo.action.TestPayResultSerlet</servlet-class>
 	</servlet>
@@ -127,6 +136,24 @@
 	<servlet-mapping>
 		<servlet-name>TestDFBalanceServlet</servlet-name>
 		<url-pattern>/testDFBalance</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>recNotice</servlet-name>
+		<servlet-class>com.demo.servlet.RecNoticeServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>recNotice</servlet-name>
+		<url-pattern>/recNotice</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
+		<servlet-name>recNotice2</servlet-name>
+		<servlet-class>com.demo.servlet.RecNoticeServlet2</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>recNotice2</servlet-name>
+		<url-pattern>/recNotice2</url-pattern>
 	</servlet-mapping>
 
 </web-app>

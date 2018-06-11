@@ -19,9 +19,15 @@
                 <dl class="">
 
 					<dd>
-						<a href="index-pay.jsp">支付测试</a>
+						<a href="index-pay.jsp">网页支付</a>
 					</dd>
                 </dl>
+				<dl class="">
+
+					<dd>
+						<a href="index-api-pay.jsp">API支付</a>
+					</dd>
+				</dl>
              	<dl class="">
 
 					<dd>

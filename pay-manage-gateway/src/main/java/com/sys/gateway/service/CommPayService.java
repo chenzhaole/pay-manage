@@ -18,9 +18,9 @@ public interface CommPayService {
 
 
 	/**wap支付校验参数**/
-	CommonResponse checkWapParam(String paramStr);
+	CommonResponse checkParam(String paramStr);
 
 	/**wap支付接口*/
-	TradeBaseResponse wapPay(TradeBaseRequest tradeRequest, String ip);
+	TradeBaseResponse pay(TradeBaseRequest tradeRequest, String ip);
 
 }
