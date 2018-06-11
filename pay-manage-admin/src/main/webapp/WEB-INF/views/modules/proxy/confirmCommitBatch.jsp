@@ -29,6 +29,8 @@
         $(document).ready(function(){
             //发送验证码
             $("#sendMsg").click(function () {
+                //点击之后立即置为灰色
+                $("#sendMsg").attr("disabled", "true");
                 curCount = count;
 
                 var platBatchId = $("#platBatchId").val();
@@ -45,13 +47,14 @@
                         if(data=='ok') {
                             alert("发送成功");
                             //设置button效果，开始计时
-                            $("#sendMsg").attr("disabled", "true");
                             $("#sendMsg").val("请在" + curCount + "秒内输入验证码");
                             InterValObj = window.setInterval(SetRemainTime, 1000); //启动计时器，1秒执行一次
                         }else if(data == 'batch not exist in redis') {
                             alert('代付信息异常，请重新上传excel！');
+                            $("#sendMsg").removeAttr("disabled");//启用按钮
                         }else {
                             alert("发送失败，请联系管理员！");
+                            $("#sendMsg").removeAttr("disabled");//启用按钮
                         }
                     }
                 });

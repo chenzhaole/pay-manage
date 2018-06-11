@@ -67,7 +67,9 @@
 				<select name="payType" class="input-medium" id="payType">
 					<option value="">--请选择--</option>
 					<c:forEach items="${paymentTypeInfos}" var="paymentTypeInfo">
-						<option value="${paymentTypeInfo.code}">${paymentTypeInfo.desc}</option>
+						<option value="${paymentTypeInfo.code}"
+							<c:if test="${paymentTypeInfo.code eq paramMap.payType }">selected </c:if>
+						>${paymentTypeInfo.desc}</option>
 					</c:forEach>
 				</select>
  			</td>

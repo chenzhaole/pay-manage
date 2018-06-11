@@ -120,7 +120,7 @@ public class OrderController extends BaseController {
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 		//查询商户列表
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
-		Map<String, String> chanMPMap = Collections3.extractToMap(chanInfoList, "id", "name");
+		Map<String, String> chanMPMap = Collections3.extractToMap(chanMchtPaytypeList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
 		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
 
