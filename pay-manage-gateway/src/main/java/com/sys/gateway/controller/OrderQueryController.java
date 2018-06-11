@@ -106,7 +106,7 @@ public class OrderQueryController {
                     Map<String, String> params = JSONObject.parseObject(
                             JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
                             });
-                    sign = SignUtil.md5Sign(params, mchtResult.getMchtKey());
+                    sign = SignUtil.md5Sign(params, mchtResult.getMchtKey(),"");
                     queryResp.setSign(sign);
                     queryResp.setHead(head);
                     queryResp.setBody(body);

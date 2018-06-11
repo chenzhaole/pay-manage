@@ -119,6 +119,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
         cashierRequestBody.setExpireTime(request.getParameter("expireTime"));
         cashierRequestBody.setOpenId(request.getParameter("openId"));
         cashierRequestBody.setIp(request.getParameter("ip"));
+        cashierRequestBody.setDeviceType(request.getParameter("deviceType"));
 
         cashierRequest.setBody(cashierRequestBody);
         cashierRequest.setHead(head);

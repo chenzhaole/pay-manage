@@ -65,8 +65,6 @@ public class GwCashierMchtController extends GwCashierBaseController {
 			//根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
 			String userAgent = this.getUserAgentInfoByRequest(request, midoid);
 			logger.info(BIZ+midoid+"根据请求头获取的user-agent为："+userAgent);
-			deviceType = HttpUtil.getDeviceType(userAgent);
-			logger.info(BIZ+midoid+"通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 			TradeCashierRequest requestInfo = null;
 			//解析并校验商户请求参数
 			result = gwCashierService.resolveAndcheckParam(request);
@@ -74,6 +72,13 @@ public class GwCashierMchtController extends GwCashierBaseController {
 			if(ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
 				//商户请求参数校验通过
 				requestInfo = (TradeCashierRequest) result.getData();
+				//如果商户未指定设备类型，平台自己获取
+				if(StringUtils.isBlank(requestInfo.getBody().getDeviceType())){
+					deviceType = HttpUtil.getDeviceType(userAgent);
+					logger.info(BIZ+midoid+"通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+				}else{
+					logger.info(BIZ+midoid+"商户自己指定的设备类型deviceType的值为："+requestInfo.getBody().getDeviceType()+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
+				}
 				//获取请求ip，值必须真实，某些上游通道要求必须是真实ip
 				String ip = requestInfo.getBody().getIp();
 				if(StringUtils.isBlank(ip)){
@@ -287,7 +292,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 
 		String sign = null;
 		try {
-			sign = SignUtil.md5Sign(paramMap,mchtKey);
+			sign = SignUtil.md5Sign(paramMap,mchtKey, "");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

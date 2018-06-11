@@ -185,7 +185,7 @@ public class TxQuickPrePayController {
                 Map<String, String> params = JSONObject.parseObject(
                         JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
                         });
-                sign = SignUtil.md5Sign(params, mchtResult.getMchtKey());
+                sign = SignUtil.md5Sign(params, mchtResult.getMchtKey(), "");
             } else {
                 String respCode = StringUtils.isBlank(commonResult.getRespCode()) ? ErrorCodeEnum.FAILURE.getCode() : commonResult.getRespCode();
                 String respMsg = StringUtils.isBlank(commonResult.getRespMsg()) ? ErrorCodeEnum.FAILURE.getDesc() : commonResult.getRespMsg();

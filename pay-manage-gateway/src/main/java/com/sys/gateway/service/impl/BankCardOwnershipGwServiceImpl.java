@@ -72,7 +72,7 @@ public class BankCardOwnershipGwServiceImpl implements BankCardOwnershipGwServic
 				body.setParam(map.get("param"));
 				
 				MchtInfo merchant = (MchtInfo) data[1];
-				String sign = SignUtil.md5Sign(map, merchant.getMchtKey());
+				String sign = SignUtil.md5Sign(map, merchant.getMchtKey(),"");
 				
 			}else{
 				head.setRespCode(tradeResult.getRespCode());

@@ -408,8 +408,8 @@ public class ProxyOrderController extends BaseController {
                 paramsMap.put("orderId", platBatchId);
                 paramsMap.put("verifyCode", smsCode);
                 paramsMap.put("opType", "2");
-
-                String sign = SignUtil.md5Sign(paramsMap, mchtId);
+                String log_moid = mchtId+"-->"+platBatchId;
+                String sign = SignUtil.md5Sign(paramsMap, mchtId, log_moid);
                 paramsMap.put("sign", sign);
 
                 String url = sms_send + "/gateway/sms/verify";
@@ -476,8 +476,8 @@ public class ProxyOrderController extends BaseController {
                 paramsMap.put("biz", "df01");
                 paramsMap.put("orderId", platBatchId);
                 paramsMap.put("opType", "1");
-
-                String sign = SignUtil.md5Sign(paramsMap, mchtId);
+                String log_moid = mchtId+"-->"+platBatchId;
+                String sign = SignUtil.md5Sign(paramsMap, mchtId, log_moid);
                 paramsMap.put("sign", sign);
 
 

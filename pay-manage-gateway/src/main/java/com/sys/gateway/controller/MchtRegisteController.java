@@ -181,7 +181,7 @@ public class MchtRegisteController {
                 Map<String, String> signMap = JSONObject.parseObject(
                         JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
                         });
-                sign = SignUtil.md5Sign(signMap, mchtResult.getMchtKey());// 签名
+                sign = SignUtil.md5Sign(signMap, mchtResult.getMchtKey(),"");// 签名
             } else {
                 logger.info(BIZ + midoid + METHOD + " 入驻失败");
                 String respCode = StringUtils.isBlank(commonResult.getRespCode()) ? ErrorCodeEnum.FAILURE.getCode() : commonResult.getRespCode();

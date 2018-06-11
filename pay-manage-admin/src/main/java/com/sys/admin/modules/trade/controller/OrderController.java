@@ -383,7 +383,8 @@ public class OrderController extends BaseController {
 			Map<String, String> params = JSONObject.parseObject(
 					JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
 					});
-			String sign = SignUtil.md5Sign(params, key);
+            String log_moid = mchtInfo.getId()+"-->"+order.getId();
+            String sign = SignUtil.md5Sign(params, key, log_moid);
 			data.put("sign", sign);
 			data.put("body", body);
 			String respStr = HttpUtil.post(queryUrl, data.toJSONString());

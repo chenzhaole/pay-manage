@@ -222,7 +222,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             tradeNotifyResponse.setBody(body);
 
             TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(body);
-            String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
+            String log_moid = mchtOrderId+"-->"+mchtId;
+            String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey, log_moid);
             tradeNotifyResponse.setSign(sign);
 
             tradeNotify.setResponse(tradeNotifyResponse);
@@ -307,7 +308,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         body.setAmount(order.getAmount() + "");
         TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(body);
         String mchtKey = merchantService.queryByKey(order.getMchtCode()).getMchtKey();
-        String sign = SignUtil.md5Sign(new HashMap<>(treeMap), mchtKey);
+        String log_moid = order.getMchtCode()+"-->"+order.getPlatOrderId();
+        String sign = SignUtil.md5Sign(new HashMap<>(treeMap), mchtKey, log_moid);
 
         tradeNotifyResponse.setSign(sign);
         tradeNotifyResponse.setHead(head);
@@ -360,7 +362,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             tradeNotifyResponse.setBody(body);
 
             TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(body);
-            String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey);
+            String log_moid = mchtId+"-->"+orderId;
+            String sign = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey, log_moid);
             tradeNotifyResponse.setSign(sign);
 
             tradeNotify.setResponse(tradeNotifyResponse);

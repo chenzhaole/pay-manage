@@ -67,7 +67,9 @@ public class GwSmsServiceImpl implements GwSmsService {
         }
 
         data.remove("sign");
-        if (!SignUtil.checkSign(data, mchtSign, SMS_KEY)) {
+        String log_moid = mchtId+"-->"+orderId;
+
+        if (!SignUtil.checkSign(data, mchtSign, SMS_KEY, log_moid)) {
             logger.info(BIZ_NAME + midoid + " 验签失败");
             smsRes.setRespCode(ErrorCodeEnum.E1009.getCode());
             smsRes.setRespMsg(ErrorCodeEnum.E1009.getDesc());
