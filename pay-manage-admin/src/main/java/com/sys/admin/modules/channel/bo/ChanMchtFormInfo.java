@@ -864,8 +864,8 @@ public class ChanMchtFormInfo {
 			this.tradeStartTime = requestMap.get("tradeStartTimeH") + ":" + requestMap.get("tradeStartTimeS");
 			this.tradeEndTime = requestMap.get("tradeEndTimeH") + ":" + requestMap.get("tradeEndTimeS");
 
-			this.tradeMaxMoney = new BigDecimal(requestMap.get("tradeMaxMoney") == null ? "0" : requestMap.get("tradeMaxMoney"));
-			this.tradeMinMoney = new BigDecimal(requestMap.get("tradeMinMoney") == null ? "0" : requestMap.get("tradeMinMoney"));
+			this.tradeMaxMoney = StringUtils.isBlank(requestMap.get("tradeMaxMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMaxMoney"));
+			this.tradeMinMoney = StringUtils.isBlank(requestMap.get("tradeMinMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMinMoney"));
 		}
 	}
 
