@@ -139,8 +139,8 @@
 					<label class="control-label">新代付明细状态</label>
 					<div class="controls">
 						<select name="status" class="input-xlarge" id="status" disabled>
-							<option value="21" <c:if test="${proxyDetail.payStatus eq '21'}">selected</c:if>>代付成功</option>
-							<option value="22" <c:if test="${proxyDetail.payStatus eq '22'}">selected</c:if>>代付失败</option>
+							<option value="21" <c:if test="${proxyDetail.newPayStatus eq '21'}">selected</c:if>>代付成功</option>
+							<option value="22" <c:if test="${proxyDetail.newPayStatus eq '22'}">selected</c:if>>代付失败</option>
 						</select>
 					</div>
 				</div>
@@ -160,7 +160,7 @@
 
 		</tr>
 
-		<tr>
+		<tr>1
 
 			<td>
 				<div class="control-group">
