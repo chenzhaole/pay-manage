@@ -71,6 +71,9 @@ public class GwCashierBaseController {
             if(browserNotSupportAliScan2H5(userAgent, midoid)){
                 iframe = "1";
             }
+        }else{
+            //其它支付方式不使用iframe标签
+            iframe = "1";
         }
         logger.info(midoid+"，是否通过iframe标签掉起支付，iframe："+iframe+"，【0：使用， 1：不使用】");
         return iframe;
