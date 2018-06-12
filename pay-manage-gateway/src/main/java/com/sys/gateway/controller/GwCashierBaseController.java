@@ -59,17 +59,17 @@ public class GwCashierBaseController {
      * @return
      */
     protected String useIfrmnameMark(String payType, String userAgent, String midoid) {
-        //默认使用
-        String iframe = "0";
+        //默认不使用
+        String iframe = "1";
         if(PayTypeEnum.QQ_SCAN2WAP.getCode().equals(payType)){
             //qq扫码转h5不支持：苹果自带浏览器、uc浏览器、百度浏览器
             //过滤掉qq扫码转h5不支持的浏览器，
-            if(browserNotSupportQQScan2H5(userAgent, midoid)){
-               iframe = "1";
+            if(browserbSupportQQScan2H5(userAgent, midoid)){
+               iframe = "0";
             }
         }else if(PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) ){
-            if(browserNotSupportAliScan2H5(userAgent, midoid)){
-                iframe = "1";
+            if(browserbSupportAliScan2H5(userAgent, midoid)){
+                iframe = "0";
             }
         }else{
             //其它支付方式不使用iframe标签
@@ -84,24 +84,19 @@ public class GwCashierBaseController {
      * @param userAgent
      * @return
      */
-    protected boolean browserNotSupportQQScan2H5(String userAgent, String midoid) {
-        if(StringUtils.isNotBlank(userAgent)){
-            userAgent = userAgent.toLowerCase();
-        }else{
-            return false;
-        }
-        if (userAgent.contains("iphone")){
+    protected boolean browserbSupportQQScan2H5(String userAgent, String midoid) {
+        if (userAgent.contains("iPhone")){
             //ios手机自带浏览器
             //仅仅是苹果浏览器内核，即苹果自带浏览器
-            if((userAgent.contains("safari"))
-                    && !userAgent.contains("chrome")
-                    && !userAgent.contains("firefox")
-                    && !userAgent.contains("opera")){
+            if(userAgent.contains("Safari")
+                    && !userAgent.contains("Chrome")
+                    && !userAgent.contains("Firefox")
+                    && !userAgent.contains("Opera")){
                 //不支持
                 logger.info(midoid+"，qq扫码转h5支付，不支持iPhone手机的自带浏览器");
-                return true;
+                return false;
             }
-        }else if(userAgent.contains("android")) {
+        }else if(userAgent.contains("Android")) {
             //目前测试人员测出：手机百度浏览器、手机谷歌浏览器
             // Android手机
 
@@ -115,15 +110,15 @@ public class GwCashierBaseController {
             /** 1. 安卓手机uc浏览器， 2.安卓手机百度浏览器*/
             if(userAgent.contains("baidu")) {
                 logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的百度【baidu】浏览器");
-                return true;
+                return false;
             }
-            if(userAgent.contains("ucbrowser")){
+            if(userAgent.contains("UCBrowser")){
                 logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的UC【UCBrowser】浏览器");
-                return true;
+                return false;
             }
 
         }
-        return false;
+        return true;
     }
 
     /**
@@ -131,47 +126,9 @@ public class GwCashierBaseController {
      * @param userAgent
      * @return
      */
-    protected boolean browserNotSupportAliScan2H5(String userAgent, String midoid) {
-        if(StringUtils.isNotBlank(userAgent)){
-            userAgent = userAgent.toLowerCase();
-        }else{
-            return false;
-        }
-        if (userAgent.contains("iphone")){
-            //ios手机自带浏览器
-            //仅仅是苹果浏览器内核，即苹果自带浏览器
-            if((userAgent.contains("safari"))
-                    && !userAgent.contains("chrome")
-                    && !userAgent.contains("firefox")
-                    && !userAgent.contains("opera")){
-                //不支持
-                logger.info(midoid+"，支付宝扫码转h5支付，不支持iPhone手机的自带浏览器");
-                return true;
-            }
-        }else if(userAgent.contains("android")) {
-            //目前测试人员测出：手机百度浏览器、手机谷歌浏览器
-            // Android手机
-
-            //uc如下：判断依据 包含UCBrowser
-            //Mozilla/5.0 (Linux; U; Android 6.0.1; zh-CN; vivo X9 Build/MMB29M) AppleWebKit/537.36 (KHTML, like Gecko)
-//	    	  Version/4.0 Chrome/40.0.2214.89  UCBrowser/11.6.4.950 Mobile Safari/537.36
-
-            //手机百度如下：判断依据 包含baidu
-//	    	  user-agent = Mozilla/5.0 (Linux; Android 6.0.1; vivo X9 Build/MMB29M; wv) AppleWebKit/537.36 (KHTML, like Gecko)
-//	    	  Version/4.0 Chrome/48.0.2564.116 Mobile Safari/537.36 T7/9.1 baiduboxapp/9.1.0.12 (Baidu; P1 6.0.1)
-
-            /** 1. 安卓手机uc浏览器， 2.安卓手机百度浏览器*/
-//            if(userAgent.contains("baidu")) {
-//                logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的百度【baidu】浏览器");
-//                return true;
-//            }
-//            if(userAgent.contains("UCBrowser")){
-//                logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的UC【UCBrowser】浏览器");
-//                return true;
-//            }
-
-        }
-        return false;
+    protected boolean browserbSupportAliScan2H5(String userAgent, String midoid) {
+        //TODO
+        return true;
     }
 
     /**
@@ -422,9 +379,10 @@ public class GwCashierBaseController {
         String deviceTypeName = "";
         if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
             deviceTypeName = "pc";
-        }else if(DeviceTypeEnum.MOBILE.getCode().equals(deviceType) || DeviceTypeEnum.WECHAT.getCode().equals(deviceType)){
-            //手机端和微信内页面共用一套
+        }else if(DeviceTypeEnum.MOBILE.getCode().equals(deviceType)){
             deviceTypeName = "mobile";
+        }else if(DeviceTypeEnum.WECHAT.getCode().equals(deviceType)){
+            //TODO 微信公众号支付
         }else if(DeviceTypeEnum.ALIPAY.getCode().equals(deviceType)){
             //TODO 支付宝服务窗支付
         }else{

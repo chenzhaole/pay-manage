@@ -90,13 +90,6 @@
         应用名称: <input type="text" value="" name="appName"/><br>
         操作员编号: <input type="text" value="" name="operator"/><br>
         订单超时时间: <input type="text" value="" name="expireTime"/><br>
-        设备类型:
-        <select name="deviceType">
-            <option value="">--不指定--</option>
-            <option value="1">手机端浏览器</option>
-            <option value="2">pc端浏览器</option>
-            <option value="3">微信内</option>
-        </select><br>
         openId: <input type="text" value="" id="openId" name="openId"/><br>
         IP: <input type="text" value="" id="ip" name="ip"/><br>
         签名Key: <input type="text" value="${key}" id="mchtKey" name="mchtKey"/><br>
