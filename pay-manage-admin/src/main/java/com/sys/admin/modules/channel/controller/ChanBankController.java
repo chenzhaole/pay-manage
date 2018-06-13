@@ -89,7 +89,7 @@ public class ChanBankController extends BaseController {
 
 		//所有支付方式
 		PayTypeEnum[] payTypeList = PayTypeEnum.values();
-		model.addAttribute("paymentTypeInfos", payTypeList);
+		model.addAttribute("paymentTypeInfos", filterPayTypeList(payTypeList));
 
 
 		model.addAttribute("platBanks", platBanks);
@@ -136,7 +136,7 @@ public class ChanBankController extends BaseController {
 
 		//支付方式
 		PayTypeEnum[] payTypeList = PayTypeEnum.values();
-		model.addAttribute("paymentTypeInfos", payTypeList);
+		model.addAttribute("paymentTypeInfos", filterPayTypeList(payTypeList));
 
 		//所有银行
 		List<PlatBank> platBanks = platBankService.list(new PlatBank());
