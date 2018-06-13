@@ -39,6 +39,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -299,6 +300,7 @@ public class ProxyChangeStatusController extends BaseController {
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
 
 		if (proxyDetail != null) {
+			proxyDetail.setAuditNotes(proxyDetail.getExtend2());
 			proxyDetail.setExtend2(mchtMap.get(proxyDetail.getMchtId()));
 			proxyDetail.setExtend3(channelMap.get(proxyDetail.getChanId()));
 		}
@@ -337,10 +339,16 @@ public class ProxyChangeStatusController extends BaseController {
 				if (AuditEnum.AUDITED.getCode().equals(auditStatus)){
 					//修改明细订单状态
 					proxyDetail.setPayStatus(proxyDetailAudit.getNewPayStatus());
+					proxyDetail.setUpdateDate(new Date());
 					result = proxyDetailService.saveByKey(proxyDetail);
 
 					//修改批次订单状态
 					if (result == 1){
+
+						int sucCount = 0;
+						int failCount = 0;
+						BigDecimal sucAmount = BigDecimal.ZERO;
+						BigDecimal failAmount = BigDecimal.ZERO;
 
 						PlatProxyBatch proxyBatch = proxyBatchService.queryByKey(proxyDetail.getPlatBatchId());
 						//批次状态是否变更
@@ -357,7 +365,20 @@ public class ProxyChangeStatusController extends BaseController {
 									done = false;
 									break;
 								}
+
+								if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_SUCCESS.getCode())){
+									sucCount ++;
+									sucAmount.add(detail.getAmount());
+								}
+								else if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_FAIL.getCode())){
+									failCount ++;
+									failAmount.add(detail.getAmount());
+								}
 							}
+							proxyBatch.setSuccessNum(sucCount);
+							proxyBatch.setSuccessAmount(sucAmount);
+							proxyBatch.setFailNum(failCount);
+							proxyBatch.setFailAmount(failAmount);
 							//所有明细状态为完成
 							if (done){
 								proxyBatch.setPayStatus(ProxyPayBatchStatusEnum.DF_DONE.getCode());
