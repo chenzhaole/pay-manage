@@ -2,6 +2,7 @@ package com.sys.admin.modules.platform.controller;
 
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
+import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.bo.ChanMchtFormInfo;
 import com.sys.admin.modules.channel.service.ChanMchtAdminService;
 import com.sys.admin.modules.channel.service.ChannelAdminService;
@@ -48,7 +49,7 @@ import java.util.Map;
  */
 @Controller
 @RequestMapping(value = "${adminPath}/platform")
-public class PlatformController {
+public class PlatformController extends BaseController {
 
 	@Autowired
 	PlatSDKService platSDKService;
@@ -111,7 +112,7 @@ public class PlatformController {
 
 		//所有支付方式
 		PayTypeEnum[] payTypeList = PayTypeEnum.values();
-		model.addAttribute("paymentTypeInfos", payTypeList);
+		model.addAttribute("paymentTypeInfos", filterPayTypeList(payTypeList));
 
 		//所有通道商户支付方式
 		List<ChanMchtPaytype> chanMchtPaytypes = chanMchtPaytypeService.list(new ChanMchtPaytype());
