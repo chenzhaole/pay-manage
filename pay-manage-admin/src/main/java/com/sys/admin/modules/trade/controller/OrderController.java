@@ -162,7 +162,7 @@ public class OrderController extends BaseController {
 		}
 
 		for (MchtGatewayOrder gwOrder : orderList) {
-			gwOrder.setMchtId(mchtMap.get(gwOrder.getMchtId()));
+			gwOrder.setMchtCode(mchtMap.get(gwOrder.getMchtCode()));
 			gwOrder.setPlatProductId(productMap.get(gwOrder.getPlatProductId()));
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
 			gwOrder.setChanMchtPaytypeId(chanMPMap.get(gwOrder.getChanMchtPaytypeId()));
