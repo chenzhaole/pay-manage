@@ -30,6 +30,10 @@
 		<td width="25%"><b>商户代付明细订单号:</b></td>	<td width="25%"> ${proxyDetail.mchtSeq}</td>
 	</tr>
 	<tr>
+		<td width="25%"><b>平台批次订单号:</b></td>	<td width="25%"> ${proxyDetail.platBatchId}</td>
+		<td width="25%"><b>平台明细订单号:</b></td>	<td width="25%"> ${proxyDetail.id}</td>
+	</tr>
+	<tr>
 		<td width="25%"><b>代付金额:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.0000" maxFractionDigits="4"/>元</td>
 		<td width="25%"><b>手续费:</b></td>	<td width="25%"> <fmt:formatNumber type="number" value="${proxyDetail.mchtFee*0.01}" pattern="0.0000" maxFractionDigits="4"/>元</td>
 	</tr>

@@ -152,7 +152,7 @@
 					<div class="controls">
                         <textarea name="notes" placeholder="" id="notes"
 								  style="width:500px;" rows="3" readonly>
-							${proxyDetail.extend2}
+							${proxyDetail.auditNotes}
 						</textarea>
 					</div>
 				</div>
@@ -160,7 +160,7 @@
 
 		</tr>
 
-		<tr>1
+		<tr>
 
 			<td>
 				<div class="control-group">
