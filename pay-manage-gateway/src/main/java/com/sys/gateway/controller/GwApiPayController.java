@@ -3,12 +3,12 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
-import com.sys.boss.api.entry.trade.request.commpay.TradeCommRequest;
-import com.sys.boss.api.entry.trade.response.commpay.CommOrderCreateResponse;
+import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
+import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
 import com.sys.common.enums.ErrorCodeEnum;
 
 import com.sys.gateway.common.IpUtil;
-import com.sys.gateway.service.CommPayService;
+import com.sys.gateway.service.GwApiPayService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,19 +31,19 @@ import java.net.URLDecoder;
  */
 @Controller
 @RequestMapping(value = "")
-public class GwCommPayController {
+public class GwApiPayController {
 
-	protected final Logger logger = LoggerFactory.getLogger(GwCommPayController.class);
+	protected final Logger logger = LoggerFactory.getLogger(GwApiPayController.class);
 
 	@Autowired
-	CommPayService commPayService;
+	GwApiPayService gwApiPayService;
 
 	/**支付**/
     @RequestMapping(value="/gateway/api/commPay")
     @ResponseBody
     public String commPay(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
-        CommOrderCreateResponse commResp = new CommOrderCreateResponse();
-        CommOrderCreateResponse.CommOrderCreateResponseHead head = new CommOrderCreateResponse.CommOrderCreateResponseHead();
+        ApiPayOrderCreateResponse apiPayResp = new ApiPayOrderCreateResponse();
+        ApiPayOrderCreateResponse.ApiPayOrderCreateResponseHead head = new ApiPayOrderCreateResponse.ApiPayOrderCreateResponseHead();
 
         try {
         	String ip = IpUtil.getRemoteHost(request);//请求ip
@@ -51,18 +51,18 @@ public class GwCommPayController {
         	data = URLDecoder.decode(data, "utf-8");
     		logger.info("comm支付收到客户端请求参数后做url解码后的值为："+data);
     		//校验请求参数
-        	CommonResponse checkResp = commPayService.checkParam(data);
+        	CommonResponse checkResp = gwApiPayService.checkParam(data);
     		logger.info("comm支付校验请求参数的结果为："+JSONObject.toJSONString(checkResp));
         	if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
         		head.setRespCode(checkResp.getRespCode());
         		head.setRespMsg(checkResp.getRespMsg());
-        		commResp.setHead(head);
+        		apiPayResp.setHead(head);
         	}else{
         		//掉comm支付接口
-        		TradeCommRequest tradeRequest = (TradeCommRequest) checkResp.getData();
+        		TradeApiPayRequest tradeRequest = (TradeApiPayRequest) checkResp.getData();
 				logger.info("调用comm支付接口，传入的TradeCommRequest信息："+JSONObject.toJSONString(tradeRequest));
-				commResp = (CommOrderCreateResponse) commPayService.pay(tradeRequest, ip);
-				logger.info("调用comm支付接口，返回的CommOrderCreateResponse信息："+JSONObject.toJSONString(commResp));
+				apiPayResp = (ApiPayOrderCreateResponse) gwApiPayService.pay(tradeRequest, ip);
+				logger.info("调用comm支付接口，返回的CommOrderCreateResponse信息："+JSONObject.toJSONString(apiPayResp));
         	}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -70,8 +70,8 @@ public class GwCommPayController {
 			head.setRespCode(ErrorCodeEnum.FAILURE.getCode());
 			head.setRespMsg("支付网关错误："+e.getMessage());
 		}
-        logger.info("创建comm订单，返回下游商户值："+JSON.toJSONString(commResp));
-        return JSON.toJSONString(commResp);
+        logger.info("创建comm订单，返回下游商户值："+JSON.toJSONString(apiPayResp));
+        return JSON.toJSONString(apiPayResp);
     }
 
 }

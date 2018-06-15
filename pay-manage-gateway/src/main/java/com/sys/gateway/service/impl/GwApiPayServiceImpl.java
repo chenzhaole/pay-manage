@@ -7,14 +7,14 @@ import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.TradeBaseRequest;
 import com.sys.boss.api.entry.trade.request.TradeReqHead;
-import com.sys.boss.api.entry.trade.request.commpay.CommRequestBody;
-import com.sys.boss.api.entry.trade.request.commpay.TradeCommRequest;
-import com.sys.boss.api.entry.trade.response.commpay.CommOrderCreateResponse;
-import com.sys.boss.api.service.trade.handler.ITradeCommPayHandler;
+import com.sys.boss.api.entry.trade.request.apipay.ApiPayRequestBody;
+import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
+import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
+import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.SignUtil;
-import com.sys.gateway.service.CommPayService;
 
+import com.sys.gateway.service.GwApiPayService;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -32,12 +32,12 @@ import java.util.Map;
  * @time: 2017年11月28日
  */
 @Service
-public class CommPayServiceImpl implements CommPayService {
+public class GwApiPayServiceImpl implements GwApiPayService {
 
-	protected final Logger logger = LoggerFactory.getLogger(CommPayServiceImpl.class);
+	protected final Logger logger = LoggerFactory.getLogger(GwApiPayService.class);
 
 	@Autowired
-	private ITradeCommPayHandler tradeCommPayHandler;
+	private ITradeApiPayHandler tradeApiPayHandler;
 
 
 	/**wap支付校验参数**/
@@ -49,7 +49,7 @@ public class CommPayServiceImpl implements CommPayService {
 				paramStr = paramStr.substring(0,paramStr.length()-1);
 			}
 			//解析请求参数
-			TradeCommRequest tradeRequest = JSON.parseObject(paramStr, TradeCommRequest.class);
+			TradeApiPayRequest tradeRequest = JSON.parseObject(paramStr, TradeApiPayRequest.class);
 			if (tradeRequest.getHead() == null || tradeRequest.getBody() == null || tradeRequest.getSign() == null) {
 				checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
 				checkResp.setRespCode("[head],[body],[sign]请求参数值不能为空");
@@ -65,7 +65,7 @@ public class CommPayServiceImpl implements CommPayService {
 				return checkResp;
 			}
 
-			CommRequestBody body = tradeRequest.getBody();
+			ApiPayRequestBody body = tradeRequest.getBody();
 			if (StringUtils.isBlank(body.getOrderId())
 					|| StringUtils.isBlank(body.getAmount())
 					|| StringUtils.isBlank(body.getGoods())
@@ -92,14 +92,14 @@ public class CommPayServiceImpl implements CommPayService {
 
 	/**wap支付接口*/
 	@Override
-	public CommOrderCreateResponse pay(TradeBaseRequest tradeRequest, String ip) {
+	public ApiPayOrderCreateResponse pay(TradeBaseRequest tradeRequest, String ip) {
 
-		CommOrderCreateResponse.CommOrderCreateResponseHead head = new CommOrderCreateResponse.CommOrderCreateResponseHead();
-		CommOrderCreateResponse.CommOrderCreateResponseBody body = new CommOrderCreateResponse.CommOrderCreateResponseBody();
+		ApiPayOrderCreateResponse.ApiPayOrderCreateResponseHead head = new ApiPayOrderCreateResponse.ApiPayOrderCreateResponseHead();
+		ApiPayOrderCreateResponse.ApiPayOrderCreateResponseBody body = new ApiPayOrderCreateResponse.ApiPayOrderCreateResponseBody();
 		String sign  ="";
 		try {
 			logger.info("调用boss-trade创建wap订单，参数值tradeRequest："+JSON.toJSONString(tradeRequest));
-			CommonResult commonResult = (CommonResult) tradeCommPayHandler.process(tradeRequest, ip);
+			CommonResult commonResult = (CommonResult) tradeApiPayHandler.process(tradeRequest, ip);
 			logger.info("调用boss-trade创建wap订单，返回值commonResult：" + JSON.toJSONString(commonResult));
 			if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
 				Result mchtResult = (Result) commonResult.getData();
@@ -126,7 +126,7 @@ public class CommPayServiceImpl implements CommPayService {
 			e.printStackTrace();
 			logger.error("创建wap支付订单异常 e=" + e.getMessage());
 		}
-		CommOrderCreateResponse wapOrderCreateResponse = new CommOrderCreateResponse(head, body, sign);
+		ApiPayOrderCreateResponse wapOrderCreateResponse = new ApiPayOrderCreateResponse(head, body, sign);
 		logger.info("返回gateway客户端CommOrderCreateResponse="+JSON.toJSONString(wapOrderCreateResponse));
 		return wapOrderCreateResponse;
 	}

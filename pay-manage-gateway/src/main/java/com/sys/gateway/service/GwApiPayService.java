@@ -14,7 +14,7 @@ import com.sys.boss.api.entry.trade.response.TradeBaseResponse;
  * @author: ChenZL
  * @time: 2017年11月28日
  */
-public interface CommPayService {
+public interface GwApiPayService {
 
 
 	/**wap支付校验参数**/
