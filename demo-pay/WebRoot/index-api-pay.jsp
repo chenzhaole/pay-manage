@@ -74,7 +74,7 @@
 <div id="main">
     <div class="cashier-nav">
         <ol>
-            <li class="current">提交信息（商户API支付请求）</li>
+            <li class="current">提交信息（通用API支付请求）</li>
         </ol>
     </div>
     <form action="testApiPay" method="post" target="_blank">
@@ -85,8 +85,12 @@
                 <dt>支付地址：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="payUrl" value="http://127.0.0.1:12080/gateway/api/commPay/" maxlength="128" size="30"
-                           placeholder="长度128"/>
+                    <select name="payUrl">
+                        <option value="http://127.0.0.1:12080/gateway/api/commPay/">本地 http://127.0.0.1:12080/gateway/api/commPay/</option>
+                        <option value="http://114.115.206.62:12080/gateway/api/commPay/">开发 http://114.115.206.62:12080/gateway/api/commPay/</option>
+                        <option value="http://114.115.206.62:12080/gateway/api/commPay/">测试 http://114.115.206.62:12080/gateway/api/commPay/</option>
+                        <option value="http://106.2.6.41:12080//gateway/api/commPay/">生产 http://106.2.6.41:12080//gateway/api/commPay/</option>
+                    </select>
                     <span class="null-star">(payUrl)*</span>
                     <span></span>
                 </dd>
@@ -94,7 +98,7 @@
                 <dt>商户编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="mchtId" value="17b1652b" maxlength="32" size="16" placeholder="长度32"/>
+                    <input name="mchtId" value="" maxlength="32" size="32" placeholder="长度32"/>
                     <span class="null-star">(mchtId)*</span>
                     <span></span>
                 </dd>
@@ -110,8 +114,10 @@
                 <dd>
                     <span class="null-star"></span>
                     <select name="biz">
+                        <option value="wx000">微信</option>
                         <option value="wx101">微信H5</option>
                         <option value="wx401">微信扫码</option>
+                        <option value="al000">支付宝</option>
                         <option value="al101">支付宝H5</option>
                         <option value="al401">支付宝扫码</option>
                         <option value="qq101">qqH5</option>
@@ -125,7 +131,7 @@
                 <dt>商户订单号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="orderId" value="" maxlength="32" size="30" placeholder="长度32"/>
+                    <input name="orderId" value="" maxlength="32" size="32" placeholder="长度32"/>
                     <span class="null-star">(orderId)*</span>
                     <span></span>
                 </dd>
@@ -158,7 +164,7 @@
                 <dt>商品名称：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="goods" value="测试商品" maxlength="127" size="30" placeholder="长度127"/>
+                    <input name="goods" value="测试商品" maxlength="128" size="32" placeholder="长度127"/>
                     <span class="null-star">(goods)*</span>
                     <span></span>
                 </dd>
@@ -167,7 +173,7 @@
                 <dd>
                     <span class="null-star"></span>
                     <input name="notifyUrl" value="http://114.115.206.62:15081/recNotice" maxlength="128"
-                           size="30" placeholder="长度128"/>
+                           size="50" placeholder="长度128"/>
                     <span class="null-star">(notifyUrl)*</span>
                     <span></span>
                 </dd>
@@ -175,7 +181,7 @@
                 <dt>回调地址：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="callBackUrl" value="http://www.baidu.com" maxlength="128" size="30"
+                    <input name="callBackUrl" value="http://www.baidu.com" maxlength="128" size="50"
                            placeholder="长度128"/>
                     <span class="">(callBackUrl)</span>
                     <span></span>
@@ -185,7 +191,7 @@
                 <dt>商品描述：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="desc" value="" maxlength="256" size="30" placeholder="可空"/>
+                    <input name="desc" value="" maxlength="256" size="32" placeholder="可空"/>
                     <span>(desc)</span>
                     <span></span>
                 </dd>
@@ -193,7 +199,7 @@
                 <dt>应用ID：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="appId" value="" maxlength="128" size="30" placeholder="可空"/>
+                    <input name="appId" value="" maxlength="128" size="32" placeholder="可空"/>
                     <span>(appId)</span>
                     <span></span>
                 </dd>
@@ -201,7 +207,7 @@
                 <dt>应用名称：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="appName" value="" maxlength="128" size="30" placeholder="可空"/>
+                    <input name="appName" value="" maxlength="128" size="32" placeholder="可空"/>
                     <span>(appName)</span>
                     <span></span>
                 </dd>
@@ -209,7 +215,7 @@
                 <dt>操作员编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="operator" value="" maxlength="128" size="30" placeholder="可空"/>
+                    <input name="operator" value="" maxlength="128" size="32" placeholder="可空"/>
                     <span>(operator)</span>
                     <span></span>
                 </dd>
@@ -217,7 +223,7 @@
                 <dt>订单超时时间：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="expireTime" value="" maxlength="128" size="30" placeholder="可空"/>
+                    <input name="expireTime" value="" maxlength="128" size="32" placeholder="可空"/>
                     <span>(expireTime)</span>
                     <span></span>
                 </dd>
@@ -234,7 +240,7 @@
                 <dt>附加信息：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="param" value="" maxlength="128" size="30" placeholder="可空"/>
+                    <input name="param" value="" maxlength="128" size="32" placeholder="可空"/>
                     <span>(param)</span>
                     <span></span>
                 </dd>
@@ -243,7 +249,7 @@
                 <dt>商户秘钥：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="key" value="36c7675514eb435aafcd774e2c81d67d" maxlength="32" size="30" placeholder=""/>
+                    <input name="key" value="36c7675514eb435aafcd774e2c81d67d" maxlength="32" size="32" placeholder=""/>
                     <span class="null-star">(key)*</span>
                     <span></span>
                 </dd>

@@ -74,7 +74,7 @@
 	<div id="main">
         <div class="cashier-nav">
             <ol>
-				<li class="current">提交信息（统一扫码支付请求） </li> 
+				<li class="current">提交信息（网页支付请求） </li>
             </ol>
         </div>
         <form action="testPay" method="post"  target="_blank">
@@ -84,7 +84,12 @@
                     <dt>支付地址：</dt>
                     <dd>
                         <span class="null-star"></span>
-                        <input name="payUrl" value="http://103.235.224.141:12080/gateway/wapPay/" maxlength="128" size="30"  placeholder="长度128"/>
+                        <select name="payUrl">
+                            <option value="http://127.0.0.1:12080/gateway/cashier/mchtCall">本地 http://127.0.0.1:12080/gateway/cashier/mchtCall</option>
+                            <option value="http://114.115.206.62:12080/gateway/cashier/mchtCall">开发 http://114.115.206.62:12080/gateway/cashier/mchtCall</option>
+                            <option value="http://114.115.206.62:12080/gateway/cashier/mchtCall">测试 http://114.115.206.62:12080/gateway/cashier/mchtCall</option>
+                            <option value="http://106.2.6.41:12080/gateway/cashier/mchtCall">生产 http://106.2.6.41:12080/gateway/cashier/mchtCall</option>
+                        </select>
                         <span class="null-star">(payUrl)*</span>
                         <span></span>
                     </dd>

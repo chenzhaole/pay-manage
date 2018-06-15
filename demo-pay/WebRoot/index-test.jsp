@@ -25,7 +25,7 @@
 				<dl class="">
 
 					<dd>
-						<a href="index-api-pay.jsp">API支付</a>
+						<a href="index-api-pay.jsp">通用API支付</a>
 					</dd>
 				</dl>
              	<dl class="">
