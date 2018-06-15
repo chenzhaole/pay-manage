@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
 <head>
-    <title>代付明细列表</title>
+    <title>代付状态修改列表</title>
     <meta name="decorator" content="default"/>
 
     <script type="text/javascript">
@@ -31,7 +31,7 @@
 <body>
 <div class="breadcrumb">
     <label>
-        <th><a href="#">代付明细管理</a> > <a href="#"><b>代付明细列表</b></a></th>
+        <th><a href="#">交易管理</a> > <a href="#"><b>代付状态修改列表</b></a></th>
     </label>
 </div>
 
@@ -40,7 +40,6 @@
 <form id="searchForm" action="${ctx}/proxy/changeProxyStatus" method="post" class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
-    <input id="batchId" name="batchId" type="hidden" value="${proxyBatch.id}"/>
     <table>
         <tr>
             <td>
@@ -101,93 +100,6 @@
     </table>
 </form>
 
-<c:if test="${proxyBatch != null}">
-    <div class="breadcrumb">
-        <label>
-            <th>批次信息</th>
-        </label>
-    </div>
-    <table>
-        <tr>
-
-            <td>
-                <label>平台批次：</label>
-                <textarea readonly class="input-small">${proxyBatch.mchtOrderId}</textarea>
-            </td>
-
-
-            <td>
-                <label>商户批次：</label>
-                <textarea readonly class="input-small">${proxyBatch.platOrderId}</textarea>
-                    <%--<input value="${proxyBatch.platOrderId}" type="text" class="input-small" readonly />--%>
-            </td>
-            <td>
-                <label>商户名称：</label>
-                <input value="${proxyBatch.extend3}" type="text" class="input-small" readonly/>
-            </td>
-
-            <td>
-                <label>商户编号：</label>
-                <input value="${proxyBatch.mchtId}" type="text" class="input-small" readonly/>
-            </td>
-
-        </tr>
-
-        <tr>
-            <td>
-                <label>成功笔数：</label>
-                <input value="${proxyBatch.successNum}" type="text" class="input-small" readonly/>
-            </td>
-
-            <td>
-                <label>成功金额：</label>
-                <input value="<fmt:formatNumber type="number" value="${proxyBatch.successAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/>"
-                       type="text" class="input-small" readonly/>
-            </td>
-            <td>
-                <label>失败笔数：</label>
-                <input value="${proxyBatch.failNum}" type="text" class="input-small" readonly/>
-            </td>
-
-
-            <td>
-                <label>失败金额：</label>
-                <input value="<fmt:formatNumber type="number" value="${proxyBatch.failAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/>"
-                       type="text" class="input-small" readonly/>
-            </td>
-
-        </tr>
-        <tr>
-
-            <td>
-                <label>通道名称：</label>
-                <input value="${proxyBatch.chanId}" type="text" class="input-small" readonly/>
-            </td>
-
-            <td>
-                <label>商户费用：</label>
-                <input value="<fmt:formatNumber type="number" value="${proxyBatch.totalFee*0.01}" pattern="0.00" maxFractionDigits="2"/>"
-                       type="text" class="input-small" readonly/>
-            </td>
-            <td>
-                <label>代付状态：</label>
-                <c:if test="${proxyBatch.payStatus == 10}"><input value="审核中" type="text" class="input-small"
-                                                                  readonly/></c:if>
-                <c:if test="${proxyBatch.payStatus == 11}"><input value="审核通过" type="text" class="input-small"
-                                                                  readonly/></c:if>
-                <c:if test="${proxyBatch.payStatus == 12}"><input value="审核未通过" type="text" class="input-small"
-                                                                  readonly/></c:if>
-                <c:if test="${proxyBatch.payStatus == 23}"><input value="代付处理中" type="text" class="input-small"
-                                                                  readonly/></c:if>
-                <c:if test="${proxyBatch.payStatus == 24}"><input value="代付结束" type="text" class="input-small"
-                                                                  readonly/></c:if>
-            </td>
-
-        </tr>
-
-
-    </table>
-</c:if>
 <div class="breadcrumb">
     <label>
         <th>明细信息</th>
@@ -237,7 +149,7 @@
             <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
-                <a href="${ctx}/proxy/changeProxyStatusEdit?detailId=${proxyDetail.id}">修改状态</a>
+                <c:if test="${!(proxyDetail.extend3 eq '777')}"><a href="${ctx}/proxy/changeProxyStatusEdit?detailId=${proxyDetail.id}">修改状态</a></c:if>
             </td>
         </tr>
     </c:forEach>

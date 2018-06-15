@@ -96,27 +96,18 @@ public class ProxyChangeStatusController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		proxyDetail.setPageInfo(pageInfo);
 
-		//批次信息
-		PlatProxyBatch proxyBatch = proxyBatchService.queryByKey(paramMap.get("batchId"));
 
 		//查询商户列表
 		List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
 		//  上游通道列表
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
-		//  产品
-		List<PlatProduct> platProducts = productService.list(new PlatProduct());
-
+		//审批列表
+		List<PlatProxyDetailAudit> proxyDetailAudits = proxyDetailAuditService.list(new PlatProxyDetailAudit());
 
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
-		Map<String, String> productMap = Collections3.extractToMap(platProducts, "id", "name");
+		Map<String, String> auditMap = Collections3.extractToMap(proxyDetailAudits, "platDetailId", "platDetailId");
 
-		if (proxyBatch != null) {
-			proxyBatch.setChanId(channelMap.get(proxyBatch.getChanId()));
-			proxyBatch.setProductId(productMap.get(proxyBatch.getProductId()));
-			proxyBatch.setExtend3(mchtMap.get(proxyBatch.getMchtId()));
-			model.addAttribute("proxyBatch", proxyBatch);
-		}
 		model.addAttribute("chanInfos", chanInfoList);
 		model.addAttribute("mchtInfos", mchtInfos);
 //		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
@@ -124,6 +115,16 @@ public class ProxyChangeStatusController extends BaseController {
 		int proxyCount = proxyDetailService.count(proxyDetail);
 
 		List<PlatProxyDetail> proxyInfoList = proxyDetailService.list(proxyDetail);
+
+		for (PlatProxyDetail detail : proxyInfoList) {
+			detail.setMchtId(mchtMap.get(detail.getMchtId()));
+			detail.setChanId(channelMap.get(detail.getChanId()));
+
+			//判断是否已发起审批
+			if (StringUtils.isNotBlank(auditMap.get(detail.getId()))){
+				detail.setExtend3("777");
+			}
+		}
 
 		Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
 		model.addAttribute("page", page);
@@ -246,20 +247,11 @@ public class ProxyChangeStatusController extends BaseController {
 		List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
 		//  上游通道列表
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
-		//  产品
-		List<PlatProduct> platProducts = productService.list(new PlatProduct());
 
 
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
-		Map<String, String> productMap = Collections3.extractToMap(platProducts, "id", "name");
 
-		if (proxyBatch != null) {
-			proxyBatch.setChanId(channelMap.get(proxyBatch.getChanId()));
-			proxyBatch.setProductId(productMap.get(proxyBatch.getProductId()));
-			proxyBatch.setExtend3(mchtMap.get(proxyBatch.getMchtId()));
-			model.addAttribute("proxyBatch", proxyBatch);
-		}
 		model.addAttribute("chanInfos", chanInfoList);
 		model.addAttribute("mchtInfos", mchtInfos);
 //		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
@@ -269,6 +261,8 @@ public class ProxyChangeStatusController extends BaseController {
 		List<PlatProxyDetailAudit> proxyInfoList = proxyDetailAuditService.list(proxyDetail);
 		for (PlatProxyDetailAudit platProxyDetailAudit : proxyInfoList) {
 			platProxyDetailAudit.setAuditStatus(AuditEnum.getMessage(platProxyDetailAudit.getAuditStatus()));
+			platProxyDetailAudit.setMchtId(mchtMap.get(platProxyDetailAudit.getMchtId()));
+			platProxyDetailAudit.setChanId(channelMap.get(platProxyDetailAudit.getChanId()));
 		}
 
 		Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);

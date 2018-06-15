@@ -344,7 +344,7 @@ public class ProxyOrderController extends BaseController {
                 }
             } else {
                 messageType = "error";
-                message = "代付失败，商户未配置代付产品！";
+                message = "代付失败，商户未配置代付费率！";
             }
         } catch (Exception e) {
             messageType = "error";
