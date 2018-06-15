@@ -390,6 +390,16 @@
 
             <td>
                 <div class="control-group">
+                    <label class="control-label" for="extend1">RSA公钥</label>
+                    <div class="controls">
+                        <textarea name="certContent1" placeholder="" style="width:350px;" id="certContent1"
+                                  rows="3">${merchant.certContent1}</textarea>
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                <div class="control-group">
                     <label class="control-label" for="extend1">商户IP（半角逗号分隔）</label>
                     <div class="controls">
                         <textarea name="clientIp" placeholder="" style="width:350px;" id="extend1"

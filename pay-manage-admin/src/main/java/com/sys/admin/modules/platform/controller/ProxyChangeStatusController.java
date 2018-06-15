@@ -175,7 +175,7 @@ public class ProxyChangeStatusController extends BaseController {
 	@RequiresPermissions("mcht:proxy:changeSave")
 	public String changeProxyStatusSave(HttpServletRequest request, HttpServletResponse response, Model model,
 										@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
-		String mchtId = UserUtils.getUser().getLoginName();
+		String mchtId = UserUtils.getUser().getId() + "";
 		int result = 0;
 		String message, messageType;
 		try {
@@ -240,9 +240,6 @@ public class ProxyChangeStatusController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		proxyDetail.setPageInfo(pageInfo);
 
-		//批次信息
-		PlatProxyBatch proxyBatch = proxyBatchService.queryByKey(paramMap.get("batchId"));
-
 		//查询商户列表
 		List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
 		//  上游通道列表
@@ -263,6 +260,8 @@ public class ProxyChangeStatusController extends BaseController {
 			platProxyDetailAudit.setAuditStatus(AuditEnum.getMessage(platProxyDetailAudit.getAuditStatus()));
 			platProxyDetailAudit.setMchtId(mchtMap.get(platProxyDetailAudit.getMchtId()));
 			platProxyDetailAudit.setChanId(channelMap.get(platProxyDetailAudit.getChanId()));
+			platProxyDetailAudit.setOperatorId(UserUtils.getUserName(Long.parseLong(platProxyDetailAudit.getOperatorId())));
+			platProxyDetailAudit.setAuditorName(UserUtils.getUserName(Long.parseLong(platProxyDetailAudit.getAuditorId())));
 		}
 
 		Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
@@ -315,7 +314,7 @@ public class ProxyChangeStatusController extends BaseController {
 	@RequiresPermissions("mcht:proxy:auditSave")
 	public String changeProxyStatusAuditSave(HttpServletRequest request, HttpServletResponse response, Model model,
 										@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
-		String userId = UserUtils.getUser().getLoginName();
+		String userId = UserUtils.getUser().getId() + "";
 		int result = 0;
 		int accResult = 0;
 		String message, messageType;
@@ -362,11 +361,11 @@ public class ProxyChangeStatusController extends BaseController {
 
 								if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_SUCCESS.getCode())){
 									sucCount ++;
-									sucAmount.add(detail.getAmount());
+									sucAmount = sucAmount.add(detail.getAmount());
 								}
 								else if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_FAIL.getCode())){
 									failCount ++;
-									failAmount.add(detail.getAmount());
+									failAmount = failAmount.add(detail.getAmount());
 								}
 							}
 							proxyBatch.setSuccessNum(sucCount);
@@ -397,6 +396,7 @@ public class ProxyChangeStatusController extends BaseController {
 						}
 					}
 				}
+				proxyDetailAudit.setUpdateDate(new Date());
 				result = proxyDetailAuditService.saveByKey(proxyDetailAudit);
 
 				if (result == 1) {

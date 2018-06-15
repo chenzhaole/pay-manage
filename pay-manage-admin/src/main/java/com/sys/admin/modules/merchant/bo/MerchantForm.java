@@ -168,6 +168,10 @@ public class MerchantForm {
 
 	private String status;
 
+	private String certPath1;
+
+	private String certContent1;
+
 	
 	public MerchantForm() {
 	}
@@ -228,6 +232,8 @@ public class MerchantForm {
 		this.openingPermitPath = requestMap.get("openingPermitPath");
 		this.bankCardFrontPath = requestMap.get("bankCardFrontPath");
 		this.contractFilePath = requestMap.get("contractFilePath");
+		this.certPath1 = requestMap.get("certPath1");
+		this.certContent1 = requestMap.get("certContent1");
 
 		this.status = requestMap.get("status");
 
@@ -250,6 +256,22 @@ public class MerchantForm {
 			this.signType = signType.substring(0, signType.length() - 1);
 		}
 
+	}
+
+	public String getCertPath1() {
+		return certPath1;
+	}
+
+	public void setCertPath1(String certPath1) {
+		this.certPath1 = certPath1;
+	}
+
+	public String getCertContent1() {
+		return certContent1;
+	}
+
+	public void setCertContent1(String certContent1) {
+		this.certContent1 = certContent1;
 	}
 
 	public String getParentId() {
