@@ -73,6 +73,11 @@
 						<a href="index-dfBalance.jsp">代付查余额测试</a>
 					</dd>
 				</dl>
+				<dl class="">
+					<dd>
+						<a href="index-rsa.jsp">生成RSA密钥对</a>
+					</dd>
+				</dl>
                <!--  
                 <dl class="content">
                     <dt>订单查询测试：</dt>

@@ -137,6 +137,14 @@
 		<servlet-name>TestDFBalanceServlet</servlet-name>
 		<url-pattern>/testDFBalance</url-pattern>
 	</servlet-mapping>
+	<servlet>
+		<servlet-name>TestGetRSAServlet</servlet-name>
+		<servlet-class>com.demo.action.TestGetRSAServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestGetRSAServlet</servlet-name>
+		<url-pattern>/rsa</url-pattern>
+	</servlet-mapping>
 
 	<servlet>
 		<servlet-name>recNotice</servlet-name>
