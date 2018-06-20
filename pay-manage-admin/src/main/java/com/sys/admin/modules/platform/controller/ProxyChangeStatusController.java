@@ -121,7 +121,7 @@ public class ProxyChangeStatusController extends BaseController {
 			detail.setChanId(channelMap.get(detail.getChanId()));
 
 			//判断是否已发起审批
-			if (StringUtils.isNotBlank(auditMap.get(detail.getId()))){
+			if (StringUtils.isNotBlank(auditMap.get(detail.getId()))) {
 				detail.setExtend3("777");
 			}
 		}
@@ -203,7 +203,7 @@ public class ProxyChangeStatusController extends BaseController {
 					message = "保存失败，该订单可能已申请修改";
 					messageType = "error";
 				}
-			}else {
+			} else {
 				message = "代付订单状态与修改状态一致";
 				messageType = "error";
 			}
@@ -260,8 +260,11 @@ public class ProxyChangeStatusController extends BaseController {
 			platProxyDetailAudit.setAuditStatus(AuditEnum.getMessage(platProxyDetailAudit.getAuditStatus()));
 			platProxyDetailAudit.setMchtId(mchtMap.get(platProxyDetailAudit.getMchtId()));
 			platProxyDetailAudit.setChanId(channelMap.get(platProxyDetailAudit.getChanId()));
-			platProxyDetailAudit.setOperatorId(UserUtils.getUserName(Long.parseLong(platProxyDetailAudit.getOperatorId())));
-			platProxyDetailAudit.setAuditorName(UserUtils.getUserName(Long.parseLong(platProxyDetailAudit.getAuditorId())));
+			if (StringUtils.isNotBlank(platProxyDetailAudit.getOperatorId()))
+				platProxyDetailAudit.setOperatorId(UserUtils.getUserName(Long.parseLong(platProxyDetailAudit.getOperatorId())));
+			if (StringUtils.isNotBlank(platProxyDetailAudit.getAuditorId()))
+				platProxyDetailAudit.setAuditorName(UserUtils.getUserName(Long.parseLong(platProxyDetailAudit.getAuditorId())));
+
 		}
 
 		Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
@@ -313,7 +316,7 @@ public class ProxyChangeStatusController extends BaseController {
 	@RequestMapping(value = {"changeProxyStatusAuditSave", ""})
 	@RequiresPermissions("mcht:proxy:auditSave")
 	public String changeProxyStatusAuditSave(HttpServletRequest request, HttpServletResponse response, Model model,
-										@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
+											 @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 		String userId = UserUtils.getUser().getId() + "";
 		int result = 0;
 		int accResult = 0;
@@ -329,14 +332,14 @@ public class ProxyChangeStatusController extends BaseController {
 			proxyDetailAudit.setAuditNotes(paramMap.get("notes"));
 			proxyDetailAudit.setAuditTime(new Date());
 			if (!proxyDetailAudit.getNewPayStatus().equals(OriStatus)) {
-				if (AuditEnum.AUDITED.getCode().equals(auditStatus)){
+				if (AuditEnum.AUDITED.getCode().equals(auditStatus)) {
 					//修改明细订单状态
 					proxyDetail.setPayStatus(proxyDetailAudit.getNewPayStatus());
 					proxyDetail.setUpdateDate(new Date());
 					result = proxyDetailService.saveByKey(proxyDetail);
 
 					//修改批次订单状态
-					if (result == 1){
+					if (result == 1) {
 
 						int sucCount = 0;
 						int failCount = 0;
@@ -344,46 +347,42 @@ public class ProxyChangeStatusController extends BaseController {
 						BigDecimal failAmount = BigDecimal.ZERO;
 
 						PlatProxyBatch proxyBatch = proxyBatchService.queryByKey(proxyDetail.getPlatBatchId());
-						//批次状态是否变更
-						if (!ProxyPayBatchStatusEnum.DF_DONE.getCode().equals(proxyBatch.getPayStatus())){
-							PlatProxyDetail detailSearch = new PlatProxyDetail();
-							detailSearch.setPlatBatchId(proxyDetail.getPlatBatchId());
-							List<PlatProxyDetail> details = proxyDetailService.list(detailSearch);
-							boolean done = false;
-							for (PlatProxyDetail detail : details) {
-								if (ProxyPayDetailStatusEnum.DF_FAIL.getCode().equals(detail.getPayStatus()) ||
-										ProxyPayDetailStatusEnum.DF_SUCCESS.getCode().equals(detail.getPayStatus())){
-									done = true;
-								}else {
-									done = false;
-									break;
-								}
+						PlatProxyDetail detailSearch = new PlatProxyDetail();
+						detailSearch.setPlatBatchId(proxyDetail.getPlatBatchId());
+						List<PlatProxyDetail> details = proxyDetailService.list(detailSearch);
+						boolean done = false;
+						for (PlatProxyDetail detail : details) {
+							if (ProxyPayDetailStatusEnum.DF_FAIL.getCode().equals(detail.getPayStatus()) ||
+									ProxyPayDetailStatusEnum.DF_SUCCESS.getCode().equals(detail.getPayStatus())) {
+								done = true;
+							} else {
+								done = false;
+								break;
+							}
 
-								if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_SUCCESS.getCode())){
-									sucCount ++;
-									sucAmount = sucAmount.add(detail.getAmount());
-								}
-								else if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_FAIL.getCode())){
-									failCount ++;
-									failAmount = failAmount.add(detail.getAmount());
-								}
+							if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_SUCCESS.getCode())) {
+								sucCount++;
+								sucAmount = sucAmount.add(detail.getAmount());
+							} else if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_FAIL.getCode())) {
+								failCount++;
+								failAmount = failAmount.add(detail.getAmount());
 							}
-							proxyBatch.setSuccessNum(sucCount);
-							proxyBatch.setSuccessAmount(sucAmount);
-							proxyBatch.setFailNum(failCount);
-							proxyBatch.setFailAmount(failAmount);
-							//所有明细状态为完成
-							if (done){
-								proxyBatch.setPayStatus(ProxyPayBatchStatusEnum.DF_DONE.getCode());
-								proxyBatchService.saveByKey(proxyBatch);
-							}
+						}
+						proxyBatch.setSuccessNum(sucCount);
+						proxyBatch.setSuccessAmount(sucAmount);
+						proxyBatch.setFailNum(failCount);
+						proxyBatch.setFailAmount(failAmount);
+						//所有明细状态为完成
+						if (done) {
+							proxyBatch.setPayStatus(ProxyPayBatchStatusEnum.DF_DONE.getCode());
+							proxyBatchService.saveByKey(proxyBatch);
 						}
 
 						//代付明细由未完成变为完成，则操作账户，否则提示人工调账
 						if (OriStatus.equals(ProxyPayDetailStatusEnum.DF_FAIL.getCode()) ||
-								OriStatus.equals(ProxyPayDetailStatusEnum.DF_SUCCESS.getCode())){
+								OriStatus.equals(ProxyPayDetailStatusEnum.DF_SUCCESS.getCode())) {
 							accResult = 7777;
-						}else {
+						} else {
 							// 账户缓存数据
 							CacheMcht cacheMcht = accountAdminService.queryCacheMcht(proxyDetail.getMchtId());
 							CacheMchtAccount cacheMchtAccount = new CacheMchtAccount();
@@ -400,9 +399,9 @@ public class ProxyChangeStatusController extends BaseController {
 				result = proxyDetailAuditService.saveByKey(proxyDetailAudit);
 
 				if (result == 1) {
-					if (accResult == 7777){
+					if (accResult == 7777) {
 						message = "保存成功，请手动调账";
-					}else {
+					} else {
 						message = "保存成功，稍后请核对账户";
 					}
 					messageType = "success";
@@ -412,7 +411,7 @@ public class ProxyChangeStatusController extends BaseController {
 				}
 
 
-			}else {
+			} else {
 				message = "代付订单状态与修改状态一致";
 				messageType = "error";
 			}

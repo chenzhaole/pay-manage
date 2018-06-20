@@ -120,7 +120,6 @@ public class ProxyOrderController extends BaseController {
     public String proxyBatchList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
         PlatProxyBatch proxyBatch = new PlatProxyBatch();
         proxyBatch.setId(paramMap.get("batchId"));
-        proxyBatch.setChanId(paramMap.get("chanId"));
         proxyBatch.setMchtId(paramMap.get("mchtId"));
         proxyBatch.setMchtOrderId(paramMap.get("mchtOrderId"));
         proxyBatch.setPayStatus(paramMap.get("payStatus"));
@@ -138,27 +137,18 @@ public class ProxyOrderController extends BaseController {
 
         //查询商户列表
         List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
-        //通道商户支付方式列表
-//		List<ChanMchtPaytype> chanMchtPaytypeList = chanMchtPaytypeService.list(new ChanMchtPaytype());
-        //  上游通道列表
-        List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 
-        model.addAttribute("chanInfos", chanInfoList);
         model.addAttribute("mchtInfos", mchtInfos);
-//		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
 
         //查询商户列表
         Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
-        Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 
         int proxyCount = proxyBatchService.count(proxyBatch);
 
         List<PlatProxyBatch> proxyInfoList = proxyBatchService.list(proxyBatch);
-
         if (!CollectionUtils.isEmpty(proxyInfoList)) {
             for (PlatProxyBatch platProxyBatch : proxyInfoList) {
                 platProxyBatch.setMchtId(mchtMap.get(platProxyBatch.getMchtId()));
-                platProxyBatch.setChanId(channelMap.get(platProxyBatch.getChanId()));
                 platProxyBatch.setPayStatus(ProxyPayBatchStatusEnum.toEnum(platProxyBatch.getPayStatus()).getDesc());
             }
         }

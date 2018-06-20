@@ -156,7 +156,7 @@
             <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${proxyDetail.operatorId}</td>
-            <td>${proxyDetail.auditorId}</td>
+            <td>${proxyDetail.auditorName}</td>
             <td>${proxyDetail.auditStatus}</td>
             <td>
                 <c:if test="${proxyDetail.auditStatus eq '待审核'}">

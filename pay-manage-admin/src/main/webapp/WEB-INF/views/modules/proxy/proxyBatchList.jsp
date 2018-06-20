@@ -60,20 +60,6 @@
                 <input value="${paramMap.batchId}" name="batchId" type="text" maxlength="64" class="input-medium"/>
             </td>
 
-        </tr>
-        <tr>
-            <td>
-                <label>代付通道：</label>
-                <select name="chanId" class="selectpicker bla bla bli" data-live-search="true">
-                    <option value="">--请选择--</option>
-                    <c:forEach items="${chanInfos}" var="chanInfo">
-                        <option value="${chanInfo.id}"
-                                <c:if test="${paramMap.chanId == chanInfo.id}">selected</c:if>
-                        >${chanInfo.name}</option>
-                    </c:forEach>
-                </select>
-            </td>
-
             <td>
                 <label>代付状态：</label>
                 <select name="payStatus" class="input-medium" id="">
@@ -98,7 +84,6 @@
         <th>NO</th>
         <th>批次编号</th>
         <th>代付商户</th>
-        <th>代付通道</th>
         <th>来源</th>
         <th>总笔数</th>
         <th>总金额</th>
@@ -118,7 +103,6 @@
             </td>
             <td>${proxyBatch.id}</td>
             <td>${proxyBatch.mchtId}</td>
-            <td>${proxyBatch.chanId}</td>
             <td><c:if test="${proxyBatch.dataSource == 0}">线上接口</c:if>
                 <c:if test="${proxyBatch.dataSource == 1}">线下手工</c:if></td>
             <td>${proxyBatch.totalNum}</td>

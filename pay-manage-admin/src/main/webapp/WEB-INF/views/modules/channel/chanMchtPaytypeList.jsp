@@ -148,7 +148,7 @@
 					<a href="${ctx}/channel/addChanMchtPayTypePage?id=${chanInfo.id}">修改</a>|
 					<a href="${ctx}/channel/deleteChanMchPayType?id=${chanInfo.id}" onclick="return confirmx('是否确认删除“${chanInfo.name}”？', this.href)">删除</a>
 					<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
-						|<a href="" onclick="queryBalance('${chanInfo.id}')">查询余额</a> </c:if>
+						|<a href="${ctx}/channel/queryBalance?chanId=${chanInfo.id}">查询余额</a> </c:if>
 				</td>
 			</tr>
 		</c:forEach>

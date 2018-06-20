@@ -1,8 +1,10 @@
 package com.sys.admin.modules.channel.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
+import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.bo.ChanMchtFormInfo;
 import com.sys.admin.modules.channel.bo.ChannelFormInfo;
@@ -13,10 +15,12 @@ import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
 import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.HttpUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -140,8 +144,8 @@ public class ChannelController extends BaseController {
 			String userId = String.valueOf(UserUtils.getUser().getId());
 			paramMap.put("userId", userId);
 			ChannelFormInfo channelFormInfo = new ChannelFormInfo(request);
-			ChannelFormInfo oldChannelFormInfo= channelAdminService.getChanInfoById(channelFormInfo.getChanCode());
-			if(null != oldChannelFormInfo && channelFormInfo.getChanCode().equals(oldChannelFormInfo.getChanCode())){
+			ChannelFormInfo oldChannelFormInfo = channelAdminService.getChanInfoById(channelFormInfo.getChanCode());
+			if (null != oldChannelFormInfo && channelFormInfo.getChanCode().equals(oldChannelFormInfo.getChanCode())) {
 				redirectAttributes.addFlashAttribute("message", "通道编号已存在！");
 				redirectAttributes.addFlashAttribute("messageType", "error");
 				model.addAttribute("channel", paramMap);
@@ -187,8 +191,8 @@ public class ChannelController extends BaseController {
 			String userId = String.valueOf(UserUtils.getUser().getId());
 			paramMap.put("userId", userId);
 			ChannelFormInfo channelFormInfo = new ChannelFormInfo(request);
-			ChannelFormInfo oldChannelFormInfo= channelAdminService.getChanInfoById(channelFormInfo.getChanCode());
-			if(null != oldChannelFormInfo && channelFormInfo.getChanCode().equals(oldChannelFormInfo.getChanCode())){
+			ChannelFormInfo oldChannelFormInfo = channelAdminService.getChanInfoById(channelFormInfo.getChanCode());
+			if (null != oldChannelFormInfo && channelFormInfo.getChanCode().equals(oldChannelFormInfo.getChanCode())) {
 				redirectAttributes.addFlashAttribute("message", "通道编号已存在！");
 				redirectAttributes.addFlashAttribute("messageType", "error");
 				return "modules/channel/channelEdit";
@@ -279,10 +283,6 @@ public class ChannelController extends BaseController {
 		model.addAttribute("paramMap", paramMap);
 		return "modules/channel/chanMchtPaytypeList";
 	}
-
-
-
-
 
 
 	/**
@@ -441,7 +441,6 @@ public class ChannelController extends BaseController {
 	 * 商户支付通道余额查询
 	 */
 	@RequestMapping(value = {"queryBalance"})
-	@ResponseBody
 	public String queryBalance(HttpServletRequest request, HttpServletResponse response, Model model,
 							   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
 
@@ -450,8 +449,14 @@ public class ChannelController extends BaseController {
 		Config config = new Config();
 		config.setChannelCode(chanMchtFormInfo.getChanCode());
 		config.setMchtId(chanMchtFormInfo.getChanMchtNo());//平台商户ID
-		config.setMchtKey(chanMchtFormInfo.getCertContent1());//平台商户密码
+		config.setMchtKey(chanMchtFormInfo.getChanMchtPassword());//平台商户密码
 		config.setQueryUrl(chanMchtFormInfo.getQueryBalanceUrl());//代付余额url
+		config.setChannelCode(chanMchtFormInfo.getChanCode());
+		config.setPayType(chanMchtFormInfo.getPayType());
+		config.setCertPath1(chanMchtFormInfo.getCertPath1());
+		config.setCertPath2(chanMchtFormInfo.getCertPath2());
+		config.setPlatId(chanMchtFormInfo.getTerminalNo());
+		config.setPubKey(chanMchtFormInfo.getCertContent1());
 
 		//特殊字段
 		config.setMerchantName(chanMchtFormInfo.getTerminalNo());
@@ -463,30 +468,26 @@ public class ChannelController extends BaseController {
 		trade.setConfig(config);
 		trade.setSingleDF(df);
 
-		String massage = "";
 		try {
 
-			Result processResult = transDFBalanceHandler.process(trade);
-
-			if (processResult == null || processResult.getBalance() == null) {
-				massage = "查询余额失败";
-			}else {
-
-				massage = "上游返回余额为：" + processResult.getBalance() + "分";
+			String topUrl = ConfigUtil.getValue("gateway.url");
+			if (topUrl.endsWith("/")) {
+				topUrl = topUrl.substring(0, topUrl.length() - 1);
 			}
-		} catch (TransException e) {
+			String gatewayUrl = topUrl + "/df/gateway/chanBalanceForAdmin";
+			Map<String, String> params = new HashMap<>();
+			params.put("trade", JSON.toJSONString(trade));
+			logger.info(trade + " 查询上游商户余额,请求URL: " + gatewayUrl + " 请求参数: " + JSON.toJSONString(params));
+			String balanceString = HttpUtil.postConnManager(gatewayUrl, params, true);
+
+			CommonResult processResult = JSON.parseObject(balanceString, CommonResult.class);
+			logger.info(JSON.toJSONString(processResult));
+			model.addAttribute("balance", processResult.getData());
+		} catch (Exception e) {
 			logger.error("查询余额失败", e);
-			massage = "查询余额失败";
 		}
-
-
-		JSONObject data = new JSONObject();
-		data.put("massage", massage);
-
-		return data.toJSONString();
+		return "modules/channel/chanBalance";
 	}
-
-
 }
 
 
