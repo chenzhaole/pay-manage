@@ -4,17 +4,22 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.CommonResult;
-import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.df.TradeDFCreateOrderRequest;
 import com.sys.boss.api.entry.trade.request.df.TradeDFQueryBalanceRequest;
 import com.sys.boss.api.entry.trade.request.df.TradeDFQueryOrderRequest;
 import com.sys.boss.api.entry.trade.response.df.DFCreateOrderResponse;
 import com.sys.boss.api.entry.trade.response.df.DFQueryBalanceResponse;
 import com.sys.boss.api.entry.trade.response.df.DFQueryOrderResponse;
-import com.sys.boss.api.service.trade.handler.*;
+import com.sys.boss.api.service.trade.handler.ITradeDFBalanceChanHandler;
+import com.sys.boss.api.service.trade.handler.ITradeDFBalancePlatHandler;
+import com.sys.boss.api.service.trade.handler.ITradeDFBatchHandler;
+import com.sys.boss.api.service.trade.handler.ITradeDFCreateHandler;
+import com.sys.boss.api.service.trade.handler.ITradeDFQueryChanHandler;
+import com.sys.boss.api.service.trade.handler.ITradeDFQueryPlatHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.core.service.TaskLogService;
 import com.sys.gateway.common.IpUtil;
+import com.sys.trans.api.entry.Trade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -156,6 +161,33 @@ public class GwDFController {
             balanceResponse.setRespMsg("代付网关错误："+e.getMessage());
         }
         logger.info("代付API，【代付余额查询接口】返回下游商户值："+JSON.toJSONString(balanceResponse));
+        return balanceResponse.getData().toString();
+    }
+
+    /**
+     *  通道余额查询（admin使用）
+     */
+    @RequestMapping(value="chanBalanceForAdmin")
+    @ResponseBody
+    public String chanBalanceForAdmin(Trade trade, HttpServletRequest request){
+        logger.info("代付API，【通道余额查询接口】收到Admin请求参数：trade="+JSON.toJSONString(trade));
+        if (trade != null){
+            return "0";
+        }
+        CommonResult balanceResponse = new CommonResult();
+        try {
+            String ip = IpUtil.getRemoteHost(request);//请求ip
+            logger.info("代付API，【代付请求接口】获取到客户端请求ip为：ip="+ip);
+            balanceResponse = tradeDFBalanceChanHandler.process(trade);
+            logger.info("代付API，【通道余额查询接口】返回的信息为：="+JSONObject.toJSONString(balanceResponse));
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("代付API，【通道余额查询接口】接口抛异常"+e.getMessage());
+            balanceResponse.setRespCode(ErrorCodeEnum.FAILURE.getCode());
+            balanceResponse.setRespMsg("代付网关错误："+e.getMessage());
+        }
+        logger.info("代付API，【通道余额查询接口】返回admin："+JSON.toJSONString(balanceResponse));
         return balanceResponse.getData().toString();
     }
 
