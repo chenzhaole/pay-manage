@@ -83,7 +83,6 @@
                     "openID":openID,
                     "key":key
                 },
-
                 datatype: "json",
                 success:function(data){
 
