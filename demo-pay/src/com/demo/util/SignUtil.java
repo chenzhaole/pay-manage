@@ -31,14 +31,14 @@ public class SignUtil {
         return false;
     }
 
-    /**校验MD5签名**/
+    /**MD5签名**/
     public static String md5Sign(Object platDataMap, String signkey) throws Exception {
     	HashMap<String,String> hashMap = (HashMap<String, String>) platDataMap;
         TreeMap<String,String> treeMap = new TreeMap<String, String>();
         for(String key : hashMap.keySet()){
         	treeMap.put(key, hashMap.get(key));
         }
-        //开始验签
+        //开始签名
         String platSignOrigStr = "";
         String platSignStr = "";
         Set<String> keys = treeMap.keySet();
@@ -50,7 +50,8 @@ public class SignUtil {
             platSignOrigStr = platSignOrigStr + key + "=" + value + "&";
         }
         platSignOrigStr = platSignOrigStr + "key=" + signkey;
-        platSignStr = MD5Util.MD5Encode(platSignOrigStr);
+        System.out.println("签名的字符串为"+platSignOrigStr);
+        platSignStr = MD5Util.MD5Encode(platSignOrigStr).toUpperCase();
         return platSignStr;
     }
 
