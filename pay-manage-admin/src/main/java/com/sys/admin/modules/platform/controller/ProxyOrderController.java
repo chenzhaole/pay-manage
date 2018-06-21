@@ -540,29 +540,6 @@ public class ProxyOrderController extends BaseController {
     /**
      * 查询代付手续费
      */
-    private BigDecimal queryFee_old(String mchtId) {
-        MchtProduct queryBO = new MchtProduct();
-        queryBO.setMchtId(mchtId);
-        queryBO.setIsValid(Integer.parseInt(StatusEnum.VALID.getCode()));
-        List<MchtProduct> mchtProductList = mchtProductService.list(queryBO);
-
-        if (!Collections3.isEmpty(mchtProductList)) {
-            for (MchtProduct mchtProduct : mchtProductList) {
-                PlatProduct product = productService.queryByKey(mchtProduct.getProductId());
-                if (StringUtils.equals(product.getPayType(), PayTypeEnum.BATCH_DF.getCode())) {
-                    String bizType = FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode();
-                    String bizRefId = mchtId + "&" + product.getId();
-                    PlatFeerate feerate = feerateService.getValidFeerate(bizType, bizRefId);
-                    return feerate.getFeeAmount() == null ? BigDecimal.valueOf(0) : feerate.getFeeAmount();
-                }
-            }
-        }
-        return null;
-    }
-
-    /**
-     * 查询代付手续费
-     */
     private BigDecimal queryFee(String mchtId) {
         logger.info(mchtId + " 查询代付手续费[start]");
         BigDecimal rtn = null;

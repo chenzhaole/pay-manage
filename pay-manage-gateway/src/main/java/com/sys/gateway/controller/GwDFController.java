@@ -169,10 +169,11 @@ public class GwDFController {
      */
     @RequestMapping(value="chanBalanceForAdmin")
     @ResponseBody
-    public String chanBalanceForAdmin(Trade trade, HttpServletRequest request){
-        logger.info("代付API，【通道余额查询接口】收到Admin请求参数：trade="+JSON.toJSONString(trade));
-        if (trade != null){
-            return "0";
+    public String chanBalanceForAdmin(String tradeString, HttpServletRequest request){
+        logger.info("代付API，【通道余额查询接口】收到Admin请求参数：trade="+tradeString);
+        Trade trade = JSON.parseObject(tradeString, Trade.class);
+        if (trade == null){
+            return "";
         }
         CommonResult balanceResponse = new CommonResult();
         try {
@@ -188,7 +189,7 @@ public class GwDFController {
             balanceResponse.setRespMsg("代付网关错误："+e.getMessage());
         }
         logger.info("代付API，【通道余额查询接口】返回admin："+JSON.toJSONString(balanceResponse));
-        return balanceResponse.getData().toString();
+        return JSON.toJSONString(balanceResponse);
     }
 
     /**
