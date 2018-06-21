@@ -190,13 +190,14 @@
     <tr>
         <%--<th>NO</th>--%>
         <th>明细订单号</th>
-        <%--<th>上游订单号</th>--%>
+        <th>商户名称</th>
         <th>收款户名</th>
         <th>收款账号</th>
         <%--<th>收款银行名称</th>--%>
         <th>金额（元）</th>
         <th>手续费（元）</th>
         <th>状态</th>
+        <th>通道名称</th>
         <th>上游响应</th>
         <th>创建时间</th>
         <th>更新时间</th>
@@ -211,7 +212,7 @@
             <%--<td><%=i%>--%>
             </td>
             <td>${proxyDetail.id}</td>
-            <%--<td>${proxyDetail.channelSeq}</td>--%>
+            <td>${proxyDetail.mchtName}</td>
             <td>${proxyDetail.bankCardName}</td>
             <td>${proxyDetail.bankCardNo}</td>
             <%--<td>${proxyDetail.bankName}</td>--%>
@@ -220,6 +221,7 @@
             <td>
                 ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
             </td>
+                <td>${proxyDetail.chanName}</td>
                 <td>${proxyDetail.returnMessage2}</td>
                 <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
                 <td><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>

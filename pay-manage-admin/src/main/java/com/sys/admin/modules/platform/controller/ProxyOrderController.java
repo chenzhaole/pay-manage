@@ -6,45 +6,16 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.platform.bo.PlatProxyDetailVo;
 import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.common.enums.FeeRateBizTypeEnum;
-import com.sys.common.enums.MchtAccountTypeEnum;
-import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.enums.ProxyPayBatchStatusEnum;
-import com.sys.common.enums.ProxyPayDetailStatusEnum;
-import com.sys.common.enums.ProxyPayRequestEnum;
-import com.sys.common.enums.StatusEnum;
-import com.sys.common.util.Collections3;
-import com.sys.common.util.DateUtils;
-import com.sys.common.util.DesUtil32;
-import com.sys.common.util.HttpUtil;
-import com.sys.common.util.IdUtil;
-import com.sys.common.util.JedisUtil;
-import com.sys.common.util.PostUtil;
-import com.sys.common.util.SignUtil;
+import com.sys.common.enums.*;
+import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.ChanInfo;
-import com.sys.core.dao.dmo.MchtAccountDetail;
-import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.MchtProduct;
-import com.sys.core.dao.dmo.PlatBank;
-import com.sys.core.dao.dmo.PlatFeerate;
-import com.sys.core.dao.dmo.PlatProduct;
-import com.sys.core.dao.dmo.PlatProxyBatch;
-import com.sys.core.dao.dmo.PlatProxyDetail;
-import com.sys.core.service.ChannelService;
-import com.sys.core.service.MchtAccountDetailService;
-import com.sys.core.service.MchtAccountInfoService;
-import com.sys.core.service.MchtProductService;
-import com.sys.core.service.MerchantService;
-import com.sys.core.service.PlatBankService;
-import com.sys.core.service.PlatFeerateService;
-import com.sys.core.service.ProductService;
-import com.sys.core.service.ProxyBatchService;
-import com.sys.core.service.ProxyDetailService;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
@@ -68,13 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Controller
 @RequestMapping(value = "${adminPath}/proxy")
@@ -163,7 +128,7 @@ public class ProxyOrderController extends BaseController {
      * 代付明细列表
      */
     @RequestMapping(value = {"proxyDetailList", ""})
-    public String proxyDetailList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
+    public String proxyDetailList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap){
         PlatProxyDetail proxyDetail = new PlatProxyDetail();
         proxyDetail.setChanId(paramMap.get("chanId"));
         proxyDetail.setMchtId(paramMap.get("mchtId"));
@@ -210,11 +175,36 @@ public class ProxyOrderController extends BaseController {
         int proxyCount = proxyDetailService.count(proxyDetail);
 
         List<PlatProxyDetail> proxyInfoList = proxyDetailService.list(proxyDetail);
+        //生成VO集合
+        List<PlatProxyDetailVo> proxyInfoVoList = getPlatProxyDetailVo(proxyInfoList , channelMap ,mchtMap );
 
-        Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
+
+        Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoVoList, true);
         model.addAttribute("page", page);
         model.addAttribute("paramMap", paramMap);
         return "modules/proxy/proxyDetailList";
+    }
+
+    private List<PlatProxyDetailVo> getPlatProxyDetailVo(List<PlatProxyDetail> proxyInfoList, Map<String, String> channelMap, Map<String, String> mchtMap){
+        List<PlatProxyDetailVo> infoList = new ArrayList<>();
+        if(proxyInfoList == null || proxyInfoList.size()==0){return infoList;}
+        for (PlatProxyDetail info : proxyInfoList) {
+            PlatProxyDetailVo infoVo = new PlatProxyDetailVo();
+            infoVo.setId(info.getId());
+            infoVo.setBankCardName(info.getBankCardName());
+            infoVo.setBankCardNo(info.getBankCardNo());
+            infoVo.setAmount(info.getAmount());
+            infoVo.setMchtFee(info.getMchtFee());
+            infoVo.setPayStatus(info.getPayStatus());
+            infoVo.setReturnMessage2(info.getReturnMessage2());
+            infoVo.setCreateDate(info.getCreateDate());
+            infoVo.setUpdateDate(info.getUpdateDate());
+            infoVo.setChanName(channelMap.get(info.getChanId()));
+            infoVo.setMchtName(mchtMap.get(info.getMchtId()));
+
+            infoList.add(infoVo);
+        }
+        return infoList;
     }
 
     /**
@@ -562,29 +552,6 @@ public class ProxyOrderController extends BaseController {
         batch.setTotalNum(totalCount);
         BigDecimal proxyFee = fee.multiply(BigDecimal.valueOf(batch.getTotalNum()));//代付手续费=单笔手续费*代付笔数
         batch.setTotalFee(proxyFee);
-    }
-
-    /**
-     * 查询代付手续费
-     */
-    private BigDecimal queryFee_old(String mchtId) {
-        MchtProduct queryBO = new MchtProduct();
-        queryBO.setMchtId(mchtId);
-        queryBO.setIsValid(Integer.parseInt(StatusEnum.VALID.getCode()));
-        List<MchtProduct> mchtProductList = mchtProductService.list(queryBO);
-
-        if (!Collections3.isEmpty(mchtProductList)) {
-            for (MchtProduct mchtProduct : mchtProductList) {
-                PlatProduct product = productService.queryByKey(mchtProduct.getProductId());
-                if (StringUtils.equals(product.getPayType(), PayTypeEnum.BATCH_DF.getCode())) {
-                    String bizType = FeeRateBizTypeEnum.MCHT_PRODUCT_BIZTYPE.getCode();
-                    String bizRefId = mchtId + "&" + product.getId();
-                    PlatFeerate feerate = feerateService.getValidFeerate(bizType, bizRefId);
-                    return feerate.getFeeAmount() == null ? BigDecimal.valueOf(0) : feerate.getFeeAmount();
-                }
-            }
-        }
-        return null;
     }
 
     /**
