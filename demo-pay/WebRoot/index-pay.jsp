@@ -173,15 +173,33 @@
                     <dd>
                         <span class="null-star"></span>
                         <select name="biz">
-                        <option value="wx000">微信H5</option>
-                        <option value="qq102">QQ扫码转H5</option>
-                        <option value="al401">支付宝扫码</option>
-                        <option value="al000">支付宝组合</option>
-                        <option value="al101">支付宝H5</option>
-                        <option value="qq403">qq扫码</option>
-                        <option selected="selected"value="wx401">微信扫码</option>
-                        <option value="df101">单笔代付</option>
-                        <option value="jd101">京东H5</option>
+                            <option selected="selected"value="ca001">平台收银台</option>
+                            <option value="wx000">微信组合支付类型</option>
+                            <option value="wx101">微信h5支付</option>
+                            <option value="wx301">微信公众号支付原生方式</option>
+                            <option value="wx302">微信公众号支付非原生方式</option>
+                            <option value="wx401">微信扫码支付</option>
+                            <option value="wx502">微信付款码包装成PC支付</option>
+                            <option value="wx503">微信付款码包装成h5支付</option>
+                            <option value="al000">支付宝组合支付类型</option>
+                            <option value="al101">支付宝h5支付</option>
+                            <option value="al102">支付宝扫码转h5支付</option>
+                            <option value="al401">支付宝扫码支付</option>
+                            <option value="al502">支付宝付款码包装成PC支付</option>
+                            <option value="al503">支付宝付款码包装成h5支付</option>
+                            <option value="sn000">苏宁组合支付类型</option>
+                            <option value="sn102">苏宁扫码转h5支付</option>
+                            <option value="sn401">苏宁扫码支付</option>
+                            <option value="qq000">QQ组合支付类型</option>
+                            <option value="qq102">QQ扫码转h5支付</option>
+                            <option value="qq403">QQ扫码支付</option>
+                            <option value="jd000">京东组合支付类型</option>
+                            <option value="jd101">京东h5支付</option>
+                            <option value="jd102">京东扫码转h5支付</option>
+                            <option value="jd401">京东扫码支付</option>
+                            <option value="yl000">银联组合支付类型</option>
+                            <option value="yl401">银联扫码支付</option>
+                            <option value="yl402">银联扫码转h5</option>
                         </select>
                         <span class="null-star">(biz)*</span>
                         <span></span>
