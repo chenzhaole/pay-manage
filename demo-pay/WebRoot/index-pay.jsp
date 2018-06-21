@@ -58,7 +58,7 @@
             var param=$.trim($('input[name=param]').val());
             var expireTime=$.trim($('input[name=expireTime]').val());
             var openID=$.trim($('input[name=openID]').val());
-
+            var key=$.trim($('input[name=key]').val());
             $.ajax({
                 //提交数据的类型 POST GET
                 type:"POST",
@@ -80,7 +80,7 @@
                     "param":param,
                     "expireTime":expireTime,
                     "openID":openID,
-                    "key":"dce4b92985284fa8982f94112cd521f8"
+                    "key":key
                 },
 
                 datatype: "json",
