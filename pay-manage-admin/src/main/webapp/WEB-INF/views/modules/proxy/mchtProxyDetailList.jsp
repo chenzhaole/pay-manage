@@ -191,7 +191,7 @@
         <th>NO</th>
         <th>平台明细订单号</th>
         <th>商户批次号</th>
-        <th>商户明细号</th>
+        <%--<th>商户明细号</th>--%>
         <th>商户名称</th>
         <th>收款人户名</th>
         <th>收款人账号</th>
@@ -213,7 +213,7 @@
             <td>${proxyDetail.id}</td>
             <td>${proxyDetail.mchtBatchId}</td>
             <td>${proxyDetail.mchtSeq}</td>
-            <td>${proxyDetail.extend1}</td>
+            <%--<td>${proxyDetail.extend1}</td>--%>
             <td>${proxyDetail.bankCardName}</td>
             <td>${proxyDetail.bankCardNo}</td>
             <td><fmt:formatNumber type="number" value="${proxyDetail.amount}" pattern="0.0000" maxFractionDigits="4"/></td>
