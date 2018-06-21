@@ -457,6 +457,7 @@ public class ChannelController extends BaseController {
 		config.setCertPath2(chanMchtFormInfo.getCertPath2());
 		config.setPlatId(chanMchtFormInfo.getTerminalNo());
 		config.setPubKey(chanMchtFormInfo.getCertContent1());
+		config.setTranUrl(chanMchtFormInfo.getTranUrl());
 
 		//特殊字段
 		config.setMerchantName(chanMchtFormInfo.getTerminalNo());
@@ -476,15 +477,16 @@ public class ChannelController extends BaseController {
 			}
 			String gatewayUrl = topUrl + "/df/gateway/chanBalanceForAdmin";
 			Map<String, String> params = new HashMap<>();
-			params.put("trade", JSON.toJSONString(trade));
+			params.put("tradeString", JSON.toJSONString(trade));
 			logger.info(trade + " 查询上游商户余额,请求URL: " + gatewayUrl + " 请求参数: " + JSON.toJSONString(params));
 			String balanceString = HttpUtil.postConnManager(gatewayUrl, params, true);
-
+			logger.info(balanceString);
 			CommonResult processResult = JSON.parseObject(balanceString, CommonResult.class);
-			logger.info(JSON.toJSONString(processResult));
-			model.addAttribute("balance", processResult.getData());
+			if (processResult != null) {
+				model.addAttribute("balance", processResult.getData());
+			}
 		} catch (Exception e) {
-			logger.error("查询余额失败", e);
+ 			logger.error("查询余额失败", e);
 		}
 		return "modules/channel/chanBalance";
 	}
