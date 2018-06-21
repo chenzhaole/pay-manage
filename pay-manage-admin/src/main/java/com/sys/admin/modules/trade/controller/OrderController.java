@@ -22,10 +22,7 @@ import com.sys.admin.modules.trade.service.OrderAdminService;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.util.Collections3;
-import com.sys.common.util.DateUtils;
-import com.sys.common.util.HttpUtil;
-import com.sys.common.util.SignUtil;
+import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
@@ -522,7 +519,7 @@ public class OrderController extends BaseController {
 		}
 
 		String[] headers = {"商户名称", "通道商户支付方式","产品名称" , "商户订单号",
-				"平台订单号", "交易金额(分)", "订单状态", "创建时间", "支付时间"};
+				"平台订单号","上游通道订单号", "交易金额(元)", "订单状态", "创建时间", "支付时间"};
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
@@ -573,13 +570,14 @@ public class OrderController extends BaseController {
 				cell.setCellValue(orderTemp.getPlatOrderId());
 				cellIndex++;
 
-//				cell = row.createCell(cellIndex);
-//				cell.setCellValue(orderTemp.getChanOrderId());
-//				cellIndex++;
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(orderTemp.getChanOrderId());
+				cellIndex++;
 
 				cell = row.createCell(cellIndex);
 				if (orderTemp.getAmount() != null) {
-					cell.setCellValue(orderTemp.getAmount());
+					BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(orderTemp.getAmount()));
+					cell.setCellValue(bigDecimal.doubleValue()+"(元)");
 				}
 				cellIndex++;
 

@@ -105,7 +105,7 @@
 	<td >支付产品费率:</td>
 	<td>${platProduct.feeRate}</td>
 		<td >通道支付方式费率: </td>
-		<td>${chanMchtPaytype.feeRate}</td>
+		<td>${orderInfo.chanFeeRate}</td>
 	</tr>
 	<tr>
 	<td >支付类型:</td>
