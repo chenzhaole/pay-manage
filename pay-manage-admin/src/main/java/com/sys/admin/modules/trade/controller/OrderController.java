@@ -519,7 +519,7 @@ public class OrderController extends BaseController {
 		}
 
 		String[] headers = {"商户名称", "通道商户支付方式","产品名称" , "商户订单号",
-				"平台订单号","上游通道订单号", "交易金额(分)", "订单状态", "创建时间", "支付时间"};
+				"平台订单号","上游通道订单号", "交易金额(元)", "订单状态", "创建时间", "支付时间"};
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
