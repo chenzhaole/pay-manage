@@ -359,7 +359,8 @@ public class ProxyChangeStatusController extends BaseController {
 								done = false;
 								break;
 							}
-
+						}
+						for (PlatProxyDetail detail : details) {
 							if (StringUtils.equals(detail.getPayStatus(), ProxyPayDetailStatusEnum.DF_SUCCESS.getCode())) {
 								sucCount++;
 								sucAmount = sucAmount.add(detail.getAmount());
