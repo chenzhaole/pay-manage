@@ -1,10 +1,18 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
+
 <head>
     <title>代付明细列表</title>
     <meta name="decorator" content="default"/>
-
+    <style type="text/css">
+        .wrap{
+            width: 100px; //设置需要固定的宽度
+        white-space: nowrap; //不换行
+        text-overflow: ellipsis; //超出部分用....代替
+        overflow: hidden; //超出隐藏
+        }
+    </style>
     <script type="text/javascript">
 
         //下拉搜索框初始化
@@ -191,6 +199,7 @@
         <%--<th>NO</th>--%>
         <th>明细订单号</th>
         <th>商户名称</th>
+        <th>商户流水号</th>
         <th>收款户名</th>
         <th>收款账号</th>
         <%--<th>收款银行名称</th>--%>
@@ -198,7 +207,7 @@
         <th>手续费（元）</th>
         <th>状态</th>
         <th>通道名称</th>
-        <th>上游响应</th>
+        <th width="100px">上游响应</th>
         <th>创建时间</th>
         <th>更新时间</th>
         <th >操作</th>
@@ -210,9 +219,9 @@
         <%--<%i++; %>--%>
         <tr>
             <%--<td><%=i%>--%>
-            </td>
             <td>${proxyDetail.id}</td>
-            <td>${proxyDetail.mchtName}</td>
+            <td>${proxyDetail.extend2}</td>
+            <td>${proxyDetail.mchtSeq}</td>
             <td>${proxyDetail.bankCardName}</td>
             <td>${proxyDetail.bankCardNo}</td>
             <%--<td>${proxyDetail.bankName}</td>--%>
@@ -221,8 +230,9 @@
             <td>
                 ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
             </td>
-                <td>${proxyDetail.chanName}</td>
-                <td>${proxyDetail.returnMessage2}</td>
+                <td>${proxyDetail.extend3}</td>
+
+                <td><div  title="${proxyDetail.returnMessage2}" class="wrap">${proxyDetail.returnMessage2}</div></td>
                 <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
                 <td><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>

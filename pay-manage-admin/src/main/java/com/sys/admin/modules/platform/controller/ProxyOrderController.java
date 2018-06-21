@@ -6,7 +6,6 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
-import com.sys.admin.modules.platform.bo.PlatProxyDetailVo;
 import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
@@ -175,36 +174,20 @@ public class ProxyOrderController extends BaseController {
         int proxyCount = proxyDetailService.count(proxyDetail);
 
         List<PlatProxyDetail> proxyInfoList = proxyDetailService.list(proxyDetail);
-        //生成VO集合
-        List<PlatProxyDetailVo> proxyInfoVoList = getPlatProxyDetailVo(proxyInfoList , channelMap ,mchtMap );
 
+        List<PlatProxyDetail> newList = new ArrayList<>();
+        if(proxyInfoList != null && proxyInfoList.size()!=0){
+            for (PlatProxyDetail info : proxyInfoList) {
+                info.setExtend2(mchtMap.get(info.getMchtId()));
+                info.setExtend3(channelMap.get(info.getChanId()));
+                newList.add(info);
+            }
+        }
 
-        Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoVoList, true);
+        Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, newList, true);
         model.addAttribute("page", page);
         model.addAttribute("paramMap", paramMap);
         return "modules/proxy/proxyDetailList";
-    }
-
-    private List<PlatProxyDetailVo> getPlatProxyDetailVo(List<PlatProxyDetail> proxyInfoList, Map<String, String> channelMap, Map<String, String> mchtMap){
-        List<PlatProxyDetailVo> infoList = new ArrayList<>();
-        if(proxyInfoList == null || proxyInfoList.size()==0){return infoList;}
-        for (PlatProxyDetail info : proxyInfoList) {
-            PlatProxyDetailVo infoVo = new PlatProxyDetailVo();
-            infoVo.setId(info.getId());
-            infoVo.setBankCardName(info.getBankCardName());
-            infoVo.setBankCardNo(info.getBankCardNo());
-            infoVo.setAmount(info.getAmount());
-            infoVo.setMchtFee(info.getMchtFee());
-            infoVo.setPayStatus(info.getPayStatus());
-            infoVo.setReturnMessage2(info.getReturnMessage2());
-            infoVo.setCreateDate(info.getCreateDate());
-            infoVo.setUpdateDate(info.getUpdateDate());
-            infoVo.setChanName(channelMap.get(info.getChanId()));
-            infoVo.setMchtName(mchtMap.get(info.getMchtId()));
-
-            infoList.add(infoVo);
-        }
-        return infoList;
     }
 
     /**
@@ -219,7 +202,7 @@ public class ProxyOrderController extends BaseController {
         PlatProxyDetail proxyDetail = proxyDetailService.queryByKey(detailId);
 
         //批次信息
-        PlatProxyBatch proxyBatch = proxyBatchService.queryByKey(batchId);
+            PlatProxyBatch proxyBatch = proxyBatchService.queryByKey(batchId);
 
         //查询商户列表
         List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());

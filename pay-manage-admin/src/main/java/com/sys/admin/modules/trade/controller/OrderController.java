@@ -19,7 +19,6 @@ import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.OrderAdminService;
-//import com.sys.boss.api.service.order.OrderProxypay4ManageService;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
@@ -28,21 +27,9 @@ import com.sys.common.util.DateUtils;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.ChanInfo;
-import com.sys.core.dao.dmo.ChanMchtPaytype;
-//import com.sys.core.dao.dmo.CpInfo;
-import com.sys.core.dao.dmo.MchtGatewayOrder;
-import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.PlatProduct;
-import com.sys.core.service.ChanMchtPaytypeService;
-import com.sys.core.service.ChannelService;
-//import com.sys.core.service.ConfigSysService;
-import com.sys.core.service.MchtGwOrderService;
-import com.sys.core.service.MchtProductService;
-import com.sys.core.service.MerchantService;
-import com.sys.core.service.ProductService;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.*;
 import com.sys.trans.api.entry.Result;
-import org.apache.commons.beanutils.converters.ArrayConverter;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -69,9 +56,12 @@ import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+//import com.sys.boss.api.service.order.OrderProxypay4ManageService;
+//import com.sys.core.dao.dmo.CpInfo;
+//import com.sys.core.service.ConfigSysService;
 
 @SuppressWarnings("MVCPathVariableInspection")
 @Controller
@@ -483,6 +473,12 @@ public class OrderController extends BaseController {
 
 		//计算条数 上限五万条
 		int orderCount = orderAdminService.ordeCount(order);
+		if (orderCount <= 0) {
+			redirectAttributes.addFlashAttribute("messageType", "fail");
+			redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
+			response.setCharacterEncoding("UTF-8");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/order/list";
+		}
 		if (orderCount > 50000) {
 			redirectAttributes.addFlashAttribute("messageType", "fail");
 			redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
@@ -493,12 +489,22 @@ public class OrderController extends BaseController {
 		// 访问数据库，得到数据集
 		List<MchtGatewayOrder> deitelVOList = orderAdminService.list(order);
 
+		if (deitelVOList == null || deitelVOList.size() ==0) {
+			redirectAttributes.addFlashAttribute("messageType", "fail");
+			redirectAttributes.addFlashAttribute("message", "导出条数为0条");
+			response.setCharacterEncoding("UTF-8");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/order/list";
+		}
 		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
 		//支付产品列表
 		List<PlatProduct> productList = productService.list(new PlatProduct());
 		//上游通道列表
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 		//查询商户列表
+		//通道商户支付方式列表
+		List<ChanMchtPaytype> chanMchtPaytypeList = chanMchtPaytypeService.list(new ChanMchtPaytype());
+
+		Map<String, String> chanMPMap = Collections3.extractToMap(chanMchtPaytypeList, "id", "name");
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
 		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
@@ -515,7 +521,7 @@ public class OrderController extends BaseController {
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
 		}
 
-		String[] headers = {"商户名称", "产品名称", "支付类型", "商户订单号",
+		String[] headers = {"商户名称", "通道商户支付方式","产品名称" , "商户订单号",
 				"平台订单号", "交易金额(分)", "订单状态", "创建时间", "支付时间"};
 
 		response.reset();
@@ -544,7 +550,7 @@ public class OrderController extends BaseController {
 				int cellIndex = 0;
 				row = sheet.createRow(rowIndex);
 				HSSFCell cell = row.createCell(cellIndex);
-				cell.setCellValue(orderTemp.getMchtId());
+				cell.setCellValue(mchtMap.get(orderTemp.getMchtCode()));
 				cellIndex++;
 
 //				cell = row.createCell(cellIndex);
@@ -552,11 +558,11 @@ public class OrderController extends BaseController {
 //				cellIndex++;
 
 				cell = row.createCell(cellIndex);
-				cell.setCellValue(orderTemp.getGoodsName());
+				cell.setCellValue(chanMPMap.get(orderTemp.getChanMchtPaytypeId()));
 				cellIndex++;
 
 				cell = row.createCell(cellIndex);
-				cell.setCellValue(orderTemp.getPayType());
+				cell.setCellValue(orderTemp.getPlatProductId());
 				cellIndex++;
 
 				cell = row.createCell(cellIndex);
