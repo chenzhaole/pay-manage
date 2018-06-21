@@ -52,7 +52,7 @@
     <table>
         <tr>
             <td>
-                <label>明细订单号：</label>
+                <label>平台明细订单号：</label>
                 <input value="${paramMap.detailId}" name="detailId" type="text" maxlength="64" class="input-medium"/>
             </td>
 
@@ -197,10 +197,12 @@
     <thead>
     <tr>
         <%--<th>NO</th>--%>
-        <th>明细订单号</th>
         <th>商户名称</th>
-        <th>商户流水号</th>
+        <th>平台批次订单号<br>平台明细订单号</th>
+        <th>商户订单号</th>
+        <th>批次内序号</th>
         <th>收款户名</th>
+        <th>平台银行名称<br>平台银行编码</th>
         <th>收款账号</th>
         <%--<th>收款银行名称</th>--%>
         <th>金额（元）</th>
@@ -208,8 +210,7 @@
         <th>状态</th>
         <th>通道名称</th>
         <th width="100px">上游响应</th>
-        <th>创建时间</th>
-        <th>更新时间</th>
+        <th>创建时间<br>更新时间</th>
         <th >操作</th>
     </tr>
     </thead>
@@ -219,10 +220,12 @@
         <%--<%i++; %>--%>
         <tr>
             <%--<td><%=i%>--%>
-            <td>${proxyDetail.id}</td>
             <td>${proxyDetail.extend2}</td>
+            <td>${proxyDetail.platBatchId}<br>${proxyDetail.id}</td>
+            <td>${proxyDetail.mchtBatchId}</td>
             <td>${proxyDetail.mchtSeq}</td>
             <td>${proxyDetail.bankCardName}</td>
+            <td>${proxyDetail.bankName}<br>${proxyDetail.bankCode}</td>
             <td>${proxyDetail.bankCardNo}</td>
             <%--<td>${proxyDetail.bankName}</td>--%>
             <td><fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
@@ -233,8 +236,7 @@
                 <td>${proxyDetail.extend3}</td>
 
                 <td><div  title="${proxyDetail.returnMessage2}" class="wrap">${proxyDetail.returnMessage2}</div></td>
-                <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
-                <td><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+                <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <a href="${ctx}/proxy/proxyDetail?detailId=${proxyDetail.id}">详情</a>
                     <%--|<a href="${ctx}/platform/deleteCardBin?id=${proxyDetail.id}" onclick="return confirmx('是否确认删除此记录？', this.href)">删除</a>--%>
