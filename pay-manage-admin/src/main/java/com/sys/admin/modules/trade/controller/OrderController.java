@@ -577,7 +577,7 @@ public class OrderController extends BaseController {
 				cell = row.createCell(cellIndex);
 				if (orderTemp.getAmount() != null) {
 					BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(orderTemp.getAmount()));
-					cell.setCellValue(bigDecimal.doubleValue());
+					cell.setCellValue(bigDecimal.doubleValue()+"(元)");
 				}
 				cellIndex++;
 
