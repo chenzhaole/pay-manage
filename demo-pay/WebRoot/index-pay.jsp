@@ -7,6 +7,7 @@
 	<link href="css/index.css" rel="stylesheet" type="text/css">
 	<script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
 	<script type="text/javascript">
+        var a=1;
 		$(function(){
 			$('input[name=orderId]').val("TEST-"+new Date().getTime());
 			$('.hideClass').hide();
@@ -53,7 +54,7 @@
             var appName=$.trim($('input[name=appName]').val());
             var operator=$.trim($('input[name=operator]').val());
             var payScene=$.trim($('input[name=payScene]').val());
-            var deviceType=$.trim($('input[name=deviceType]').val());
+            var deviceType=$.trim( $('#deviceType option:selected') .val());
             var ip=$.trim($('input[name=ip]').val());
             var param=$.trim($('input[name=param]').val());
             var expireTime=$.trim($('input[name=expireTime]').val());
@@ -172,7 +173,7 @@
                     <dt>支付类型：</dt>
                     <dd>
                         <span class="null-star"></span>
-                        <select name="biz">
+                        <select name="biz"  >
                             <option selected="selected"value="ca001">平台收银台</option>
                             <option value="wx000">微信组合支付类型</option>
                             <option value="wx101">微信h5支付</option>
@@ -248,7 +249,7 @@
                     <dt>异步通知地址：</dt>
                     <dd>
                         <span class="null-star"></span>
-                        <input name="notifyUrl" value="http://103.235.224.17:8081/CzlTest/noticeRcvServlet" maxlength="128" size="30"  placeholder="长度128"/>
+                        <input name="notifyUrl" value="http://114.115.206.62:15081/recNotice2" maxlength="128" size="30"  placeholder="长度128"/>
                         <span class="null-star">(notifyUrl)*</span>
                         <span></span>
                     </dd>
@@ -315,8 +316,12 @@
 
                     <dt>设备类型：</dt>
                     <dd>
-                        <span class="null-star"></span>
-                        <input name="deviceType" value="" maxlength="128" size="30"  placeholder="可空"/>
+                        <select id="deviceType" name="deviceType">
+                            <option value="">--不指定--</option>
+                            <option value="1">手机端浏览器</option>
+                            <option value="2">pc端浏览器</option>
+                            <option value="3">微信内</option>
+                        </select>
                         <span>(deviceType)</span>
                         <span></span>
                     </dd>
