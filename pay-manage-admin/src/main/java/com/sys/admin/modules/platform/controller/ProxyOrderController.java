@@ -6,7 +6,6 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
-import com.sys.admin.modules.platform.bo.PlatProxyDetailVo;
 import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
@@ -128,7 +127,7 @@ public class ProxyOrderController extends BaseController {
      * 代付明细列表
      */
     @RequestMapping(value = {"proxyDetailList", ""})
-    public String proxyDetailList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap){
+    public String proxyDetailList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
         PlatProxyDetail proxyDetail = new PlatProxyDetail();
         proxyDetail.setChanId(paramMap.get("chanId"));
         proxyDetail.setMchtId(paramMap.get("mchtId"));
@@ -175,36 +174,20 @@ public class ProxyOrderController extends BaseController {
         int proxyCount = proxyDetailService.count(proxyDetail);
 
         List<PlatProxyDetail> proxyInfoList = proxyDetailService.list(proxyDetail);
-        //生成VO集合
-        List<PlatProxyDetailVo> proxyInfoVoList = getPlatProxyDetailVo(proxyInfoList , channelMap ,mchtMap );
 
+        List<PlatProxyDetail> newList = new ArrayList<>();
+        if (proxyInfoList != null && proxyInfoList.size() != 0) {
+            for (PlatProxyDetail info : proxyInfoList) {
+                info.setExtend2(mchtMap.get(info.getMchtId()));
+                info.setExtend3(channelMap.get(info.getChanId()));
+                newList.add(info);
+            }
+        }
 
-        Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoVoList, true);
+        Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, newList, true);
         model.addAttribute("page", page);
         model.addAttribute("paramMap", paramMap);
         return "modules/proxy/proxyDetailList";
-    }
-
-    private List<PlatProxyDetailVo> getPlatProxyDetailVo(List<PlatProxyDetail> proxyInfoList, Map<String, String> channelMap, Map<String, String> mchtMap){
-        List<PlatProxyDetailVo> infoList = new ArrayList<>();
-        if(proxyInfoList == null || proxyInfoList.size()==0){return infoList;}
-        for (PlatProxyDetail info : proxyInfoList) {
-            PlatProxyDetailVo infoVo = new PlatProxyDetailVo();
-            infoVo.setId(info.getId());
-            infoVo.setBankCardName(info.getBankCardName());
-            infoVo.setBankCardNo(info.getBankCardNo());
-            infoVo.setAmount(info.getAmount());
-            infoVo.setMchtFee(info.getMchtFee());
-            infoVo.setPayStatus(info.getPayStatus());
-            infoVo.setReturnMessage2(info.getReturnMessage2());
-            infoVo.setCreateDate(info.getCreateDate());
-            infoVo.setUpdateDate(info.getUpdateDate());
-            infoVo.setChanName(channelMap.get(info.getChanId()));
-            infoVo.setMchtName(mchtMap.get(info.getMchtId()));
-
-            infoList.add(infoVo);
-        }
-        return infoList;
     }
 
     /**
@@ -250,7 +233,7 @@ public class ProxyOrderController extends BaseController {
     public String toCommitBatch(Model model) {
         String mchtId = UserUtils.getUser().getLoginName();
         MchtInfo mcht = merchantService.queryByKey(mchtId);
-        if(null != mcht){
+        if (null != mcht) {
             model.addAttribute("mchtName", mcht.getName());
         }
 
@@ -303,7 +286,7 @@ public class ProxyOrderController extends BaseController {
 
                     MchtInfo mcht = merchantService.queryByKey(mchtId);
                     String financeMobile = mcht.getFinanceMobile();
-                    if(StringUtils.isBlank(financeMobile)){
+                    if (StringUtils.isBlank(financeMobile)) {
                         redirectAttributes.addFlashAttribute("messageType", "error");
                         redirectAttributes.addFlashAttribute("message", "代付用手机号为空");
                         return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
@@ -342,20 +325,21 @@ public class ProxyOrderController extends BaseController {
 
     /**
      * 查询指定商户的平台余额
+     *
      * @param mchtId
      * @return
      */
-    private BigDecimal queryPlatBalance(String mchtId){
+    private BigDecimal queryPlatBalance(String mchtId) {
         BigDecimal balance = BigDecimal.ZERO;
         try {
             String topUrl = ConfigUtil.getValue("gateway.url");
-            if(topUrl.endsWith("/")){
-                topUrl = topUrl.substring(0,topUrl.length()-1);
+            if (topUrl.endsWith("/")) {
+                topUrl = topUrl.substring(0, topUrl.length() - 1);
             }
             String gatewayUrl = topUrl + "/df/gateway/balanceForAdmin";
             Map<String, String> params = new HashMap<>();
             params.put("mchtId", mchtId);
-            logger.info(mchtId + " 查询mchtAccountInfo表商户余额,请求URL: "+gatewayUrl+" 请求参数: "+JSON.toJSONString(params));
+            logger.info(mchtId + " 查询mchtAccountInfo表商户余额,请求URL: " + gatewayUrl + " 请求参数: " + JSON.toJSONString(params));
             String balanceString = null;
             balanceString = HttpUtil.postConnManager(gatewayUrl, params, true);
             if (StringUtils.isNotBlank(balanceString)) {
@@ -388,7 +372,7 @@ public class ProxyOrderController extends BaseController {
                 paramsMap.put("orderId", platBatchId);
                 paramsMap.put("verifyCode", smsCode);
                 paramsMap.put("opType", "2");
-                String log_moid = mchtId+"-->"+platBatchId;
+                String log_moid = mchtId + "-->" + platBatchId;
                 String sign = SignUtil.md5Sign(paramsMap, mchtId, log_moid);
                 paramsMap.put("sign", sign);
 
@@ -405,17 +389,17 @@ public class ProxyOrderController extends BaseController {
                     if (batch == null) {
                         batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + platBatchId), PlatProxyBatch.class);
                         List<PlatProxyDetail> details = JSON.parseArray(JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS + platBatchId), PlatProxyDetail.class);
-						for (PlatProxyDetail detail : details) {
-							// 账户缓存数据
-							CacheMcht cacheMcht = accountAdminService.queryCacheMcht(mchtId);
-							CacheMchtAccount cacheMchtAccount = new CacheMchtAccount();
-							cacheMchtAccount.setType(Integer.valueOf(MchtAccountTypeEnum.PROXYPAY_ACCOUNT.getCode()));
-							cacheMchtAccount.setCacheMcht(cacheMcht);
-							cacheMchtAccount.setPlatProxyDetail(detail);
-							logger.info("代付的入账功能（插入CacheMchtAccount）信息为：" + JSONObject.toJSONString(cacheMchtAccount));
-							int rs = accountAdminService.insert2redisAccTask(cacheMchtAccount);
-							logger.info("代付的入账功能返回结果 rs=" + rs);
-						}
+                        for (PlatProxyDetail detail : details) {
+                            // 账户缓存数据
+                            CacheMcht cacheMcht = accountAdminService.queryCacheMcht(mchtId);
+                            CacheMchtAccount cacheMchtAccount = new CacheMchtAccount();
+                            cacheMchtAccount.setType(Integer.valueOf(MchtAccountTypeEnum.PROXYPAY_ACCOUNT.getCode()));
+                            cacheMchtAccount.setCacheMcht(cacheMcht);
+                            cacheMchtAccount.setPlatProxyDetail(detail);
+                            logger.info("代付的入账功能（插入CacheMchtAccount）信息为：" + JSONObject.toJSONString(cacheMchtAccount));
+                            int rs = accountAdminService.insert2redisAccTask(cacheMchtAccount);
+                            logger.info("代付的入账功能返回结果 rs=" + rs);
+                        }
                         int rs = proxyBatchService.saveBatchAndDetails(batch, details);
                         logger.info("代付批次和代付明细入库返回结果 rs=" + rs);
                         respMsg = "ok";
@@ -456,7 +440,7 @@ public class ProxyOrderController extends BaseController {
                 paramsMap.put("biz", "df01");
                 paramsMap.put("orderId", platBatchId);
                 paramsMap.put("opType", "1");
-                String log_moid = mchtId+"-->"+platBatchId;
+                String log_moid = mchtId + "-->" + platBatchId;
                 String sign = SignUtil.md5Sign(paramsMap, mchtId, log_moid);
                 paramsMap.put("sign", sign);
 
