@@ -189,8 +189,9 @@
     <thead>
     <tr>
         <th>NO</th>
-        <th>商户代付批次订单号</th>
-        <th>商户代付明细订单号</th>
+        <th>平台明细订单号</th>
+        <th>商户批次号</th>
+        <th>商户明细号</th>
         <th>商户名称</th>
         <th>收款人户名</th>
         <th>收款人账号</th>
@@ -209,6 +210,7 @@
         <tr>
             <td><%=i%>
             </td>
+            <td>${proxyDetail.id}</td>
             <td>${proxyDetail.mchtBatchId}</td>
             <td>${proxyDetail.mchtSeq}</td>
             <td>${proxyDetail.extend1}</td>
