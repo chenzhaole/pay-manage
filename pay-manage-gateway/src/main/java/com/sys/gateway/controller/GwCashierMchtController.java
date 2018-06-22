@@ -77,6 +77,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 					deviceType = HttpUtil.getDeviceType(userAgent);
 					logger.info(BIZ+midoid+"通过程序判断deviceType为："+deviceType+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 				}else{
+					deviceType = requestInfo.getBody().getDeviceType();
 					logger.info(BIZ+midoid+"商户自己指定的设备类型deviceType的值为："+requestInfo.getBody().getDeviceType()+"-->【1：手机端，2：pc端，3：微信内，4：支付宝内】");
 				}
 				//获取请求ip，值必须真实，某些上游通道要求必须是真实ip
