@@ -26,7 +26,11 @@
 </head>
 
 <body>
-
+<div class="breadcrumb">
+    <label>
+        <th><a href="#">交易管理</a> > <a href="#"><b>账务明细列表</b></a></th>
+    </label>
+</div>
 
 
 <tags:message content="${message}" type="${messageType}"/>
