@@ -61,7 +61,7 @@
 			<tags:validateCode name="validateCode" inputCssStyle="margin-bottom:0;"/>
 		</div></c:if>
 		<input class="btn btn-large btn-primary" type="submit" value="登 录"/>&nbsp;&nbsp;
-		<label for="rememberMe" title="下次不需要再登录"><input type="checkbox" id="rememberMe" name="rememberMe"/> 记住我（公共场所慎用）</label>
+		<%--<label for="rememberMe" title="下次不需要再登录"><input type="checkbox" id="rememberMe" name="rememberMe"/> 记住我（公共场所慎用）</label>--%>
 <!-- 		<div id="themeSwitch" class="dropdown"> -->
 <%-- 			<a class="dropdown-toggle" data-toggle="dropdown" href="#">${fns:getDictLabel(cookie.theme.value,'theme','默认主题')}<b class="caret"></b></a> --%>
 <!-- 			<ul class="dropdown-menu"> -->

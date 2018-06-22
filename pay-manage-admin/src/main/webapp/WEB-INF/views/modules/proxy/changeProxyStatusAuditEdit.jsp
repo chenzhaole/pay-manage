@@ -168,7 +168,7 @@
 					<div class="controls">
 						<select name="auditStatus" class="input-xlarge" id="auditStatus">
 							<option value="4">通过</option>
-							<option value="5">拒绝</option>
+							<%--<option value="5">拒绝</option>--%>
 						</select>
 					</div>
 				</div>

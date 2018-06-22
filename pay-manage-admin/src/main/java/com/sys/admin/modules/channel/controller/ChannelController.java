@@ -459,11 +459,8 @@ public class ChannelController extends BaseController {
 		config.setPubKey(chanMchtFormInfo.getCertContent1());
 		config.setTranUrl(chanMchtFormInfo.getTranUrl());
 
-		//特殊字段
-		config.setMerchantName(chanMchtFormInfo.getTerminalNo());
-
 		SingleDF df = new SingleDF();
-		df.setOrderNo("ADMIN000");
+		df.setOrderNo("ADMIN00000001");
 
 		Trade trade = new Trade();
 		trade.setConfig(config);
