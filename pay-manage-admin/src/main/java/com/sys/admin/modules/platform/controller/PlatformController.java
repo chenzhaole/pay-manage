@@ -1,6 +1,7 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.bo.ChanMchtFormInfo;
@@ -22,9 +23,11 @@ import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
+import com.sys.core.dao.dmo.ChanMchtPaytype;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatSdkConfig;
 import com.sys.core.service.ChanMchtPaytypeService;
-//import com.sys.core.service.ConfigSysService;
 import com.sys.core.service.PlatSDKService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,12 +37,14 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+
+//import com.sys.core.service.ConfigSysService;
 
 /**
  * @ClassName: PlatformController
@@ -111,8 +116,8 @@ public class PlatformController extends BaseController {
 		model.addAttribute("page", page);
 
 		//所有支付方式
-		PayTypeEnum[] payTypeList = PayTypeEnum.values();
-		model.addAttribute("paymentTypeInfos", filterPayTypeList(payTypeList));
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
+		model.addAttribute("paymentTypeInfos", payTypeList);
 
 		//所有通道商户支付方式
 		List<ChanMchtPaytype> chanMchtPaytypes = chanMchtPaytypeService.list(new ChanMchtPaytype());
@@ -246,7 +251,7 @@ public class PlatformController extends BaseController {
 	@RequestMapping(value = {"getPayType", ""})
 	public String getPayType(Model model) {
 		//支付方式
-		PayTypeEnum[] payTypeList = PayTypeEnum.values();
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
 		model.addAttribute("paymentTypeInfos", payTypeList);
 		return "modules/platform/platProductSelectPayType";
 	}

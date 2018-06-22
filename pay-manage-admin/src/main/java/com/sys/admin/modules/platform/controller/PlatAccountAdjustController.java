@@ -14,13 +14,11 @@ import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.AuditEnum;
-import com.sys.common.enums.FeeTypeEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
-import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -112,19 +110,21 @@ public class PlatAccountAdjustController extends BaseController {
             model.addAttribute("page",page);
 
             //初始化商户名称
+            List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
+
             Map<String,String> mchtMap = Collections3.extractToMap(
-                    merchantService.list(new MchtInfo()),"id","name");
+                    mchtInfos,"id","name");
             ConvertUtils.register(new DateConverter(null), java.util.Date.class);
             ConvertUtils.register(new BigDecimalConverter(null),BigDecimal.class);
             for(PlatAccountAdjust adjust : list){
                 PlatAccountAdjustBO bo = new PlatAccountAdjustBO();
                 BeanUtils.copyProperties(bo,adjust);
-
-
                 bo.setMchtName(mchtMap.get(adjust.getMchtId()));
                 showList.add(bo);
             }
 
+            model.addAttribute("mchtInfos", mchtInfos);
+            model.addAttribute("adjustInfo", platAccountAdjust);
             model.addAttribute("list",showList);
             model.addAttribute("page",page);
             model.addAttribute("createTime",request.getParameter("createTime"));

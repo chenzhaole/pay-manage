@@ -74,7 +74,7 @@
 						<option value="">--请选择--</option>
 						<option value="1" <c:if test="${paramMap.status == '1'}">selected</c:if> >启用</option>
 						<option value="2" <c:if test="${paramMap.status == '2'}">selected</c:if> >停用</option>
-						<option value="3" <c:if test="${paramMap.status == '3'}">selected</c:if> >待审核</option>
+						<%--<option value="3" <c:if test="${paramMap.status == '3'}">selected</c:if> >待审核</option>--%>
 					</select>
 				</td>
 

@@ -1,12 +1,12 @@
 package com.sys.admin.modules.merchant.controller;
 
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.service.ChanMchtAdminService;
 import com.sys.admin.modules.merchant.bo.MerchantFee;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.common.enums.FeeRateBizTypeEnum;
-import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.DateUtils2;
@@ -57,11 +57,11 @@ public class MchtPaytypeFeeController extends BaseController {
 		//商户费率关系
 		List<MerchantFee> merchantFees = new ArrayList<>();
 		//支付方式
-		PayTypeEnum[] payTypeList = PayTypeEnum.values();
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
 
 		MerchantFee merchantFee;
 		String bizId;
-		for (PayTypeEnum payTypeEnum : payTypeList) {
+		for (AdminPayTypeEnum payTypeEnum : payTypeList) {
 			bizId = mchtId + "&" + payTypeEnum.getCode();
 			merchantFee = new MerchantFee();
 			merchantFee.setPaytypeCode(payTypeEnum.getCode());

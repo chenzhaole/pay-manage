@@ -140,8 +140,8 @@
 	                    <div class="controls">
 	                        <select name="payType" id="payType">
 								<option value="">---请选择---</option>
-								<c:forEach var="dict" items="${fns:getDictList('pay_type')}">
-									<option value="${dict.value}" <c:if test="${paramMap.payType eq dict.value}">selected</c:if>>${dict.label}</option>
+								<c:forEach var="paymentTypeInfo" items="${paymentTypeInfos}">
+									<option value="${paymentTypeInfo.code}" <c:if test="${paramMap.payType eq paymentTypeInfo.code}">selected</c:if>>${paymentTypeInfo.desc}</option>
 								</c:forEach>
 							</select>
 	                    </div>
