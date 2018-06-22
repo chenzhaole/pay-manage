@@ -109,9 +109,8 @@
     <thead>
     <tr>
         <%--<th>NO</th>--%>
-        <th>批次订单号</th>
-        <th>明细订单号</th>
         <th>代付商户</th>
+        <th>批次订单号<br>明细订单号</th>
         <th>代付通道</th>
         <th>收款户名</th>
         <th>收款账号</th>
@@ -120,8 +119,7 @@
         <th>手续费（元）</th>
         <th>状态</th>
         <th>上游响应</th>
-        <th>创建时间</th>
-        <th>更新时间</th>
+        <th>创建时间<br>更新时间</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -131,9 +129,9 @@
         <%--<%i++; %>--%>
         <tr>
                 <%--<td><%=i%></td>--%>
-            <td>${proxyDetail.platBatchId}</td>
-            <td>${proxyDetail.id}</td>
             <td>${proxyDetail.mchtId}</td>
+            <td>${proxyDetail.platBatchId}<br>${proxyDetail.id}</td>
+
             <td>${proxyDetail.chanId}</td>
             <td>${proxyDetail.bankCardName}</td>
             <td>${proxyDetail.bankCardNo}</td>
@@ -146,8 +144,7 @@
                     ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
             </td>
             <td>${proxyDetail.returnMessage2}</td>
-            <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
-            <td><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+            <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <c:if test="${!(proxyDetail.extend3 eq '777')}"><a href="${ctx}/proxy/changeProxyStatusEdit?detailId=${proxyDetail.id}">修改状态</a></c:if>
             </td>
