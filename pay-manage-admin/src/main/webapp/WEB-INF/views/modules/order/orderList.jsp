@@ -87,7 +87,11 @@
 	</script>
 </head>
 <body>
-
+<div class="breadcrumb">
+	<label>
+		<th><a href="#">交易管理</a> > <a href="#"><b>支付流水列表</b></a></th>
+	</label>
+</div>
 	<form id="searchForm" action="${ctx}/order/list" method="post" class="breadcrumb form-search">
 		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
@@ -140,8 +144,8 @@
 	                    <div class="controls">
 	                        <select name="payType" id="payType">
 								<option value="">---请选择---</option>
-								<c:forEach var="dict" items="${fns:getDictList('pay_type')}">
-									<option value="${dict.value}" <c:if test="${paramMap.payType eq dict.value}">selected</c:if>>${dict.label}</option>
+								<c:forEach var="paymentTypeInfo" items="${paymentTypeInfos}">
+									<option value="${paymentTypeInfo.code}" <c:if test="${paramMap.payType eq paymentTypeInfo.code}">selected</c:if>>${paymentTypeInfo.desc}</option>
 								</c:forEach>
 							</select>
 	                    </div>
@@ -266,16 +270,14 @@
 		<thead>
 			<tr >
 				<th>商户名称</th>
-				<th>通道商户支付方式</th>
-				<th>产品名称</th>
-				<th>商户订单号</th>
-				<th>平台订单号</th>
+				<th>支付产品名称<br>通道商户支付方式</th>
+				<th>平台订单号<br>商户订单号</th>
 				<th>上游通道订单号</th>
+				<th>官方订单号</th>
 				<th>交易金额</th>
 				<th>订单状态</th>
 				<th>补单状态</th>
-				<th>创建时间</th>
-				<th>支付时间</th>
+				<th>创建时间<br>支付时间</th>
 				<shiro:hasPermission name="order:list:op">
 				<th>&nbsp;操&nbsp;作&nbsp;&nbsp;</th>
 				</shiro:hasPermission>
@@ -285,13 +287,13 @@
 		<c:forEach items="${page.list}" var="orderInfo">
 			<tr>
 				<td>${orderInfo.mchtCode}</td>
-				<td>${orderInfo.chanMchtPaytypeId}</td>
-				<td>${orderInfo.platProductId}</td>
-				<td>${orderInfo.mchtOrderId}</td>
+				<td>${orderInfo.platProductId}<br>${orderInfo.chanMchtPaytypeId}</td>
+
 				<td><a href="${ctx}/order/detail?id=${orderInfo.id}
 				&beginDate=<fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>">
-						${orderInfo.platOrderId}</a></td>
+						${orderInfo.platOrderId}</a><br>${orderInfo.mchtOrderId}</td>
 				<td>${orderInfo.chanOrderId}</td>
+				<td>${orderInfo.officialOrderId}</td>
 				<td><fmt:formatNumber type="number" value="${orderInfo.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
 				<td>
 					${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}
@@ -299,8 +301,8 @@
 				<td>
 						${fns:getDictLabel(orderInfo.supplyStatus,'supply_status' ,'' )}
 				</td>
-				<td><fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
-				<td><fmt:formatDate value="${orderInfo.updateTime}"  pattern="yyyy-MM-dd  HH:mm:ss"/></td>
+				<td><fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+				<br><fmt:formatDate value="${orderInfo.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 				<shiro:hasPermission name="order:list:op">
 				<td>
 					<c:if test="${orderInfo.status == '2'}">

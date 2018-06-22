@@ -38,6 +38,17 @@
     <table>
         <tr>
             <td>
+                <label>商户名称：</label>
+                <select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
+                    <option value="">--请选择--</option>
+                    <c:forEach items="${mchtInfos}" var="mchtInfo">
+                        <option value="${mchtInfo.id}"
+                                <c:if test="${adjustInfo.mchtId == mchtInfo.id}">selected</c:if>
+                                >${mchtInfo.name}</option>
+                    </c:forEach>
+                </select>
+            </td>
+            <td>
                 <label>申请日期：</label>
                 <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
                       value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
@@ -74,6 +85,7 @@
         <th>审批日期</th>
         <th>审批人</th>
         <th>审批状态</th>
+        <th>备注</th>
         <shiro:hasPermission name="platform:adjust:audit"><th>操作</th></shiro:hasPermission>
     </tr>
     </thead>
@@ -94,6 +106,7 @@
             <td><fmt:formatDate value="${adjust.auditTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${adjust.auditorName}</td>
             <td>${fns:getDictLabel(adjust.auditStatus,'account_adjust_status' ,'' )}</td>
+            <td>${adjust.remark}</td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
                     <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">

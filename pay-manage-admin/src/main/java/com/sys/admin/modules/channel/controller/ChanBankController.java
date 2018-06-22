@@ -1,6 +1,7 @@
 package com.sys.admin.modules.channel.controller;
 
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.bo.ChanBankFormInfo;
@@ -10,7 +11,6 @@ import com.sys.admin.modules.merchant.bo.MerchantForm;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.SignTypeEnum;
-import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
@@ -88,8 +88,8 @@ public class ChanBankController extends BaseController {
 		model.addAttribute("page", page);
 
 		//所有支付方式
-		PayTypeEnum[] payTypeList = PayTypeEnum.values();
-		model.addAttribute("paymentTypeInfos", filterPayTypeList(payTypeList));
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
+		model.addAttribute("paymentTypeInfos", payTypeList);
 
 
 		model.addAttribute("platBanks", platBanks);
@@ -135,8 +135,8 @@ public class ChanBankController extends BaseController {
 		model.addAttribute("mchtInfos", mchtInfosResult);
 
 		//支付方式
-		PayTypeEnum[] payTypeList = PayTypeEnum.values();
-		model.addAttribute("paymentTypeInfos", filterPayTypeList(payTypeList));
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
+		model.addAttribute("paymentTypeInfos", payTypeList);
 
 		//所有银行
 		List<PlatBank> platBanks = platBankService.list(new PlatBank());

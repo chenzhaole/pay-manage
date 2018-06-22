@@ -9,6 +9,7 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
@@ -51,10 +52,7 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 //import com.sys.boss.api.service.order.OrderProxypay4ManageService;
 //import com.sys.core.dao.dmo.CpInfo;
@@ -111,6 +109,10 @@ public class OrderController extends BaseController {
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
 		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
 
+
+		//支付方式
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
+		model.addAttribute("paymentTypeInfos", payTypeList);
 		model.addAttribute("chanInfoList", chanInfoList);
 		model.addAttribute("mchtList", mchtList);
 		model.addAttribute("productList", productList);
@@ -517,13 +519,15 @@ public class OrderController extends BaseController {
 			gwOrder.setPlatProductId(productMap.get(gwOrder.getPlatProductId()));
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
 		}
+		//获取当前日期，为文件名
+		String fileName = DateUtils.formatDate(new Date()) + ".xls";
 
 		String[] headers = {"商户名称", "通道商户支付方式","产品名称" , "商户订单号",
 				"平台订单号","上游通道订单号", "交易金额(元)", "订单状态", "创建时间", "支付时间"};
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
-		response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode("收单对公报表.xls", "UTF-8"));
+		response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
 		OutputStream out = response.getOutputStream();
 
 		// 第一步，创建一个webbook，对应一个Excel文件

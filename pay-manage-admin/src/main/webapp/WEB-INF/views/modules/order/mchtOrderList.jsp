@@ -160,21 +160,26 @@
                     <div class="controls">
                         <select name="payType" id="payType">
                             <option value="">---全部---</option>
-                            <option value="wx101" <c:if test="${paramMap.payType eq 'wx101'}">selected</c:if>>微信h5</option>
+                            <option value="wx101" <c:if test="${paramMap.payType eq 'wx101'}">selected</c:if>>微信H5</option>
                             <option value="wx201" <c:if test="${paramMap.payType eq 'wx201'}">selected</c:if>>微信APP</option>
                             <option value="wx301&wx302" <c:if test="${paramMap.payType eq 'wx301&wx302'}">selected</c:if>>微信公众号</option>
                             <option value="wx401" <c:if test="${paramMap.payType eq 'wx401'}">selected</c:if>>微信扫码</option>
                             <option value="wx502&wx503" <c:if test="${paramMap.payType eq 'wx502&wx503'}">selected</c:if>>微信付款码</option>
-                            <option value="al101&al102" <c:if test="${paramMap.payType eq 'al101&al102'}">selected</c:if>>支付宝h5</option>
-                            <option value="al201" <c:if test="${paramMap.payType eq 'al201'}">selected</c:if>>支付宝APP</option>
+                            <option value="al101&al102" <c:if test="${paramMap.payType eq 'al101&al102'}">selected</c:if>>支付宝H5</option>
                             <option value="al401" <c:if test="${paramMap.payType eq 'al401'}">selected</c:if>>支付宝扫码</option>
-                            <option value="al502&al503" <c:if test="${paramMap.payType eq 'al502&al503'}">selected</c:if>>支付宝付款码</option>
+                            <%--<option value="al201" <c:if test="${paramMap.payType eq 'al201'}">selected</c:if>>支付宝APP</option>--%>
+                            <%--<option value="al502&al503" <c:if test="${paramMap.payType eq 'al502&al503'}">selected</c:if>>支付宝付款码</option>--%>
                             <option value="sn401" <c:if test="${paramMap.payType eq 'sn401'}">selected</c:if>>苏宁扫码</option>
+                            <option value="sn101" <c:if test="${paramMap.payType eq 'sn101'}">selected</c:if>>苏宁H5</option>
                             <option value="qq101&qq102" <c:if test="${paramMap.payType eq 'qq101&qq102'}">selected</c:if>>QQH5</option>
                             <option value="qq403" <c:if test="${paramMap.payType eq 'qq403'}">selected</c:if>>QQ扫码</option>
                             <option value="jd101&jd102" <c:if test="${paramMap.payType eq 'jd101&jd102'}">selected</c:if>>京东H5</option>
                             <option value="jd401" <c:if test="${paramMap.payType eq 'jd401'}">selected</c:if>>京东扫码</option>
-                            <option value="yl401" <c:if test="${paramMap.payType eq 'yl401'}">selected</c:if>>银联二维码</option>
+                            <option value="yl401" <c:if test="${paramMap.payType eq 'yl401'}">selected</c:if>>银联扫码</option>
+                            <option value="yl101" <c:if test="${paramMap.payType eq 'yl101'}">selected</c:if>>银联H5</option>
+                            <option value="qj202" <c:if test="${paramMap.payType eq 'qj202'}">selected</c:if>>快捷支付</option>
+                            <option value="qj301" <c:if test="${paramMap.payType eq 'qj301'}">selected</c:if>>网银支付</option>
+                            <option value="df101" <c:if test="${paramMap.payType eq 'df101'}">selected</c:if>>单笔代付</option>
                         </select>
                     </div>
                 </div>
@@ -239,21 +244,24 @@
         <tr>
             <td>${orderInfo.mchtCode}</td>
             <td>
-                <c:if test="${orderInfo.payType eq 'wx101'}">微信h5</c:if>
+                <c:if test="${orderInfo.payType eq 'wx101'}">微信H5</c:if>
                 <c:if test="${orderInfo.payType eq 'wx201'}">微信APP</c:if>
                 <c:if test="${orderInfo.payType eq 'wx301' || orderInfo.payType eq 'wx302'}">微信公众号</c:if>
                 <c:if test="${orderInfo.payType eq 'wx401'}">微信扫码</c:if>
                 <c:if test="${orderInfo.payType eq 'wx502' || orderInfo.payType eq 'wx503'}">微信付款码</c:if>
-                <c:if test="${orderInfo.payType eq 'al101' || orderInfo.payType eq 'al102'}">支付宝h5</c:if>
-                <c:if test="${orderInfo.payType eq 'al201'}">支付宝APP</c:if>
+                <c:if test="${orderInfo.payType eq 'al101' || orderInfo.payType eq 'al102'}">支付宝H5</c:if>
                 <c:if test="${orderInfo.payType eq 'al401'}">支付宝扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'al502' || orderInfo.payType eq 'al503'}">支付宝付款码</c:if>
                 <c:if test="${orderInfo.payType eq 'sn401'}">苏宁扫码</c:if>
+                <c:if test="${orderInfo.payType eq 'sn101'}">苏宁H5</c:if>
                 <c:if test="${orderInfo.payType eq 'qq101' || orderInfo.payType eq 'qq102'}">QQH5</c:if>
                 <c:if test="${orderInfo.payType eq 'qq403'}">QQ扫码</c:if>
                 <c:if test="${orderInfo.payType eq 'jd101' || orderInfo.payType eq 'jd102'}">京东H5</c:if>
                 <c:if test="${orderInfo.payType eq 'jd401'}">京东扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'yl401'}">银联二维码</c:if>
+                <c:if test="${orderInfo.payType eq 'yl401'}">银联扫码</c:if>
+                <c:if test="${orderInfo.payType eq 'yl101'}">银联H5</c:if>
+                <c:if test="${orderInfo.payType eq 'qj202'}">快捷支付</c:if>
+                <c:if test="${orderInfo.payType eq 'qj301'}">网银支付</c:if>
+                <c:if test="${orderInfo.payType eq 'df101'}">单笔代付</c:if>
             </td>
             <td>${orderInfo.mchtOrderId}</td>
             <td>${orderInfo.platOrderId}</td>

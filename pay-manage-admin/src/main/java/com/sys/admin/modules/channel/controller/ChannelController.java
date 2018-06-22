@@ -1,8 +1,8 @@
 package com.sys.admin.modules.channel.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.web.BaseController;
@@ -17,21 +17,17 @@ import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.HttpUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
-//import com.sys.core.service.ConfigSysService;
 import com.sys.core.service.PlatFeerateService;
 import com.sys.trans.api.entry.Config;
-import com.sys.trans.api.entry.Result;
 import com.sys.trans.api.entry.SingleDF;
 import com.sys.trans.api.entry.Trade;
 import com.sys.trans.api.handler.TransDFBalanceHandler;
-import com.sys.trans.exception.TransException;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -39,14 +35,17 @@ import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
-import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
+//import com.sys.core.service.ConfigSysService;
 
 @Controller
 @RequestMapping(value = "${adminPath}/channel")
@@ -274,9 +273,9 @@ public class ChannelController extends BaseController {
 		model.addAttribute("page", page);
 
 		//所有支付方式
-		PayTypeEnum[] prePayTypeList = PayTypeEnum.values();
+		AdminPayTypeEnum[] prePayTypeList = AdminPayTypeEnum.values();
 		//过滤掉不常用的
-		model.addAttribute("paymentTypeInfos", filterPayTypeList(prePayTypeList));
+		model.addAttribute("paymentTypeInfos", prePayTypeList);
 //		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();
 //		model.addAttribute("paymentTypeInfos", paymentTypeInfos);
 
@@ -330,7 +329,7 @@ public class ChannelController extends BaseController {
 		model.addAttribute("chanMchts", chanInfoList);
 
 		//支付方式
-		PayTypeEnum[] payTypeList = PayTypeEnum.values();
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
 		model.addAttribute("paymentTypeInfos", payTypeList);
 //		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();
 //		model.addAttribute("paymentTypeInfos", paymentTypeInfos);
