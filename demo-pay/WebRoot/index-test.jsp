@@ -64,7 +64,7 @@
 				<dl class="">
 
 					<dd>
-						<a href="index-dfQuery.jsp">代付查单测试</a>
+						<a href="index-dfQuery.jsp">代付查询测试</a>
 					</dd>
 				</dl>
 				<dl class="">
