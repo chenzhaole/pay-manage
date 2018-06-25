@@ -44,7 +44,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
             if (tradeRequestInfo.getHead() == null || tradeRequestInfo.getBody() == null || tradeRequestInfo.getSign() == null) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg("操作失败");
-                logger.error(BIZ + "[head],[body],[sign]请求参数值不能为空，即TradeCashierRequest=："+ JSONObject.toJSONString(tradeRequestInfo));
+                logger.info(BIZ + "[head],[body],[sign]请求参数值不能为空，即TradeCashierRequest=："+ JSONObject.toJSONString(tradeRequestInfo));
                 return checkResp;
             }
 
@@ -52,7 +52,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
             if (StringUtils.isBlank(head.getMchtId()) || StringUtils.isBlank(head.getVersion()) || StringUtils.isBlank(head.getBiz())) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg("操作失败");
-                logger.error(BIZ + "[mchtId],[version],[biz]请求参数值不能为空，即TradeReqHead=："+ JSONObject.toJSONString(head));
+                logger.info(BIZ + "[mchtId],[version],[biz]请求参数值不能为空，即TradeReqHead=："+ JSONObject.toJSONString(head));
                 return checkResp;
             }
 
@@ -66,28 +66,28 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
                     ) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg("操作失败");
-                logger.error(BIZ + "[orderId],[orderTime],[amount],[goods],[notifyUrl]请求参数值不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
+                logger.info(BIZ + "[orderId],[orderTime],[amount],[goods],[notifyUrl]请求参数值不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
                 return checkResp;
             }
             //微信公众号支付openid不为空
             if (StringUtils.isBlank(body.getOrderId()) && (PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(head.getBiz()) || PayTypeEnum.WX_PUBLIC_NOT_NATIVE.getCode().equals(head.getBiz()))) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespMsg("openId不能为空");
-                logger.error(BIZ + "公众号支付，openId不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
+                logger.info(BIZ + "公众号支付，openId不能为空，即WapRequestBody=："+ JSONObject.toJSONString(body));
                 return checkResp;
             }
             //货币类型 人民币：CNY，美元： USD
             if(!"CNY".equals(body.getCurrencyType()) && !"USD".equals(body.getCurrencyType())){
                 checkResp.setRespCode(ErrorCodeEnum.E1019.getCode());
                 checkResp.setRespMsg("操作失败");
-                logger.error(BIZ + "商户传入的货币种类为:"+body.getCurrencyType()+"，与平台货币类型不一致");
+                logger.info(BIZ + "商户传入的货币种类为:"+body.getCurrencyType()+"，与平台货币类型不一致");
                 return checkResp;
             }
 
             checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
             checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
             checkResp.setData(tradeRequestInfo);
-            logger.error(BIZ + "解析并校验商户请求参数通过，返回给上层的参数为："+ JSONObject.toJSONString(checkResp));
+            logger.info(BIZ + "解析并校验商户请求参数通过，返回给上层的参数为："+ JSONObject.toJSONString(checkResp));
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(BIZ +"解析并校验商户请求参数抛异常："+e.getMessage());
@@ -124,7 +124,7 @@ public class GwCashierMchtServiceImpl implements GwCashierMchtService {
         cashierRequest.setBody(cashierRequestBody);
         cashierRequest.setHead(head);
         cashierRequest.setSign(request.getParameter("sign"));
-        logger.error(BIZ + "解析的商户请求参数为："+ JSONObject.toJSONString(cashierRequest));
+        logger.info(BIZ + "解析的商户请求参数为："+ JSONObject.toJSONString(cashierRequest));
         return cashierRequest;
     }
 }
