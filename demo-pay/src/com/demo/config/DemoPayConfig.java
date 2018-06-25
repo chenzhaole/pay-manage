@@ -5,29 +5,20 @@ import java.io.InputStream;
 import java.util.Properties;
 
 
-/**
- * <一句话功能简述>
- * <功能详细描述>配置信息
- * 
- * @author  Administrator
- * @version  [版本号, 2014-8-29]
- * @see  [相关类/方法]
- * @since  [产品/模块版本]
- */
-public class SwiftpassConfig {
+public class DemoPayConfig {
     
     /**
-     * 易联众交易密钥
+     * 交易密钥
      */
     public static String key ;
     
     /**
-     * 易联众商户号
+     * 商户号
      */
     public static String mch_id;
     
     /**
-     * 易联众请求url
+     * 请求url
      */
     public static String req_url;
     
@@ -38,7 +29,7 @@ public class SwiftpassConfig {
     
     static{
         Properties prop = new Properties();   
-        InputStream in = SwiftpassConfig.class.getResourceAsStream("/config.properties");   
+        InputStream in = DemoPayConfig.class.getResourceAsStream("/config.properties");
         try {   
             prop.load(in);   
             key = prop.getProperty("key").trim();   

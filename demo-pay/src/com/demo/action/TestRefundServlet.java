@@ -1,27 +1,15 @@
 package com.demo.action;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import java.util.SortedMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.demo.config.SwiftpassConfig;
 //import com.demo.util.MD5;
 //import com.demo.util.SignUtils;
-import com.demo.util.XmlUtils;
+
 
 public class TestRefundServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -38,11 +26,11 @@ public class TestRefundServlet extends HttpServlet {
 //
 //        SortedMap<String,String> map = XmlUtils.getParameterMap(req);
 //        System.out.println(XmlUtils.toXml(map));
-//        String key = SwiftpassConfig.key;
+//        String key = DemoPayConfig.key;
 //        String res = null;
-//        String reqUrl = SwiftpassConfig.req_url+"/refundInterface_gate.action";
-//        map.put("mch_id", SwiftpassConfig.mch_id);
-//        map.put("op_user_id", SwiftpassConfig.mch_id);
+//        String reqUrl = DemoPayConfig.req_url+"/refundInterface_gate.action";
+//        map.put("mch_id", DemoPayConfig.mch_id);
+//        map.put("op_user_id", DemoPayConfig.mch_id);
 //        map.put("nonce_str", String.valueOf(new Date().getTime()));
 //
 //        Map<String,String> params = SignUtils.paraFilter(map);

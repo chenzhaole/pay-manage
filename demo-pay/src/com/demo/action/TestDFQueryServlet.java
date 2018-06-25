@@ -39,6 +39,7 @@ public class TestDFQueryServlet extends HttpServlet {
         try {
             String payUrl = request.getParameter("payUrl");
             String key = request.getParameter("key");
+            String mchtPrivateKey = request.getParameter("mchtPrivateKey");
 
             JSONObject data = new JSONObject();
             JSONObject head = getHeadJson(request);
