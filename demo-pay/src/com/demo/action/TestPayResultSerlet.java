@@ -33,7 +33,7 @@ public class TestPayResultSerlet extends HttpServlet {
 //                String res = XmlUtils.toXml(map);
 //                System.out.println("通知内容：" + res);
 //                if(map.containsKey("sign")){
-//                    if(!SignUtils.checkParam(map, DemoPayConfig.key)){
+//                    if(!SignUtils.checkParam(map, ConfigUtil.key)){
 //                        res = "验证签名不通过";
 //                        respString = "fail";
 //                    }else{

@@ -3,6 +3,7 @@ package com.demo.action;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.demo.config.ConfigUtil;
 import com.demo.util.AESUtil;
 import com.demo.util.PostUtil;
 import com.demo.util.RSAUtils;
@@ -22,8 +23,6 @@ import java.util.UUID;
 
 
 public class TestDFQueryServlet extends HttpServlet {
-
-    private static final String PRIVATE_KEY = "MIICdwIBADANBgkqhkiG9w0BAQEFAASCAmEwggJdAgEAAoGBAJtQHqwOEDlfE9gryafuEloaYAWC+Wbb7p23XlKyw/IH+mtD+924qqad6wM8OfQkVjINhpBS25y5qQH3MuAmRWdfa958SH8yWSJyx6ugPc7q0az9ZzaKyEVJmiXckLvqJOpX28FscJuz01d0v+bsAP2FnBo+8mtIHwqUnP8ZnjpbAgMBAAECgYBtbYre0N3PflS+B0QCpLObdl/XIkvUk/rQdqTngXqbadGfh/vKYVUjJbqywdlXUc7FX1BDGY4QI6OXdfMLiQt2S9ihZLKN65pMFsjnhSrt6ozEmCqXVHKFG9fwRLRPg0gY9ofTRrvWDwhlgxV0qUnbqcca1/uRYOt89/xUqxKJOQJBAM5LFpO3b3tJwaq+wyl5+dr0aSU8L7/oBF9fG+lgP74eg0FCd5WoSdIUQ75ixoLBry8Yd9EGb+d2IlJFXsYUSM0CQQDAvGGIzDa6bJUBsC2diyu8ddJpdkHv324R4ccfgBj04TeFkM0rshmjLEEjZQzydiYVhY4LC6uPx7HE08FwbC/HAkBw0wpnAaUcFauw+aH9VjO7d37mGXO4DmoNyxOV4Mkb7s40a+jBVggBuImQX69YJhvsswIctNuRCMAepMf/p2plAkEAnQWc7Md7Wvx1lU+EilLFCiBvkW5AH/5G/ZiVEsvZCUCnbFDhZtUN4AuA8iY0myC4vFX3uHYEivolkXb3pPDvJwJBAKjXYfpjgJ7NqWsFaUx+GDIPaOuzCHJ8wUl62IZol1fBe0QMeb+dwVEBfSK/l/443aQO6WcbT2yp2FWkuBlcaFE=";
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
@@ -48,7 +47,7 @@ public class TestDFQueryServlet extends HttpServlet {
             Map<String, String> bodyMap = getBodyMap(request);
 
             //加密body中的detail
-            String publicKey = request.getParameter("publicKey");
+            String publicKey = ConfigUtil.publicKey;
             String aesKey = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
             String body = JSON.toJSONString(bodyMap);
             System.out.println(body);
@@ -77,7 +76,7 @@ public class TestDFQueryServlet extends HttpServlet {
             if (("0000").equals(resHead.getString("respCode"))) {
 
                 //AES解密body
-                String aesKeyResp = RSAUtils.decrypt(resJson.getString("encryptKey"), PRIVATE_KEY);
+                String aesKeyResp = RSAUtils.decrypt(resJson.getString("encryptKey"), mchtPrivateKey);
                 String bodyResp = AESUtil.Decrypt(JSON.toJSONString(resJson.getString("body")), aesKeyResp);
                 System.out.println(bodyResp);
 

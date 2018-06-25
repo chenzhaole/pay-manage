@@ -8,7 +8,7 @@
     <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
     <script type="text/javascript">
         $(function () {
-            $('input[name=orderId]').val("TEST-" + new Date().getTime());
+            $('input[name=orderId]').val("DEMO-" + new Date().getTime());
             $('.hideClass').hide();
 
             $('input[name=time_start]').val(getCurrentDate());
@@ -92,14 +92,14 @@
                 <dt>商户编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="mchtId" value="18d3a7e9" maxlength="32" size="16" placeholder="长度32"/>
+                    <input name="mchtId" value="" maxlength="64" size="40" placeholder="长度32"/>
                     <span class="null-star">(mchtId)*</span>
                     <span></span>
                 </dd>
                 <dt>版本号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="version" value="21" maxlength="32" size="2" placeholder="长度32"/>
+                    <input name="version" value="20" maxlength="32" size="2" placeholder="长度32"/>
                     <span class="null-star">(version)*</span>
                     <span></span>
                 </dd>
@@ -130,10 +130,10 @@
                     <span></span>
                 </dd>
 
-                <dt>商户秘钥：</dt>
+                <dt>商户KEY：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="key" value="4da5ebede6574a699cf307dd7c746ada" maxlength="32" size="40" placeholder=""/>
+                    <input name="key" value="" maxlength="32" size="40" placeholder=""/>
                     <span class="null-star">(key)*</span>
                     <span></span>
                 </dd>
@@ -145,16 +145,6 @@
                            value=""
                            size="40" placeholder=""/>
                     <span class="null-star">(mchtPrivateKey)*</span>
-                    <span></span>
-                </dd>
-
-                <dt>平台公钥：</dt>
-                <dd>
-                    <span class="null-star"></span>
-                    <input name="publicKey"
-                           value="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCm++Z9qgw6HxIOKWbAx1hbVU7PokmBBFlomwFhBdU2LInAQWfHEJTGM+2EX9D559J3XXxcPSVanVdM4LcTiJyVJoFSulIg01wR26yk7pzGqy+QJRv1uffL1+otRbgmDLhjeV16148CmwGG3j7xkVOqrv/fsiOViYd1EZdsit+vlQIDAQAB"
-                           maxlength="32" size="40" placeholder=""/>
-                    <span class="null-star">(publicKey)*</span>
                     <span></span>
                 </dd>
 

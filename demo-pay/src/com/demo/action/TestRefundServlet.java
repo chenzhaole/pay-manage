@@ -26,11 +26,11 @@ public class TestRefundServlet extends HttpServlet {
 //
 //        SortedMap<String,String> map = XmlUtils.getParameterMap(req);
 //        System.out.println(XmlUtils.toXml(map));
-//        String key = DemoPayConfig.key;
+//        String key = ConfigUtil.key;
 //        String res = null;
-//        String reqUrl = DemoPayConfig.req_url+"/refundInterface_gate.action";
-//        map.put("mch_id", DemoPayConfig.mch_id);
-//        map.put("op_user_id", DemoPayConfig.mch_id);
+//        String reqUrl = ConfigUtil.req_url+"/refundInterface_gate.action";
+//        map.put("mch_id", ConfigUtil.mch_id);
+//        map.put("op_user_id", ConfigUtil.mch_id);
 //        map.put("nonce_str", String.valueOf(new Date().getTime()));
 //
 //        Map<String,String> params = SignUtils.paraFilter(map);

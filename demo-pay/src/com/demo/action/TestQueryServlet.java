@@ -25,10 +25,10 @@ public class TestQueryServlet extends HttpServlet {
 //        resp.setCharacterEncoding("utf-8");
 //        SortedMap<String,String> map = XmlUtils.getParameterMap(req);
 //        System.out.println(XmlUtils.toXml(map));
-//        map.put("mch_id", DemoPayConfig.mch_id);
-//        String key = DemoPayConfig.key;
+//        map.put("mch_id", ConfigUtil.mch_id);
+//        String key = ConfigUtil.key;
 //        String res = null;
-//        String reqUrl = DemoPayConfig.req_url+"/queryInterface_gate.action";
+//        String reqUrl = ConfigUtil.req_url+"/queryInterface_gate.action";
 //        map.put("nonce_str", String.valueOf(new Date().getTime()));
 //        Map<String,String> params = SignUtils.paraFilter(map);
 //        StringBuilder buf = new StringBuilder((params.size() +1) * 10);

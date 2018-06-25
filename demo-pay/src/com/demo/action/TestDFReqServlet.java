@@ -3,6 +3,7 @@ package com.demo.action;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
+import com.demo.config.ConfigUtil;
 import com.demo.util.AESUtil;
 import com.demo.util.PostUtil;
 import com.demo.util.RSAUtils;
@@ -48,7 +49,7 @@ public class TestDFReqServlet extends HttpServlet {
 			Map<String, String> bodyMap = getBodyMap(request);
 
 			//加密body中的detail
-			String publicKey = request.getParameter("publicKey");
+			String publicKey = ConfigUtil.publicKey;
 			String aesKey = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 16);
 			String body = JSON.toJSONString(bodyMap);
 			System.out.println(body);
