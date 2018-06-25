@@ -1,27 +1,15 @@
 package com.demo.action;
 
 import java.io.IOException;
-import java.util.Date;
-import java.util.Map;
-import java.util.SortedMap;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.StringEntity;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
-
-import com.alibaba.fastjson.JSONObject;
-import com.demo.config.SwiftpassConfig;
 //import com.demo.util.MD5;
 //import com.demo.util.SignUtils;
-import com.demo.util.XmlUtils;
+
 
 public class TestQueryServlet extends HttpServlet {
     private static final long serialVersionUID = 1L;
@@ -37,10 +25,10 @@ public class TestQueryServlet extends HttpServlet {
 //        resp.setCharacterEncoding("utf-8");
 //        SortedMap<String,String> map = XmlUtils.getParameterMap(req);
 //        System.out.println(XmlUtils.toXml(map));
-//        map.put("mch_id", SwiftpassConfig.mch_id);
-//        String key = SwiftpassConfig.key;
+//        map.put("mch_id", ConfigUtil.mch_id);
+//        String key = ConfigUtil.key;
 //        String res = null;
-//        String reqUrl = SwiftpassConfig.req_url+"/queryInterface_gate.action";
+//        String reqUrl = ConfigUtil.req_url+"/queryInterface_gate.action";
 //        map.put("nonce_str", String.valueOf(new Date().getTime()));
 //        Map<String,String> params = SignUtils.paraFilter(map);
 //        StringBuilder buf = new StringBuilder((params.size() +1) * 10);

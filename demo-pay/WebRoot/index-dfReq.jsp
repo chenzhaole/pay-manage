@@ -8,7 +8,7 @@
     <script type="text/javascript" src="js/jquery-1.4.2.min.js"></script>
     <script type="text/javascript">
         $(function () {
-            $('input[name=orderId]').val("TEST-" + new Date().getTime());
+            $('input[name=orderId]').val("DEMO-" + new Date().getTime());
             $('.hideClass').hide();
 
             $('input[name=time_start]').val(getCurrentDate());
@@ -98,15 +98,14 @@
                 <dt>商户编号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <%--<input name="mchtId" value="2000530000764453" maxlength="32" size="16" placeholder="长度32"/>--%>
-                    <input name="mchtId" value="18d22c3e" maxlength="32" size="16" placeholder="长度32"/>
+                    <input name="mchtId" value="" maxlength="32" size="16" placeholder="长度32"/>
                     <span class="null-star">(mchtId)*</span>
                     <span></span>
                 </dd>
                 <dt>版本号：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="version" value="21" maxlength="32" size="2" placeholder="长度32"/>
+                    <input name="version" value="20" maxlength="32" size="2" placeholder="长度32"/>
                     <span class="null-star">(version)*</span>
                     <span></span>
                 </dd>
@@ -150,7 +149,7 @@
                 <dt>异步通知地址：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="notifyUrl" value="127.0.0.1:12080/testNotify/4da5ebede6574a699cf307dd7c746ada"
+                    <input name="notifyUrl" value=""
                            maxlength="128" size="30" placeholder="长度128"/>
                     <span class="null-star">(notifyUrl)</span>
                     <span></span>
@@ -165,51 +164,18 @@
                     <span></span>
                 </dd>
 
-                <%-- <dt>订单时间：</dt>
-                 <dd>
-                     <span class="null-star"></span>
-                     <input name="orderTime" value="20171209230101" maxlength="128" size="30"  placeholder="长度128"/>
-                     <span class="null-star">(orderTime)*</span>
-                     <span></span>
-                 </dd>
-
-                 <dt>操作员编号：</dt>
-                 <dd>
-                     <span class="null-star"></span>
-                     <input name="operator" value="" maxlength="128" size="30"  placeholder="可空"/>
-                     <span>(operator)</span>
-                     <span></span>
-                 </dd>
- --%>
-                <%--<dt>终端IP：</dt>
-                <dd>
-                    <span class="null-star"></span>
-                    <input name="ip" value="127.0.0.1" maxlength="16"  placeholder="可空"/>
-                    <span>(ip)</span>
-                    <span></span>
-                </dd>--%>
                 <dt>商户KEY：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="key" value="af3c4b3c51d548b6bdac90d563bc7b46" maxlength="32" size="40" placeholder=""/>
+                    <input name="key" value="" maxlength="32" size="40" placeholder=""/>
                     <span class="null-star">(key)*</span>
                     <span></span>
                 </dd>
                 <dt>商户私钥：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="privateKey" value="MIICeQIBADANBgkqhkiG9w0BAQEFAASCAmMwggJfAgEAAoGBALlYHkGA9h9/npZ2mhZEJOflEmMMKN9X5o6cdzti4UhNOZfzNS4fETTDExrd0nrJxzWOwL2PoH807N6uXprgAxLIDA9yuU6FBuq3H81d/4oS9IQzVSZsw0ZtCy1jrDnfIz3h7PXVTPkS1kQi1NZVYRRR17hebsIt+kXVdMd0tIdxAgMBAAECgYEAgigufyOYM8CEVveM98v8+th0FBhq74UkBMw+Mvcaa5LHujxyASSSCbJgTUKvV8kxWxwXoEcnl41MNojPKQXdQXVg9zpvxp82RJ77LWjmdGt0g8ueP8zDZKGYWEOqfvkhUblGpG4rCUhtj7FhUN/0X8voKOhRhaGEhgwtvqER0C0CQQDrN9niuBwz4Yfs9U/m8X8Q/oj6hwOElIDbuylcapbsjzNJcaiNAAA1MT9Xql9Vr8TrfzE9yLX7N0A+tEhj4XirAkEAybg4ouUKBz/rbfg/fOsdW8+uvNcsSQBbSUYJmhKaQWyX6VztU22y8YJJRHz1vMZunsQOa4WuHAWOef1fap84UwJBAIPlPJNqI75fz8VqxVQ9xL+1yv+YZ7uXPi54Y7gDuP+LSPn89sOh5XvuUpOI4I5+0lAvcWAwxQLKN4cxtonza6MCQQCv47N2zlHtOl4V2KW7TeOen7vUq6bQzL/MZ4aN0vSwYXkgocfKvFeQ4LL0RiWcAkaIp5mPRdQoWOwAEN93P/hDAkEA2Qz9acucSAW58JnoOnBHYnO5lTUIH2/+924PHuyt9wK8X7TpoRghH+BbavxtKKC+pDRYBFITsXy9f55qnZSUZw==" size="40" placeholder=""/>
+                    <input name="privateKey" value="" size="40" placeholder=""/>
                     <span class="null-star">(key)*</span>
-                    <span></span>
-                </dd>
-
-                <dt>平台公钥：</dt>
-                <dd>
-                    <span class="null-star"></span>
-                    <input name="publicKey"
-                           value="MIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQCm++Z9qgw6HxIOKWbAx1hbVU7PokmBBFlomwFhBdU2LInAQWfHEJTGM+2EX9D559J3XXxcPSVanVdM4LcTiJyVJoFSulIg01wR26yk7pzGqy+QJRv1uffL1+otRbgmDLhjeV16148CmwGG3j7xkVOqrv/fsiOViYd1EZdsit+vlQIDAQAB"
-                           maxlength="32" size="40" placeholder=""/>
-                    <span class="null-star">(publicKey)*</span>
                     <span></span>
                 </dd>
                 <dd>
