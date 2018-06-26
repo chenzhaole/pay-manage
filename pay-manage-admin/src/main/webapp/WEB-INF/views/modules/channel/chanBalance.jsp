@@ -33,7 +33,7 @@
 
     <!-- ********************************************************************** -->
     <div class="breadcrumb">
-        <label>上游通道余额为：${balance} 分</label>
+        <label>上游通道余额为：${balance} 元</label>
     </div>
     <div class="breadcrumb">
         <input id="btnCancel" class="btn center-block" type="button" value="返 回" onclick="window.history.go(-1);"
