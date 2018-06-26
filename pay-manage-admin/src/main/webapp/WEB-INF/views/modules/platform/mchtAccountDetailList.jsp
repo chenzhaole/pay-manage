@@ -27,10 +27,10 @@
 <body>
 
 
-
 <tags:message content="${message}" type="${messageType}"/>
 
-<form:form id="searchForm" modelAttribute="mchtAccountDetail" action="${ctx}/platform/accountDetail" method="post" class="breadcrumb form-search">
+<form:form id="searchForm" modelAttribute="mchtAccountDetail" action="${ctx}/platform/accountDetail" method="post"
+           class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${pageInfo.pageNo}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
     <table>
@@ -38,17 +38,27 @@
             <td>
                 <label>入账日期：</label>
                 <%
-                   request.setAttribute("createTimeMax", new Date());
+                    request.setAttribute("createTimeMax", new Date());
                 %>
 
-                <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${createTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,maxDate:$dp.$('createTimeMax').value,isShowOK:false,isShowToday:false});"/>
+                <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20"
+                       class="input-medium Wdate"
+                       value="${createTime}"
+                       onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,maxDate:$dp.$('createTimeMax').value,isShowOK:false,isShowToday:false});"/>
 
-                <input style="display: none" id="createTimeMax" name="createTimeMax" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${createTimeMax}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,minDate:$dp.$('createTime').value,isShowOK:false,isShowToday:false});"/>
+                <input style="display: none" id="createTimeMax" name="createTimeMax" type="text" readonly="readonly"
+                       maxlength="20" class="input-medium Wdate"
+                       value="${createTimeMax}"
+                       onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,minDate:$dp.$('createTime').value,isShowOK:false,isShowToday:false});"/>
 
 
-
+            </td>
+            <td>
+                <label>商户名称：</label>
+                <form:select path="mchtId">
+                    <form:option value="">--全部--</form:option>
+                    <form:options items="${mchtInfos}" itemLabel="name" itemValue="id"/>
+                </form:select>
             </td>
             <td>
                 <label>商户订单号：</label>
@@ -64,19 +74,20 @@
 
             <td>
                 <label>账户类型：</label>
-                <form:select path="accountType" >
+                <form:select path="accountType">
                     <form:option value="">--全部--</form:option>
                     <form:options items="${fns:getDictList('account_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
             <td>
                 <label>记账类型：</label>
-                <form:select path="opType" >
+                <form:select path="opType">
                     <form:option value="">--全部--</form:option>
                     <form:options items="${fns:getDictList('record_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
-            <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;"></td>
+            <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();"
+                       style="margin-left: 5px;"></td>
         </tr>
 
     </table>
@@ -98,7 +109,7 @@
         <th>增加（元）</th>
         <th>减少（元）</th>
         <th>冻结金额（元）</th>
-        <th>现金余额（元）</th>
+        <%--<th>现金余额（元）</th>--%>
         <th>可提现金额（元）</th>
         <th>记账时间</th>
     </tr>
@@ -115,12 +126,19 @@
             <td>${fns:getDictLabel(accountDetail.accountType,'account_type' ,'' )}</td>
             <td>${accountDetail.opType}</td>
             <td>${accountDetail.tradeType}</td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.tradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.addAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.reduceAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.freezeTotalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.cashTotalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${accountDetail.cashTotalAmount*0.01 - accountDetail.freezeTotalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${accountDetail.tradeAmount*0.01}" pattern="0.00"
+                                  maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${accountDetail.addAmount*0.01}" pattern="0.00"
+                                  maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${accountDetail.reduceAmount*0.01}" pattern="0.00"
+                                  maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${accountDetail.freezeTotalAmount*0.01}" pattern="0.00"
+                                  maxFractionDigits="2"/></td>
+            <%--<td><fmt:formatNumber type="number" value="${accountDetail.cashTotalAmount*0.01}" pattern="0.00"
+                                  maxFractionDigits="2"/></td>--%>
+            <td><fmt:formatNumber type="number"
+                                  value="${accountDetail.cashTotalAmount*0.01 - accountDetail.freezeTotalAmount*0.01}"
+                                  pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatDate value="${accountDetail.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
         </tr>
     </c:forEach>

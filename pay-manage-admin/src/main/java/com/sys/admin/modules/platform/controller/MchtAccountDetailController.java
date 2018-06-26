@@ -1,7 +1,6 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.sys.admin.common.persistence.Page;
-import com.sys.admin.common.utils.Collections3;
 import com.sys.admin.common.web.BaseController;
 import com.sys.common.enums.AccOpTypeEnum;
 import com.sys.common.enums.AccTradeTypeEnum;
@@ -9,7 +8,6 @@ import com.sys.common.util.DateUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.PlatAccountAdjust;
 import com.sys.core.service.MchtAccountDetailService;
 import com.sys.core.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
@@ -17,9 +15,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 
 import javax.servlet.http.HttpServletRequest;
 import java.text.SimpleDateFormat;
@@ -59,6 +55,8 @@ public class MchtAccountDetailController extends BaseController{
         }else{
             mchtAccountDetail.setSuffix(DateUtils.formatDate(new Date(),"yyyyMM"));
         }
+        //获取商户列表
+        List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
 
         List<MchtAccountDetail> list = null;
         int count = 0;
@@ -71,9 +69,10 @@ public class MchtAccountDetailController extends BaseController{
 
             list = mchtAccountDetailService.list(mchtAccountDetail);
             count = mchtAccountDetailService.count(mchtAccountDetail);
+
             //初始化商户名称
             Map<String, String> mchtMap = com.sys.common.util.Collections3.extractToMap(
-                    merchantService.list(new MchtInfo()), "id", "name");
+                    mchtInfos, "id", "name");
             for (MchtAccountDetail detail : list) {
                 detail.setMchtName(mchtMap.get(detail.getMchtId()));
                 detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
@@ -83,6 +82,7 @@ public class MchtAccountDetailController extends BaseController{
         Page page = new Page(pageInfo.getPageNo(),pageInfo.getPageSize(),count,true);
 
 
+        model.addAttribute("mchtInfos",mchtInfos);
         model.addAttribute("list",list);
         model.addAttribute("page",page);
         model.addAttribute("createTime",request.getParameter("createTime"));

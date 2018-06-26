@@ -5,7 +5,7 @@
 	<title>交易订单列表</title>
 	<meta name="decorator" content="default"/>
 	<style type="text/css">
-		
+
 	</style>
 	<script type="text/javascript">
 	    $(document).ready(function() {
@@ -65,7 +65,10 @@
 		   $(content).parent().next().next().next().html("<a href='${ctx}/process/question/form?orderId="+orderId+"'>核实</a>");
 		   $(content).remove();
         }
-
+		//下拉搜索框初始化
+		$(window).on('load', function () {
+			$('.selectpicker').selectpicker({});
+		});
         <%--function supplyNotify(orderId,suffix){--%>
             <%--if(confirm("确认补发通知吗？")){--%>
                 <%--$.ajax({--%>
@@ -102,7 +105,7 @@
 	                <div class="control-group">
 	                    <label class="control-label">商户名称：</label>
 	                    <div class="controls">
-	                        <select name="mchtId" id="mchtId">
+	                        <select name="mchtId" id="mchtId"  class="selectpicker bla bla bli" data-live-search="true">
 								<option value="">---请选择---</option>
 								<c:forEach var="mcht" items="${mchtList}">
 									<option value="${mcht.mchtCode}" <c:if test="${paramMap.mchtId eq mcht.id}">selected</c:if> >${mcht.name}</option>
@@ -115,7 +118,7 @@
 	                <div class="control-group">
 	                    <label class="control-label">上游通道：</label>
 	                    <div class="controls">
-	                        <select name="chanId" id="chanId">
+	                        <select name="chanId" id="chanId"  class="selectpicker bla bla bli" data-live-search="true">
 								<option value="">---请选择---</option>
 								<c:forEach var="chanInfo" items="${chanInfoList}">
 									<option value="${chanInfo.chanCode}" <c:if test="${paramMap.chanId eq chanInfo.id}">selected</c:if> >${chanInfo.name}</option>
@@ -128,7 +131,7 @@
 	                <div class="control-group">
 	                    <label class="control-label">支付产品：</label>
 	                    <div class="controls">
-	                       <select name="platProductId" id="platProductId">
+	                       <select name="platProductId" id="platProductId"  class="selectpicker bla bla bli" data-live-search="true">
 								<option value="">---请选择---</option>
 								<c:forEach var="product" items="${productList}">
 									<option value="${product.id}" <c:if test="${paramMap.platProductId eq product.id}">selected</c:if> >${product.name}</option>
@@ -142,7 +145,7 @@
 	                <div class="control-group">
 	                    <label class="control-label">支付方式：</label>
 	                    <div class="controls">
-	                        <select name="payType" id="payType">
+	                        <select name="payType" id="payType"  class="selectpicker bla bla bli" data-live-search="true">
 								<option value="">---请选择---</option>
 								<c:forEach var="paymentTypeInfo" items="${paymentTypeInfos}">
 									<option value="${paymentTypeInfo.code}" <c:if test="${paramMap.payType eq paymentTypeInfo.code}">selected</c:if>>${paymentTypeInfo.desc}</option>
@@ -189,12 +192,12 @@
 	        </tr>
 	        
 	        <tr>
-	            
+
 	             <td>
 	                <div class="control-group">
 	                    <label class="control-label">通道商户支付方式：</label>
 	                    <div class="controls">
-	                        <select name="chanMchtPaytypeId" id="chanMchtPaytypeId">
+	                        <select name="chanMchtPaytypeId" id="chanMchtPaytypeId" class="selectpicker bla bla bli" data-live-search="true">
 								<option value="">---请选择---</option>
 								<c:forEach var="chanMchtPayType" items="${chanMchtPaytypeList}">
 									<option value="${chanMchtPayType.id}" <c:if test="${paramMap.chanMchtPaytypeId eq chanMchtPayType.id}">selected</c:if> >${chanMchtPayType.name}</option>
