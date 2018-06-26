@@ -20,6 +20,8 @@ import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.HttpUtil;
+import com.sys.common.util.IdUtil;
+import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -443,26 +445,25 @@ public class ChannelController extends BaseController {
 	public String queryBalance(HttpServletRequest request, HttpServletResponse response, Model model,
 							   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
 
-		ChanMchtFormInfo chanMchtFormInfo = chanMchtAdminService.getChanMchtPaytypeById(paramMap.get("chanId"));
+		ChanMchtFormInfo chanMchtPaytype = chanMchtAdminService.getChanMchtPaytypeById(paramMap.get("chanId"));
 
 		Config config = new Config();
-		config.setChannelCode(chanMchtFormInfo.getChanCode());
-		config.setMchtId(chanMchtFormInfo.getChanMchtNo());//平台商户ID
-		config.setMchtKey(chanMchtFormInfo.getChanMchtPassword());//平台商户密码
-		config.setQueryUrl(chanMchtFormInfo.getQueryBalanceUrl());//代付余额url
-		config.setChannelCode(chanMchtFormInfo.getChanCode());
-		config.setPayType(chanMchtFormInfo.getPayType());
-		config.setCertPath1(chanMchtFormInfo.getCertPath1());
-		config.setCertPath2(chanMchtFormInfo.getCertPath2());
-		config.setPlatId(chanMchtFormInfo.getTerminalNo());
-		config.setPubKey(chanMchtFormInfo.getCertContent1());
-		config.setTranUrl(chanMchtFormInfo.getTranUrl());
-
-		//特殊字段
-		config.setMerchantName(chanMchtFormInfo.getTerminalNo());
+		config.setPayUrl(chanMchtPaytype.getPayUrl());
+		config.setQueryUrl(chanMchtPaytype.getQueryBalanceUrl());
+		config.setTranUrl(chanMchtPaytype.getTranUrl());
+		config.setChannelCode(chanMchtPaytype.getChanCode());
+		config.setCancelUrl(chanMchtPaytype.getCancelUrl());
+		config.setNotifyUrl(chanMchtPaytype.getAsynNotifyUrl());
+		config.setPayType(chanMchtPaytype.getPayType());
+		config.setMchtId(chanMchtPaytype.getChanMchtNo());
+		config.setMchtKey(chanMchtPaytype.getChanMchtPassword());
+		config.setCertPath1(chanMchtPaytype.getCertPath1());
+		config.setCertPath2(chanMchtPaytype.getCertPath2());
+		config.setPlatId(chanMchtPaytype.getTerminalNo());
+		config.setPubKey(chanMchtPaytype.getCertContent1());
 
 		SingleDF df = new SingleDF();
-		df.setOrderNo("ADMIN000");
+		df.setOrderNo("ADMIN0" + IdUtil.createCode());
 
 		Trade trade = new Trade();
 		trade.setConfig(config);
@@ -482,7 +483,11 @@ public class ChannelController extends BaseController {
 			logger.info(balanceString);
 			CommonResult processResult = JSON.parseObject(balanceString, CommonResult.class);
 			if (processResult != null) {
-				model.addAttribute("balance", processResult.getData());
+				String balance = (String) processResult.getData();
+				if (StringUtils.isNotBlank(balance)){
+					balance = NumberUtils.changeF2Y(balance);
+				}
+				model.addAttribute("balance", balance);
 			}
 		} catch (Exception e) {
  			logger.error("查询余额失败", e);

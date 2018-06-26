@@ -195,9 +195,9 @@ public class GwDFController {
     /**
      * 代付订单,平台查询接口
      */
-    @RequestMapping(value="queryPlat",produces = "application/json;charset=utf-8")
+    @RequestMapping(value="query",produces = "application/json;charset=utf-8")
     @ResponseBody
-    public String queryPlat(@RequestBody String data,HttpServletRequest request){
+    public String query(@RequestBody String data,HttpServletRequest request){
         logger.info("代付API，【代付查单接口】收到客户端请求参数：data="+data);
         DFQueryOrderResponse resp = new DFQueryOrderResponse();
         DFQueryOrderResponse.DFQueryOrderResponseHead head = new DFQueryOrderResponse.DFQueryOrderResponseHead();

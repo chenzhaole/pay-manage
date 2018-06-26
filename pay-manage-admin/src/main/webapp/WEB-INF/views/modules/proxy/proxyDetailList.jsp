@@ -120,13 +120,13 @@
 
         <td>
             <label>平台批次：</label>
-            <textarea readonly class="input-small" >${proxyBatch.mchtOrderId}</textarea>
+            <textarea readonly class="input-small" >${proxyBatch.platOrderId}</textarea>
         </td>
 
 
         <td>
             <label>商户批次：</label>
-            <textarea readonly class="input-small" >${proxyBatch.platOrderId}</textarea>
+            <textarea readonly class="input-small" >${proxyBatch.mchtOrderId}</textarea>
             <%--<input value="${proxyBatch.platOrderId}" type="text" class="input-small" readonly />--%>
         </td>
         <td>
