@@ -33,7 +33,7 @@
 <tags:message content="${message}" type="${messageType}"/>
 
 <form:form id="searchForm" modelAttribute="platAccountAdjust" action="${ctx}/platform/adjust" method="post" class="breadcrumb form-search">
-    <input id="pageNo" name="pageNo" type="hidden" value="${pageInfo.pageNo}"/>
+    <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
     <table>
         <tr>

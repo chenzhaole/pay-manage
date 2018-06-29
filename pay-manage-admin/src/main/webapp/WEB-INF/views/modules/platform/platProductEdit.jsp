@@ -234,7 +234,7 @@
                         <select name="status" class="input-medium" id="status">
                             <option <c:if test="${productInfo.status == '1' }"> selected</c:if> value="1">启用</option>
                             <option <c:if test="${productInfo.status == '2' }"> selected</c:if> value="2">停用</option>
-                            <option <c:if test="${productInfo.status == '3' }"> selected</c:if> value="3">待审核</option>
+                            <%--<option <c:if test="${productInfo.status == '3' }"> selected</c:if> value="3">待审核</option>--%>
                         </select>
                     </div>
                 </div>

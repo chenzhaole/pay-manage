@@ -44,7 +44,7 @@
 
 
 <form id="searchForm" action="${ctx}/mchtProxy/proxyDetailList" method="post" class="breadcrumb form-search">
-    <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+    <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
     <input id="batchId" name="batchId" type="hidden" value="${proxyBatch.id}"/>
     <table>

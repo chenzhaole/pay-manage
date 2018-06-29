@@ -60,7 +60,7 @@
 				</select>
 			</td>
 	 		<td>
-				<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+				<input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
 				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
 			<input id="clearButton" class="btn btn-primary" type="button" value="新增商户产品" onclick="add()" style="margin-left: 5px;"/>

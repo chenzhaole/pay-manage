@@ -38,7 +38,7 @@
 		<label>商户名称：</label><input value="${paramMap.mchtName}" name="mchtName" type="text" maxlength="64" class="input-medium"/>
 		<label>商户编码：</label><input value="${paramMap.mchtCode}" name="mchtCode" type="text" maxlength="64" class="input-medium"/>
 		&nbsp;&nbsp;&nbsp;
-		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
 <!-- 		<input id="clearButton" class="btn btn-primary" type="button" value="新增商户通道" onclick="add()" style="margin-left: 5px;"/> -->

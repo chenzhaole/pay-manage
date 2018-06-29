@@ -38,7 +38,7 @@
 <tags:message content="${message}" type="${messageType}"/>
 
 <form id="searchForm" action="${ctx}/proxy/proxyBatchList" method="post" class="breadcrumb form-search">
-    <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+    <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
     <table>
         <tr>

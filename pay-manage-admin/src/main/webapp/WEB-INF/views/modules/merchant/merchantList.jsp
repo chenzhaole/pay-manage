@@ -37,7 +37,7 @@
 <tags:message content="${message}" type="${messageType}"/>
 
 <form id="searchForm" action="${ctx}/merchant/list" method="post" class="breadcrumb form-search">
-    <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+    <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
     <label>商户编号：</label><input value="${paramMap.mchtCode}" id="mchtCode" name="mchtCode" type="text" maxlength="64"
                                class="input-medium"/>

@@ -96,7 +96,7 @@
 	</label>
 </div>
 	<form id="searchForm" action="${ctx}/order/list" method="post" class="breadcrumb form-search">
-		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
 		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 		<input id="paging" name="paging" type="hidden" value="0"/>
 		<table>
