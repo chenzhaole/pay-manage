@@ -42,6 +42,5 @@
 	<dubbo:reference id="mchtAccountInfoService" interface="com.sys.core.service.MchtAccountInfoService" />
 	<dubbo:reference id="platAccountAdjustService" interface="com.sys.core.service.PlatAccountAdjustService" />
 	<dubbo:reference id="mchtAccountDetailService" interface="com.sys.core.service.MchtAccountDetailService" />
-	<dubbo:reference id="transDFBalanceHandler" interface="com.sys.trans.api.handler.TransDFBalanceHandler" timeout="30000"/>
 	<dubbo:reference id="proxyDetailAuditService" interface="com.sys.core.service.ProxyDetailAuditService" timeout="30000"/>
 </beans>

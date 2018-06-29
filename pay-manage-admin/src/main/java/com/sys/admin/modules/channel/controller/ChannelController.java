@@ -29,7 +29,6 @@ import com.sys.core.service.PlatFeerateService;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.SingleDF;
 import com.sys.trans.api.entry.Trade;
-import com.sys.trans.api.handler.TransDFBalanceHandler;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -70,9 +69,6 @@ public class ChannelController extends BaseController {
 
 	@Autowired
 	ProductAdminService productAdminService;
-
-	@Autowired
-	TransDFBalanceHandler transDFBalanceHandler;
 
 	/**
 	 * 通道列表
@@ -461,9 +457,11 @@ public class ChannelController extends BaseController {
 		config.setCertPath2(chanMchtPaytype.getCertPath2());
 		config.setPlatId(chanMchtPaytype.getTerminalNo());
 		config.setPubKey(chanMchtPaytype.getCertContent1());
+		config.setPriKey(chanMchtPaytype.getCertContent2());
 
 		SingleDF df = new SingleDF();
 		df.setOrderNo("ADMIN0" + IdUtil.createCode());
+		df.setAmount("1");
 
 		Trade trade = new Trade();
 		trade.setConfig(config);
