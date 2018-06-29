@@ -510,7 +510,11 @@ public class OrderController extends BaseController {
 
 		for (MchtGatewayOrder gwOrder : deitelVOList) {
 			if (PayStatusEnum.toEnum(gwOrder.getStatus()) != null) {
-				gwOrder.setStatus(PayStatusEnum.toEnum(gwOrder.getStatus()).getDesc());
+				if(PayStatusEnum.SUBMIT_SUCCESS.getCode().equals(gwOrder.getStatus())){
+					gwOrder.setStatus("提交支付");
+				}else{
+					gwOrder.setStatus(PayStatusEnum.toEnum(gwOrder.getStatus()).getDesc());
+				}
 			}
 			if (PayTypeEnum.toEnum(gwOrder.getPayType()) != null) {
 				gwOrder.setPayType(PayTypeEnum.toEnum(gwOrder.getPayType()).getDesc());
