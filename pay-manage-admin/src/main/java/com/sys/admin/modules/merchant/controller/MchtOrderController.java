@@ -19,16 +19,15 @@ import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.OrderAdminService;
-//import com.sys.boss.api.service.order.OrderProxypay4ManageService;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.util.Collections3;
-import com.sys.common.util.DateUtils;
-import com.sys.common.util.HttpUtil;
-import com.sys.common.util.SignUtil;
+import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.MchtGatewayOrder;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.core.service.*;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -40,7 +39,6 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -57,6 +55,8 @@ import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
+
+//import com.sys.boss.api.service.order.OrderProxypay4ManageService;
 
 /**
  * 处理商户流水的Controller
@@ -542,7 +542,11 @@ public class MchtOrderController extends BaseController {
 
 		for (MchtGatewayOrder gwOrder : deitelVOList) {
 			if (PayStatusEnum.toEnum(gwOrder.getStatus()) != null) {
-				gwOrder.setStatus(PayStatusEnum.toEnum(gwOrder.getStatus()).getDesc());
+				if(PayStatusEnum.SUBMIT_SUCCESS.getCode().equals(gwOrder.getStatus())){
+					gwOrder.setStatus("提交支付");
+				}else{
+					gwOrder.setStatus(PayStatusEnum.toEnum(gwOrder.getStatus()).getDesc());
+				}
 			}
 			if (PayTypeEnum.toEnum(gwOrder.getPayType()) != null) {
 				gwOrder.setPayType(PayTypeEnum.toEnum(gwOrder.getPayType()).getDesc());
@@ -553,7 +557,7 @@ public class MchtOrderController extends BaseController {
 		}
 
 		String[] headers = {"商户名称", "产品名称", "支付类型", "商户订单号",
-				"平台订单号", "交易金额(分)", "订单状态", "创建时间", "支付时间"};
+				"平台订单号", "交易金额(元)", "订单状态", "创建时间", "支付时间"};
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
@@ -610,7 +614,8 @@ public class MchtOrderController extends BaseController {
 
 				cell = row.createCell(cellIndex);
 				if (orderTemp.getAmount() != null) {
-					cell.setCellValue(orderTemp.getAmount());
+					BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(orderTemp.getAmount()));
+					cell.setCellValue(bigDecimal.doubleValue()+"(元)");
 				}
 				cellIndex++;
 
