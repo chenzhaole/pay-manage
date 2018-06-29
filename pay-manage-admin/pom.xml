@@ -497,7 +497,13 @@
             <artifactId>pay-trans-api</artifactId>
             <version>0.0.1-SNAPSHOT</version>
         </dependency>
-        <!-- TEST end -->
+		<dependency>
+			<groupId>com.sys.boss</groupId>
+			<artifactId>pay-boss-api</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+			<scope>compile</scope>
+		</dependency>
+		<!-- TEST end -->
 
 
 	</dependencies>
