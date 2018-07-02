@@ -62,18 +62,17 @@ public class GwCashierBaseController {
         //默认不使用
         String iframe = "1";
         if(PayTypeEnum.QQ_SCAN2WAP.getCode().equals(payType)){
-            //qq扫码转h5不支持：苹果自带浏览器、uc浏览器、百度浏览器
-            //过滤掉qq扫码转h5不支持的浏览器，
+            //不支持qq扫码转h5的浏览器（即在这些浏览器掉不起支付）：苹果自带浏览器、uc浏览器、百度浏览器
+            //过滤掉qq扫码转h5不支持的浏览器，不使用iframe标签
             if(browserbSupportQQScan2H5(userAgent, midoid)){
                iframe = "0";
             }
         }else if(PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) ){
+            //不支持支付宝扫码转h5的浏览器（即在这些浏览器掉不起支付）：苹果自带浏览器、qq浏览器、百度浏览器
+            //过滤掉支付宝扫码转h5不支持的浏览器，不使用iframe标签
             if(browserbSupportAliScan2H5(userAgent, midoid)){
                 iframe = "0";
             }
-        }else{
-            //其它支付方式不使用iframe标签
-            iframe = "1";
         }
         logger.info(midoid+"，是否通过iframe标签掉起支付，iframe："+iframe+"，【0：使用， 1：不使用】");
         return iframe;
@@ -85,18 +84,23 @@ public class GwCashierBaseController {
      * @return
      */
     protected boolean browserbSupportQQScan2H5(String userAgent, String midoid) {
-        if (userAgent.contains("iPhone")){
+        if(StringUtils.isNotBlank(userAgent)){
+            userAgent = userAgent.toLowerCase();
+        }else{
+            return false;
+        }
+        if (userAgent.contains("iphone")){
             //ios手机自带浏览器
             //仅仅是苹果浏览器内核，即苹果自带浏览器
-            if(userAgent.contains("Safari")
-                    && !userAgent.contains("Chrome")
-                    && !userAgent.contains("Firefox")
-                    && !userAgent.contains("Opera")){
+            if((userAgent.contains("safari"))
+                    && !userAgent.contains("chrome")
+                    && !userAgent.contains("firefox")
+                    && !userAgent.contains("opera")){
                 //不支持
                 logger.info(midoid+"，qq扫码转h5支付，不支持iPhone手机的自带浏览器");
                 return false;
             }
-        }else if(userAgent.contains("Android")) {
+        }else if(userAgent.contains("android")) {
             //目前测试人员测出：手机百度浏览器、手机谷歌浏览器
             // Android手机
 
@@ -112,7 +116,7 @@ public class GwCashierBaseController {
                 logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的百度【baidu】浏览器");
                 return false;
             }
-            if(userAgent.contains("UCBrowser")){
+            if(userAgent.contains("ucbrowser")){
                 logger.info(midoid+"，qq扫码转h5支付，不支持Android手机的UC【UCBrowser】浏览器");
                 return false;
             }
@@ -121,16 +125,45 @@ public class GwCashierBaseController {
         return true;
     }
 
-    /**
-     * 支付宝扫码转h5不支持：
-     * @param userAgent
-     * @return
-     */
+
+        /**
+         * 支付宝扫码转h5不支持：
+         * @param userAgent
+         * @return
+         */
     protected boolean browserbSupportAliScan2H5(String userAgent, String midoid) {
-        //TODO
+        if(StringUtils.isNotBlank(userAgent)){
+            userAgent = userAgent.toLowerCase();
+        }else{
+            return false;
+        }
+        if (userAgent.contains("iphone")){
+            //ios手机自带浏览器
+            //仅仅是苹果浏览器内核，即苹果自带浏览器
+            if((userAgent.contains("safari"))
+                    && !userAgent.contains("chrome")
+                    && !userAgent.contains("firefox")
+                    && !userAgent.contains("opera")){
+                //不支持
+                logger.info(midoid+"，支付宝扫码转h5支付，不支持iPhone手机的自带浏览器");
+                return false;
+            }
+        }else if(userAgent.contains("android")) {
+            //目前测试人员测出：手机百度浏览器、手机谷歌浏览器、手机qq浏览器
+            // Android手机
+
+            //手机百度如下：判断依据 包含baidu
+//	    	  user-agent = Mozilla/5.0 (Linux; Android 6.0.1; vivo X9 Build/MMB29M; wv) AppleWebKit/537.36 (KHTML, like Gecko)
+//	    	  Version/4.0 Chrome/48.0.2564.116 Mobile Safari/537.36 T7/9.1 baiduboxapp/9.1.0.12 (Baidu; P1 6.0.1)
+
+            /** 1. 安卓手机qq浏览器， 2.安卓手机百度浏览器*/
+//            if(userAgent.contains("baidu")) {
+//                logger.info(midoid+"，支付宝扫码转h5支付，不支持Android手机的百度【baidu】浏览器");
+//                return false;
+//            }
+        }
         return true;
     }
-
     /**
      * 设置pc页面非收银台支付方式需要的请求参数
      *
