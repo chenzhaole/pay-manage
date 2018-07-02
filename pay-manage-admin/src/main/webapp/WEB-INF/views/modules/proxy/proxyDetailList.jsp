@@ -68,20 +68,6 @@
                 </select>
             </td>
 
-            <td>
-                <label>代付通道：</label>
-                <select name="chanId" class="selectpicker bla bla bli" data-live-search="true">
-                    <option value="">--请选择--</option>
-                    <c:forEach items="${chanInfos}" var="chanInfo">
-                        <option value="${chanInfo.id}"
-                                <c:if test="${paramMap.chanId == chanInfo.id}">selected</c:if>
-                        >${chanInfo.name}</option>
-                    </c:forEach>
-                </select>
-            </td>
-
-
-
         </tr>
         <tr>
             <td>
@@ -92,6 +78,17 @@
                         <option value="${ps.value}" <c:if test="${paramMap.payStatus == ps.value}">selected</c:if>>${ps.label}</option>
                     </c:forEach>
                 </select>&nbsp;&nbsp;&nbsp;
+            </td>
+            <td>
+                <label>代付通道：</label>
+                <select name="chanId" class="selectpicker bla bla bli" data-live-search="true">
+                    <option value="">--请选择--</option>
+                    <c:forEach items="${chanInfos}" var="chanInfo">
+                        <option value="${chanInfo.id}"
+                                <c:if test="${paramMap.chanId == chanInfo.id}">selected</c:if>
+                                >${chanInfo.name}</option>
+                    </c:forEach>
+                </select>
             </td>
             <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;"></td>
 
@@ -110,83 +107,51 @@
 </form>
 
 <c:if test="${proxyBatch != null}">
-<div class="breadcrumb">
-    <label>
-        <th>批次信息</th>
-    </label>
-</div>
-<table>
-    <tr>
 
-        <td>
-            <label>平台批次：</label>
-            <textarea readonly class="input-small" >${proxyBatch.platOrderId}</textarea>
-        </td>
+    <table id="infoTable" class="table table-striped table-bordered table-condensed">
+        <tbody>
+        <tr>
+            <td colspan="4" style="text-align: center;"><b>批次信息</b></td>
+        </tr>
+        <tr>
+            <td width="25%">平台批次：</td>
+            <td width="25%">${proxyBatch.platOrderId}</td>
+            <td width="25%">商户批次：</td>
+            <td width="25%">${proxyBatch.mchtOrderId} </td>
+        </tr>
+        <tr>
+            <td width="25%">商户名称：</td>
+            <td width="25%">${proxyBatch.extend3}</td>
+            <td width="25%">商户编号：</td>
+            <td width="25%">${proxyBatch.mchtId} </td>
+        </tr>
+        <tr>
+            <td width="25%">成功笔数：</td>
+            <td width="25%">${proxyBatch.successNum}</td>
+            <td width="25%">成功金额：</td>
+            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.successAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/> </td>
+        </tr>
+        <tr>
+            <td width="25%">失败笔数：</td>
+            <td width="25%">${proxyBatch.failNum}</td>
+            <td width="25%">失败金额：</td>
+            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.failAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/> </td>
+        </tr>
+        <tr>
+            <td width="25%">商户费用：</td>
+            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.totalFee*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td width="25%">代付状态：</td>
+            <td width="25%">
+                <c:if test="${proxyBatch.payStatus == 10}">审核中</c:if>
+                <c:if test="${proxyBatch.payStatus == 11}">审核通过</c:if>
+                <c:if test="${proxyBatch.payStatus == 12}">审核未通过</c:if>
+                <c:if test="${proxyBatch.payStatus == 23}">代付处理中</c:if>
+                <c:if test="${proxyBatch.payStatus == 24}">代付结束</c:if>
+            </td>
+        </tr>
+        </tbody>
+    </table>
 
-
-        <td>
-            <label>商户批次：</label>
-            <textarea readonly class="input-small" >${proxyBatch.mchtOrderId}</textarea>
-            <%--<input value="${proxyBatch.platOrderId}" type="text" class="input-small" readonly />--%>
-        </td>
-        <td>
-            <label>商户名称：</label>
-            <input value="${proxyBatch.extend3}" type="text" class="input-small" readonly />
-        </td>
-
-        <td>
-            <label>商户编号：</label>
-            <input value="${proxyBatch.mchtId}" type="text" class="input-small" readonly />
-        </td>
-
-    </tr>
-
-    <tr>
-        <td>
-            <label>成功笔数：</label>
-            <input value="${proxyBatch.successNum}" type="text" class="input-small" readonly />
-        </td>
-
-        <td>
-            <label>成功金额：</label>
-            <input value="<fmt:formatNumber type="number" value="${proxyBatch.successAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/>" type="text" class="input-small" readonly />
-        </td>
-        <td>
-            <label>失败笔数：</label>
-            <input value="${proxyBatch.failNum}" type="text" class="input-small" readonly />
-        </td>
-
-
-        <td>
-            <label>失败金额：</label>
-            <input value="<fmt:formatNumber type="number" value="${proxyBatch.failAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/>" type="text" class="input-small" readonly />
-        </td>
-
-    </tr>
-    <tr>
-
-        <td>
-            <label>通道名称：</label>
-            <input value="${proxyBatch.chanId}" type="text" class="input-small" readonly />
-        </td>
-
-        <td>
-            <label>商户费用：</label>
-            <input value="<fmt:formatNumber type="number" value="${proxyBatch.totalFee*0.01}" pattern="0.00" maxFractionDigits="2"/>" type="text" class="input-small" readonly />
-        </td>
-        <td>
-            <label>代付状态：</label>
-            <c:if test="${proxyBatch.payStatus == 10}"><input value="审核中" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 11}"><input value="审核通过" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 12}"><input value="审核未通过" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 23}"><input value="代付处理中" type="text" class="input-small" readonly /></c:if>
-            <c:if test="${proxyBatch.payStatus == 24}"><input value="代付结束" type="text" class="input-small" readonly /></c:if>
-        </td>
-
-    </tr>
-
-
-</table>
 </c:if>
 <div class="breadcrumb">
     <label>
