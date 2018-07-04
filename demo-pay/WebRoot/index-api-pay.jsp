@@ -122,6 +122,8 @@
                         <option value="al401">支付宝扫码</option>
                         <option value="qq101">qqH5</option>
                         <option value="qq403">qq扫码</option>
+                        <option value="yl000">银联</option>
+                        <option value="yl401">银联二维码</option>
                     </select>
                     <span class="null-star">(biz)*</span>
                     <span></span>
