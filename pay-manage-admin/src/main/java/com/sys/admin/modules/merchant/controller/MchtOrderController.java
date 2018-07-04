@@ -21,7 +21,6 @@ import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.OrderAdminService;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
-import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
@@ -117,12 +116,13 @@ public class MchtOrderController extends BaseController {
 			}
 		}
 
-
 		//创建查询实体
 		MchtGatewayOrder order = new MchtGatewayOrder();
 		//过滤商户的流水
 		order.setMchtCode(loginName);
 		order.setMchtId(loginName);
+		logger.info("开始时间："+beginDate+",结束时间："+endDate);
+		//初始化查询订单
 		assemblySearch(paramMap, order);
 
 		//获取当前第几页
@@ -144,7 +144,7 @@ public class MchtOrderController extends BaseController {
 			}
 		}
 		model.addAttribute("paramMap", paramMap);
-
+		logger.info("查询订单信息：" + JSON.toJSONString(order));
 		List<MchtGatewayOrder> orderList = null;
 		if(StringUtils.isNotBlank(isSelectInfo)) {
 			orderList = orderAdminService.list(order);
@@ -155,8 +155,34 @@ public class MchtOrderController extends BaseController {
 
 			MchtInfo mchtInfo = merchantService.queryByKey(loginName);
 			if(null != mchtInfo){
-				for(MchtGatewayOrder mchtGatewayOrder : orderList){
-					mchtGatewayOrder.setMchtCode(mchtInfo.getName());
+				for(MchtGatewayOrder gwOrder : orderList){
+					gwOrder.setMchtCode(mchtInfo.getName());
+					if (gwOrder.getPayType() != null) {
+
+						if(gwOrder.getPayType().startsWith("wx")){
+							gwOrder.setPayType("微信");
+						}else if(gwOrder.getPayType().startsWith("ca")){
+							gwOrder.setPayType("收银台");
+						}else if(gwOrder.getPayType().startsWith("al")){
+							gwOrder.setPayType("支付宝");
+						}else if(gwOrder.getPayType().startsWith("sn")){
+							gwOrder.setPayType("苏宁");
+						}else if(gwOrder.getPayType().startsWith("qq")){
+							gwOrder.setPayType("QQ");
+						}else if(gwOrder.getPayType().startsWith("jd")){
+							gwOrder.setPayType("京东");
+						}else if(gwOrder.getPayType().startsWith("yl")){
+							gwOrder.setPayType("银联");
+						}else if(gwOrder.getPayType().startsWith("qj")){
+							gwOrder.setPayType("快捷");
+						}else if(gwOrder.getPayType().startsWith("df")){
+							gwOrder.setPayType("代付");
+						}else if(gwOrder.getPayType().startsWith("dk")){
+							gwOrder.setPayType("代扣");
+						}else{
+							gwOrder.setPayType("其他");
+						}
+					}
 				}
 			}
 
@@ -166,19 +192,19 @@ public class MchtOrderController extends BaseController {
 		model.addAttribute("page", page);
 
 		//金额总数
-//		BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
 
 		//支付成功
-//		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
 		//支付成功总数
-//		long successCount = orderAdminService.ordeCount(order);
+		long successCount = orderAdminService.ordeCount(order);
 		//支付成功金额总数
-//		BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
 
 		model.addAttribute("orderCount", orderCount);
-//		model.addAttribute("successCount", successCount);
-//		model.addAttribute("amount", amount.toString());
-//		model.addAttribute("successAmount", successAmount.toString());
+		model.addAttribute("successCount", successCount);
+		model.addAttribute("amount", amount.toString());
+		model.addAttribute("successAmount", successAmount.toString());
 
 		return "modules/order/mchtOrderList";
 	}
@@ -548,8 +574,31 @@ public class MchtOrderController extends BaseController {
 					gwOrder.setStatus(PayStatusEnum.toEnum(gwOrder.getStatus()).getDesc());
 				}
 			}
-			if (PayTypeEnum.toEnum(gwOrder.getPayType()) != null) {
-				gwOrder.setPayType(PayTypeEnum.toEnum(gwOrder.getPayType()).getDesc());
+			if (gwOrder.getPayType() != null) {
+
+				if(gwOrder.getPayType().startsWith("wx")){
+					gwOrder.setPayType("微信");
+				}else if(gwOrder.getPayType().startsWith("ca")){
+					gwOrder.setPayType("收银台");
+				}else if(gwOrder.getPayType().startsWith("al")){
+					gwOrder.setPayType("支付宝");
+				}else if(gwOrder.getPayType().startsWith("sn")){
+					gwOrder.setPayType("苏宁");
+				}else if(gwOrder.getPayType().startsWith("qq")){
+					gwOrder.setPayType("QQ");
+				}else if(gwOrder.getPayType().startsWith("jd")){
+					gwOrder.setPayType("京东");
+				}else if(gwOrder.getPayType().startsWith("yl")){
+					gwOrder.setPayType("银联");
+				}else if(gwOrder.getPayType().startsWith("qj")){
+					gwOrder.setPayType("快捷");
+				}else if(gwOrder.getPayType().startsWith("df")){
+					gwOrder.setPayType("代付");
+				}else if(gwOrder.getPayType().startsWith("dk")){
+					gwOrder.setPayType("代扣");
+				}else{
+					gwOrder.setPayType("其他");
+				}
 			}
 			gwOrder.setMchtId(mchtMap.get(gwOrder.getMchtCode()));
 			gwOrder.setPlatProductId(productMap.get(gwOrder.getPlatProductId()));
@@ -615,7 +664,7 @@ public class MchtOrderController extends BaseController {
 				cell = row.createCell(cellIndex);
 				if (orderTemp.getAmount() != null) {
 					BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(orderTemp.getAmount()));
-					cell.setCellValue(bigDecimal.doubleValue()+"(元)");
+					cell.setCellValue(bigDecimal.doubleValue());
 				}
 				cellIndex++;
 

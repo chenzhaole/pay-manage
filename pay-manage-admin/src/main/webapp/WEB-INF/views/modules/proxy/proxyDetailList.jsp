@@ -200,7 +200,7 @@
             </td>
                 <td>${proxyDetail.extend3}</td>
 
-                <td><div  title="${proxyDetail.returnMessage2}" class="wrap">${proxyDetail.returnMessage2}</div></td>
+                <td><div  title="${proxyDetail.returnMessage2}" class="wrap">${fn:substring(proxyDetail.returnMessage2,0,50)} </div></td>
                 <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <a href="${ctx}/proxy/proxyDetail?detailId=${proxyDetail.id}">详情</a>

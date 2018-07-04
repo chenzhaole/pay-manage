@@ -253,7 +253,7 @@ public class OrderController extends BaseController {
 			if (orderList != null && orderList.size() > 0) {
 				MchtGatewayOrder order = orderList.get(0);
 				//根据商户id查询商户信息
-				MchtInfo mchtInfo = merchantService.queryByKey(order.getMchtId());
+				MchtInfo mchtInfo = merchantService.queryByKey(order.getMchtCode());
 				model.addAttribute("mchtInfo", mchtInfo);
 				ChanInfo chanInfo = channelService.queryByKey(order.getChanCode());
 				model.addAttribute("chanInfo", chanInfo);
@@ -585,7 +585,7 @@ public class OrderController extends BaseController {
 				cell = row.createCell(cellIndex);
 				if (orderTemp.getAmount() != null) {
 					BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(orderTemp.getAmount()));
-					cell.setCellValue(bigDecimal.doubleValue()+"(元)");
+					cell.setCellValue(bigDecimal.doubleValue());
 				}
 				cellIndex++;
 

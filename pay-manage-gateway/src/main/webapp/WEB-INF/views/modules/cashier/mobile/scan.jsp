@@ -41,7 +41,7 @@
                 <p class="pay_tip2">步骤2&nbsp;:&nbsp;前往
                     <span style="color:red;">
                       <c:if test="${paymentType eq 'wx'}">微信</c:if>
-                      <c:if test="${paymentType eq 'ali'}">支付宝</c:if>
+                      <c:if test="${paymentType eq 'al'}">支付宝</c:if>
                       <c:if test="${paymentType eq 'qq'}">QQ</c:if>
                       <c:if test="${paymentType eq 'jd'}">京东</c:if>
                       <c:if test="${paymentType eq 'sn'}">苏宁</c:if>

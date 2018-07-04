@@ -2,19 +2,20 @@ package com.sys.gateway.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
-import com.sys.common.enums.*;
+import com.sys.common.enums.ClientPayWayEnum;
+import com.sys.common.enums.DeviceTypeEnum;
+import com.sys.common.enums.PageTypeEnum;
+import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.DesUtil32;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.NumberUtils;
-import com.sys.common.util.SignUtil;
-import com.sys.gateway.common.ConfigUtil;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
+
 import javax.servlet.http.HttpServletRequest;
-import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.HashSet;

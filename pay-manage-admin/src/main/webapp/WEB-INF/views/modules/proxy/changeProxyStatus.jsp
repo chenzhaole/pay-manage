@@ -143,7 +143,7 @@
             <td>
                     ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
             </td>
-            <td>${proxyDetail.returnMessage2}</td>
+            <td title="${proxyDetail.returnMessage2}">${fn:substring(proxyDetail.returnMessage2,0,50)}</td>
             <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <c:if test="${!(proxyDetail.extend3 eq '777')}"><a href="${ctx}/proxy/changeProxyStatusEdit?detailId=${proxyDetail.id}">修改状态</a></c:if>

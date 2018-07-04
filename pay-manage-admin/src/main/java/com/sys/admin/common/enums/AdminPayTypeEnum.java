@@ -10,6 +10,7 @@ import com.sys.common.enums.PayTypeEnum;
 public enum AdminPayTypeEnum {
 
 	//微信--以wx开头
+	WX_GROUP("wx000", "微信组合支付类型"),
 	WX_WAP("wx101", "微信H5支付"),
 	WX_APP("wx201", "微信APP支付"),
 	WX_PUBLIC_NATIVE("wx301", "微信公众号支付原生方式"),
@@ -20,6 +21,7 @@ public enum AdminPayTypeEnum {
 	WX_BARCODE_H5("wx503","微信付款码包装成H5支付"),
 
 	//支付宝--以al开头
+	ALIPAY_GROUP("al000","支付宝组合支付类型"),
 	ALIPAY_H5("al101","支付宝H5支付"),
 	ALIPAY_ONLINE_SCAN2WAP("al102","支付宝扫码转H5"),
 	ALIPAY_ONLINE_QRCODE("al401","支付宝扫码"),
@@ -27,12 +29,13 @@ public enum AdminPayTypeEnum {
 
 
 	//苏宁支付--以sn开头
+	SUNING_GROUP("sn000","苏宁组合支付类型"),
 	SUNING_H5("sn101","苏宁H5支付"),
 	SUNING_QRCODE("sn401","苏宁扫码"),
 	SUNING_BARCODE("sn501","苏宁条码-声波支付"),
 
 	//qq支付--以qq开头
-
+	QQ_GROUP("qq000", "QQ组合支付类型"),
 	QQ_SCAN2WAP("qq102", "QQ扫码转H5支付"),
 	QQ_QRCODE("qq403", "QQ扫码支付"),
 	QQ_BARCODE("qq501", "QQ条码-声波支付"),
@@ -40,11 +43,13 @@ public enum AdminPayTypeEnum {
 
 
 	//京东支付--以jd开头
+	JD_GROUP("jd000", "京东组合支付类型"),
 	JD_WAP("jd101", "京东H5支付"),
 	JD_SCAN("jd401", "京东扫码支付"),
 	JD_BARCODE("jd501", "京东条码-声波支付"),
 
 	//银联支付--以yl
+	UNIONPAY_GROUP("yl000","银联组合支付类型"),
 	UNIONPAY_H5("yl101","银联H5支付"),
 	UNIONPAY_QRCODE("yl401","银联扫码"),
 	UNIONPAY_BARCODE("yl501","银联条码-声波支付"),

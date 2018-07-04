@@ -219,6 +219,10 @@
         </tr>
     </table>
 </form>
+<label>| 总笔数：${orderCount} | </label>
+<label>总金额：${amount} 元| </label>
+<label>成功笔数：${successCount} | </label>
+<label>成功金额：${successAmount} 元| </label>
 <tags:message content="${message}" type="${messageType}"/>
 
 <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover"
@@ -244,24 +248,7 @@
         <tr>
             <td>${orderInfo.mchtCode}</td>
             <td>
-                <c:if test="${orderInfo.payType eq 'wx101'}">微信H5</c:if>
-                <c:if test="${orderInfo.payType eq 'wx201'}">微信APP</c:if>
-                <c:if test="${orderInfo.payType eq 'wx301' || orderInfo.payType eq 'wx302'}">微信公众号</c:if>
-                <c:if test="${orderInfo.payType eq 'wx401'}">微信扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'wx502' || orderInfo.payType eq 'wx503'}">微信付款码</c:if>
-                <c:if test="${orderInfo.payType eq 'al101' || orderInfo.payType eq 'al102'}">支付宝H5</c:if>
-                <c:if test="${orderInfo.payType eq 'al401'}">支付宝扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'sn401'}">苏宁扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'sn101'}">苏宁H5</c:if>
-                <c:if test="${orderInfo.payType eq 'qq101' || orderInfo.payType eq 'qq102'}">QQH5</c:if>
-                <c:if test="${orderInfo.payType eq 'qq403'}">QQ扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'jd101' || orderInfo.payType eq 'jd102'}">京东H5</c:if>
-                <c:if test="${orderInfo.payType eq 'jd401'}">京东扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'yl401'}">银联扫码</c:if>
-                <c:if test="${orderInfo.payType eq 'yl101'}">银联H5</c:if>
-                <c:if test="${orderInfo.payType eq 'qj202'}">快捷支付</c:if>
-                <c:if test="${orderInfo.payType eq 'qj301'}">网银支付</c:if>
-                <c:if test="${orderInfo.payType eq 'df101'}">单笔代付</c:if>
+                ${orderInfo.payType}
             </td>
             <td>${orderInfo.mchtOrderId}</td>
             <td>${orderInfo.platOrderId}</td>

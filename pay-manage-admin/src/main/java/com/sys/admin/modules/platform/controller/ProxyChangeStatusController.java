@@ -14,18 +14,8 @@ import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
 import com.sys.common.util.Collections3;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.ChanInfo;
-import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.PlatProduct;
-import com.sys.core.dao.dmo.PlatProxyBatch;
-import com.sys.core.dao.dmo.PlatProxyDetail;
-import com.sys.core.dao.dmo.PlatProxyDetailAudit;
-import com.sys.core.service.ChannelService;
-import com.sys.core.service.MerchantService;
-import com.sys.core.service.ProductService;
-import com.sys.core.service.ProxyBatchService;
-import com.sys.core.service.ProxyDetailAuditService;
-import com.sys.core.service.ProxyDetailService;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.BeanUtils;
@@ -121,9 +111,9 @@ public class ProxyChangeStatusController extends BaseController {
 			detail.setChanId(channelMap.get(detail.getChanId()));
 
 			//判断是否已发起审批
-			if (StringUtils.isNotBlank(auditMap.get(detail.getId()))) {
+			/*if (StringUtils.isNotBlank(auditMap.get(detail.getId()))) {
 				detail.setExtend3("777");
-			}
+			}*/
 		}
 
 		Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, proxyInfoList, true);
@@ -177,6 +167,7 @@ public class ProxyChangeStatusController extends BaseController {
 										@RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) {
 		String mchtId = UserUtils.getUser().getId() + "";
 		int result = 0;
+		int deleteByKey = 0;
 		String message, messageType;
 		try {
 
@@ -194,6 +185,12 @@ public class ProxyChangeStatusController extends BaseController {
 				proxyDetailAudit.setExtend2(paramMap.get("notes"));
 				proxyDetailAudit.setCheckTime(new Date());
 
+				deleteByKey = proxyDetailAuditService.deleteByKey(proxyDetailAudit.getId());
+				if(deleteByKey == 1){
+					logger.info("删除旧的代付状态修改审核请求，创建新的记录");
+				}else{
+					logger.info("不存在旧的代付状态修改审核请求，创建新的记录");
+				}
 				result = proxyDetailAuditService.create(proxyDetailAudit);
 
 				if (result == 1) {
@@ -329,7 +326,7 @@ public class ProxyChangeStatusController extends BaseController {
 			PlatProxyDetailAudit proxyDetailAudit = proxyDetailAuditService.queryByKey(detailId);
 			proxyDetailAudit.setAuditorId(userId);
 			proxyDetailAudit.setAuditStatus(auditStatus);
-			proxyDetailAudit.setAuditNotes(paramMap.get("notes"));
+			proxyDetailAudit.setAuditNotes(paramMap.get("auditNotes"));
 			proxyDetailAudit.setAuditTime(new Date());
 			if (!proxyDetailAudit.getNewPayStatus().equals(OriStatus)) {
 				if (AuditEnum.AUDITED.getCode().equals(auditStatus)) {

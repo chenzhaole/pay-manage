@@ -125,6 +125,7 @@
         <th>申请人</th>
         <th>审批人</th>
         <th>审批状态</th>
+        <th>审批说明</th>
         <th>操作</th>
     </tr>
     </thead>
@@ -151,11 +152,12 @@
             <td>
                     ${fns:getDictLabel(proxyDetail.newPayStatus,'proxypay_detail_status' ,'' )}
             </td>
-            <td>${proxyDetail.returnMessage2}</td>
+            <td title="${proxyDetail.returnMessage2}" width="20px">${fn:substring(proxyDetail.returnMessage2,0,50)}</td>
             <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${proxyDetail.operatorId}</td>
             <td>${proxyDetail.auditorName}</td>
             <td>${proxyDetail.auditStatus}</td>
+            <td>${proxyDetail.auditNotes}</td>
             <td>
                 <c:if test="${proxyDetail.auditStatus eq '待审核'}">
                 <a href="${ctx}/proxy/changeProxyStatusAuditEdit?detailId=${proxyDetail.id}">审批</a></c:if>
