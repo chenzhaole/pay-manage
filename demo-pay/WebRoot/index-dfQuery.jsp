@@ -81,8 +81,8 @@
                         <option value="http://114.115.206.62:12080/df/gateway/query/">测试
                             http://114.115.206.62:12080/df/gateway/query/
                         </option>
-                        <option value="http://106.2.6.41:12080/df/gateway/query/">生产
-                            http://106.2.6.41:12080/df/gateway/query/
+                        <option value="http://api.ihengyuan.cn:17082/df/gateway/query/">生产
+                            http://api.ihengyuan.cn:17082/df/gateway/query/
                         </option>
                     </select>
                     <span class="null-star">(payUrl)*</span>
