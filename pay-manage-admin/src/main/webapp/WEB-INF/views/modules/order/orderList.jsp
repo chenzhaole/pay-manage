@@ -307,13 +307,14 @@
 				<td><fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
 				<br><fmt:formatDate value="${orderInfo.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 				<shiro:hasPermission name="order:list:op">
-				<td>
-					<c:if test="${orderInfo.status == '2'}">
-					<a href="${ctx}/order/supplyNotify?orderId=${orderInfo.id}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>">补发通知</a> </c:if>
-					<c:if test="${orderInfo.status != '2'}"><a href="${ctx}/order/querySupply?orderId=${orderInfo.id}">|查单|</a></c:if>
-						<%--|
-                        <a href="${ctx}/process/question/form?orderId=${orderInfo.id}">同步状态</a>  --%>
-				</td>
+					<td>
+						<c:if test="${orderInfo.status == '2'}">
+							<a href="${ctx}/order/supplyNotify?orderId=${orderInfo.id}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>">补发通知</a> | </c:if>
+						<c:if test="${orderInfo.status != '2'}"><a href="${ctx}/order/querySupply?orderId=${orderInfo.id}">查单</a> |</c:if>
+						<a href="${ctx}/order/statPayOrderById?orderId=${orderInfo.id}">入账</a>
+							<%--|
+                            <a href="${ctx}/process/question/form?orderId=${orderInfo.id}">同步状态</a>  --%>
+					</td>
 				</shiro:hasPermission>	
 			</tr>
 		</c:forEach>
