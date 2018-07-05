@@ -72,7 +72,7 @@ public class MchtProxyOrderController extends BaseController {
         String beginDate = paramMap.get("beginDate");
         //结束时间
         String endDate = paramMap.get("endDate");
-        if(StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)){
+        if (StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)) {
 //            String msg = this.checkDate(beginDate, endDate);
 //            if(!"ok".equals(msg)){
 //                logger.info(msg);
@@ -121,7 +121,7 @@ public class MchtProxyOrderController extends BaseController {
         int proxyCount = 0;
         List<PlatProxyBatch> proxyInfoList = null;
         MchtInfo mchtInfo = null;
-        if(StringUtils.isNotBlank(isSearch) && "1".equals(isSearch)){
+        if (StringUtils.isNotBlank(isSearch) && "1".equals(isSearch)) {
             proxyCount = proxyBatchService.count(proxyBatch);
             proxyInfoList = proxyBatchService.list(proxyBatch);
             mchtInfo = merchantService.queryByKey(loginName);
@@ -132,18 +132,18 @@ public class MchtProxyOrderController extends BaseController {
                 platProxyBatch.setPayStatus(ProxyPayBatchStatusEnum.toEnum(platProxyBatch.getPayStatus()).getDesc());
                 //总金额和手续费，转成元,保留四位小数点
                 BigDecimal totalAmount = platProxyBatch.getTotalAmount();
-                if(null != totalAmount){
+                if (null != totalAmount) {
                     totalAmount = totalAmount.divide(divide, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyBatch.setTotalAmount(totalAmount);
                 }
                 BigDecimal totalFee = platProxyBatch.getTotalFee();
-                if(null != totalFee){
+                if (null != totalFee) {
                     totalFee = totalFee.divide(divide, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyBatch.setTotalFee(totalFee);
                 }
 
                 //商户名称
-                if(null != mchtInfo){
+                if (null != mchtInfo) {
                     platProxyBatch.setMchtId(mchtInfo.getName());
                 }
             }
@@ -158,21 +158,22 @@ public class MchtProxyOrderController extends BaseController {
      * 开始时间不能大于结束时间，
      * 不支持跨年查询
      * 不支持跨月查询
+     *
      * @param beginDateStr
      * @param endDateStr
      * @return
      */
     private String checkDate(String beginDateStr, String endDateStr) {
-        Date beginDate = DateUtils.parseDate( beginDateStr,"yyyy-MM-dd HH:mm:ss");
+        Date beginDate = DateUtils.parseDate(beginDateStr, "yyyy-MM-dd HH:mm:ss");
         String beginYearStr = DateUtils.formatDate(beginDate, "yyyy");
         String beginMonthStr = DateUtils.formatDate(beginDate, "MM");
-        Date endDate = DateUtils.parseDate( endDateStr,"yyyy-MM-dd HH:mm:ss");
+        Date endDate = DateUtils.parseDate(endDateStr, "yyyy-MM-dd HH:mm:ss");
         String endYearStr = DateUtils.formatDate(endDate, "yyyy");
         String endMonthStr = DateUtils.formatDate(endDate, "MM");
-        if(!beginYearStr.equals(endYearStr)){
+        if (!beginYearStr.equals(endYearStr)) {
             return "查询时间不能跨年";
         }
-        if(!beginMonthStr.equals(endMonthStr)){
+        if (!beginMonthStr.equals(endMonthStr)) {
             return "暂不支持跨月查询";
         }
         return "ok";
@@ -192,7 +193,7 @@ public class MchtProxyOrderController extends BaseController {
         String beginDate = paramMap.get("beginDate");
         //结束时间
         String endDate = paramMap.get("endDate");
-        if(StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)){
+        if (StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)) {
 //            String msg = this.checkDate(beginDate, endDate);
 //            if(!"ok".equals(msg)){
 //                logger.info(msg);
@@ -229,32 +230,34 @@ public class MchtProxyOrderController extends BaseController {
         //商户代付批次流水号
         proxyDetail.setMchtBatchId(paramMap.get("mchtBatchId"));
         //平台明细订单号
-        proxyDetail.setId(paramMap.get("id").trim());
+        if (StringUtils.isNotBlank(paramMap.get("id"))) {
+            proxyDetail.setId(paramMap.get("id").trim());
+        }
         //如果是从批次页面，查询明细信息
         String platBatchId = paramMap.get("platBatchId");
         proxyDetail.setPlatBatchId(platBatchId);
         paramMap.put("platBatchId", platBatchId);
-        if(StringUtils.isNotBlank(platBatchId)){
+        if (StringUtils.isNotBlank(platBatchId)) {
             //查出批次信息
             PlatProxyBatch platProxyBatch = proxyBatchService.queryByKey(platBatchId);
-            if(null != platProxyBatch && loginName.equals(platProxyBatch.getMchtId())){
+            if (null != platProxyBatch && loginName.equals(platProxyBatch.getMchtId())) {
                 //金额，保留4为小数
                 BigDecimal divice = new BigDecimal(100);
 
                 BigDecimal totalAmount = platProxyBatch.getTotalAmount();
-                if(null != totalAmount){
+                if (null != totalAmount) {
                     totalAmount = totalAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyBatch.setTotalAmount(totalAmount);
                 }
 
                 BigDecimal successAmount = platProxyBatch.getSuccessAmount();
-                if(null != successAmount){
+                if (null != successAmount) {
                     successAmount = successAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyBatch.setSuccessAmount(successAmount);
                 }
 
                 BigDecimal failAmount = platProxyBatch.getFailAmount();
-                if(null != failAmount){
+                if (null != failAmount) {
                     failAmount = failAmount.divide(divice, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyBatch.setFailAmount(failAmount);
                 }
@@ -275,23 +278,23 @@ public class MchtProxyOrderController extends BaseController {
         List<PlatProxyDetail> proxyDetailInfoList = null;
         MchtInfo mchtInfo = null;
         //页面带过来isSearch值为1
-        if(StringUtils.isNotBlank(isSearch) && "1".equals(isSearch)){
+        if (StringUtils.isNotBlank(isSearch) && "1".equals(isSearch)) {
             proxyCount = proxyDetailService.count(proxyDetail);
-            proxyDetailInfoList =  proxyDetailService.list(proxyDetail);
+            proxyDetailInfoList = proxyDetailService.list(proxyDetail);
             mchtInfo = merchantService.queryByKey(loginName);
         }
         BigDecimal divide = new BigDecimal(100);
-        if(!CollectionUtils.isEmpty(proxyDetailInfoList)){
-            for(PlatProxyDetail platProxyDetail : proxyDetailInfoList){
+        if (!CollectionUtils.isEmpty(proxyDetailInfoList)) {
+            for (PlatProxyDetail platProxyDetail : proxyDetailInfoList) {
 //                platProxyDetail.setPayStatus(ProxyPayBatchStatusEnum.toEnum(platProxyDetail.getPayStatus()).getDesc());
                 //金额和手续费，转成元,保留四位小数点
                 BigDecimal amount = platProxyDetail.getAmount();
-                if(null != amount){
+                if (null != amount) {
                     amount = amount.divide(divide, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyDetail.setAmount(amount);
                 }
                 BigDecimal totalFee = platProxyDetail.getMchtFee();
-                if(null != totalFee){
+                if (null != totalFee) {
                     totalFee = totalFee.divide(divide, 4, BigDecimal.ROUND_HALF_UP);
                     platProxyDetail.setMchtFee(totalFee);
                 }
@@ -320,7 +323,7 @@ public class MchtProxyOrderController extends BaseController {
             User user = UserUtils.getUser();
             String loginName = user.getLoginName();
             MchtInfo mchtInfo = merchantService.queryByKey(loginName);
-            if(null != mchtInfo){
+            if (null != mchtInfo) {
                 proxyDetail.setExtend2(mchtInfo.getName());
             }
             proxyBatch = proxyBatchService.queryByKey(proxyDetail.getPlatBatchId());
@@ -380,8 +383,8 @@ public class MchtProxyOrderController extends BaseController {
         //获取当前日期，为文件名
         String fileName = DateUtils.formatDate(new Date()) + ".xls";
 
-        String[] headers = { "平台明细订单号", "商户代付批次号",
-                "商户名称", "收款户名",  "收款人账号", "金额(元)", "手续费(元)", "代付明细状态", "创建时间", "更新时间"};
+        String[] headers = {"平台明细订单号", "商户代付批次号",
+                "商户名称", "收款户名", "收款人账号", "金额(元)", "手续费(元)", "代付明细状态", "创建时间", "更新时间"};
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
