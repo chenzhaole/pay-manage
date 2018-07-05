@@ -709,4 +709,39 @@ public class OrderController extends BaseController {
 		order.setSuffix(DateUtils.formatDate(order.getCreateTime(), "yyyyMM"));
 
 	}
+
+	/**
+	 * 根据平台订单ID清结算成功支付订单流水
+	 *
+	 * @param orderId
+	 * @param redirectAttributes
+	 * @param response
+	 * @return
+	 */
+	@RequestMapping("statPayOrderById")
+	public String statPayOrderById(String orderId, RedirectAttributes redirectAttributes, HttpServletResponse response) {
+		String message = "补入账";
+		try {
+			String gatewayUrl = ConfigUtil.getValue("stat.url");
+			String supplyUrl = gatewayUrl + "/settle/statPayOrderById";
+			Map<String, String> data = new HashMap<>();
+			data.put("platOrderId", orderId);
+			String respStr = HttpUtil.post(supplyUrl, data);
+			logger.info("stat补入账返回：" + respStr);
+			message = respStr;
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "success");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/order/list";
+
+		} catch (Exception e) {
+			logger.error("补入账失败", e);
+			message = "补入账失败，" + e.getMessage();
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "error");
+
+		} finally {
+			logger.info(message);
+			return "redirect:" + GlobalConfig.getAdminPath() + "/order/list";
+		}
+	}
 }
