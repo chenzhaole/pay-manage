@@ -2,20 +2,19 @@ package com.sys.gateway.controller;
 
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
-import com.sys.common.enums.ClientPayWayEnum;
-import com.sys.common.enums.DeviceTypeEnum;
-import com.sys.common.enums.PageTypeEnum;
-import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.*;
 import com.sys.common.util.DesUtil32;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.NumberUtils;
+import com.sys.common.util.SignUtil;
+import com.sys.gateway.common.ConfigUtil;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.ui.Model;
-
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -27,6 +26,11 @@ import java.util.Set;
  */
 public class GwCashierBaseController {
     private Logger logger = LoggerFactory.getLogger(GwCashierBaseController.class);
+
+    /**
+     * 付款码支付包装成网页支付，支付类型值后三位是固定值501
+     */
+    protected static final String BARCODE_NUM = "501";
 
     /**
      * 设置h5中间页需要的请求参数
@@ -54,6 +58,32 @@ public class GwCashierBaseController {
     }
 
     /**
+     * 设置付款码中间页需要的请求参数
+     *
+     * @param model
+     * @param result
+     */
+    protected void addBarcodeCentPageModelInfo(Model model, CommonResult result, String midoid) {
+        Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
+        Result resultInfo = (Result) retMapInfo.get("result");
+        Map<String, String> mapQQandMobile = (Map<String, String>)retMapInfo.get("pageQQandMobile");
+        String payType = resultInfo.getPaymentType();
+        model.addAttribute("platOrderId", resultInfo.getOrderNo());
+        model.addAttribute("mchtOrderId", resultInfo.getMchtOrderNo());
+        model.addAttribute("payType", payType);
+        model.addAttribute("paymentType", payType.substring(0,2));
+        //将分转成元
+        String amount = NumberUtils.changeF2Y(resultInfo.getOrderAmount());
+        model.addAttribute("amount", amount);
+
+        //qq和手机
+        model.addAttribute("qq", mapQQandMobile.get("qq"));
+        model.addAttribute("mobile", mapQQandMobile.get("mobile"));
+        logger.info(midoid+"，付款码中间页需要的参数："+JSONObject.toJSONString(model));
+
+    }
+
+    /**
      * 是否通过iframe标签掉起支付，0：使用， 1：不使用
      * @param payType
      * @param userAgent
@@ -66,7 +96,7 @@ public class GwCashierBaseController {
             //不支持qq扫码转h5的浏览器（即在这些浏览器掉不起支付）：苹果自带浏览器、uc浏览器、百度浏览器
             //过滤掉qq扫码转h5不支持的浏览器，不使用iframe标签
             if(browserbSupportQQScan2H5(userAgent, midoid)){
-               iframe = "0";
+                iframe = "0";
             }
         }else if(PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) ){
             //不支持支付宝扫码转h5的浏览器（即在这些浏览器掉不起支付）：苹果自带浏览器、qq浏览器、百度浏览器
@@ -127,11 +157,11 @@ public class GwCashierBaseController {
     }
 
 
-        /**
-         * 支付宝扫码转h5不支持：
-         * @param userAgent
-         * @return
-         */
+    /**
+     * 支付宝扫码转h5不支持：
+     * @param userAgent
+     * @return
+     */
     protected boolean browserbSupportAliScan2H5(String userAgent, String midoid) {
         if(StringUtils.isNotBlank(userAgent)){
             userAgent = userAgent.toLowerCase();
@@ -283,6 +313,26 @@ public class GwCashierBaseController {
         return data;
     }
 
+    /**
+     *  pc端页面拼接付款码地址
+     * @param result
+     * @return
+     */
+    protected String returnBarcodeUrlInfo(Result result, String midoid) {
+        String platOrderId = result.getOrderNo();
+        String paymentType = result.getPaymentType();
+        String mchtOrderId = result.getMchtOrderNo();
+        String amount = result.getOrderAmount();
+        String barcodeUrl = "/gateway/cashier/platPcBarcode";
+        barcodeUrl = barcodeUrl+"/"+platOrderId+"/"+mchtOrderId+"/"+paymentType+"/"+amount;
+
+        JSONObject jsonObject = new JSONObject();
+        jsonObject.put("barcodeUrl", barcodeUrl);
+        jsonObject.put("barcode", "barcode");
+        String data = jsonObject.toString();
+        logger.info(midoid+"，pc端页面异步下单付款码支付，返回页面的信息："+data);
+        return data;
+    }
 
     /**
      * 收银台页面需要的数据
@@ -322,17 +372,27 @@ public class GwCashierBaseController {
      * 非收银台选择跳转页面
      * @return
      */
-    protected String chooseNotCashierPage(String deviceType, String biz,  String midoid) {
+    protected String chooseNotCashierPage(String deviceType, String payType,  String midoid) {
         //根据设备类型，确定跳转页面
         String page = "";
         if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
-            //pc页面
-            page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode(), midoid );
+            //支付类型枚举类中定义的 条码支付值的后三位是501，会显示输入条形码的页面
+            if(payType.endsWith(BARCODE_NUM)){
+                page = "modules/cashier/barcode/barcode";
+            }else{
+                //pc页面--扫码使用
+                page = this.getPageByDeviceType(deviceType, PageTypeEnum.INDEX.getCode(), midoid );
+            }
         }else{
-            //手机端和微信内，需要判断展示哪一种中间页,因为h5支付和公众号支付使用的是一种中间页，扫码支付使用的是另一种中间页
-            //根据支付类型解析出具体中间页
-            String pageTypeCode = this.resolvePageType(biz, midoid);
-            page = this.getPageByDeviceType(deviceType, pageTypeCode, midoid);
+            //支付类型枚举类中定义的 条码支付值的后三位是501，会显示输入条形码的页面
+            if(payType.endsWith(BARCODE_NUM)){
+                page = "modules/cashier/barcode/barcode";
+            }else{
+                //手机端和微信内，需要判断展示哪一种中间页,因为h5支付和公众号支付使用的是一种中间页，扫码支付使用的是另一种中间页
+                //根据支付类型解析出具体中间页
+                String pageTypeCode = this.resolvePageType(payType, midoid);
+                page = this.getPageByDeviceType(deviceType, pageTypeCode, midoid);
+            }
         }
         logger.info(midoid+"，非收银台选择跳转页面page="+page);
         return page;

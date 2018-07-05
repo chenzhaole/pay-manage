@@ -5,6 +5,7 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.service.trade.handler.ITradeCashierPlatHandler;
 import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
+import com.sys.common.util.NumberUtils;
 import com.sys.gateway.common.IpUtil;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Map;
@@ -71,8 +73,14 @@ public class GwCashierPlatController extends GwCashierBaseController {
                         //判断是否直接跳向上游收银台
                         pcAsynScanInfo = returnChanCasgierPageInfo(resultInfo, midoid);
                     }else{
-                        //使用我司页面
-                        pcAsynScanInfo = returnPcPageInfo(resultInfo, midoid);
+                        if(StringUtils.isNotBlank(resultInfo.getPaymentType()) && resultInfo.getPaymentType().endsWith(BARCODE_NUM)){
+                            //支付类型枚举类中定义的条码支付值的后三位是501
+                            //拼接地址，将参数拼接在url之后
+                            pcAsynScanInfo = returnBarcodeUrlInfo(resultInfo, midoid);
+                        }else{
+                            //使用我司页面
+                            pcAsynScanInfo = returnPcPageInfo(resultInfo, midoid);
+                        }
                     }
                     result.setData(pcAsynScanInfo);
                 }else{
@@ -99,10 +107,25 @@ public class GwCashierPlatController extends GwCashierBaseController {
         return resultJson;
     }
 
-
     /**
-     * 手机端收银台发起支付
+     * pc端收银台异步下单付款码支付，页面跳转中转站
      */
+    @RequestMapping(value="/platPcBarcode/{platOrderId}/{mchtOrderId}/{paymentType}/{amount}", method = RequestMethod.GET)
+    public String platPcBarcode(HttpServletRequest request, Model model, @PathVariable String platOrderId, @PathVariable String mchtOrderId, @PathVariable String paymentType, @PathVariable String amount) {
+        model.addAttribute("platOrderId", platOrderId);
+        model.addAttribute("mchtOrderId", mchtOrderId);
+        model.addAttribute("payType", paymentType);
+        model.addAttribute("paymentType", paymentType.substring(0, 2));
+        amount = NumberUtils.changeF2Y(amount);
+        model.addAttribute("amount", amount);
+        String page = "modules/cashier/barcode/barcode";
+        return page;
+    }
+
+
+        /**
+         * 手机端收银台发起支付
+         */
     @RequestMapping(value="/platMobileCall/{mchtId}/{mchtOrderId}/{paymentType}/{extraData}")
     public String platMobileCall(HttpServletRequest request, Model model, @PathVariable String mchtId, @PathVariable String mchtOrderId, @PathVariable String paymentType, @PathVariable String extraData){
         CommonResult result = new CommonResult();
@@ -155,6 +178,10 @@ public class GwCashierPlatController extends GwCashierBaseController {
                             //设置h5和公众号支付的中间页需要的参数
                             this.addH5CentPageModelInfo(model, result, userAgent, midoid);
                             logger.info(BIZ + midoid + "调用TradeCashierPlatHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult=" + JSONObject.toJSONString(result) + "跳转的页面为：" + page);
+                        }else if(page.endsWith("barcode")){
+                            //设置付款码中间页需要的参数
+                            this.addBarcodeCentPageModelInfo(model, result, midoid);
+                            logger.info(BIZ+midoid+"调用TradeCashierPlatHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
                         } else {
                             result.setRespCode(ErrorCodeEnum.E1018.getCode());
                             result.setRespMsg("操作失败");

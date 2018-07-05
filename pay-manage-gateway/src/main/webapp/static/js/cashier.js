@@ -181,6 +181,9 @@ function getAsynQrCode(paymentType) {
                 if(payJsondata.hasOwnProperty("clientPayWay")){
                     var clientPayWay = payJsondata.clientPayWay;
                     chanCashierPay(payInfo, clientPayWay);
+                }else if(payJsondata.hasOwnProperty("barcode")){
+                    //跳向付款码支付页面
+                    window.location.href = payJsondata.barcodeUrl;
                 }else{
                     var platOrderId = payJsondata.platOrderId;
                     var payType = payJsondata.payType;
