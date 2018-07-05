@@ -106,7 +106,6 @@ public class GwCashierMchtController extends GwCashierBaseController {
 							//跳转到上游收银台的中转页面，携带的数据
 							this.addChanCashierModelInfo(model, result, midoid);
 							logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用上游收银台的中转页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
-
 						}else{
 							//使用我司页面
 							//非收银台页面跳转,支付类型从result返回值取具体支付类型，找对应中间页
@@ -114,10 +113,17 @@ public class GwCashierMchtController extends GwCashierBaseController {
 							Result resultInfo = (Result) retMapInfo.get("result");
 							page = this.chooseNotCashierPage(deviceType, resultInfo.getPaymentType(), midoid);
 							if(DeviceTypeEnum.PC.getCode().equals(deviceType)){
-								//pc页面操作，将支付地址带到页面
-								this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId(), midoid);
-								logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，pc端显示支付，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								if(page.endsWith("barcode")){
+									//设置付款码中间页需要的参数
+									this.addBarcodeCentPageModelInfo(model, result, midoid);
+									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								}else {
+									//pc页面操作，将二维码地址带到页面
+									this.addPcScanPageModelInfo(model, result, requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), requestInfo.getBody().getGoods(), requestInfo.getBody().getOrderId(), midoid);
+									logger.info(BIZ + midoid + "调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，pc端显示支付，返回的CommonResult=" + JSONObject.toJSONString(result) + "跳转的页面为：" + page);
+								}
 							}else{
+								//手机端
 								if(page.endsWith("scan")){
 									//设置扫码中间页需要的参数
 									this.addScanCentPageModelInfo(model, result, midoid);
@@ -125,6 +131,10 @@ public class GwCashierMchtController extends GwCashierBaseController {
 								}else if(page.endsWith("center")){
 									//设置h5中间页需要的参数
 									this.addH5CentPageModelInfo(model, result, userAgent, midoid);
+									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								}else if(page.endsWith("barcode")){
+									//设置付款码中间页需要的参数
+									this.addBarcodeCentPageModelInfo(model, result, midoid);
 									logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用中间页，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
 								}else{
 									result.setRespCode(ErrorCodeEnum.E1018.getCode());

@@ -69,6 +69,7 @@
 	<dubbo:reference id="tradeCashierMchtHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierMchtHandler" timeout="30000"/>
 	<dubbo:reference id="tradeCashierPlatHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierPlatHandler" timeout="30000"/>
 	<dubbo:reference id="tradeCashierCallbackHandler" interface="com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler" timeout="30000"/>
+	<dubbo:reference id="tradeDirectTransHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDirectTransHandler" timeout="30000"/>
 
 	<!-- [boss-trade] 代付-->
 	<dubbo:reference id="tradeDFQueryPlatHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFQueryPlatHandler" timeout="30000"/>

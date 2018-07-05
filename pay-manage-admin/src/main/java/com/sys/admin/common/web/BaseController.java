@@ -641,60 +641,56 @@ public abstract class BaseController {
      * @param prePayTypeList
      * @return
      */
-    protected PayTypeEnum[] filterPayTypeList(PayTypeEnum[] prePayTypeList) {
-        List<PayTypeEnum> payTypeEnumList = null;
-        if(null != prePayTypeList){
-            payTypeEnumList =new ArrayList<PayTypeEnum>();
-            for(int i=0; i<prePayTypeList.length; i++){
-                if(!notOftenUsePayTypeMaps().containsKey(prePayTypeList[i].getCode())){
-                    payTypeEnumList.add(prePayTypeList[i]);
-                }
-            }
-        }
-        if(null != payTypeEnumList && payTypeEnumList.size() > 0){
-            PayTypeEnum[] payTypeEnums = new PayTypeEnum[payTypeEnumList.size()];
-            return payTypeEnumList.toArray(payTypeEnums);
-        }
-
-        return null;
-    }
+//    protected PayTypeEnum[] filterPayTypeList(PayTypeEnum[] prePayTypeList) {
+//        List<PayTypeEnum> payTypeEnumList = null;
+//        if(null != prePayTypeList){
+//            payTypeEnumList =new ArrayList<PayTypeEnum>();
+//            for(int i=0; i<prePayTypeList.length; i++){
+//                if(!notOftenUsePayTypeMaps().containsKey(prePayTypeList[i].getCode())){
+//                    payTypeEnumList.add(prePayTypeList[i]);
+//                }
+//            }
+//        }
+//        if(null != payTypeEnumList && payTypeEnumList.size() > 0){
+//            PayTypeEnum[] payTypeEnums = new PayTypeEnum[payTypeEnumList.size()];
+//            return payTypeEnumList.toArray(payTypeEnums);
+//        }
+//
+//        return null;
+//    }
 
     /**
      * 过滤掉不常用的支付方式
      * @return
      */
-    protected Map<String, String> notOftenUsePayTypeMaps(){
-        Map<String, String> datas = new HashMap<String, String>();
-        datas.put("ca002", "通道收银台");
-        datas.put("jh001", "聚合二维码");
-        datas.put("hf001", "手机话费支付");
-        datas.put("sn101", "苏宁H5支付");
-        datas.put("sn104", "苏宁PC支付");
-        datas.put("sn501", "苏宁条码-声波");
-        datas.put("sn502","苏宁付款码包装成PC支付");
-        datas.put("sn503","苏宁付款码包装成h5支付");
-        datas.put("qq101", "QQh5支付");
-        datas.put("qq104","qqPC支付");
-        datas.put("qq501", "QQ条码-声波");
-        datas.put("qq502", "QQ付款码包装成PC支付");
-        datas.put("qq503", "QQ付款码包装成h5支付");
-        datas.put("jd104","京东PC支付");
-        datas.put("jd501", "京东条码-声波");
-        datas.put("jd502", "京东付款码包装成PC支付");
-        datas.put("jd503", "京东付款码包装成h5支付");
-        datas.put("yl101","银联h5支付");
-        datas.put("jd104","银联PC支付");
-        datas.put("yl402","银联扫码转h5");
-        datas.put("yl501","银联条码-声波");
-        datas.put("yl502","银联付款码包装成PC支付");
-        datas.put("yl503","银联付款码包装成h5支付");
-        datas.put("dk101", "单笔代扣");
-        datas.put("dk102", "批量代扣");
-        datas.put( "qj101", "商户入驻");
-        datas.put("qj201","快捷同名进出");
-        datas.put("qj203", "快捷组合支付(绑卡鉴权+快捷支付)");
-        datas.put("qj301", "网银/网银退款支付");
-
-        return datas;
-    }
+//    protected Map<String, String> notOftenUsePayTypeMaps(){
+//        Map<String, String> datas = new HashMap<String, String>();
+//        datas.put("ca002", "通道收银台");
+//        datas.put("jh001", "聚合二维码");
+//        datas.put("hf001", "手机话费支付");
+//        datas.put("sn101", "苏宁H5支付");
+//        datas.put("sn104", "苏宁PC支付");
+//        datas.put("sn502","苏宁付款码包装成PC支付");
+//        datas.put("sn503","苏宁付款码包装成h5支付");
+//        datas.put("qq101", "QQh5支付");
+//        datas.put("qq104","qqPC支付");
+//        datas.put("qq502", "QQ付款码包装成PC支付");
+//        datas.put("qq503", "QQ付款码包装成h5支付");
+//        datas.put("jd104","京东PC支付");
+//        datas.put("jd502", "京东付款码包装成PC支付");
+//        datas.put("jd503", "京东付款码包装成h5支付");
+//        datas.put("yl101","银联h5支付");
+//        datas.put("jd104","银联PC支付");
+//        datas.put("yl402","银联扫码转h5");
+//        datas.put("yl502","银联付款码包装成PC支付");
+//        datas.put("yl503","银联付款码包装成h5支付");
+//        datas.put("dk101", "单笔代扣");
+//        datas.put("dk102", "批量代扣");
+//        datas.put( "qj101", "商户入驻");
+//        datas.put("qj201","快捷同名进出");
+//        datas.put("qj203", "快捷组合支付(绑卡鉴权+快捷支付)");
+//        datas.put("qj301", "网银/网银退款支付");
+//
+//        return datas;
+//    }
 }
