@@ -22,6 +22,13 @@
             return false;
         }
 
+        $(document).ready(function() {
+            $("#btnExport").click(function(){
+                $("#searchForm").attr("action","${ctx}/merchant/mchtAccountDetail/export");
+                $("#searchForm").submit();
+                $("#searchForm").attr("action","${ctx}/merchant/mchtAccountDetail/list");
+            });
+        });
     </script>
 </head>
 
@@ -82,7 +89,9 @@
                     <form:options items="${fns:getDictList('record_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
-            <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;"></td>
+            <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;">
+                &nbsp;&nbsp;<input id="btnExport" class="btn btn-primary" type="button" value="导出"/></td>
+            </td>
         </tr>
 
     </table>

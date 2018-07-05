@@ -186,25 +186,26 @@ public class MchtOrderController extends BaseController {
 				}
 			}
 
+			//金额总数
+			BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+
+			//支付成功
+			order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+			//支付成功总数
+			long successCount = orderAdminService.ordeCount(order);
+			//支付成功金额总数
+			BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+			model.addAttribute("successCount", successCount);
+			model.addAttribute("amount", amount.toString());
+			model.addAttribute("successAmount", successAmount.toString());
 		}
 
 		Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
 		model.addAttribute("page", page);
 
-		//金额总数
-		BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
-
-		//支付成功
-		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
-		//支付成功总数
-		long successCount = orderAdminService.ordeCount(order);
-		//支付成功金额总数
-		BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
 
 		model.addAttribute("orderCount", orderCount);
-		model.addAttribute("successCount", successCount);
-		model.addAttribute("amount", amount.toString());
-		model.addAttribute("successAmount", successAmount.toString());
+
 
 		return "modules/order/mchtOrderList";
 	}

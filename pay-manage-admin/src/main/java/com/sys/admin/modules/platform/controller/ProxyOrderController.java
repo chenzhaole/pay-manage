@@ -17,6 +17,8 @@ import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
 import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -37,7 +39,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.*;
 
 @Controller
@@ -698,5 +702,193 @@ public class ProxyOrderController extends BaseController {
             map.put(bank.getBankCode(), bank.getBankName());
         }
         return map;
+    }
+
+    @RequestMapping(value = "/export")
+    public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
+                         @RequestParam Map<String, String> paramMap) throws IOException {
+        PlatProxyDetail proxyDetail = new PlatProxyDetail();
+        assemblySearch(paramMap, proxyDetail);
+
+        int orderCount = proxyDetailService.count(proxyDetail);
+        //计算条数 上限五万条
+        if (orderCount <= 0) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/proxyDetailList";
+        }
+        if (orderCount > 50000) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/proxyDetailList";
+        }
+        //获取数据List
+        List<PlatProxyDetail> list = proxyDetailService.list(proxyDetail);
+        if (list == null || list.size() == 0) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "导出条数为0条");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/proxyDetailList";
+        }
+
+        //查询商户列表
+        List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
+        //  上游通道列表
+        List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
+
+
+        Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
+        Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
+
+        if (list != null && list.size() != 0) {
+            for (PlatProxyDetail info : list) {
+                info.setExtend2(mchtMap.get(info.getMchtId()));
+                info.setExtend3(channelMap.get(info.getChanId()));
+                info.setPayStatus(ProxyPayDetailStatusEnum.toEnum(info.getPayStatus()).getDesc());
+            }
+        }
+
+        //获取当前日期，为文件名
+        String fileName = DateUtils.formatDate(new Date()) + ".xls";
+
+        String[] headers = {"商户名称", "平台批次订单号", "平台明细订单号", "商户订单号",
+                "批次内序号", "收款户名", "平台银行名称", "平台银行编码", "收款账号", "金额(元)", "手续费(元)", "状态", "通道名称", "上游响应", "创建时间", "更新时间"};
+
+        response.reset();
+        response.setContentType("application/octet-stream; charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+        OutputStream out = response.getOutputStream();
+
+        // 第一步，创建一个webbook，对应一个Excel文件
+        HSSFWorkbook wb = new HSSFWorkbook();
+        // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
+        HSSFSheet sheet = wb.createSheet("代付明细表");
+        sheet.setColumnWidth(0, 20 * 1256);
+        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
+        HSSFRow row = sheet.createRow((int) 0);
+
+        int j = 0;
+        for (String header : headers) {
+            HSSFCell cell = row.createCell((short) j);
+            cell.setCellValue(header);
+            sheet.autoSizeColumn(j);
+            j++;
+        }
+
+        if (!Collections3.isEmpty(list)) {
+            int rowIndex = 1;//行号
+            for (PlatProxyDetail info : list) {
+                int cellIndex = 0;
+                row = sheet.createRow(rowIndex);
+                HSSFCell cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getExtend2());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getPlatBatchId());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getId());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getMchtBatchId());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getMchtSeq());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getBankCardName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getBankName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getBankCode());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getBankCardNo());
+                cellIndex++;
+
+
+                cell = row.createCell(cellIndex);
+                if (info.getAmount() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), info.getAmount()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                    cell.setCellValue(bigDecimal.doubleValue());
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (info.getMchtFee() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), info.getMchtFee()).setScale(2, BigDecimal.ROUND_HALF_UP);
+                    cell.setCellValue(bigDecimal.doubleValue());
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getPayStatus());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getExtend3());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(info.getReturnMessage2());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (info.getCreateDate() != null) {
+                    cell.setCellValue(DateUtils.formatDate(info.getCreateDate(), "yyyy-MM-dd HH:mm:ss"));
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (info.getUpdateDate() != null) {
+                    cell.setCellValue(DateUtils.formatDate(info.getUpdateDate(), "yyyy-MM-dd HH:mm:ss"));
+                }
+                cellIndex++;
+
+                rowIndex++;
+            }
+        }
+        wb.write(out);
+        out.flush();
+        out.close();
+
+        redirectAttributes.addFlashAttribute("messageType", "success");
+        redirectAttributes.addFlashAttribute("message", "导出完毕");
+        response.setCharacterEncoding("UTF-8");
+        return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/proxyDetailList";
+    }
+
+    private void assemblySearch(Map<String, String> paramMap, PlatProxyDetail proxyDetail) {
+
+        if (StringUtils.isNotBlank(paramMap.get("chanId"))) {
+            proxyDetail.setChanId(paramMap.get("chanId"));
+        }
+        if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
+            proxyDetail.setMchtId(paramMap.get("mchtId"));
+        }
+        if (StringUtils.isNotBlank(paramMap.get("detailId"))) {
+            proxyDetail.setId(paramMap.get("detailId"));
+        }
+        if (StringUtils.isNotBlank(paramMap.get("payStatus"))) {
+            proxyDetail.setPayStatus(paramMap.get("payStatus"));
+        }
+        if (StringUtils.isNotBlank(paramMap.get("checkStatus"))) {
+            proxyDetail.setCheckStatus(paramMap.get("checkStatus"));
+        }
+        if (StringUtils.isNotBlank(paramMap.get("batchId"))) {
+            proxyDetail.setPlatBatchId(paramMap.get("batchId"));
+        }
     }
 }

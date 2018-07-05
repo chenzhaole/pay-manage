@@ -21,6 +21,13 @@
             return false;
         }
 
+        $(document).ready(function() {
+            $("#btnExport").click(function(){
+                $("#searchForm").attr("action","${ctx}/platform/accountDetail/export");
+                $("#searchForm").submit();
+                $("#searchForm").attr("action","${ctx}/platform/accountDetail/list");
+            });
+        });
     </script>
 </head>
 
@@ -29,7 +36,7 @@
 
 <tags:message content="${message}" type="${messageType}"/>
 
-<form:form id="searchForm" modelAttribute="mchtAccountDetail" action="${ctx}/platform/accountDetail" method="post"
+<form:form id="searchForm" modelAttribute="mchtAccountDetail" action="${ctx}/platform/accountDetail/list" method="post"
            class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
@@ -87,7 +94,8 @@
                 </form:select>
             </td>
             <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();"
-                       style="margin-left: 5px;"></td>
+                       style="margin-left: 5px;">&nbsp;&nbsp;<input id="btnExport" class="btn btn-primary" type="button" value="导出"/></td>
+
         </tr>
 
     </table>

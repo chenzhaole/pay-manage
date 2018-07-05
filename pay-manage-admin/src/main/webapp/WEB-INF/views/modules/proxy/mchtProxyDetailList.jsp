@@ -19,6 +19,14 @@
         <%--}--%>
         <%--}--%>
 
+        $(document).ready(function() {
+            $("#btnExport").click(function(){
+                $("#searchForm").attr("action","${ctx}/mchtProxy/export");
+                $("#searchForm").submit();
+                $("#searchForm").attr("action","${ctx}/mchtProxy/proxyDetailList");
+            });
+        });
+
         function page(n, s) {
             $("#pageNo").val(n);
             $("#pageSize").val(s);
@@ -145,6 +153,7 @@
                     <div class="controls">
                         <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询"
                                style="margin-left: 25px;">
+                        &nbsp;&nbsp;<input id="btnExport" class="btn btn-primary" type="button" value="导出"/></td>
                         <c:if test="${!empty paramMap.platBatchId}">
                             <input id="callback" class="btn btn-primary" type="button" onclick="goBackProxyBatchPage()"
                                    value="返回" style="margin-left: 25px;">
