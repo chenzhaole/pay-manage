@@ -31,7 +31,7 @@
 			.form-control{display:block;width:100%;padding:.375rem .75rem;font-size:1rem;line-height:1.5;color:#495057;background-color:#fff;background-clip:padding-box;border:1px solid #ced4da;border-radius:.25rem;transition:border-color .15s ease-in-out,box-shadow .15s ease-in-out;overflow:visible;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box}
 			.form-control:focus{color:#495057;background-color:#fff;border-color:#80bdff;outline:0;box-shadow:0 0 0 .2rem rgba(0,123,255,.25)}
 			.form-group>label{display:inline-block;margin-bottom:.5rem}
-			.form-text{display:block;margin-top:.25rem}
+			.form-text{display:inline-block;margin-top:.25rem}
 			.wx-pay-code{height:auto!important;font-weight:400;font-size:1rem;width:100%;padding-right:15px;padding-left:15px;box-sizing:border-box;-webkit-box-sizing:border-box;-moz-box-sizing:border-box;-webkit-text-size-adjust:100%;-webkit-tap-highlight-color:transparent}
 			.form-group{margin-bottom:1rem}
 			.btn:not(:disabled):not(.disabled){cursor:pointer}
@@ -61,6 +61,11 @@
             .layui-layer-hui .layui-layer-content{
                 padding:25px!important;
             }
+			.tips{
+				text-align:left!important;
+				text-decoration: underline;
+				color: #dc3545!important;
+			}
 		</style>
 
 	</head>
@@ -92,7 +97,7 @@
 								<c:if test="${paymentType=='yl'}"><span name="payName">银联</span></c:if>付款码
 								<span id="barcodeError" style="color: red;margin-left: 3px;display: none;">输入的条码数字格式不正确</span>
 							</label>
-							<input type="number" class="form-control" id="authCode" name="authCode" placeholder="请输入18位条码数字"  oninput="value=value.slice(0,18)">
+							<input type="tel" class="form-control" id="authCode" name="authCode" placeholder="请输入18位条码数字"  maxlength="18">
 							<input type="hidden" class="form-control" id="platOrderId" name="platOrderId" value="${platOrderId}">
 							<input type="hidden" class="form-control" id="payType" name="payType" value="${payType}">
 							<input type="hidden" class="form-control" id="g" name="g" value="175">
@@ -104,6 +109,13 @@
 								<c:if test="${paymentType=='sn'}"><span name="payName">苏宁</span></c:if>
 								<c:if test="${paymentType=='yl'}"><span name="payName">银联</span></c:if>付款，查看并输入付款码18位数字
 							</small>
+							<small id="Help" style="cursor:pointer;" class="text-right form-text text-muted tips">点击查看<c:if test="${paymentType=='wx'}"><span name="payName">微信</span></c:if>
+									<c:if test="${paymentType=='al'}"><span name="payName">支付宝</span></c:if>
+									<c:if test="${paymentType=='qq'}"><span name="payName">QQ</span></c:if>
+									<c:if test="${paymentType=='jd'}"><span name="payName">京东</span></c:if>
+									<c:if test="${paymentType=='sn'}"><span name="payName">苏宁</span></c:if>
+									<c:if test="${paymentType=='yl'}"><span name="payName">银联</span></c:if>刷卡使用帮助
+							</small>
 						</div>
 					</form>
 					<button type="button" class="btn btn-block btn-primary" id="btnsubmit">立即支付</button>
@@ -111,13 +123,7 @@
 			</ul>
 		</div>
 
-		<p><small id="Help" style="cursor:pointer;" class="text-right form-text text-muted">点击查看<c:if test="${paymentType=='wx'}"><span name="payName">微信</span></c:if>
-			<c:if test="${paymentType=='al'}"><span name="payName">支付宝</span></c:if>
-			<c:if test="${paymentType=='qq'}"><span name="payName">QQ</span></c:if>
-			<c:if test="${paymentType=='jd'}"><span name="payName">京东</span></c:if>
-			<c:if test="${paymentType=='sn'}"><span name="payName">苏宁</span></c:if>
-			<c:if test="${paymentType=='yl'}"><span name="payName">银联</span></c:if>刷卡使用帮助</small>
-		</p>
+
 
 		<c:if test="${paymentType=='wx'}"><div class="imgbox"><img id="helpImg" class="img-fluid" src="${ctxStatic}/images/weixn.gif" width="80%"></div></c:if>
 		<c:if test="${paymentType=='al'}"><div class="imgbox"><img id="helpImg" class="img-fluid" src="${ctxStatic}/images/ali.gif" width="80%"></div></c:if>

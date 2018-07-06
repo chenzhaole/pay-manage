@@ -188,10 +188,10 @@ public class GwCashierBaseController {
 //	    	  Version/4.0 Chrome/48.0.2564.116 Mobile Safari/537.36 T7/9.1 baiduboxapp/9.1.0.12 (Baidu; P1 6.0.1)
 
             /** 1. 安卓手机qq浏览器， 2.安卓手机百度浏览器*/
-//            if(userAgent.contains("baidu")) {
-//                logger.info(midoid+"，支付宝扫码转h5支付，不支持Android手机的百度【baidu】浏览器");
-//                return false;
-//            }
+            if(userAgent.contains("baidu")) {
+                logger.info(midoid+"，支付宝扫码转h5支付，不支持Android手机的百度【baidu】浏览器");
+                return false;
+            }
         }
         return true;
     }
