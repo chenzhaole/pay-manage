@@ -16,13 +16,25 @@
         $(function () {
             $("#inputForm").validate({
                 rules: {
-                    loginName: {remote: "${ctx}/sys/user/checkLoginName?oldLoginName=" + encodeURIComponent('${user.loginName}')}
                 },
                 messages: {
-                    loginName: {remote: "用户登录名已存在"},
-                    confirmNewPassword: {equalTo: "输入与上面相同的密码"}
                 },
                 submitHandler: function (form) {
+
+                    $("#btnSubmit").attr("disable", true);
+
+                    var balance = $("#balance").val();
+                    var adjustAmount = $("#adjustAmount").val();
+                    var adjustType = $("#adjustType").val();
+
+                    if (adjustType === "2"){
+                        if(parseFloat(adjustAmount) > parseFloat(balance)){
+                            confirmx('减少金额不能大于当前余额');
+                            $("#btnSubmit").attr("disable", false);
+                            return;
+                        }
+                    }
+
                     loading('正在提交，请稍等...');
                     form.submit();
                 },
@@ -59,6 +71,10 @@
                 }
             });
         });
+
+        function changeMcht() {
+            $("#balance").val("0");
+        }
 
         function rateOrAmount() {
             var val = $("#feeType").val();
@@ -109,7 +125,7 @@
                     <label class="control-label">商户名称：</label>
                     <div class="controls">
                         <label>
-                            <select id="mchtId" name="mchtId" class="required" data-live-search="true">
+                            <select id="mchtId" name="mchtId" class="required" data-live-search="true" onchange="changeMcht()">
                                 <option value="">--请选择--</option>
                                 <c:forEach items="${mchtInfos}" var="mchtInfo">
                                     <option value="${mchtInfo.id}">${mchtInfo.name}</option>
@@ -137,7 +153,7 @@
                 <div class="control-group">
                     <label class="control-label">账户余额（元）</label>
                     <div class="controls">
-                        <input type="text" readonly disabled id="balance"/> <input type="button" value="查询"
+                        <input type="text" readonly disabled id="balance" value="0"/> <input type="button" value="查询"
                                                                                    id="balanceBtn"/>
                     </div>
                 </div>
@@ -196,7 +212,7 @@
         <tr>
             <td colspan="2">
                 <div class="form-actions">
-                    <input id="btnSubmit" class="btn btn-primary" type="submit" value="保 存"/>&nbsp;
+                    <input id="btnSubmit" class="btn btn-primary" type="submit" value="提 交" />&nbsp;
                     <input id="btnCancel" class="btn" type="button" value="返 回"
                            onclick="window.location.href='${ctx}/platform/adjust'"/>
                 </div>
