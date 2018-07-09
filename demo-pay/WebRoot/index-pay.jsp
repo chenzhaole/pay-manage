@@ -200,6 +200,7 @@
                             <option value="yl000">银联组合支付类型</option>
                             <option value="yl401">银联扫码支付</option>
                             <option value="yl402">银联扫码转h5</option>
+                            <option value="qj202">快捷支付</option>
                         </select>
                         <span class="null-star">(biz)*</span>
                         <span></span>
