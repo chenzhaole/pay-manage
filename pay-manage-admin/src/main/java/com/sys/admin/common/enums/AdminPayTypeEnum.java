@@ -58,6 +58,7 @@ public enum AdminPayTypeEnum {
 	SINGLE_DF("df101", "单笔代付"),
 
 	//快捷支付--以qj开头
+	QUICK_GROUP ("qj000", "银行卡组合支付类型"),
 	QUICK_PAY ("qj202", "快捷支付(即银行卡支付)"),
 	QUICK_ONLINE_BANK ("qj301", "网银/网银退款支付"),
 	;
