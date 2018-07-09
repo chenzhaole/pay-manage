@@ -52,7 +52,7 @@
             $("#balanceBtn").click(function () {
                 var mchtId = $("#mchtId").val();
                 if (mchtId == '') {
-                    alert("请输入商户号");
+                    alert("请选择商户");
                 } else {
                     $.ajax({
                         url: '${ctx}/platform/adjust/balance',
