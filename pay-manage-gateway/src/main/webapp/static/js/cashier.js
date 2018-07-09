@@ -58,13 +58,9 @@ layui.use(['laydate', 'laypage', 'layer', 'table', 'carousel', 'upload', 'elemen
             var tab = $(this).attr("id");
             //暂时将二维码倒计时跟展示二维码隐藏,下单成功后在显示出来
             $("div[class='"+tab+"-content']").hide();
-            if(tab.indexOf("qj") == 0){
-            //银行卡的时候退出,不在获取二维码,而是去获取用户已绑定的卡信息
-                return;
-            }else{
-                //点击支付宝，微信图标时，发送请求操作,调用下边getAsynQrCode函数异步获取二维码
-                getAsynQrCode(tab);
-            }
+
+            //点击支付宝，微信图标时，发送请求操作,调用下边getAsynQrCode函数异步获取二维码，处理快捷(银行卡支付)
+            getAsynQrCode(tab);
 
             //延迟半秒显示
             setTimeout(function () {
