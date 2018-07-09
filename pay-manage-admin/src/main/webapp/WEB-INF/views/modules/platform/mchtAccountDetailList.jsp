@@ -150,6 +150,10 @@
                     <fmt:formatNumber type="number" value="${accountDetail.tradeFeeAmount*0.01}" pattern="0.00"
                                       maxFractionDigits="2"/>
                 </c:if>
+                <c:if test="${accountDetail.tradeType == '调账'}">
+                    <fmt:formatNumber type="number" value="${accountDetail.tradeFeeAmount*0.01}" pattern="0.00"
+                                      maxFractionDigits="2"/>
+                </c:if>
             </td>
             <%--<td><fmt:formatNumber type="number" value="${accountDetail.freezeTotalAmount*0.01}" pattern="0.00"
                                   maxFractionDigits="2"/></td>--%>
