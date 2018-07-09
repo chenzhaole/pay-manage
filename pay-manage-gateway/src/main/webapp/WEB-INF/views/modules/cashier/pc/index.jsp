@@ -216,48 +216,48 @@
                             <div class="layui-tab-item card">
                                 <div class="cardpay-content">
                                     <!--银行卡部分-->
-                                    <div class="cardlist">
-                                        <ul class="list-container">
+                                    <%--<div class="cardlist">--%>
+                                        <%--<ul class="list-container">--%>
 
-                                            <li class="clearfix  active">
-                                                <div class="flag">
-                                                    <div class="dotbox">
-                                                        <div></div>
-                                                    </div>
-                                                </div>
-                                                <div class="cardinfo" cid="0000">
-                                                    <img src="${ctxStatic}/images/logo/北京银行.svg" alt="北京银行" />
-                                                    <span> <b>北京银行</b> 尾号4994  储蓄卡 | 快捷支付</span>
-                                                    <span class="unbind" onclick="unbind(event,this)">解绑</span>
-                                                </div>
-                                            </li>
+                                            <%--<li class="clearfix  active">--%>
+                                                <%--<div class="flag">--%>
+                                                    <%--<div class="dotbox">--%>
+                                                        <%--<div></div>--%>
+                                                    <%--</div>--%>
+                                                <%--</div>--%>
+                                                <%--<div class="cardinfo" cid="0000">--%>
+                                                    <%--<img src="${ctxStatic}/images/logo/北京银行.svg" alt="北京银行" />--%>
+                                                    <%--<span> <b>北京银行</b> 尾号4994  储蓄卡 | 快捷支付</span>--%>
+                                                    <%--<span class="unbind" onclick="unbind(event,this)">解绑</span>--%>
+                                                <%--</div>--%>
+                                            <%--</li>--%>
 
-                                            <li class="clearfix">
-                                                <div class="flag">
-                                                    <div class="dotbox">
-                                                        <div></div>
-                                                    </div>
-                                                </div>
-                                                <div class="cardinfo" cid="0001">
-                                                    <img src="${ctxStatic}/images/logo/工商银行.svg" alt="工商银行" />
-                                                    <span> <b>工商银行</b> 尾号4994  储蓄卡 | 快捷支付</span>
-                                                    <span class="unbind" onclick="unbind(event,this)">解绑</span>
-                                                </div>
-                                            </li>
+                                            <%--<li class="clearfix">--%>
+                                                <%--<div class="flag">--%>
+                                                    <%--<div class="dotbox">--%>
+                                                        <%--<div></div>--%>
+                                                    <%--</div>--%>
+                                                <%--</div>--%>
+                                                <%--<div class="cardinfo" cid="0001">--%>
+                                                    <%--<img src="${ctxStatic}/images/logo/工商银行.svg" alt="工商银行" />--%>
+                                                    <%--<span> <b>工商银行</b> 尾号4994  储蓄卡 | 快捷支付</span>--%>
+                                                    <%--<span class="unbind" onclick="unbind(event,this)">解绑</span>--%>
+                                                <%--</div>--%>
+                                            <%--</li>--%>
 
-                                        </ul>
+                                        <%--</ul>--%>
 
-                                        <div class="morebtn">
-                                            <button class="layui-btn morecard">更多银行卡</button>
-                                            <button class="layui-btn newcard">添加新卡</button>
-                                            <button class="layui-btn speedpay">网银支付</button>
-                                        </div>
+                                        <%--<div class="morebtn">--%>
+                                            <%--<button class="layui-btn morecard">更多银行卡</button>--%>
+                                            <%--<button class="layui-btn newcard">添加新卡</button>--%>
+                                            <%--<button class="layui-btn speedpay">网银支付</button>--%>
+                                        <%--</div>--%>
 
-                                        <button class="layui-btn paybtn">立即支付</button>
+                                        <%--<button class="layui-btn paybtn">立即支付</button>--%>
 
-                                        <p class="nobind">解绑成功！</p>
+                                        <%--<p class="nobind">解绑成功！</p>--%>
 
-                                    </div>
+                                    <%--</div>--%>
 
                                 </div>
                             </div>
@@ -306,7 +306,7 @@
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script src="${ctxStatic}/js/jquery.mCustomScrollbar.js"></script>
     <script src="${ctxStatic}/layui/layui.js"></script>
-    <script src="${ctxStatic}/js/cashier.js?v=1.0.9"></script>
+    <script src="${ctxStatic}/js/cashier.js?v=1.0.10"></script>
     <script src="${ctxStatic}/js/cardPay.js?v=1.0.0"></script>
     <script>
         /**

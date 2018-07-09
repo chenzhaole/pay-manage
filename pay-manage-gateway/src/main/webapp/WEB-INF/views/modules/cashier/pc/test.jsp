@@ -67,7 +67,8 @@
             <option value="yl501">银联条码-声波</option>
             <%--<option value="yl502">银联付款码包装成PC支付</option>--%>
             <%--<option value="yl503">银联付款码包装成h5支付</option>--%>
-            <%--<option value="qj202">快捷支付(即银行卡支付)</option>--%>
+            <option value="qj000">银行卡组合支付</option>
+            <option value="qj202">快捷支付(即银行卡支付)</option>
             <%--<option value="qj301">网银/网银退款支付</option>--%>
         </select>
         <br>

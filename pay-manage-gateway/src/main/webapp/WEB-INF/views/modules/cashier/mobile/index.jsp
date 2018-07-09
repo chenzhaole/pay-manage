@@ -113,10 +113,10 @@
                 <a href="${ctx}/gateway/cashier/platMobileCall/${mchtId}/${mchtOrderId}/${paymentType}/${extraData}">
                     <li class="aui-list-item">
                         <div class="aui-list-item-label-icon">
-                            <img src="${ctxStatic}/images/bank.png" alt="快捷支付" />
+                            <img src="${ctxStatic}/images/bank.png" alt="银行卡支付" />
                         </div>
                         <div class="aui-list-item-inner aui-list-item-arrow">
-                            <p class="wayName">快捷支付</p>
+                            <p class="wayName">银行卡支付</p>
                             <p class="wayIntro">直接使用银行卡进行支付</p>
                         </div>
                     </li>

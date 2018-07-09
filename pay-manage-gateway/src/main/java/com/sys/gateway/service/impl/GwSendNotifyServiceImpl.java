@@ -163,7 +163,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             //金额
             String amount = "";
             String biz = "";
-            if (PayTypeEnum.QUICK_TX.getCode().equals(payType) || PayTypeEnum.QUICK_PAY.getCode().equals(payType) || PayTypeEnum.QUICK_COMB_DK.getCode().equals(payType)){
+            if (PayTypeEnum.QUICK_TX.getCode().equals(payType) || PayTypeEnum.QUICK_COMB_DK.getCode().equals(payType)){
                 quick = trade.getQuickPay();
                 amount = quick.getAmount();
                 bankCardNo = quick.getBankCardNo();
