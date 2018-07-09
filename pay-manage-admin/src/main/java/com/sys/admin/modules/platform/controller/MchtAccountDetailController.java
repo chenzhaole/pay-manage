@@ -250,7 +250,7 @@ public class MchtAccountDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (accountDetail.getReduceAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), accountDetail.getReduceAmount());
-                    cell.setCellValue(bigDecimal.doubleValue());
+                    cell.setCellValue(bigDecimal.setScale(2 , BigDecimal.ROUND_HALF_UP).doubleValue());
                 }
                 cellIndex++;
 
@@ -262,10 +262,17 @@ public class MchtAccountDetailController extends BaseController {
                     BigDecimal bigDecimal = new BigDecimal(NumberUtils.subtract(tradeAmount.doubleValue() + "", addAmount.doubleValue() + "")).setScale(2, BigDecimal.ROUND_HALF_UP);
                     cell.setCellValue(bigDecimal.doubleValue());
                 } else if ("代付".equals(accountDetail.getTradeType())) {
-                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), accountDetail.getTradeFeeAmount());
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), accountDetail.getTradeFeeAmount().setScale(2, BigDecimal.ROUND_HALF_UP));
                     cell.setCellValue(bigDecimal.doubleValue());
-                } else {
-                    cell.setCellValue("");
+                } else if("调账".equals(accountDetail.getTradeType())){
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), accountDetail.getTradeFeeAmount());
+                    if(bigDecimal !=null ){
+                        cell.setCellValue(bigDecimal.setScale(2 , BigDecimal.ROUND_HALF_UP).doubleValue());
+                    }else{
+                        cell.setCellValue(0);
+                    }
+                }else{
+                    cell.setCellValue(0);
                 }
                 cellIndex++;
 
@@ -273,7 +280,7 @@ public class MchtAccountDetailController extends BaseController {
                 if (accountDetail.getCashTotalAmount() != null) {
                     BigDecimal totalAmount = NumberUtils.multiplyHundred(new BigDecimal(0.01), accountDetail.getCashTotalAmount());
                     BigDecimal feeAmount = NumberUtils.multiplyHundred(new BigDecimal(0.01), accountDetail.getFreezeTotalAmount());
-                    BigDecimal bigDecimal = new BigDecimal(NumberUtils.subtract(totalAmount.doubleValue() + "", feeAmount.doubleValue() + "")).setScale(2, BigDecimal.ROUND_HALF_UP);
+                    BigDecimal bigDecimal = totalAmount.subtract(feeAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
                     cell.setCellValue(bigDecimal.doubleValue());
                 }
                 cellIndex++;

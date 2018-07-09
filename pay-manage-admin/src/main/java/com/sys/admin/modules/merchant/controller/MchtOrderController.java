@@ -606,8 +606,8 @@ public class MchtOrderController extends BaseController {
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
 		}
 
-		String[] headers = {"商户名称", "产品名称", "支付类型", "商户订单号",
-				"平台订单号", "交易金额(元)", "订单状态", "创建时间", "支付时间"};
+		String[] headers = {"商户名称", "支付方式", "商户订单号",
+				"平台订单号","官方订单号", "交易金额(元)", "订单状态","补单状态", "创建时间"};
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
@@ -642,9 +642,9 @@ public class MchtOrderController extends BaseController {
 //				cell.setCellValue(orderTemp.getChanId());
 //				cellIndex++;
 
-				cell = row.createCell(cellIndex);
+			/*	cell = row.createCell(cellIndex);
 				cell.setCellValue(orderTemp.getGoodsName());
-				cellIndex++;
+				cellIndex++;*/
 
 				cell = row.createCell(cellIndex);
 				cell.setCellValue(orderTemp.getPayType());
@@ -658,9 +658,9 @@ public class MchtOrderController extends BaseController {
 				cell.setCellValue(orderTemp.getPlatOrderId());
 				cellIndex++;
 
-//				cell = row.createCell(cellIndex);
-//				cell.setCellValue(orderTemp.getChanOrderId());
-//				cellIndex++;
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(orderTemp.getOfficialOrderId());
+				cellIndex++;
 
 				cell = row.createCell(cellIndex);
 				if (orderTemp.getAmount() != null) {
@@ -673,20 +673,18 @@ public class MchtOrderController extends BaseController {
 				cell.setCellValue(orderTemp.getStatus());
 				cellIndex++;
 
-//				cell = row.createCell(cellIndex);
-//				cell.setCellValue(orderTemp.getSupplyStatus());
-//				cellIndex++;
+				cell = row.createCell(cellIndex);
+				if("0".equals(orderTemp.getSupplyStatus())){
+					cell.setCellValue("成功");
+				}
+
+				cellIndex++;
 
 				cell = row.createCell(cellIndex);
 				if (orderTemp.getCreateTime() != null) {
 					cell.setCellValue(DateUtils.formatDate(orderTemp.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
 				}
-				cellIndex++;
 
-				cell = row.createCell(cellIndex);
-				if (orderTemp.getUpdateTime() != null) {
-					cell.setCellValue(DateUtils.formatDate(orderTemp.getUpdateTime(), "yyyy-MM-dd HH:mm:ss"));
-				}
 				rowIndex++;
 			}
 		}
