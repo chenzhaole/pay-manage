@@ -84,7 +84,7 @@ public class PlatAccountAdjustController extends BaseController {
      */
     @RequestMapping(value={"list",""})
     @RequiresPermissions("platform:adjust:list")
-    public String list(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model){
+    public String list(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model,String logo){
         try {
             PageInfo pageInfo = new PageInfo();
             platAccountAdjust.setPageInfo(pageInfo);
@@ -122,7 +122,8 @@ public class PlatAccountAdjustController extends BaseController {
                 bo.setMchtName(mchtMap.get(adjust.getMchtId()));
                 showList.add(bo);
             }
-
+            //标记区别 调账申请和调账审批
+            model.addAttribute("logo", logo);
             model.addAttribute("mchtInfos", mchtInfos);
             model.addAttribute("adjustInfo", platAccountAdjust);
             model.addAttribute("list",showList);

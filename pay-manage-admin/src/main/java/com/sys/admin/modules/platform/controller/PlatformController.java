@@ -477,7 +477,7 @@ public class PlatformController extends BaseController {
 		}
 
 		String message = "已经保存" + result + "条";
-		redirectAttributes.addFlashAttribute("messageType", message);
+		redirectAttributes.addFlashAttribute("messageType", "success");
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
 		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtChanList";
