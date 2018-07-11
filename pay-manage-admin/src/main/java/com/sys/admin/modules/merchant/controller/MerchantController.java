@@ -1,5 +1,7 @@
 package com.sys.admin.modules.merchant.controller;
 
+import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
@@ -10,16 +12,22 @@ import com.sys.admin.modules.merchant.bo.MerchantForm;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
+import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.service.SysAreaService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.CertTypeEnum;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.PlatFeerate;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -30,7 +38,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -49,7 +59,191 @@ public class MerchantController extends BaseController {
 
 	@Autowired
 	private MchtProductAdminService mchtProductAdminService;
-	
+
+	//商户基本信息接口地址
+	@Value("${mchtInfoData.url}")
+	private String mchtInfoDataUrl;
+
+	//交易相关数据接口地址
+	@Value("${payData.url}")
+	private String payDataUrl;
+
+	//商户账户详情信息接口地址
+	@Value("${mchtAccountDetailData.url}")
+	private String mchtAccountDetailUrl;
+
+	//商户费率信息接口地址
+	@Value("${mchtFeerateInfoData.url}")
+	private String mchtFeerateInfoDataUrl;
+
+	/**
+	 * 商户首页
+	 */
+	@RequestMapping(value = {"mchtWelcome", ""})
+	public String  mchtWelcome(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {
+		//当前登陆商户
+		User user = UserUtils.getUser();
+		String mchtCode = user.getLoginName();
+
+		//1.商户基本信息
+		MchtInfo mchtInfoData = queryMchtInfoByHttp(mchtCode);
+		if(null == mchtInfoData){
+			return "modules/merchant/mchtWelcome";
+		}
+		model.addAttribute("mchtInfoData",  mchtInfoData);
+
+		//2.交易相关数据
+		Map payData = queryPayDataByHttp(mchtCode);
+		model.addAttribute("payData", payData);
+		//3.商户账户详情信息
+		MchtAccountDetail mchtAccountDetailData = queryMchtAccountDetailByHttp(mchtCode);
+		model.addAttribute("mchtAccountDetailData", mchtAccountDetailData);
+		//4.商户费率信息
+		List<PlatFeerate> mchtFeerateInfoData = queryMchtFeerateInfoByHttp(mchtCode);
+		//将费率转成map
+		Map<String, String> mchtFeerateInfoMap = mchtFeerateInfoDataToMap(mchtFeerateInfoData);
+		model.addAttribute("mchtFeerateInfoMap", mchtFeerateInfoMap);
+
+		return "modules/merchant/mchtWelcome";
+	}
+
+	//将可用的费率封装进map中
+	private Map<String, String> mchtFeerateInfoDataToMap(List<PlatFeerate> mchtFeerateInfoData) {
+		if(null != mchtFeerateInfoData && mchtFeerateInfoData.size() > 0){
+			Map<String, String> data = new HashMap<>();
+			for (PlatFeerate platFeerate : mchtFeerateInfoData){
+				String biz = (StringUtils.isNotBlank(platFeerate.getBizRefId()) && platFeerate.getBizRefId().contains("&")) ? platFeerate.getBizRefId().split("&")[1]:"";
+				BigDecimal feeRate = platFeerate.getFeeRate();
+				if(StringUtils.isNotBlank(biz) && null != feeRate && filterPayType(biz)){
+					data.put(PayTypeEnum.toEnum(biz).getDesc(),feeRate.toString());
+				}
+			}
+			return data;
+		}else{
+			return null;
+		}
+	}
+
+	/**
+	 * 过滤掉不能显示出来的支付类型
+	 * @param biz
+	 * @return
+	 */
+	private boolean filterPayType(String biz) {
+		List types = new ArrayList();
+		types.add("ca001");
+		types.add("ca002");
+		types.add("jh001");
+		types.add("hf001");
+		types.add("wx000");
+		types.add("wx502");
+		types.add("wx503");
+		types.add("al000");
+		types.add("al102");
+		types.add("al502");
+		types.add("al503");
+		types.add("sn000");
+		types.add("sn502");
+		types.add("sn503");
+		types.add("qq000");
+		types.add("qq102");
+		types.add("qq502");
+		types.add("qq503");
+		types.add("jd000");
+		types.add("jd102");
+		types.add("jd502");
+		types.add("jd503");
+		types.add("yl000");
+		types.add("yl402");
+		types.add("yl502");
+		types.add("yl503");
+		if(types.contains(biz)){
+			return false;
+		}
+
+		return true;
+	}
+
+	/**
+	 *  查询商户交易数据
+	 * @param mchtCode
+	 * @return
+	 */
+	private Map queryPayDataByHttp(String mchtCode) {
+		String url = payDataUrl+"/"+mchtCode;
+		logger.info("商户首页，查询商户交易数据信息，请求地址："+url);
+		String retData = "";
+		try {
+			retData = HttpUtil.postConnManager(url, null);
+			logger.info("商户首页，查询商户交易数据信息，接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return JSON.parseObject(retData, Map.class);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 查询商户基本信息
+	 * @param mchtCode
+	 * @return
+	 */
+	private MchtInfo queryMchtInfoByHttp(String mchtCode) {
+		String url = mchtInfoDataUrl+"/"+mchtCode;
+		logger.info("商户首页，查询商户信息，请求地址："+url);
+		String retData = "";
+		try {
+			retData = HttpUtil.postConnManager(url, null);
+			logger.info("商户首页，查询商户信息，接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return JSON.parseObject(retData, MchtInfo.class);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 商户账户详情信息
+	 */
+	private MchtAccountDetail queryMchtAccountDetailByHttp(String mchtCode) {
+		String url = mchtAccountDetailUrl+"/"+mchtCode;
+		logger.info("商户首页，查询商户账户详情信息，请求地址："+url);
+		String retData = "";
+		try {
+			retData = HttpUtil.postConnManager(url, null);
+			logger.info("商户首页，查询商户账户详情信息，接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return JSON.parseObject(retData, MchtAccountDetail.class);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+	/**
+	 * 商户费率信息
+	 */
+	private List<PlatFeerate> queryMchtFeerateInfoByHttp(String mchtCode) {
+		String url = mchtFeerateInfoDataUrl+"/"+mchtCode;
+		logger.info("商户首页，查询商户费率详情信息，请求地址："+url);
+		String retData = "";
+		try {
+			retData = HttpUtil.postConnManager(url, null);
+			logger.info("商户首页，查询商户费率信息，接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return JSONArray.parseArray(retData, PlatFeerate.class);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
 	@RequestMapping(value={"add"})
 	public String add(HttpServletRequest request, HttpServletResponse response, Model model, 
 			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes) {
