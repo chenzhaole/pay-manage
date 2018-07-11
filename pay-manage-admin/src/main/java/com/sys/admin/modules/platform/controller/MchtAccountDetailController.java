@@ -3,6 +3,7 @@ package com.sys.admin.modules.platform.controller;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.common.enums.AccAccountTypeEnum;
 import com.sys.common.enums.AccOpTypeEnum;
 import com.sys.common.enums.AccTradeTypeEnum;
@@ -45,6 +46,8 @@ public class MchtAccountDetailController extends BaseController {
     @Autowired
     private MchtAccountDetailService mchtAccountDetailService;
     @Autowired
+    private AccountAdminService accountAdminService;
+    @Autowired
     private MerchantService merchantService;
     @Autowired
     private ProductService productService;
@@ -86,7 +89,7 @@ public class MchtAccountDetailController extends BaseController {
 
         } else {
 
-            list = mchtAccountDetailService.list(mchtAccountDetail);
+            list = accountAdminService.list(mchtAccountDetail);
             count = mchtAccountDetailService.count(mchtAccountDetail);
 
             //初始化商户名称
@@ -149,7 +152,7 @@ public class MchtAccountDetailController extends BaseController {
             return "redirect:" + GlobalConfig.getAdminPath() + "/platform/accountDetail/list";
         }
         //获取数据List
-        List<MchtAccountDetail> list = mchtAccountDetailService.list(mchtAccountDetail);
+        List<MchtAccountDetail> list = accountAdminService.list(mchtAccountDetail);
         if (list == null || list.size() == 0) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");

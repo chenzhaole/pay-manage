@@ -9,6 +9,7 @@ import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.merchant.bo.MerchantForm;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.PlatAccountAdjustBO;
+import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
@@ -65,6 +66,8 @@ public class PlatAccountAdjustController extends BaseController {
     private MerchantService merchantService;
     @Autowired
     private MchtAccountDetailService mchtAccountDetailService;
+    @Autowired
+    private AccountAdminService accountAdminService;
     @Autowired
     MerchantAdminService merchantAdminService;
 
@@ -256,7 +259,7 @@ public class PlatAccountAdjustController extends BaseController {
         MchtAccountDetail detailQuery = new MchtAccountDetail();
         detailQuery.setMchtId(mchtId);
         detailQuery.setSuffix(DateUtils.formatDate(new Date(),"yyyyMM"));
-        List<MchtAccountDetail> details = mchtAccountDetailService.list(detailQuery);
+        List<MchtAccountDetail> details = accountAdminService.list(detailQuery);
         if (!CollectionUtils.isEmpty(details)){
             mchtAccountDetail = details.get(0);
             platBalance = mchtAccountDetail.getCashTotalAmount();
