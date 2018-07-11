@@ -94,9 +94,15 @@ public class MerchantController extends BaseController {
 
 		//2.交易相关数据
 		Map payData = queryPayDataByHttp(mchtCode);
+		if(null == payData){
+			return "modules/merchant/mchtWelcome";
+		}
 		model.addAttribute("payData", payData);
 		//3.商户账户详情信息
 		MchtAccountDetail mchtAccountDetailData = queryMchtAccountDetailByHttp(mchtCode);
+		if(null == mchtAccountDetailData){
+			return "modules/merchant/mchtWelcome";
+		}
 		//冻结金额
 		BigDecimal freezeTotalAmount = mchtAccountDetailData.getFreezeTotalAmount();
 		freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100));
@@ -112,6 +118,9 @@ public class MerchantController extends BaseController {
 		model.addAttribute("mchtAccountDetailData", mchtAccountDetailData);
 		//4.商户费率信息
 		List<PlatFeerate> mchtFeerateInfoData = queryMchtFeerateInfoByHttp(mchtCode);
+		if(null == mchtFeerateInfoData){
+			return "modules/merchant/mchtWelcome";
+		}
 		//将费率转成map
 		Map<String, String> mchtFeerateInfoMap = mchtFeerateInfoDataToMap(mchtFeerateInfoData);
 		model.addAttribute("mchtFeerateInfoMap", mchtFeerateInfoMap);
