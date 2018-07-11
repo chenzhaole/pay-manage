@@ -26,7 +26,9 @@
 <shiro:hasPermission name="platform:adjust:apply">
 <ul class="nav nav-tabs">
     <li class="active"><a href="${ctx}/platform/adjust">调账列表</a></li>
-    <li><a href="${ctx}/platform/adjust/form">调账添加</a></li>
+    <c:if test="${logo == 'apply'}">
+        <li><a href="${ctx}/platform/adjust/form">调账添加</a></li>
+    </c:if>
 </ul>
 </shiro:hasPermission>
 

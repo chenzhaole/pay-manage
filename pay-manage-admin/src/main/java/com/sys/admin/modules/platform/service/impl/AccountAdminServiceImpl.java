@@ -1,11 +1,14 @@
 package com.sys.admin.modules.platform.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.common.db.JedisConnPool;
+import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
+import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
@@ -13,9 +16,14 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 /**
  * @author ALI
@@ -24,9 +32,41 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 @Service
 public class AccountAdminServiceImpl implements AccountAdminService {
 	private static final Logger logger = LoggerFactory.getLogger(AccountAdminServiceImpl.class);
-
+	private static final String CONFIG_URL = ConfigUtil.getValue("order.url");
 	@Autowired
 	private MerchantService merchantService;
+
+
+	/**
+	 *获取账务信息列表   有dubbo获取更改为HTTP获取
+	 */
+	@Override
+	public List<MchtAccountDetail> list(MchtAccountDetail mchtAccountDetail) {
+
+		String url = CONFIG_URL + "accountList";
+		Map<String, String> params = new HashMap<>();
+		params.put("mchtAccountDetail", JSON.toJSONString(mchtAccountDetail));
+
+		String result;
+
+		try {
+			result = HttpUtil.postConnManager(url, params);
+		} catch (Exception e) {
+			logger.error("查询 mchtAccountDetail 模块出错：", e);
+			return null;
+		}
+
+		List<MchtAccountDetail> mdetailList = JSON.parseArray(result, MchtAccountDetail.class);
+
+		if (!CollectionUtils.isEmpty(mdetailList)) {
+			return mdetailList;
+		}
+
+		return null;
+	}
+
+
+
 
 	/**
 	 * 插入商户账户信息至Redis队列

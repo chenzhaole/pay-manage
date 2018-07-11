@@ -3,6 +3,7 @@ package com.sys.admin.modules.platform.controller;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.common.enums.AccAccountTypeEnum;
 import com.sys.common.enums.AccOpTypeEnum;
 import com.sys.common.enums.AccTradeTypeEnum;
@@ -45,6 +46,8 @@ public class MchtAccountDetailController extends BaseController {
     @Autowired
     private MchtAccountDetailService mchtAccountDetailService;
     @Autowired
+    private AccountAdminService accountAdminService;
+    @Autowired
     private MerchantService merchantService;
     @Autowired
     private ProductService productService;
@@ -68,11 +71,15 @@ public class MchtAccountDetailController extends BaseController {
         if (StringUtils.isNotBlank(request.getParameter("pageSize")))
             pageInfo.setPageSize(Integer.parseInt(request.getParameter("pageSize")));
 
+        String createTimeStr = "";
         if (StringUtils.isNotBlank(request.getParameter("createTime"))) {
             mchtAccountDetail.setSuffix(request.getParameter("createTime").replace("-", "").substring(0, 6));
             mchtAccountDetail.setCreateTime(DateUtils.parseDate(request.getParameter("createTime")));
+            createTimeStr = request.getParameter("createTime");
         } else {
             mchtAccountDetail.setSuffix(DateUtils.formatDate(new Date(), "yyyyMM"));
+            createTimeStr = DateUtils.getDate();
+            mchtAccountDetail.setCreateTime(DateUtils.parseDate(createTimeStr));
         }
         //获取商户列表
         List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
@@ -80,23 +87,29 @@ public class MchtAccountDetailController extends BaseController {
         List<MchtAccountDetail> list = null;
         int count = 0;
 
-        String createTimeStr = request.getParameter("createTime");
+
         if (StringUtils.isNotBlank(createTimeStr) && checkCreateTime(createTimeStr)) {
             //2018年6月之前的日志 不提供查询，因为没用月表
 
         } else {
 
-            list = mchtAccountDetailService.list(mchtAccountDetail);
+            list = accountAdminService.list(mchtAccountDetail);
             count = mchtAccountDetailService.count(mchtAccountDetail);
 
             //初始化商户名称
             Map<String, String> mchtMap = com.sys.common.util.Collections3.extractToMap(
                     mchtInfos, "id", "name");
-            for (MchtAccountDetail detail : list) {
-                detail.setMchtName(mchtMap.get(detail.getMchtId()));
-                detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
-                detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+            if(list != null){
+                for (MchtAccountDetail detail : list) {
+                    detail.setMchtName(mchtMap.get(detail.getMchtId()));
+                    detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
+                    detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+                }
+            }else{
+                logger.info("查询list列表为空");
             }
+
+
         }
         Page page = new Page(pageInfo.getPageNo(), pageInfo.getPageSize(), count, true);
 
@@ -104,7 +117,8 @@ public class MchtAccountDetailController extends BaseController {
         model.addAttribute("mchtInfos", mchtInfos);
         model.addAttribute("list", list);
         model.addAttribute("page", page);
-        model.addAttribute("createTime", request.getParameter("createTime"));
+        logger.info("createTimeStr="+createTimeStr);
+        model.addAttribute("createTime", createTimeStr);
         return "modules/platform/mchtAccountDetailList";
     }
 
@@ -149,7 +163,7 @@ public class MchtAccountDetailController extends BaseController {
             return "redirect:" + GlobalConfig.getAdminPath() + "/platform/accountDetail/list";
         }
         //获取数据List
-        List<MchtAccountDetail> list = mchtAccountDetailService.list(mchtAccountDetail);
+        List<MchtAccountDetail> list = accountAdminService.list(mchtAccountDetail);
         if (list == null || list.size() == 0) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");
@@ -325,11 +339,15 @@ public class MchtAccountDetailController extends BaseController {
         }
         //初始化页面开始时间
         String createTime = paramMap.get("createTime");
+        String createTimeStr = "";
         if (StringUtils.isBlank(createTime)) {
             detail.setSuffix(DateUtils.formatDate(new Date(), "yyyyMM"));
+            createTimeStr = DateUtils.getDate();
+            detail.setCreateTime(DateUtils.parseDate(createTimeStr));
         } else {
             detail.setSuffix(createTime.replace("-", "").substring(0, 6));
-            detail.setCreateTime(DateUtils.parseDate(createTime));
+            createTimeStr = paramMap.get("createTime");
+            detail.setCreateTime(DateUtils.parseDate(createTimeStr));
         }
 
     }

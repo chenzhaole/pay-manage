@@ -3,6 +3,7 @@ package com.sys.admin.modules.merchant.controller;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.AccAccountTypeEnum;
@@ -49,6 +50,8 @@ public class MchtFilterAccountDetailController extends BaseController {
     @Autowired
     private MchtAccountDetailService mchtAccountDetailService;
     @Autowired
+    private AccountAdminService accountAdminService;
+    @Autowired
     private MerchantService merchantService;
 
     /**
@@ -88,7 +91,7 @@ public class MchtFilterAccountDetailController extends BaseController {
 
         } else {
             if (StringUtils.isNotBlank(isSelectInfo)) {
-                list = mchtAccountDetailService.list(mchtAccountDetail);
+                list = accountAdminService.list(mchtAccountDetail);
                 count = mchtAccountDetailService.count(mchtAccountDetail);
                 //初始化商户名称
                 Map<String, String> mchtMap = com.sys.common.util.Collections3.extractToMap(
@@ -151,7 +154,7 @@ public class MchtFilterAccountDetailController extends BaseController {
             return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/mchtAccountDetail/list";
         }
         //获取数据List
-        List<MchtAccountDetail> list = mchtAccountDetailService.list(mchtAccountDetail);
+        List<MchtAccountDetail> list = accountAdminService.list(mchtAccountDetail);
         if (list == null || list.size() == 0) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");

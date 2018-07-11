@@ -140,7 +140,7 @@
 	                    </div>
 	                </div>
 	            </td>
-	            
+
 	            <td>
 	                <div class="control-group">
 	                    <label class="control-label">支付方式：</label>
@@ -156,7 +156,7 @@
 	            </td>
 	        </tr>
 	        <tr>
-	            
+
 	            <td>
 	                <div class="control-group">
 	                    <label class="control-label">官方订单号：</label>
@@ -190,7 +190,7 @@
 	                </div>
 	            </td>
 	        </tr>
-	        
+
 	        <tr>
 
 	             <td>
@@ -206,7 +206,7 @@
 	                    </div>
 	                </div>
 	            </td>
-	            
+
 	            <td>
 	                <div class="control-group">
 	                    <label class="control-label">订单状态：</label>
@@ -227,14 +227,14 @@
 	                        <select id="supplyStatus" namefa="supplyStatus">
 								<option value="">---请选择---</option>
 								<c:forEach var="dict" items="${fns:getDictList('supply_status')}">
-									<<option value="${dict.value}"> <c:if test="${paramMap.supplyStatus eq dict.value}">selected</c:if>>${dict.label}</option>
+                                    <option value="${dict.value}" <c:if test="${paramMap.supplyStatus eq dict.value}">selected</c:if>>${dict.label}</option>
 								</c:forEach>
 							</select>
 	                    </div>
 	                </div>
 	            </td>
 	        </tr>
-	        
+
 	        <tr>
 	         	<td colspan="2">
 	         		<div class="control-group">
@@ -242,7 +242,7 @@
 	                    <div class="controls">
 	                       <input id="beginDate" name="beginDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
 			               value="${paramMap.beginDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:false,readOnly:true,maxDate:$dp.$('endDate').value,isShowOK:false,isShowToday:false});"/>至
-			               
+
 			               <input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
 				               value="${paramMap.endDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:false,readOnly:true,minDate:$dp.$('beginDate').value,isShowOK:false,isShowToday:false});"/>
 	               		 </div>
@@ -268,7 +268,7 @@
 	<label>成功笔数：${successCount} | </label>
 	<label>成功金额：${successAmount} 元| </label>
 	<tags:message content="${message}"/>
-	
+
 	<table id="contentTable" class="table table-striped table-bordered table-condensed table-hover" style="word-wrap:break-word; word-break:break-all;">
 		<thead>
 			<tr >
@@ -315,7 +315,7 @@
 							<%--|
                             <a href="${ctx}/process/question/form?orderId=${orderInfo.id}">同步状态</a>  --%>
 					</td>
-				</shiro:hasPermission>	
+				</shiro:hasPermission>
 			</tr>
 		</c:forEach>
 		</tbody>
