@@ -2,11 +2,11 @@ package com.sys.admin.modules.platform.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.utils.ConfigUtil;
-import com.sys.admin.common.utils.PostUtil;
 import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.common.db.JedisConnPool;
+import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -50,7 +50,7 @@ public class AccountAdminServiceImpl implements AccountAdminService {
 		String result;
 
 		try {
-			result = PostUtil.postForm(url, params);
+			result = HttpUtil.postConnManager(url, params);
 		} catch (Exception e) {
 			logger.error("查询 mchtAccountDetail 模块出错：", e);
 			return null;

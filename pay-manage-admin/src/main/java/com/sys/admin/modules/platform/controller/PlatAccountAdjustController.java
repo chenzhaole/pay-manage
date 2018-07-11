@@ -263,9 +263,10 @@ public class PlatAccountAdjustController extends BaseController {
         pageInfo.setPageSize(1);
         detailQuery.setPageInfo(pageInfo);
 
-        List<MchtAccountDetail> list = accountAdminService.list(detailQuery);
+        List<MchtAccountDetail> list = mchtAccountDetailService.list(detailQuery);
 
         if (!CollectionUtils.isEmpty(list)) {
+            logger.info("账务信息："+JSON.toJSONString(list.get(0)));
             platBalance = list.get(0).getCashTotalAmount();
             //余额 = 现金金额 - 冻结金额
             if (list.get(0).getFreezeTotalAmount() != null) {
