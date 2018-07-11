@@ -263,7 +263,7 @@ public class PlatAccountAdjustController extends BaseController {
         pageInfo.setPageSize(1);
         detailQuery.setPageInfo(pageInfo);
 
-        List<MchtAccountDetail> list = mchtAccountDetailService.list(detailQuery);
+        List<MchtAccountDetail> list = accountAdminService.list(detailQuery);
 
         if (!CollectionUtils.isEmpty(list)) {
             logger.info("账务信息："+JSON.toJSONString(list.get(0)));
