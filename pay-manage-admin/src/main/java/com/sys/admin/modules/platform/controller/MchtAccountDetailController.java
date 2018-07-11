@@ -95,11 +95,17 @@ public class MchtAccountDetailController extends BaseController {
             //初始化商户名称
             Map<String, String> mchtMap = com.sys.common.util.Collections3.extractToMap(
                     mchtInfos, "id", "name");
-            for (MchtAccountDetail detail : list) {
-                detail.setMchtName(mchtMap.get(detail.getMchtId()));
-                detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
-                detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+            if(list != null){
+                for (MchtAccountDetail detail : list) {
+                    detail.setMchtName(mchtMap.get(detail.getMchtId()));
+                    detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
+                    detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+                }
+            }else{
+                logger.info("查询list列表为空");
             }
+
+
         }
         Page page = new Page(pageInfo.getPageNo(), pageInfo.getPageSize(), count, true);
 

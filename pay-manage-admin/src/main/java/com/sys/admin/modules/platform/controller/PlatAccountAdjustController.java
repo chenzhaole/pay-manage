@@ -72,11 +72,11 @@ public class PlatAccountAdjustController extends BaseController {
     MerchantAdminService merchantAdminService;
 
     @ModelAttribute
-    public PlatAccountAdjust get(@RequestParam(required = false) String id){
+    public PlatAccountAdjust get(@RequestParam(required = false) String id) {
         PlatAccountAdjust platAccountAdjust;
-        if(StringUtils.isNotBlank(id)){
+        if (StringUtils.isNotBlank(id)) {
             platAccountAdjust = platAccountAdjustService.queryByKey(id);
-        }else{
+        } else {
             platAccountAdjust = new PlatAccountAdjust();
         }
         return platAccountAdjust;
@@ -85,43 +85,43 @@ public class PlatAccountAdjustController extends BaseController {
     /**
      * 调账记录列表
      */
-    @RequestMapping(value={"list",""})
+    @RequestMapping(value = {"list", ""})
     @RequiresPermissions("platform:adjust:list")
-    public String list(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model,String logo){
+    public String list(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model, String logo) {
         try {
             PageInfo pageInfo = new PageInfo();
             platAccountAdjust.setPageInfo(pageInfo);
 
-            if(StringUtils.isNotBlank(request.getParameter("pageNo")))
+            if (StringUtils.isNotBlank(request.getParameter("pageNo")))
                 pageInfo.setPageNo(Integer.parseInt(request.getParameter("pageNo")));
 
-            if(StringUtils.isNotBlank(request.getParameter("pageSize")))
+            if (StringUtils.isNotBlank(request.getParameter("pageSize")))
                 pageInfo.setPageSize(Integer.parseInt(request.getParameter("pageSize")));
 
-            if(StringUtils.isNotBlank(request.getParameter("createTime")))
+            if (StringUtils.isNotBlank(request.getParameter("createTime")))
                 platAccountAdjust.setCreateTime(DateUtils.parseDate(request.getParameter("createTime")));
 
-            if(StringUtils.isNotBlank(request.getParameter("auditTime")))
+            if (StringUtils.isNotBlank(request.getParameter("auditTime")))
                 platAccountAdjust.setAuditTime(DateUtils.parseDate(request.getParameter("auditTime")));
 
             List<PlatAccountAdjust> list = platAccountAdjustService.list(platAccountAdjust);
             List<PlatAccountAdjustBO> showList = new ArrayList<>(list.size());
             int count = platAccountAdjustService.count(platAccountAdjust);
 
-            Page page = new Page(pageInfo.getPageNo(),pageInfo.getPageSize(),count,true);
-            model.addAttribute("list",list);
-            model.addAttribute("page",page);
+            Page page = new Page(pageInfo.getPageNo(), pageInfo.getPageSize(), count, true);
+            model.addAttribute("list", list);
+            model.addAttribute("page", page);
 
             //初始化商户名称
             List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
 
-            Map<String,String> mchtMap = Collections3.extractToMap(
-                    mchtInfos,"id","name");
+            Map<String, String> mchtMap = Collections3.extractToMap(
+                    mchtInfos, "id", "name");
             ConvertUtils.register(new DateConverter(null), java.util.Date.class);
-            ConvertUtils.register(new BigDecimalConverter(null),BigDecimal.class);
-            for(PlatAccountAdjust adjust : list){
+            ConvertUtils.register(new BigDecimalConverter(null), BigDecimal.class);
+            for (PlatAccountAdjust adjust : list) {
                 PlatAccountAdjustBO bo = new PlatAccountAdjustBO();
-                BeanUtils.copyProperties(bo,adjust);
+                BeanUtils.copyProperties(bo, adjust);
                 bo.setMchtName(mchtMap.get(adjust.getMchtId()));
                 showList.add(bo);
             }
@@ -129,10 +129,10 @@ public class PlatAccountAdjustController extends BaseController {
             model.addAttribute("logo", logo);
             model.addAttribute("mchtInfos", mchtInfos);
             model.addAttribute("adjustInfo", platAccountAdjust);
-            model.addAttribute("list",showList);
-            model.addAttribute("page",page);
-            model.addAttribute("createTime",request.getParameter("createTime"));
-            model.addAttribute("auditTime",request.getParameter("auditTime"));
+            model.addAttribute("list", showList);
+            model.addAttribute("page", page);
+            model.addAttribute("createTime", request.getParameter("createTime"));
+            model.addAttribute("auditTime", request.getParameter("auditTime"));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -142,9 +142,9 @@ public class PlatAccountAdjustController extends BaseController {
     /**
      * 调账申请页面
      */
-    @RequestMapping(value="form")
+    @RequestMapping(value = "form")
     @RequiresPermissions("platform:adjust:apply")
-    public String form(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model){
+    public String form(PlatAccountAdjust platAccountAdjust, HttpServletRequest request, Model model) {
         //所有可配商户
         List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
         List<MerchantForm> mchtInfosResult = new ArrayList<>();
@@ -170,19 +170,19 @@ public class PlatAccountAdjustController extends BaseController {
      */
     @RequestMapping("save")
     @RequiresPermissions("platform:adjust:apply")
-    public String save(PlatAccountAdjust platAccountAdjust, RedirectAttributes redirectAttributes){
-        Long operatorId =  UserUtils.getUser().getId();
+    public String save(PlatAccountAdjust platAccountAdjust, RedirectAttributes redirectAttributes) {
+        Long operatorId = UserUtils.getUser().getId();
         String operatorName = UserUtils.getUser().getName();
         platAccountAdjust.setCreatorId(operatorId.toString());
         platAccountAdjust.setCreatorName(operatorName);
-		//元转分
-		if (platAccountAdjust.getAdjustAmount() != null) {
-			platAccountAdjust.setAdjustAmount(platAccountAdjust.getAdjustAmount().multiply(BigDecimal.valueOf(100)));
-		}
-		if (platAccountAdjust.getFeeAmount() != null) {
-			platAccountAdjust.setFeeAmount(platAccountAdjust.getFeeAmount().multiply(BigDecimal.valueOf(100)));
-		}
-		platAccountAdjust.setAuditStatus(AuditEnum.AUDITING.getCode());
+        //元转分
+        if (platAccountAdjust.getAdjustAmount() != null) {
+            platAccountAdjust.setAdjustAmount(platAccountAdjust.getAdjustAmount().multiply(BigDecimal.valueOf(100)));
+        }
+        if (platAccountAdjust.getFeeAmount() != null) {
+            platAccountAdjust.setFeeAmount(platAccountAdjust.getFeeAmount().multiply(BigDecimal.valueOf(100)));
+        }
+        platAccountAdjust.setAuditStatus(AuditEnum.AUDITING.getCode());
         platAccountAdjust.setId(IdUtil.createCommonId());
         platAccountAdjust.setUpdateTime(new Date());
         platAccountAdjust.setCreateTime(new Date());
@@ -199,7 +199,7 @@ public class PlatAccountAdjustController extends BaseController {
 
         redirectAttributes.addFlashAttribute("messageType", messageType);
         redirectAttributes.addFlashAttribute("message", message);
-        return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/adjust/list";
+        return "redirect:" + GlobalConfig.getAdminPath() + "/platform/adjust/list";
     }
 
     /**
@@ -207,8 +207,8 @@ public class PlatAccountAdjustController extends BaseController {
      */
     @RequestMapping("audit")
     @RequiresPermissions("platform:adjust:audit")
-    public String audit(PlatAccountAdjust platAccountAdjust, RedirectAttributes redirectAttributes){
-        Long operatorId =  UserUtils.getUser().getId();
+    public String audit(PlatAccountAdjust platAccountAdjust, RedirectAttributes redirectAttributes) {
+        Long operatorId = UserUtils.getUser().getId();
         String operatorName = UserUtils.getUser().getName();
 
         platAccountAdjust.setAuditorId(operatorId.toString());
@@ -222,9 +222,9 @@ public class PlatAccountAdjustController extends BaseController {
             message = "保存成功";
             messageType = "success";
 
-            if (AuditEnum.AUDITED.getCode().equals(platAccountAdjust.getAuditStatus())){
+            if (AuditEnum.AUDITED.getCode().equals(platAccountAdjust.getAuditStatus())) {
 
-                CacheMchtAccount cacheMchtAccount =  new CacheMchtAccount();
+                CacheMchtAccount cacheMchtAccount = new CacheMchtAccount();
 
                 CacheMcht cacheMcht = new CacheMcht();
                 cacheMcht.setMchtId(platAccountAdjust.getMchtId());
@@ -234,7 +234,7 @@ public class PlatAccountAdjustController extends BaseController {
                 cacheMchtAccount.setPlatAccountAdjust(platAccountAdjust);
 
 
-                logger.info("调账ID："+platAccountAdjust.getId()+"，调账功能（插入CacheMchtAccount）信息为："+JSONObject.toJSONString(cacheMchtAccount));
+                logger.info("调账ID：" + platAccountAdjust.getId() + "，调账功能（插入CacheMchtAccount）信息为：" + JSONObject.toJSONString(cacheMchtAccount));
                 insertMchtAccountInfo2redis(cacheMchtAccount);
             }
         } else {
@@ -244,7 +244,7 @@ public class PlatAccountAdjustController extends BaseController {
 
         redirectAttributes.addFlashAttribute("messageType", messageType);
         redirectAttributes.addFlashAttribute("message", message);
-        return "redirect:"+ GlobalConfig.getAdminPath()+"/platform/adjust/list";
+        return "redirect:" + GlobalConfig.getAdminPath() + "/platform/adjust/list";
     }
 
     /**
@@ -252,27 +252,31 @@ public class PlatAccountAdjustController extends BaseController {
      */
     @RequestMapping("balance")
     @RequiresPermissions("platform:adjust:apply")
-    public void balance(String mchtId,HttpServletResponse response) throws IOException {
-
-        MchtAccountDetail mchtAccountDetail = null;
+    public void balance(String mchtId, HttpServletResponse response) throws IOException {
+        PageInfo pageInfo = new PageInfo();
         BigDecimal platBalance = null;
         MchtAccountDetail detailQuery = new MchtAccountDetail();
         detailQuery.setMchtId(mchtId);
-        detailQuery.setSuffix(DateUtils.formatDate(new Date(),"yyyyMM"));
-        List<MchtAccountDetail> details = accountAdminService.list(detailQuery);
-        if (!CollectionUtils.isEmpty(details)){
-            mchtAccountDetail = details.get(0);
-            platBalance = mchtAccountDetail.getCashTotalAmount();
-        }
-		//余额 = 现金金额 - 冻结金额
-        if (mchtAccountDetail != null && mchtAccountDetail.getFreezeTotalAmount() != null){
-            platBalance = platBalance.subtract(mchtAccountDetail.getFreezeTotalAmount());
+        detailQuery.setSuffix(DateUtils.formatDate(new Date(), "yyyyMM"));
+
+        pageInfo.setPageNo(1);
+        pageInfo.setPageSize(1);
+        detailQuery.setPageInfo(pageInfo);
+
+        List<MchtAccountDetail> list = accountAdminService.list(detailQuery);
+
+        if (!CollectionUtils.isEmpty(list)) {
+            platBalance = list.get(0).getCashTotalAmount();
+            //余额 = 现金金额 - 冻结金额
+            if (list.get(0).getFreezeTotalAmount() != null) {
+                platBalance = platBalance.subtract(list.get(0).getFreezeTotalAmount());
+            }
         }
 
-        if (platBalance != null){
+        if (platBalance != null) {
             //分转元
             platBalance = platBalance.divide(BigDecimal.valueOf(100));
-        }else {
+        } else {
             platBalance = BigDecimal.ZERO;
         }
 
