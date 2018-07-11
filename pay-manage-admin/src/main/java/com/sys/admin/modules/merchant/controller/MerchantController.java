@@ -97,6 +97,18 @@ public class MerchantController extends BaseController {
 		model.addAttribute("payData", payData);
 		//3.商户账户详情信息
 		MchtAccountDetail mchtAccountDetailData = queryMchtAccountDetailByHttp(mchtCode);
+		//冻结金额
+		BigDecimal freezeTotalAmount = mchtAccountDetailData.getFreezeTotalAmount();
+		freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100));
+		mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
+		//可提现金额 = 现金总金额 - 冻结总金额;
+		//现金总金额
+		BigDecimal cashTotalAmount = mchtAccountDetailData.getCashTotalAmount();
+		//可提现金额
+		BigDecimal presentedAmount = cashTotalAmount.subtract(freezeTotalAmount);
+		presentedAmount = presentedAmount.divide(new BigDecimal(100));
+        mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
+
 		model.addAttribute("mchtAccountDetailData", mchtAccountDetailData);
 		//4.商户费率信息
 		List<PlatFeerate> mchtFeerateInfoData = queryMchtFeerateInfoByHttp(mchtCode);
