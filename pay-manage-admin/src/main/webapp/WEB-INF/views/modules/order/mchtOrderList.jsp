@@ -135,6 +135,7 @@
                     <div class="controls">
                         <select id="status" name="status">
                             <option value="">---请选择---</option>
+                            <option value="0" <c:if test="${paramMap.status eq '0'}">selected</c:if>  >初始创建</option>
                             <option value="1" <c:if test="${paramMap.status eq '1'}">selected</c:if>  >提交成功</option>
                             <option value="2" <c:if test="${paramMap.status eq '2'}">selected</c:if> >支付成功</option>
                             <option value="4002" <c:if test="${paramMap.status eq '4002'}">selected</c:if> >支付失败</option>
@@ -160,25 +161,19 @@
                     <div class="controls">
                         <select name="payType" id="payType">
                             <option value="">---全部---</option>
-                            <option value="wx101" <c:if test="${paramMap.payType eq 'wx101'}">selected</c:if>>微信H5</option>
-                            <option value="wx201" <c:if test="${paramMap.payType eq 'wx201'}">selected</c:if>>微信APP</option>
-                            <option value="wx301&wx302" <c:if test="${paramMap.payType eq 'wx301&wx302'}">selected</c:if>>微信公众号</option>
-                            <option value="wx401" <c:if test="${paramMap.payType eq 'wx401'}">selected</c:if>>微信扫码</option>
-                            <option value="wx502&wx503" <c:if test="${paramMap.payType eq 'wx502&wx503'}">selected</c:if>>微信付款码</option>
-                            <option value="al101&al102" <c:if test="${paramMap.payType eq 'al101&al102'}">selected</c:if>>支付宝H5</option>
-                            <option value="al401" <c:if test="${paramMap.payType eq 'al401'}">selected</c:if>>支付宝扫码</option>
-                            <%--<option value="al201" <c:if test="${paramMap.payType eq 'al201'}">selected</c:if>>支付宝APP</option>--%>
-                            <%--<option value="al502&al503" <c:if test="${paramMap.payType eq 'al502&al503'}">selected</c:if>>支付宝付款码</option>--%>
-                            <option value="sn401" <c:if test="${paramMap.payType eq 'sn401'}">selected</c:if>>苏宁扫码</option>
-                            <option value="sn101" <c:if test="${paramMap.payType eq 'sn101'}">selected</c:if>>苏宁H5</option>
-                            <option value="qq101&qq102" <c:if test="${paramMap.payType eq 'qq101&qq102'}">selected</c:if>>QQH5</option>
-                            <option value="qq403" <c:if test="${paramMap.payType eq 'qq403'}">selected</c:if>>QQ扫码</option>
-                            <option value="jd101&jd102" <c:if test="${paramMap.payType eq 'jd101&jd102'}">selected</c:if>>京东H5</option>
-                            <option value="jd401" <c:if test="${paramMap.payType eq 'jd401'}">selected</c:if>>京东扫码</option>
-                            <option value="yl401" <c:if test="${paramMap.payType eq 'yl401'}">selected</c:if>>银联扫码</option>
-                            <option value="yl101" <c:if test="${paramMap.payType eq 'yl101'}">selected</c:if>>银联H5</option>
-                            <option value="qj202" <c:if test="${paramMap.payType eq 'qj202'}">selected</c:if>>快捷支付</option>
-                            <option value="qj301" <c:if test="${paramMap.payType eq 'qj301'}">selected</c:if>>网银支付</option>
+                            <option value="wx" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'wx' }">selected</c:if>>微信支付</option>
+
+                            <option value="al" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'al' }">selected</c:if>>支付宝支付</option>
+
+                            <option value="sn" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'sn' }">selected</c:if>>苏宁支付</option>
+
+                            <option value="qq" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'qq' }">selected</c:if>>QQ支付</option>
+
+                            <option value="jd" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'jd' }">selected</c:if>>京东支付</option>
+
+                            <option value="yl" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'yl' }">selected</c:if>>银联支付</option>
+
+                            <option value="qj" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'qj' }">selected</c:if>>快捷支付</option>
                             <option value="df101" <c:if test="${paramMap.payType eq 'df101'}">selected</c:if>>单笔代付</option>
                         </select>
                     </div>

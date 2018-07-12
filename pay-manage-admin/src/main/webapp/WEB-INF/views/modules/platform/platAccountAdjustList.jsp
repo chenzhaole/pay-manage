@@ -4,7 +4,14 @@
 <head>
     <title>调账记录列表</title>
     <meta name="decorator" content="default"/>
-
+    <style type="text/css">
+        .wrap{
+            width: 100px; //设置需要固定的宽度
+        white-space: nowrap; //不换行
+        text-overflow: ellipsis; //超出部分用....代替
+        overflow: hidden; //超出隐藏
+        }
+    </style>
     <script type="text/javascript">
 
         //下拉搜索框初始化
@@ -108,7 +115,7 @@
             <td><fmt:formatDate value="${adjust.auditTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${adjust.auditorName}</td>
             <td>${fns:getDictLabel(adjust.auditStatus,'account_adjust_status' ,'' )}</td>
-            <td>${adjust.remark}</td>
+            <td <div  title="${adjust.remark}" class="wrap">${fn:substring(adjust.remark,0,50)}</div></td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
                     <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">

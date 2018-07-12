@@ -57,11 +57,19 @@
     <input id="batchId" name="batchId" type="hidden" value="${proxyBatch.id}"/>
     <table>
         <tr>
+
             <td>
                 <label>平台明细订单号：</label>
                 <input value="${paramMap.detailId}" name="detailId" type="text" maxlength="64" class="input-medium"/>
             </td>
 
+            <td>
+                <label>商户订单号：</label>
+                <input value="${paramMap.mchtBatchId}" name="mchtBatchId" type="text" maxlength="64" class="input-medium"/>
+            </td>
+
+        </tr>
+        <tr>
             <td>
                 <label>代付商户：</label>
                 <select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
@@ -69,13 +77,11 @@
                     <c:forEach items="${mchtInfos}" var="mchtInfo">
                         <option value="${mchtInfo.id}"
                                 <c:if test="${paramMap.mchtId == mchtInfo.id}">selected</c:if>
-                        >${mchtInfo.name}</option>
+                                >${mchtInfo.name}</option>
                     </c:forEach>
                 </select>
             </td>
 
-        </tr>
-        <tr>
             <td>
                 <label>代付状态：</label>
                 <select name="payStatus" class="input-medium" id="">

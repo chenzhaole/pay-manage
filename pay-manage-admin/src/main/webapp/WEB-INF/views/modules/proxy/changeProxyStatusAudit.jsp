@@ -4,7 +4,14 @@
 <head>
     <title>代付审批列表</title>
     <meta name="decorator" content="default"/>
-
+    <style type="text/css">
+        .wrap{
+            width: 100px; //设置需要固定的宽度
+        white-space: nowrap; //不换行
+        text-overflow: ellipsis; //超出部分用....代替
+        overflow: hidden; //超出隐藏
+        }
+    </style>
     <script type="text/javascript">
 
         //下拉搜索框初始化
@@ -152,12 +159,14 @@
             <td>
                     ${fns:getDictLabel(proxyDetail.newPayStatus,'proxypay_detail_status' ,'' )}
             </td>
-            <td title="${proxyDetail.returnMessage2}" width="20px">${fn:substring(proxyDetail.returnMessage2,0,50)}</td>
+            <td title="${proxyDetail.returnMessage2}" width="10px">${fn:substring(proxyDetail.returnMessage2,0,50)}</td>
             <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${proxyDetail.operatorId}</td>
             <td>${proxyDetail.auditorName}</td>
             <td>${proxyDetail.auditStatus}</td>
-            <td>${proxyDetail.auditNotes}</td>
+            <td>
+                <div  title="${proxyDetail.auditNotes}" width="10px">${fn:substring(proxyDetail.auditNotes,0,10)} </div>
+                </td>
             <td>
                 <c:if test="${proxyDetail.auditStatus eq '待审核'}">
                 <a href="${ctx}/proxy/changeProxyStatusAuditEdit?detailId=${proxyDetail.id}">审批</a></c:if>

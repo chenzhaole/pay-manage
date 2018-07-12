@@ -476,7 +476,7 @@ public class PlatformController extends BaseController {
 			result = mchtChanAdminService.updateStatus(mchtChanFormInfo);
 		}
 
-		String message = "已经保存" + result + "条";
+		String message = "保存成功,已经保存" + result + "条";
 		redirectAttributes.addFlashAttribute("messageType", "success");
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
