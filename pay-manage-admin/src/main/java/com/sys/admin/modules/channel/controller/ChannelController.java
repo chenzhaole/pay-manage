@@ -41,6 +41,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -458,6 +459,12 @@ public class ChannelController extends BaseController {
 		config.setPlatId(chanMchtPaytype.getTerminalNo());
 		config.setPubKey(chanMchtPaytype.getCertContent1());
 		config.setPriKey(chanMchtPaytype.getCertContent2());
+		config.setMerchantName(chanMchtPaytype.getOpAccount());
+		try {
+			config.setExtend(URLEncoder.encode(chanMchtPaytype.getCertContent3(),"utf-8"));
+		} catch (UnsupportedEncodingException e) {
+			logger.error("平台公钥编码错误", e);
+		}
 
 		SingleDF df = new SingleDF();
 		df.setOrderNo("ADMIN0" + IdUtil.createCode());
