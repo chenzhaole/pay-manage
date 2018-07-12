@@ -101,15 +101,15 @@ public class MerchantController extends BaseController {
 		if(null != mchtAccountDetailData){
 			//冻结金额
 			BigDecimal freezeTotalAmount = mchtAccountDetailData.getFreezeTotalAmount();
-			freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100));
-			mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
-
 			//可提现金额 = 现金总金额 - 冻结总金额;
 			//现金总金额
 			BigDecimal cashTotalAmount = mchtAccountDetailData.getCashTotalAmount();
 			//可提现金额
 			BigDecimal presentedAmount = cashTotalAmount.subtract(freezeTotalAmount);
-			presentedAmount = presentedAmount.divide(new BigDecimal(100));
+			presentedAmount = presentedAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
+			//冻结金额
+			freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
+			mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
 			mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
 		}
 
