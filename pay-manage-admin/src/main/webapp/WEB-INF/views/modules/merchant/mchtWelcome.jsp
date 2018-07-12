@@ -173,10 +173,10 @@
                     <label class="control-label"><h5>商户费率</h5></label>
                     <div class="controls">
                             <c:forEach items="${mchtFeerateInfoMap}" var="map" varStatus="status">
-                                <label style="text-align: left;margin-right: 5%;margin-top: 2%;">
+                                <label style="text-align: left;margin-top: 2%; width: 22%;">
                                     ${map.key}=${map.value}‰
                                 </label>
-                                <c:if test="${(status.index+1) % 6 == 0}">
+                                <c:if test="${(status.index+1) % 4 == 0}">
                                     <br />
                                 </c:if>
 

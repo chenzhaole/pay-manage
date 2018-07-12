@@ -149,36 +149,36 @@ public class MerchantController extends BaseController {
 	 * @return
 	 */
 	private boolean filterPayType(String biz) {
-		List types = new ArrayList();
-		types.add("ca001");
-		types.add("ca002");
-		types.add("jh001");
-		types.add("hf001");
-		types.add("wx000");
-		types.add("wx502");
-		types.add("wx503");
-		types.add("al000");
-		types.add("al102");
-		types.add("al502");
-		types.add("al503");
-		types.add("sn000");
-		types.add("sn502");
-		types.add("sn503");
-		types.add("qq000");
-		types.add("qq102");
-		types.add("qq502");
-		types.add("qq503");
-		types.add("jd000");
-		types.add("jd102");
-		types.add("jd502");
-		types.add("jd503");
-		types.add("yl000");
-		types.add("yl402");
-		types.add("yl502");
-		types.add("yl503");
-		if(types.contains(biz)){
-			return false;
-		}
+//		List types = new ArrayList();
+//		types.add("ca001");
+//		types.add("ca002");
+//		types.add("jh001");
+//		types.add("hf001");
+//		types.add("wx000");
+//		types.add("wx502");
+//		types.add("wx503");
+//		types.add("al000");
+//		types.add("al102");
+//		types.add("al502");
+//		types.add("al503");
+//		types.add("sn000");
+//		types.add("sn502");
+//		types.add("sn503");
+//		types.add("qq000");
+//		types.add("qq102");
+//		types.add("qq502");
+//		types.add("qq503");
+//		types.add("jd000");
+//		types.add("jd102");
+//		types.add("jd502");
+//		types.add("jd503");
+//		types.add("yl000");
+//		types.add("yl402");
+//		types.add("yl502");
+//		types.add("yl503");
+//		if(types.contains(biz)){
+//			return false;
+//		}
 
 		return true;
 	}
