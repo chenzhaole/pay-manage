@@ -174,7 +174,7 @@
                     <div class="controls">
                             <c:forEach items="${mchtFeerateInfoMap}" var="map" varStatus="status">
                                 <label style="text-align: left;margin-top: 2%; width: 22%;">
-                                    ${map.key}=${map.value}‰
+                                    ${map.key}=${map.value}
                                 </label>
                                 <c:if test="${(status.index+1) % 4 == 0}">
                                     <br />

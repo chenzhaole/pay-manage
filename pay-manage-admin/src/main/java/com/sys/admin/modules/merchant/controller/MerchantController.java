@@ -131,10 +131,27 @@ public class MerchantController extends BaseController {
 		if(null != mchtFeerateInfoData && mchtFeerateInfoData.size() > 0){
 			Map<String, String> data = new HashMap<>();
 			for (PlatFeerate platFeerate : mchtFeerateInfoData){
+				//支付类型
 				String biz = (StringUtils.isNotBlank(platFeerate.getBizRefId()) && platFeerate.getBizRefId().contains("&")) ? platFeerate.getBizRefId().split("&")[1]:"";
-				BigDecimal feeRate = platFeerate.getFeeRate();
-				if(StringUtils.isNotBlank(biz) && null != feeRate && filterPayType(biz)){
-					data.put(PayTypeEnum.toEnum(biz).getDesc(),feeRate.toString());
+				//值
+
+				String value = "";
+				//收费类型：1:按笔、2:按比例.
+				if(PayTypeEnum.SINGLE_DF.getCode().equals(biz)){
+					BigDecimal feeAmount = platFeerate.getFeeAmount();
+					if(null != feeAmount && !feeAmount.toString().equals("0.00")){
+                        feeAmount = feeAmount.divide(new BigDecimal(100));
+						value = feeAmount.toString()+"元/笔";
+					}
+				}else{
+					BigDecimal feeRate = platFeerate.getFeeRate();
+					if(null != feeRate && !feeRate.toString().equals("0.00")){
+						value = feeRate.toString()+"‰";
+					}
+				}
+
+				if(StringUtils.isNotBlank(biz) && StringUtils.isNotBlank(value) && filterPayType(biz)){
+					data.put(PayTypeEnum.toEnum(biz).getDesc(),value);
 				}
 			}
 			return data;
