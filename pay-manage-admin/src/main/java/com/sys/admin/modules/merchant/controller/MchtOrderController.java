@@ -193,71 +193,28 @@ public class MchtOrderController extends BaseController {
 
         String strPayType = "";
 
-        //微信
-        if (PayTypeEnum.WX_WAP.getCode().equals(payType)) {
-            strPayType = "微信H5";
-        }
-        if (PayTypeEnum.WX_APP.getCode().equals(payType)) {
-            strPayType = "微信APP";
-        }
-        if (PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(payType) || PayTypeEnum.WX_PUBLIC_NOT_NATIVE.getCode().equals(payType)) {
-            strPayType = "微信公众号";
-        }
-        if (PayTypeEnum.WX_QRCODE.getCode().equals(payType)) {
-            strPayType = "微信扫码";
-        }
-        if (PayTypeEnum.WX_BARCODE_PC.getCode().equals(payType) || PayTypeEnum.WX_BARCODE_H5.getCode().equals(payType)) {
-            strPayType = "微信付款码";
-        }
-        //支付宝
-        if (PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode().equals(payType) || PayTypeEnum.ALIPAY_H5.getCode().equals(payType)) {
-            strPayType = "支付宝H5";
-        }
-        if (PayTypeEnum.ALIPAY_ONLINE_QRCODE.getCode().equals(payType)) {
-            strPayType = "支付宝扫码";
-        }
-        if (PayTypeEnum.ALIPAY_APP.getCode().equals(payType)) {
-            strPayType = "支付宝APP";
-        }
-        if (PayTypeEnum.ALIPAY_BARCODE_PC.getCode().equals(payType) || PayTypeEnum.ALIPAY_BARCODE_H5.getCode().equals(payType)) {
-            strPayType = "支付宝付款码";
-        }
-        //苏宁
-        if (PayTypeEnum.SUNING_QRCODE.getCode().equals(payType)) {
-            strPayType = "苏宁扫码";
-        }
-        if (PayTypeEnum.SUNING_H5.getCode().equals(payType)) {
-            strPayType = "苏宁H5";
-        }
-        //QQ
-        if (PayTypeEnum.QQ_SCAN2WAP.getCode().equals(payType) || PayTypeEnum.QQ_WAP.getCode().equals(payType)) {
-            strPayType = "QQH5";
-        }
-        if (PayTypeEnum.QQ_QRCODE.getCode().equals(payType)) {
-            strPayType = "QQ扫码";
-        }
-        //京东
-        if (PayTypeEnum.JD_WAP.getCode().equals(payType) || PayTypeEnum.JD_SCAN2WAP.getCode().equals(payType)) {
-            strPayType = "京东H5";
-        }
-        if (PayTypeEnum.JD_SCAN.getCode().equals(payType)) {
-            strPayType = "京东扫码";
-        }
-        //银联
-        if (PayTypeEnum.UNIONPAY_QRCODE.getCode().equals(payType)) {
-            strPayType = "银联扫码";
-        }
-        if (PayTypeEnum.UNIONPAY_H5.getCode().equals(payType)) {
-            strPayType = "银联H5";
-        }
-        if (PayTypeEnum.QUICK_PAY.getCode().equals(payType)) {
+        if(payType.startsWith("wx")){
+            strPayType = "微信支付";
+        }else if(payType.startsWith("ca")){
+            strPayType = "收银台支付";
+        }else if(payType.startsWith("al")){
+            strPayType = "支付宝支付";
+        }else if(payType.startsWith("sn")){
+            strPayType = "苏宁支付";
+        }else if(payType.startsWith("qq")){
+            strPayType =  "QQ支付";
+        }else if(payType.startsWith("jd")){
+            strPayType =  "京东支付";
+        }else if(payType.startsWith("yl")){
+            strPayType =  "银联支付";
+        }else if(payType.startsWith("qj")){
             strPayType = "快捷支付";
-        }
-        if (PayTypeEnum.QUICK_ONLINE_BANK.getCode().equals(payType)) {
-            strPayType = "网银支付";
-        }
-        if (PayTypeEnum.SINGLE_DF.getCode().equals(payType)) {
+        }else if(payType.startsWith("df")){
             strPayType = "单笔代付";
+        }else if(payType.startsWith("dk")){
+            strPayType = "代扣";
+        }else{
+            strPayType = "其他";
         }
         return strPayType;
     }
@@ -773,7 +730,53 @@ public class MchtOrderController extends BaseController {
 
         //支付方式--需要特殊处理下， 例如：支付宝扫码和扫码转h5，统一为支付宝扫码支付
         if (StringUtils.isNotBlank(paramMap.get("payType"))) {
-            order.setPayType(paramMap.get("payType"));
+            StringBuffer sb = new StringBuffer();
+            if("wx".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.WX_APP.getCode()).append("&").append(PayTypeEnum.WX_BARCODE_H5.getCode()).append("&")
+                    .append(PayTypeEnum.WX_BARCODE.getCode()).append("&").append(PayTypeEnum.WX_BARCODE_PC.getCode()).append("&")
+                    .append(PayTypeEnum.WX_GROUP.getCode()).append("&").append(PayTypeEnum.WX_WAP.getCode()).append("&")
+                    .append(PayTypeEnum.WX_PUBLIC_NATIVE.getCode()).append("&").append(PayTypeEnum.WX_PUBLIC_NOT_NATIVE.getCode()).append("&")
+                    .append(PayTypeEnum.WX_QRCODE.getCode()).append("&").append(PayTypeEnum.WX_BARCODE_PC.getCode());
+
+            }else if("al".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.ALIPAY_GROUP.getCode()).append("&").append(PayTypeEnum.ALIPAY_H5.getCode()).append("&")
+                        .append(PayTypeEnum.ALIPAY_ONLINE_SCAN2WAP.getCode()).append("&").append(PayTypeEnum.ALIPAY_PC.getCode()).append("&")
+                        .append(PayTypeEnum.ALIPAY_APP.getCode()).append("&").append(PayTypeEnum.ALIPAY_ONLINE_QRCODE.getCode()).append("&")
+                        .append(PayTypeEnum.ALIPAY_BARCODE.getCode()).append("&").append(PayTypeEnum.ALIPAY_BARCODE_PC.getCode()).append("&")
+                        .append(PayTypeEnum.ALIPAY_BARCODE_H5.getCode()).append("&").append(PayTypeEnum.ALIPAY_SERVICE_WINDOW.getCode());
+            }else if("sn".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.SUNING_GROUP.getCode()).append("&").append(PayTypeEnum.SUNING_H5.getCode()).append("&")
+                        .append(PayTypeEnum.SUNING_SCAN2WAP.getCode()).append("&").append(PayTypeEnum.SUNING_PC.getCode()).append("&")
+                        .append(PayTypeEnum.SUNING_QRCODE.getCode()).append("&").append(PayTypeEnum.SUNING_BARCODE.getCode()).append("&")
+                        .append(PayTypeEnum.SUNING_BARCODE_PC.getCode()).append("&").append(PayTypeEnum.SUNING_BARCODE_H5.getCode());
+
+            }else if("qq".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.QQ_GROUP.getCode()).append("&").append(PayTypeEnum.QQ_WAP.getCode()).append("&")
+                        .append(PayTypeEnum.QQ_SCAN2WAP.getCode()).append("&").append(PayTypeEnum.QQ_PC.getCode()).append("&")
+                        .append(PayTypeEnum.QQ_QRCODE.getCode()).append("&").append(PayTypeEnum.QQ_BARCODE.getCode()).append("&")
+                        .append(PayTypeEnum.QQ_BARCODE_PC.getCode()).append("&").append(PayTypeEnum.QQ_BARCODE_H5.getCode());
+
+            }else if("jd".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.JD_GROUP.getCode()).append("&").append(PayTypeEnum.JD_WAP.getCode()).append("&")
+                        .append(PayTypeEnum.JD_SCAN2WAP.getCode()).append("&").append(PayTypeEnum.JD_PC.getCode()).append("&")
+                        .append(PayTypeEnum.JD_SCAN.getCode()).append("&").append(PayTypeEnum.JD_BARCODE.getCode()).append("&")
+                        .append(PayTypeEnum.JD_BARCODE_PC.getCode()).append("&").append(PayTypeEnum.JD_BARCODE_H5.getCode());
+
+            }else if("yl".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.UNIONPAY_GROUP.getCode()).append("&").append(PayTypeEnum.UNIONPAY_H5.getCode()).append("&")
+                        .append(PayTypeEnum.UNIONPAY_QRCODE.getCode()).append("&").append(PayTypeEnum.UNIONPAY_SCAN2WAP.getCode()).append("&")
+                        .append(PayTypeEnum.UNIONPAY_BARCODE.getCode()).append("&").append(PayTypeEnum.UNIONPAY_BARCODE_PC.getCode()).append("&")
+                        .append(PayTypeEnum.UNIONPAY_BARCODE_h5.getCode());
+
+            }else if("qj".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.QUICK_GROUP.getCode()).append("&").append(PayTypeEnum.QUICK_PAY.getCode()).append("&")
+                        .append(PayTypeEnum.QUICK_COMB_DK.getCode());
+
+            }else if("df101".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.SINGLE_DF.getCode());
+            }
+
+            order.setPayType(sb.toString());
         }
 
         //初始化页面开始时间

@@ -224,7 +224,7 @@
 	                <div class="control-group">
 	                    <label class="control-label">补单状态：</label>
 	                    <div class="controls">
-	                        <select id="supplyStatus" namefa="supplyStatus">
+	                        <select id="supplyStatus" name="supplyStatus">
 								<option value="">---请选择---</option>
 								<c:forEach var="dict" items="${fns:getDictList('supply_status')}">
                                     <option value="${dict.value}" <c:if test="${paramMap.supplyStatus eq dict.value}">selected</c:if>>${dict.label}</option>

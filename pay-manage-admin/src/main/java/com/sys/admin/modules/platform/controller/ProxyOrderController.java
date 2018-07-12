@@ -139,6 +139,7 @@ public class ProxyOrderController extends BaseController {
         proxyDetail.setPayStatus(paramMap.get("payStatus"));
         proxyDetail.setCheckStatus(paramMap.get("checkStatus"));
         proxyDetail.setPlatBatchId(paramMap.get("batchId"));
+        proxyDetail.setMchtBatchId(paramMap.get("mchtBatchId"));
 
         //分页
         String pageNoString = paramMap.get("pageNo");
