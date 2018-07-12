@@ -95,25 +95,32 @@ public class MerchantController extends BaseController {
 		//2.交易相关数据
 		Map payData = queryPayDataByHttp(mchtCode);
 		model.addAttribute("payData", payData);
+
 		//3.商户账户详情信息
 		MchtAccountDetail mchtAccountDetailData = queryMchtAccountDetailByHttp(mchtCode);
-		//冻结金额
-		BigDecimal freezeTotalAmount = mchtAccountDetailData.getFreezeTotalAmount();
-		freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100));
-		mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
-		//可提现金额 = 现金总金额 - 冻结总金额;
-		//现金总金额
-		BigDecimal cashTotalAmount = mchtAccountDetailData.getCashTotalAmount();
-		//可提现金额
-		BigDecimal presentedAmount = cashTotalAmount.subtract(freezeTotalAmount);
-		presentedAmount = presentedAmount.divide(new BigDecimal(100));
-        mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
+		if(null != mchtAccountDetailData){
+			//冻结金额
+			BigDecimal freezeTotalAmount = mchtAccountDetailData.getFreezeTotalAmount();
+			freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100));
+			mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
+
+			//可提现金额 = 现金总金额 - 冻结总金额;
+			//现金总金额
+			BigDecimal cashTotalAmount = mchtAccountDetailData.getCashTotalAmount();
+			//可提现金额
+			BigDecimal presentedAmount = cashTotalAmount.subtract(freezeTotalAmount);
+			presentedAmount = presentedAmount.divide(new BigDecimal(100));
+			mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
+		}
 
 		model.addAttribute("mchtAccountDetailData", mchtAccountDetailData);
 		//4.商户费率信息
 		List<PlatFeerate> mchtFeerateInfoData = queryMchtFeerateInfoByHttp(mchtCode);
 		//将费率转成map
-		Map<String, String> mchtFeerateInfoMap = mchtFeerateInfoDataToMap(mchtFeerateInfoData);
+		Map<String, String> mchtFeerateInfoMap = null;
+		if(null != mchtFeerateInfoData && mchtFeerateInfoData.size() > 0){
+			mchtFeerateInfoMap = mchtFeerateInfoDataToMap(mchtFeerateInfoData);
+		}
 		model.addAttribute("mchtFeerateInfoMap", mchtFeerateInfoMap);
 
 		return "modules/merchant/mchtWelcome";
@@ -142,36 +149,36 @@ public class MerchantController extends BaseController {
 	 * @return
 	 */
 	private boolean filterPayType(String biz) {
-		List types = new ArrayList();
-		types.add("ca001");
-		types.add("ca002");
-		types.add("jh001");
-		types.add("hf001");
-		types.add("wx000");
-		types.add("wx502");
-		types.add("wx503");
-		types.add("al000");
-		types.add("al102");
-		types.add("al502");
-		types.add("al503");
-		types.add("sn000");
-		types.add("sn502");
-		types.add("sn503");
-		types.add("qq000");
-		types.add("qq102");
-		types.add("qq502");
-		types.add("qq503");
-		types.add("jd000");
-		types.add("jd102");
-		types.add("jd502");
-		types.add("jd503");
-		types.add("yl000");
-		types.add("yl402");
-		types.add("yl502");
-		types.add("yl503");
-		if(types.contains(biz)){
-			return false;
-		}
+//		List types = new ArrayList();
+//		types.add("ca001");
+//		types.add("ca002");
+//		types.add("jh001");
+//		types.add("hf001");
+//		types.add("wx000");
+//		types.add("wx502");
+//		types.add("wx503");
+//		types.add("al000");
+//		types.add("al102");
+//		types.add("al502");
+//		types.add("al503");
+//		types.add("sn000");
+//		types.add("sn502");
+//		types.add("sn503");
+//		types.add("qq000");
+//		types.add("qq102");
+//		types.add("qq502");
+//		types.add("qq503");
+//		types.add("jd000");
+//		types.add("jd102");
+//		types.add("jd502");
+//		types.add("jd503");
+//		types.add("yl000");
+//		types.add("yl402");
+//		types.add("yl502");
+//		types.add("yl503");
+//		if(types.contains(biz)){
+//			return false;
+//		}
 
 		return true;
 	}
