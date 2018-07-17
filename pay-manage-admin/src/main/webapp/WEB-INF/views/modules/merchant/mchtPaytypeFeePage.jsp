@@ -56,8 +56,8 @@
             <th>收费类型</th>
             <th>费率(‰)</th>
             <th>手续费(分)</th>
-            <th>是否保存</th>
-            <th>是否展示</th>
+            <th>首页展示</th>
+            <th>是否保存该条记录</th>
         </tr>
         </thead>
         <tbody>
@@ -99,14 +99,14 @@
                 </td>
                 <td style="width: 100px;" >
                     <div class="controls">
-                        <input name="save${mchtFee.paytypeCode}" value="1" type="checkbox">
+                        <input name="showMchtFeeRate${mchtFee.paytypeCode}" value="1"
+                            <c:if test="${mchtFee.showMchtFeeRate == 1}">checked</c:if>
+                        type="checkbox">
                     </div>
                 </td>
                 <td style="width: 100px;" >
                     <div class="controls">
-                        <input name="showMchtFeeRate${mchtFee.paytypeCode}" value="1"
-                            <c:if test="${mchtFee.showMchtFeeRate == 1}">checked</c:if>
-                        type="checkbox">
+                        <input name="save${mchtFee.paytypeCode}" value="1" type="checkbox">
                     </div>
                 </td>
             </tr>
