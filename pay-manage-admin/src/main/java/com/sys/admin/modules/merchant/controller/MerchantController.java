@@ -39,10 +39,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Controller
 @RequestMapping(value = "${adminPath}/merchant")
@@ -119,7 +116,18 @@ public class MerchantController extends BaseController {
 		//将费率转成map
 		Map<String, String> mchtFeerateInfoMap = null;
 		if(null != mchtFeerateInfoData && mchtFeerateInfoData.size() > 0){
-			mchtFeerateInfoMap = mchtFeerateInfoDataToMap(mchtFeerateInfoData);
+			//过滤掉不显示的商户费率
+			String extend2 = mchtInfoData.getExtend2();
+            JSONObject extend2Json = JSONObject.parseObject(extend2);
+            //只显示的支付方式
+            List<String> showPayTypeFeeRateList = null;
+            if(StringUtils.isNotBlank(extend2) && extend2Json.containsKey("showPayTypeFeeRate")
+					&& !"null".equals(extend2Json.getString("showPayTypeFeeRate"))
+					&& !"".equals(extend2Json.getString("showPayTypeFeeRate"))){
+                String showPayTypeFeeRate = extend2Json.getString("showPayTypeFeeRate");
+                showPayTypeFeeRateList = showPayTypeFeeRate.contains("&") ? Arrays.asList(showPayTypeFeeRate.split("&")):null;
+				mchtFeerateInfoMap = mchtFeerateInfoDataToMap(mchtFeerateInfoData, showPayTypeFeeRateList);
+            }
 		}
 		model.addAttribute("mchtFeerateInfoMap", mchtFeerateInfoMap);
 
@@ -127,14 +135,16 @@ public class MerchantController extends BaseController {
 	}
 
 	//将可用的费率封装进map中
-	private Map<String, String> mchtFeerateInfoDataToMap(List<PlatFeerate> mchtFeerateInfoData) {
+	private Map<String, String> mchtFeerateInfoDataToMap(List<PlatFeerate> mchtFeerateInfoData, List<String> showPayTypeFeeRateList) {
 		if(null != mchtFeerateInfoData && mchtFeerateInfoData.size() > 0){
 			Map<String, String> data = new HashMap<>();
 			for (PlatFeerate platFeerate : mchtFeerateInfoData){
 				//支付类型
 				String biz = (StringUtils.isNotBlank(platFeerate.getBizRefId()) && platFeerate.getBizRefId().contains("&")) ? platFeerate.getBizRefId().split("&")[1]:"";
+				if(null != showPayTypeFeeRateList && showPayTypeFeeRateList.size() > 0 && !showPayTypeFeeRateList.contains(biz)){
+					continue;
+				}
 				//值
-
 				String value = "";
 				//收费类型：1:按笔、2:按比例.
 				if(PayTypeEnum.SINGLE_DF.getCode().equals(biz)){

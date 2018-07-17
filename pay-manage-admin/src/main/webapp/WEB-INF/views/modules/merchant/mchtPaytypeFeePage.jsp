@@ -57,21 +57,22 @@
             <th>费率(‰)</th>
             <th>手续费(分)</th>
             <th>是否保存</th>
+            <th>是否展示</th>
         </tr>
         </thead>
         <tbody>
         <c:forEach items="${mchtFees}" var="mchtFee">
             <tr>
-                <td > ${mchtFee.paytypeName}</td>
-                <td >
+                <td  style="width: 130px;" > ${mchtFee.paytypeName}</td>
+                <td style="width: 100px;">
                     <div class="controls">
-                        <input name="paytype${mchtFee.paytypeCode}" value="${mchtFee.paytypeCode}" type="text" readonly>
+                        <input style="width: 100px;" name="paytype${mchtFee.paytypeCode}" value="${mchtFee.paytypeCode}" type="text" readonly>
                     </div>
                 </td>
-                <td >
+                <td style="width: 100px;">
                     <div class="control-group">
                         <div class="controls">
-                            <select name="feeType${mchtFee.paytypeCode}" class="input-xlarge" id="feeType">
+                            <select name="feeType${mchtFee.paytypeCode}" class="input-xlarge" id="feeType" style="width: 100px">
                                 <option value="">--请选择--</option>
                                 <option
                                         <c:if test="${mchtFee.feeType == 1}">selected</c:if> value="1">按笔收费
@@ -86,19 +87,26 @@
                         </div>
                     </div>
                 </td>
-                <td >
+                <td style="width: 100px;">
                     <div class="controls">
-                        <input name="feeRate${mchtFee.paytypeCode}" value="${mchtFee.feeRate}" placeholder="请填写费率（‰）" type="text" maxlength="6" >
+                        <input style="width: 100px;" name="feeRate${mchtFee.paytypeCode}" value="${mchtFee.feeRate}" placeholder="请填写费率（‰）" type="text" maxlength="6" >
                     </div>
                 </td>
-                <td >
+                <td style="width: 100px;">
                     <div class="controls">
-                        <input name="feeAmount${mchtFee.paytypeCode}" value="${mchtFee.feeAmount}" placeholder="请填写手续费（分）" type="text" maxlength="8">
+                        <input style="width: 100px;" name="feeAmount${mchtFee.paytypeCode}" value="${mchtFee.feeAmount}" placeholder="请填写手续费（分）" type="text" maxlength="8">
                     </div>
                 </td>
-                <td >
+                <td style="width: 100px;" >
                     <div class="controls">
                         <input name="save${mchtFee.paytypeCode}" value="1" type="checkbox">
+                    </div>
+                </td>
+                <td style="width: 100px;" >
+                    <div class="controls">
+                        <input name="showMchtFeeRate${mchtFee.paytypeCode}" value="1"
+                            <c:if test="${mchtFee.showMchtFeeRate == 1}">checked</c:if>
+                        type="checkbox">
                     </div>
                 </td>
             </tr>

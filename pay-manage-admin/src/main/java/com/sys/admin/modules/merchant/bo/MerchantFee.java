@@ -25,6 +25,8 @@ public class MerchantFee {
 
 	private String save;
 
+	private String showMchtFeeRate;//1:显示，2：不显示
+
 	public String getMchtId() {
 		return mchtId;
 	}
@@ -79,5 +81,13 @@ public class MerchantFee {
 
 	public void setSave(String save) {
 		this.save = save;
+	}
+
+	public String getShowMchtFeeRate() {
+		return showMchtFeeRate;
+	}
+
+	public void setShowMchtFeeRate(String showMchtFeeRate) {
+		this.showMchtFeeRate = showMchtFeeRate;
 	}
 }
