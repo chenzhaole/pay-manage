@@ -111,23 +111,23 @@
                     settleMode: {},
                     feeType: {},
                     lowestFee: {
-                        max: 99999999999,
+                        max: 9999999,
                         number: true
                     },
                     feeRate: {
-                        max: 99999999999,
+                        max: 9999999,
                         number: true
                     },
                     feeAmount: {
-                        max: 99999999999,
+                        max: 9999999,
                         number: true
                     },
                     tradeMinMoney: {
-                        max: 99999999999,
+                        max: 9999999,
                         number: true
                     },
                     tradeMaxMoney: {
-                        max: 99999999999,
+                        max: 9999999,
                         number: true
                     }
 
