@@ -96,10 +96,12 @@ public class MchtFilterAccountDetailController extends BaseController {
                 //初始化商户名称
                 Map<String, String> mchtMap = com.sys.common.util.Collections3.extractToMap(
                         merchantService.list(new MchtInfo()), "id", "name");
-                for (MchtAccountDetail detail : list) {
-                    detail.setMchtName(mchtMap.get(detail.getMchtId()));
-                    detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
-                    detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+                if(list != null){
+                    for (MchtAccountDetail detail : list) {
+                        detail.setMchtName(mchtMap.get(detail.getMchtId()));
+                        detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
+                        detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+                    }
                 }
             }
         }
