@@ -237,7 +237,7 @@ public class GwDFController {
     @RequestMapping("taskProxyPay")
     @ResponseBody
     public String taskProxyPay(@RequestParam(required = false,value = "id") Integer logId){
-        logger.info("代付API，【定时任务发起代付】任务执行logId开始："+logId);
+        logger.debug("代付API，【定时任务发起代付】任务执行logId开始："+logId);
         CommonResult result = tradeDFBatchHandler.process(null);
         taskLogService.recordLog(logId,result);
         logger.info("代付API，【定时任务发起代付】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
