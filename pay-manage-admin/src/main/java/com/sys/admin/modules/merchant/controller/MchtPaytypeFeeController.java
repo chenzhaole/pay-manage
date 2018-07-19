@@ -206,21 +206,28 @@ public class MchtPaytypeFeeController extends BaseController {
 
 			MchtInfo mchtInfo = merchantService.queryByKey(mchtId);
 			if(null != mchtInfo){
+				JSONObject extend2Json = null;
 				if(StringUtils.isNotBlank(mchtInfo.getExtend2())){
 					//商户基本信息是否已经保存过要展示的支付类型费率
-					String extent2 = mchtInfo.getExtend2();
-					extent2 = JSONObject.parseObject(extent2).getString("showPayTypeFeeRate");
-					String newExtend2 = this.combNewExtend2(strShowMchtFeeRate, extent2);
-					strShowMchtFeeRate = newExtend2;
-					strShowMchtFeeRate = "{\"showPayTypeFeeRate\":\"" + strShowMchtFeeRate + "\"}";
+					String extent2DB = mchtInfo.getExtend2();
+					extend2Json = JSONObject.parseObject(extent2DB);
+					if(extend2Json.containsKey("showPayTypeFeeRate")){
+						String showPayTypeFeeRateDB = extend2Json.getString("showPayTypeFeeRate");
+						strShowMchtFeeRate = this.combNewExtend2(strShowMchtFeeRate, showPayTypeFeeRateDB);
+						extend2Json.remove("showPayTypeFeeRate");
+					}else if (StringUtils.isNotBlank(strShowMchtFeeRate) && strShowMchtFeeRate.contains("&")) {
+						strShowMchtFeeRate = this.geneShowMchtFeeRate(strShowMchtFeeRate);
+					}
+					extend2Json.put("showPayTypeFeeRate", strShowMchtFeeRate);
 				}else{
 					//extend2字段原本为空
 					if (StringUtils.isNotBlank(strShowMchtFeeRate) && strShowMchtFeeRate.contains("&")) {
 						strShowMchtFeeRate = this.geneShowMchtFeeRate(strShowMchtFeeRate);
-						strShowMchtFeeRate = "{\"showPayTypeFeeRate\":\"" + strShowMchtFeeRate + "\"}";
+						extend2Json = new JSONObject();
+						extend2Json.put("showPayTypeFeeRate", strShowMchtFeeRate);
 					}
 				}
-				mchtInfo.setExtend2(strShowMchtFeeRate);
+				mchtInfo.setExtend2(extend2Json.toJSONString());
 				MchtInfo selectMchtInfo = new MchtInfo();
 				selectMchtInfo.setMchtCode(mchtId);
 				logger.info("商户基本信息，Extend2字段增加可展示的支付类型，mchtInfo=" + JSONObject.toJSONString(mchtInfo) + ",选中的selectMchtInfo=" + JSONObject.toJSONString(selectMchtInfo));
@@ -257,15 +264,15 @@ public class MchtPaytypeFeeController extends BaseController {
 	/**
 	 * 重新组合extend2的值
 	 * @param strShowMchtFeeRate 页面提交过来的值 wx501=null&wx502=1&wx503=null&
-	 * @param extent2 数据库原本已经存在的值 wx101&wx201&wx401&
+	 * @param showPayTypeFeeRateDB 数据库原本已经存在的值 wx101&wx201&wx401&
 	 * @return
 	 */
-	private String combNewExtend2(String strShowMchtFeeRate, String extent2) {
+	private String combNewExtend2(String strShowMchtFeeRate, String showPayTypeFeeRateDB) {
 		if(StringUtils.isBlank(strShowMchtFeeRate)){
-			return extent2;
+			return showPayTypeFeeRateDB;
 		}
 		String[] showMchtFeeRateArr =strShowMchtFeeRate.split("&");
-		String[] extend2Arr = extent2.split("&");
+		String[] extend2Arr = showPayTypeFeeRateDB.split("&");
 		Set<String> extent2Set = new HashSet<>();
 		for (int i = 0; i < extend2Arr.length; i++) {
 			extent2Set.add(extend2Arr[i]);

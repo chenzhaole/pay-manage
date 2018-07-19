@@ -331,6 +331,24 @@ public class MerchantController extends BaseController {
 			model.addAttribute("certTypeList", certTypeList);
 			String id = mcht.getId();
 			MerchantForm mchtInfo = merchantAdminService.getMerchantById(id);
+			//根据extend2中存的值，来取出 isShowPayResultPage、 mchtPropertyTag的值，以便页面回显
+			if(null != mchtInfo && StringUtils.isNotBlank(mchtInfo.getExtend2())){
+				String extend2Str = mchtInfo.getExtend2();
+				JSONObject extend2Json = JSONObject.parseObject(extend2Str);
+				if(extend2Json.containsKey("isShowPayResultPage")){
+					mchtInfo.setIsShowPayResultPage(extend2Json.getString("isShowPayResultPage"));
+				}
+				if(extend2Json.containsKey("mchtPropertyTag")){
+					String mchtPropertyTagStr = extend2Json.getString("mchtPropertyTag");
+					if(mchtPropertyTagStr.contains("&")){
+						mchtPropertyTagStr = this.converMchtPropertyTag(mchtPropertyTagStr);
+					}
+					mchtInfo.setMchtPropertyTag(mchtPropertyTagStr);
+				}
+
+			}
+
+
 			model.addAttribute("merchant", mchtInfo);
 			model.addAttribute("op", "edit");
 
@@ -375,6 +393,26 @@ public class MerchantController extends BaseController {
 		
 		return "modules/merchant/merchantEdit";
 	}
+
+	/**
+	 *  将mchtPropertyTag的格式由&拼接转成由,拼接并显示在页面
+	 * @param mchtPropertyTagStr
+	 * @return
+	 */
+	private String converMchtPropertyTag(String mchtPropertyTagStr) {
+		if(StringUtils.isNotBlank(mchtPropertyTagStr)){
+			String[] mchtPropertyTagArr = mchtPropertyTagStr.split("&");
+			StringBuilder sb = new StringBuilder();
+			for (int i = 0; i < mchtPropertyTagArr.length; i++) {
+				sb.append(mchtPropertyTagArr[i]).append(",");
+			}
+			String val = sb.toString();
+			val =  val.endsWith(",") ? val.substring(0, val.lastIndexOf(",")) : val;
+			return val;
+		}
+		return "";
+	}
+
 	/**
 	 * 
 	 * @Title: addMerchantSave 
@@ -412,6 +450,11 @@ public class MerchantController extends BaseController {
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 				}
 
+				//将 是否显示支付结果页、商户标签 的信息，封装成json格式的数据。存入extend2字段中
+				JSONObject extend2Json = new JSONObject();
+				extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
+				extend2Json.put("mchtPropertyTag", this.geneMchtPropertyTagStr(merchantForm.getMchtPropertyTag()));
+				merchantForm.setExtend2(extend2Json.toJSONString());
         		String result = merchantAdminService.addMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "保存商户信息成功！");
@@ -442,6 +485,35 @@ public class MerchantController extends BaseController {
         	if(ErrorCodeEnum.SUCCESS.getCode().equalsIgnoreCase(merchantForm.getCode())){
         		//转换成功,调用商户service执行更新商户操作
         		merchantForm.setOperatorId(operatorId);
+        		//查出该商户中的extend2中已经存在的值
+                if(null != merchantForm){
+                    MerchantForm mchtInfo = merchantAdminService.getMerchantById(merchantForm.getId());
+                    if(null != mchtInfo){
+						JSONObject extend2Json = null;
+						if(StringUtils.isNotBlank(mchtInfo.getExtend2())) {
+							extend2Json = JSONObject.parseObject(mchtInfo.getExtend2());
+							//设置isShowPayResultPage的值
+							if (extend2Json.containsKey("isShowPayResultPage")) {
+								extend2Json.remove("isShowPayResultPage");
+							}
+							extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
+
+							//设置mchtPropertyTag的值
+							if (extend2Json.containsKey("mchtPropertyTag")) {
+								extend2Json.remove("mchtPropertyTag");
+							}
+							String mchtPropertyTagStr = this.geneMchtPropertyTagStr(merchantForm.getMchtPropertyTag());
+							extend2Json.put("mchtPropertyTag", mchtPropertyTagStr);
+						}else{
+							extend2Json = new JSONObject();
+							//设置isShowPayResultPage的值
+							extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
+							//设置mchtPropertyTag的值
+							extend2Json.put("mchtPropertyTag", merchantForm.getMchtPropertyTag());
+						}
+						merchantForm.setExtend2(extend2Json.toJSONString());
+                    }
+                }
         		String result = merchantAdminService.updateMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "更新商户信息成功！");
@@ -458,6 +530,30 @@ public class MerchantController extends BaseController {
 		}
 		return "modules/merchant/merchantEdit";
 	}
+
+    /**
+     * 将mchtPropertyTag的值以&符号拼接
+     * @param mchtPropertyTag
+     * @return
+     */
+    private String geneMchtPropertyTagStr(String mchtPropertyTag) {
+        if(StringUtils.isNotBlank(mchtPropertyTag)){
+            if(mchtPropertyTag.contains(",")){
+                String[] isMchtPropertyTagArr = mchtPropertyTag.split(",");
+                StringBuilder sb = new StringBuilder();
+                for (int i = 0; i < isMchtPropertyTagArr.length; i++) {
+                    sb.append(isMchtPropertyTagArr[i]).append("&");
+                }
+                String isMchtPropertyTagArrVal = sb.toString();
+                if(StringUtils.isNotBlank(isMchtPropertyTagArrVal) && isMchtPropertyTagArrVal.contains("&")){
+                    return isMchtPropertyTagArrVal;
+                }
+            }else{
+                return mchtPropertyTag;
+            }
+        }
+        return "";
+    }
 
 //	@RequestMapping(value = {"detailByLoginUser", ""})
 //	public String detailByLoginUser(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {

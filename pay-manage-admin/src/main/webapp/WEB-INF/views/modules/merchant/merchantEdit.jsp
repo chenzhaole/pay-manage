@@ -146,7 +146,8 @@
                     // email: {
                     //     email: true, required: true
                     // },
-                    website: {maxlength: 64}
+                    website: {maxlength: 64},
+                    mchtPropertyTag: {maxlength: 64}
                 },
                 messages: {
                     name: {
@@ -852,6 +853,32 @@
                     </div>
                 </div>
             </td>
+        </tr>
+        <tr>
+            <td>
+                <label class="control-label">是否展示支付结果页</label>
+                <div class="controls">
+                    <div class="input-prepend">
+                        <select style="width:50px;" name="isShowPayResultPage">
+                            <option value="0" <c:if test="${merchant.isShowPayResultPage == '0'}">selected</c:if>>否
+                            </option>
+                            <option value="1" <c:if test="${merchant.isShowPayResultPage == '1'}">selected</c:if>>是
+                            </option>
+                        </select>
+                    </div>
+                    <p class="help-block"></p>
+                </div>
+            </td>
+            <td colspan="3">
+                <div class="control-group">
+                    <label class="control-label" for="mchtPropertyTag">商户标签（半角逗号分隔）</label>
+                    <div class="controls">
+                        <textarea name="mchtPropertyTag" placeholder="" style="width:350px;" id="mchtPropertyTag"
+                                  rows="3">${merchant.mchtPropertyTag}</textarea>
+                    </div>
+                </div>
+            </td>
+
         </tr>
     </table>
 

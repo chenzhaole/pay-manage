@@ -3,12 +3,14 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.service.trade.handler.ITradeCashierCallbackHandler;
+import com.sys.common.enums.ClientPayWayEnum;
 import com.sys.common.enums.DeviceTypeEnum;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PageTypeEnum;
 import com.sys.common.util.HttpUtil;
 import com.sys.core.dao.dmo.MchtGatewayOrder;
 import com.sys.gateway.common.IpUtil;
+import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -69,17 +71,23 @@ public class GwCashierCallbackController {
             logger.info(BIZ+midoid+"调用tradeCashierCallbackHandler处理业务逻辑，传入的请求参数platOrderId="+platOrderId+",payType="+payType+"，返回值为："+JSONObject.toJSONString(result));
             if(null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode())){
                 Map<String, Object> callbackInfo = (Map) result.getData();
-                boolean showResultPage = (boolean) callbackInfo.get("showResultPage");
+                boolean showResultPage = (boolean) callbackInfo.get("showResultPage");//支付结果中转页标识
+                boolean showResultADPage = (boolean) callbackInfo.get("showResultADPage");//带广告的支付结果页标识
                 String callbackUrl = (String) callbackInfo.get("callbackUrl");
-                if(showResultPage){
-                    //展示支付结果页
-                    page = this.getPageByDeviceType(deviceType, PageTypeEnum.RESULT.getCode());
-                    //支付结果页需要的参数
-                    model.addAttribute("callbackUrl", callbackUrl);
-                }else{
-                    return "redirect:"+callbackUrl;
+                //20180718新增，是否显示带广告的支付结果页面，目前只处理手机端
+                if(showResultADPage && !DeviceTypeEnum.PC.getCode().equals(deviceType)){
+                    page = this.getPageByDeviceType(deviceType, PageTypeEnum.PAYSUCCESS.getCode());
+                    this.generatePaySuccessPageData(model, callbackInfo, platOrderId, payType, midoid);
+                }else {
+                    if (showResultPage) {
+                        //展示支付结果中转页，只是为了解决部分微信h5前台页面回掉问题
+                        page = this.getPageByDeviceType(deviceType, PageTypeEnum.RESULT.getCode());
+                        //支付结果中转页需要的参数
+                        model.addAttribute("callbackUrl", callbackUrl);
+                    } else {
+                        return "redirect:" + callbackUrl;
+                    }
                 }
-
             }else{
                 model.addAttribute("respCode",result.getRespCode());
                 model.addAttribute("respMsg",result.getRespMsg());
@@ -95,8 +103,55 @@ public class GwCashierCallbackController {
             page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode());
             logger.error(BIZ+midoid+"callback页面回调请求异常："+e.getMessage());
         }
-        logger.info(BIZ+midoid+"处理callback页面回调请求之后，返回给页面的数据为："+JSONObject.toJSONString(model));
+        logger.info(BIZ+midoid+"处理callback页面回调请求，跳转的页面为："+page+"，返回给页面的数据为："+JSONObject.toJSONString(model));
         return page;
+    }
+
+    /**
+     * 生成支付结果广告页需要的数据
+     * @param model
+     * @param callbackInfo
+     * @param midoid
+     */
+    private void generatePaySuccessPageData(Model model, Map<String, Object> callbackInfo, String platOrderId, String payType, String midoid) {
+        model.addAttribute("platOrderId", platOrderId);
+        String payTypeName = this.genePayTypeName(payType);
+        model.addAttribute("payType", payTypeName);
+        model.addAttribute("callbackUrl", callbackInfo.get("callbackUrl"));
+        model.addAttribute("goodsName", callbackInfo.get("goodsName"));
+        model.addAttribute("amount", callbackInfo.get("amount"));
+        String adUrl = (String) callbackInfo.get("adUrl");
+        String mchtId  = (String) callbackInfo.get("mchtId");
+        String mchtPropertyTag = (String) callbackInfo.get("mchtPropertyTag");
+        adUrl = adUrl+"?orderId="+platOrderId+"&merchantId="+mchtId+"&tag="+mchtPropertyTag;
+        model.addAttribute("adUrl",adUrl);
+        //qq和手机
+        Map<String, String> mapQQandMobile = (Map<String, String>)callbackInfo.get("pageQQandMobile");
+        model.addAttribute("qq", mapQQandMobile.get("qq"));
+        model.addAttribute("mobile", mapQQandMobile.get("mobile"));
+        logger.info(midoid+",跳转到支付结果广告页，需要的数据："+JSONObject.toJSONString(model));
+    }
+
+    private String genePayTypeName(String payType) {
+        String payTypeName = "";
+        if(payType.startsWith("wx")){
+            payTypeName = "微信支付";
+        }else if(payType.startsWith("al")){
+            payTypeName = "支付宝支付";
+        }else if(payType.startsWith("sn")){
+            payTypeName = "苏宁支付";
+        }else if(payType.startsWith("qq")){
+            payTypeName = "QQ支付";
+        }else if(payType.startsWith("jd")){
+            payTypeName = "京东支付";
+        }else if(payType.startsWith("yl")){
+            payTypeName = "银联支付";
+        }else if(payType.startsWith("qj")){
+            payTypeName = "银行卡支付";
+        }else{
+            payTypeName = "第三方支付";
+        }
+        return payTypeName;
     }
 
     /**

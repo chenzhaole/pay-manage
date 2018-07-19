@@ -36,6 +36,7 @@ public enum AdminPayTypeEnum {
 
 	//qq支付--以qq开头
 	QQ_GROUP("qq000", "QQ组合支付类型"),
+	QQ_WAP("qq101", "QQh5支付"),
 	QQ_SCAN2WAP("qq102", "QQ扫码转H5支付"),
 	QQ_QRCODE("qq403", "QQ扫码支付"),
 	QQ_BARCODE("qq501", "QQ付款码支付"),

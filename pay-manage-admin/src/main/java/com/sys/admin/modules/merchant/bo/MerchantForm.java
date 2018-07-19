@@ -172,7 +172,9 @@ public class MerchantForm {
 
 	private String certContent1;
 
-	
+	private String isShowPayResultPage;//是否展示支付结果页
+	private String mchtPropertyTag;//商户标签
+
 	public MerchantForm() {
 	}
 
@@ -242,7 +244,13 @@ public class MerchantForm {
 		this.clientIp = requestMap.get("clientIp");
 		this.mchtKey = requestMap.get("mchtKey");
 
-		this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
+        //是否展示支付结果页
+        this.isShowPayResultPage = requestMap.get("isShowPayResultPage");
+        //商户标签
+        this.mchtPropertyTag = requestMap.get("mchtPropertyTag");
+
+
+        this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
 
 		String[] signTypes = request.getParameterValues("signType");
 
@@ -983,4 +991,20 @@ public class MerchantForm {
 	public void setExtend3(String extend3) {
 		this.extend3 = extend3;
 	}
+
+    public String getIsShowPayResultPage() {
+        return isShowPayResultPage;
+    }
+
+    public void setIsShowPayResultPage(String isShowPayResultPage) {
+        this.isShowPayResultPage = isShowPayResultPage;
+    }
+
+    public String getMchtPropertyTag() {
+        return mchtPropertyTag;
+    }
+
+    public void setMchtPropertyTag(String mchtPropertyTag) {
+        this.mchtPropertyTag = mchtPropertyTag;
+    }
 }

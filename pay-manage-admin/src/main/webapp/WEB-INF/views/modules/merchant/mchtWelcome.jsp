@@ -45,7 +45,10 @@
                 <div class="control-group">
                     <label class="control-label"><h5>成功金额(元)</h5></label>
                     <div class="controls">
-                        <label id="succMoney">${payData.succMoney}</label>
+                        <label id="succMoney">
+                            <c:if test="${empty payData.succMoney}">-</c:if>
+                            <c:if test="${!empty payData.succMoney}">${payData.succMoney}</c:if>
+                        </label>
                     </div>
                 </div>
             </td>
@@ -53,7 +56,10 @@
                 <div class="control-group">
                     <label class="control-label"><h5>冻结金额(元)</h5></label>
                     <div class="controls">
-                        <label id="freezeMoney">${mchtAccountDetailData.freezeTotalAmount}</label>
+                        <label id="freezeMoney">
+                           <c:if test="${empty mchtAccountDetailData.freezeTotalAmount}">-</c:if>
+                           <c:if test="${!empty mchtAccountDetailData.freezeTotalAmount}">${mchtAccountDetailData.freezeTotalAmount}</c:if>
+                        </label>
                     </div>
                 </div>
             </td>
@@ -61,7 +67,10 @@
                 <div class="control-group">
                     <label class="control-label"><h5>可提现金额(元)</h5></label>
                     <div class="controls">
-                        <label id="settleMoney">${mchtAccountDetailData.settleTotalAmount}</label>
+                        <label id="settleMoney">
+                            <c:if test="${empty mchtAccountDetailData.settleTotalAmount}">-</c:if>
+                            <c:if test="${!empty mchtAccountDetailData.settleTotalAmount}">${mchtAccountDetailData.settleTotalAmount}</c:if>
+                        </label>
                     </div>
                 </div>
             </td>
