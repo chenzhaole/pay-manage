@@ -84,7 +84,9 @@
 					<input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
 					<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 					<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-					<input id="clearButton" class="btn btn-primary" type="button" value="新增支付产品" onclick="add()" style="margin-left: 5px;"/>
+					<shiro:hasPermission name="platform:getPayType">
+						<input id="clearButton" class="btn btn-primary" type="button" value="新增支付产品" onclick="add()" style="margin-left: 5px;"/>
+					</shiro:hasPermission>
  				</td>
  			</tr>
  		</table>
@@ -121,8 +123,12 @@
 				<td>${productInfo.disableCount}</td>
 				<td>${productInfo.extend1}</td>
 				<td>
-					<a href="${ctx}/platform/addPlatProductPage?id=${productInfo.id}">修改</a>|
-					<a href="${ctx}/platform/deletePlatProduct?id=${productInfo.id}&code=${productInfo.code}" onclick="return confirmx('是否确认删除此记录？', this.href)">删除</a>
+					<shiro:hasPermission name="platform:editPlatProductPage">
+						<a href="${ctx}/platform/addPlatProductPage?id=${productInfo.id}">修改</a>|
+					</shiro:hasPermission>
+					<shiro:hasPermission name="platform:deletePlatProduct">
+						<a href="${ctx}/platform/deletePlatProduct?id=${productInfo.id}&code=${productInfo.code}" onclick="return confirmx('是否确认删除此记录？', this.href)">删除</a>
+					</shiro:hasPermission>
 				</td>
 			</tr>
 		</c:forEach>

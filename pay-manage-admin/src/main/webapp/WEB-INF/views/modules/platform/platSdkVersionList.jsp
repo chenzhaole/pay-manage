@@ -22,8 +22,10 @@
 </head>
 <body>
 <div class="breadcrumb">
-	<label><a href="#">支付SDK管理 > </a><a href="#"><b>支付SDK列表</b></a></label> 
-	<a style="float:right;cursor: pointer;font-size:15px;text-decoration: none;" href="${ctx}/platform/editPlatSdkVersion/">新增</a>
+	<label><a href="#">支付SDK管理 > </a><a href="#"><b>支付SDK列表</b></a></label>
+	<shiro:hasPermission name="platform:addPlatSdkVersion">
+		<a style="float:right;cursor: pointer;font-size:15px;text-decoration: none;" href="${ctx}/platform/editPlatSdkVersion/">新增</a>
+	</shiro:hasPermission>
 </div>
  	<form action="">
  	</form>
@@ -54,7 +56,9 @@
 				<td><fmt:formatDate value="${sdk.createTime}"  pattern="yyyy-MM-dd  HH:mm:ss"/> </td>
 				<td><fmt:formatDate value="${sdk.updateTime}"  pattern="yyyy-MM-dd  HH:mm:ss"/></td>
 				<td>
-					<a href="${ctx}/platform/form?version=${sdk.version}"  style="cursor: pointer;text-decoration: none;">编辑</a>&nbsp;
+					<shiro:hasPermission name="platform:form">
+						<a href="${ctx}/platform/form?version=${sdk.version}"  style="cursor: pointer;text-decoration: none;">编辑</a>&nbsp;
+					</shiro:hasPermission>
 				</td>
 			</tr>
 		</c:forEach>

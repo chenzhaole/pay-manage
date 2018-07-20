@@ -58,8 +58,11 @@
         <option value="54">事业单位</option>
     </select>&nbsp;&nbsp;&nbsp;
     <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-    <input id="clearButton" class="btn btn-primary" type="button" value="新增商户" onclick="add()"
-           style="margin-left: 5px;"/>
+    <shiro:hasPermission name="merchant:add">
+        <input id="clearButton" class="btn btn-primary" type="button" value="新增商户" onclick="add()" style="margin-left: 5px;"/>
+    </shiro:hasPermission>
+
+
     </div>
 </form>
 
@@ -113,10 +116,16 @@
                 <c:if test="${mcht.status == 2}">停用</c:if>
                 <c:if test="${mcht.status == 3}">待审核</c:if></td>
             <td>
-                <a href="${ctx}/merchant/mchtPaytypeFeePage?mchtId=${mcht.id}">费率</a>|
-                <a href="${ctx}/merchant/edit?id=${mcht.id}">修改</a>|
-                <a href="${ctx}/merchant/deleteMcht?id=${mcht.id}&mchtCode=${mcht.mchtCode}"
+                <shiro:hasPermission name="merchant:mchtPaytypeFeePage">
+                    <a href="${ctx}/merchant/mchtPaytypeFeePage?mchtId=${mcht.id}">费率</a>|
+                </shiro:hasPermission>
+                <shiro:hasPermission name="merchant:edit">
+                    <a href="${ctx}/merchant/edit?id=${mcht.id}">修改</a>|
+                </shiro:hasPermission>
+                <shiro:hasPermission name="merchant:deleteMcht">
+                    <a href="${ctx}/merchant/deleteMcht?id=${mcht.id}&mchtCode=${mcht.mchtCode}"
                    onclick="return confirmx('是否删除编号为“${mcht.mchtCode}”的记录？', this.href)">删除</a>
+                </shiro:hasPermission>
             </td>
         </tr>
     </c:forEach>

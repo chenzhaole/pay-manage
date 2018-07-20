@@ -72,7 +72,9 @@
 				<td>${chanInfo.disableCount}</td>
 				<td>${chanInfo.mchtDesc}</td>
 				<td>
-					<a href="${ctx}/platform/editPlatConfMchtChanPage?mchtId=${chanInfo.mchtId}">修改</a>
+					<shiro:hasPermission name="platform:editPlatConfMchtChan">
+						<a href="${ctx}/platform/editPlatConfMchtChanPage?mchtId=${chanInfo.mchtId}">修改</a>
+					</shiro:hasPermission>
 				</td>
 			</tr>
 		</c:forEach>

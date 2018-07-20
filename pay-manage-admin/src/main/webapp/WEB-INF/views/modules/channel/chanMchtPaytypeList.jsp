@@ -98,7 +98,9 @@
 				<input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
 				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-			<input id="clearButton" class="btn btn-primary" type="button" value="新增支付通道" onclick="add()" style="margin-left: 5px;"/>
+				<shiro:hasPermission name="channel:addChanMchtPayTypePage">
+					<input id="clearButton" class="btn btn-primary" type="button" value="新增支付通道" onclick="add()" style="margin-left: 5px;"/>
+				</shiro:hasPermission>
 	 		</td>
  		</tr>
  	</table>
@@ -145,8 +147,12 @@
                 <c:choose><c:when test="${chanInfo.status == 1}"><td>启用</td></c:when>
 				<c:when test="${chanInfo.status == 2}"><td>停用</td></c:when><c:otherwise><td></td></c:otherwise></c:choose>
 				<td>
-					<a href="${ctx}/channel/addChanMchtPayTypePage?id=${chanInfo.id}">修改</a>|
-					<a href="${ctx}/channel/deleteChanMchPayType?id=${chanInfo.id}" onclick="return confirmx('是否确认删除“${chanInfo.name}”？', this.href)">删除</a>
+					<shiro:hasPermission name="channel:editChanMchtPayTypePage">
+						<a href="${ctx}/channel/addChanMchtPayTypePage?id=${chanInfo.id}">修改</a>
+					</shiro:hasPermission>
+					<shiro:hasPermission name="channel:deleteChanMchPayType">
+						|<a href="${ctx}/channel/deleteChanMchPayType?id=${chanInfo.id}" onclick="return confirmx('是否确认删除“${chanInfo.name}”？', this.href)">删除</a>
+					</shiro:hasPermission>
 					<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
 						|<a href="${ctx}/channel/queryBalance?chanId=${chanInfo.id}">查询余额</a> </c:if>
 				</td>

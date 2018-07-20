@@ -41,7 +41,9 @@
 		<label>通道名称：</label><input value="${paramMap.name}" name="name" type="text" maxlength="64" class="input-medium"/>
 		&nbsp;&nbsp;&nbsp;
 		<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-		<input id="clearButton" class="btn btn-primary" type="button" value="新增通道" onclick="add()" style="margin-left: 5px;"/>
+		<shiro:hasPermission name="channel:add">
+			<input id="clearButton" class="btn btn-primary" type="button" value="新增通道" onclick="add()" style="margin-left: 5px;"/>
+		</shiro:hasPermission>
 		</div>
 	</form>
  	
@@ -76,8 +78,12 @@
 				<td><fmt:formatDate value="${chanInfo.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 				<td>${chanInfo.remark}</td>
 				<td>
-					<a href="${ctx}/channel/edit?id=${chanInfo.id}">修改</a>|
-					<a href="${ctx}/channel/deleteChannel?id=${chanInfo.id}" onclick="return confirmx('是否确认删除编号为“${chanInfo.chanCode}”的记录？', this.href)">删除</a>
+					<shiro:hasPermission name="channel:edit">
+						<a href="${ctx}/channel/edit?id=${chanInfo.id}">修改</a>|
+					</shiro:hasPermission>
+					<shiro:hasPermission name="channel:deleteChannel">
+						<a href="${ctx}/channel/deleteChannel?id=${chanInfo.id}" onclick="return confirmx('是否确认删除编号为“${chanInfo.chanCode}”的记录？', this.href)">删除</a>
+					</shiro:hasPermission>
 				</td>
 			</tr>
 		</c:forEach>

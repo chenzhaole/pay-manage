@@ -63,7 +63,9 @@
 				<input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
 				<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
 				<input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-			<input id="clearButton" class="btn btn-primary" type="button" value="新增商户产品" onclick="add()" style="margin-left: 5px;"/>
+				<shiro:hasPermission name="platform:addPlatConfMchtProductPage">
+					<input id="clearButton" class="btn btn-primary" type="button" value="新增商户产品" onclick="add()" style="margin-left: 5px;"/>
+				</shiro:hasPermission>
 	 		</td>
  		</tr>
  	</table>
@@ -108,9 +110,14 @@
 				<c:choose><c:when test="${productInfo.isValid == 1}"><td>启用</td></c:when>
 					<c:when test="${productInfo.isValid == 0}"><td>禁用</td></c:when><c:otherwise><td></td></c:otherwise></c:choose>
 				<td>
-					<a href="${ctx}/platform/addPlatConfMchtProductPage?mchtId=${productInfo.mchtId}&productId=${productInfo.productId}">修改</a>|
-					<a href="${ctx}/platform/deleteMchtProduct?mchtId=${productInfo.mchtId}&productId=${productInfo.productId}"
-					   onclick="return confirmx('是否确认删除该记录？', this.href)">删除</a>
+					<shiro:hasPermission name="platform:editPlatConfMchtChanPage">
+						<a href="${ctx}/platform/addPlatConfMchtProductPage?mchtId=${productInfo.mchtId}&productId=${productInfo.productId}">修改</a>|
+					</shiro:hasPermission>
+					<shiro:hasPermission name="platform:deleteMchtProduct">
+						<a href="${ctx}/platform/deleteMchtProduct?mchtId=${productInfo.mchtId}&productId=${productInfo.productId}"
+					   		onclick="return confirmx('是否确认删除该记录？', this.href)">删除</a>
+					</shiro:hasPermission>
+
 				</td>
 			</tr>
 		</c:forEach>

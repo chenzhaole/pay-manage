@@ -74,8 +74,10 @@
                 <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
                 <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
                 <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-                <input id="clearButton" class="btn btn-primary" type="button" value="新增" onclick="add()"
+                <shiro:hasPermission name="channel:addChanPaytypeBankPage">
+                    <input id="clearButton" class="btn btn-primary" type="button" value="新增" onclick="add()"
                        style="margin-left: 5px;"/>
+                </shiro:hasPermission>
             </td>
         </tr>
     </table>
@@ -119,9 +121,13 @@
                 <c:if test="${chanBank.status == 2}">无效</c:if>
             <td><fmt:formatDate value="${chanBank.createDate}" pattern="yyyy-MM-dd  HH:mm:ss"/></td>
             <td>
-                <a href="${ctx}/channel/addChanPaytypeBankPage?id=${chanBank.id}">修改</a>|
-                <a href="${ctx}/channel/deleteChanPaytypeBank?id=${chanBank.id}"
+                <shiro:hasPermission name="channel:editChanPaytypeBankPage">
+                    <a href="${ctx}/channel/addChanPaytypeBankPage?id=${chanBank.id}">修改</a>|
+                </shiro:hasPermission>
+                <shiro:hasPermission name="channel:deleteChanPaytypeBank">
+                    <a href="${ctx}/channel/deleteChanPaytypeBank?id=${chanBank.id}"
                    onclick="return confirmx('是否确认删除此记录？', this.href)">删除</a>
+                </shiro:hasPermission>
             </td>
         </tr>
     </c:forEach>
