@@ -311,7 +311,9 @@
 						<c:if test="${orderInfo.status == '2'}">
 							<a href="${ctx}/order/supplyNotify?orderId=${orderInfo.id}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>" onclick="return confirmx('是否确认向下游补发通知？', this.href)">补发通知</a> | </c:if>
 						<c:if test="${orderInfo.status != '2'}"><a href="${ctx}/order/querySupply?orderId=${orderInfo.id}" onclick="return confirmx('是否确认重新向上游通道发起查单请求？', this.href)">查单</a> |</c:if>
-						<a href="${ctx}/order/statPayOrderById?orderId=${orderInfo.id}" onclick="return confirmx('是否确认将此记录重新入账？', this.href)">入账</a>
+						<shiro:hasPermission name="order:statPayOrderById">
+							<a href="${ctx}/order/statPayOrderById?orderId=${orderInfo.id}" onclick="return confirmx('是否确认将此记录重新入账？', this.href)">入账</a>
+						</shiro:hasPermission>
 							<%--|
                             <a href="${ctx}/process/question/form?orderId=${orderInfo.id}">同步状态</a>  --%>
 					</td>
