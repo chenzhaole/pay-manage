@@ -232,13 +232,29 @@ public class GwDFController {
     }
 
     /**
-     * 定时任务发起代付
+     * 首次发起代付
+     * -查询代付状态为 审核中 的代付订单，并向上游发起
+     * -若余额不足或查询余额失败，将代付状态置为 审核通过
+     */
+    @RequestMapping("taskProxyPayFirstTime")
+    @ResponseBody
+    public String taskProxyPayFirstTime(@RequestParam(required = false,value = "id") Integer logId){
+//        logger.debug("代付API，【定时任务发起代付】任务执行logId开始："+logId);
+        CommonResult result = tradeDFBatchHandler.process(true);
+        taskLogService.recordLog(logId,result);
+        logger.info("代付API，【定时任务发起代付】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
+        return "ok";
+    }
+
+    /**
+     * 定时发起代付
+     * -查询代付状态为 审核通过 的代付订单，并向上游发起
      */
     @RequestMapping("taskProxyPay")
     @ResponseBody
     public String taskProxyPay(@RequestParam(required = false,value = "id") Integer logId){
         logger.debug("代付API，【定时任务发起代付】任务执行logId开始："+logId);
-        CommonResult result = tradeDFBatchHandler.process(null);
+        CommonResult result = tradeDFBatchHandler.process(false);
         taskLogService.recordLog(logId,result);
         logger.info("代付API，【定时任务发起代付】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
         return "ok";

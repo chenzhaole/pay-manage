@@ -518,7 +518,8 @@ public class ProxyOrderController extends BaseController {
         batch.setMchtId(mchtId);
         batch.setUserId(UserUtils.getUser().getId().toString());
         batch.setPayType(PayTypeEnum.BATCH_DF.getCode());
-        batch.setPayStatus(ProxyPayBatchStatusEnum.AUDIT_SUCCESS.getCode());
+        batch.setRequesetType(ProxyPayRequestEnum.PLATFORM.getCode());
+        batch.setPayStatus(ProxyPayBatchStatusEnum.AUDIT_DOING.getCode());
         batch.setCreateTime(new Date());
         batch.setUpdateTime(new Date());
 
