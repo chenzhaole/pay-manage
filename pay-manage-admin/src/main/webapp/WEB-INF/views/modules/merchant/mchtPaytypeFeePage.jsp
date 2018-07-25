@@ -129,23 +129,22 @@
 
             </div>
         </div>
-    <%--<div class="control-group">
-        <label class="control-label">代理商费率类型</label>
-        <div class="controls">
-            <select name="" class="input-xlarge" id="">
-                <option value="">--请选择--</option>
-                <option
-                        固定比例
-                </option>
-                <option
+    <c:if test="${mchtInfo.signType == '4'}">
+        <div class="control-group">
+            <label class="control-label">代理商费率类型</label>
+            <div class="controls">
+                <select name="extend2" class="input-xlarge" id="">
+                    <option value="2">
                         代理商固定费率
-                </option>
-                <option
-                        <c:if test="${mchtFee.feeType == 3}">selected</c:if> value="3">混合
-                </option>
-            </select>
+                    </option>
+                    <option value="1" <c:if test="${agentFeeRateType eq '1'}">selected</c:if>>
+                        固定比例
+                    </option>
+                </select>
+            </div>
         </div>
-    </div>--%>
+    </c:if>
+
 
     <div class="breadcrumb">
         <input name="btnCancel" class="btn" type="button" value="返 回" onclick="window.history.go(-1);"/>

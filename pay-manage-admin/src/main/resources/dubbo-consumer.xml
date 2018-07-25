@@ -43,4 +43,8 @@
 	<dubbo:reference id="platAccountAdjustService" interface="com.sys.core.service.PlatAccountAdjustService" />
 	<dubbo:reference id="mchtAccountDetailService" interface="com.sys.core.service.MchtAccountDetailService" />
 	<dubbo:reference id="proxyDetailAuditService" interface="com.sys.core.service.ProxyDetailAuditService" timeout="30000"/>
+	<dubbo:reference id="reportDayPayDetailService" interface="com.sys.core.service.ReportDayPayDetailService" timeout="30000"/>
+	<dubbo:reference id="reportDayPayService" interface="com.sys.core.service.ReportDayPayService" timeout="30000"/>
+	<dubbo:reference id="statReportDayPayDetailService" interface="com.sys.boss.api.service.stat.StatReportDayPayDetailService" timeout="30000"/>
+	<dubbo:reference id="statReportDayPayService" interface="com.sys.boss.api.service.stat.StatReportDayPayService" timeout="30000"/>
 </beans>

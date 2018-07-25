@@ -8,6 +8,7 @@ import com.sys.admin.modules.channel.service.ChanMchtAdminService;
 import com.sys.admin.modules.merchant.bo.MerchantFee;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.DateUtils2;
@@ -96,7 +97,12 @@ public class MchtPaytypeFeeController extends BaseController {
 
 			merchantFees.add(merchantFee);
 		}
+		if(StringUtils.isNotBlank(mchtInfo.getExtend3()) ){
+			JSONObject jsonObject = JSONObject.parseObject(mchtInfo.getExtend3());
+			model.addAttribute("agentFeeRateType", jsonObject.get("agentFeeRateType"));
 
+		}
+		model.addAttribute("mchtInfo", mchtInfo);
 		model.addAttribute("mchtId", mchtId);
 		model.addAttribute("mchtFees", merchantFees);
 		model.addAttribute("paymentTypeInfos", payTypeList);
@@ -227,12 +233,32 @@ public class MchtPaytypeFeeController extends BaseController {
 						extend2Json.put("showPayTypeFeeRate", strShowMchtFeeRate);
 					}
 				}
-				mchtInfo.setExtend2(extend2Json.toJSONString());
+				if(extend2Json != null){
+					mchtInfo.setExtend2(extend2Json.toJSONString());
+				}
 				MchtInfo selectMchtInfo = new MchtInfo();
 				selectMchtInfo.setMchtCode(mchtId);
 				logger.info("商户基本信息，Extend2字段增加可展示的支付类型，mchtInfo=" + JSONObject.toJSONString(mchtInfo) + ",选中的selectMchtInfo=" + JSONObject.toJSONString(selectMchtInfo));
+
+				//当商户是代理商户时，判断代理商户费率类型
+				if(SignTypeEnum.CLIENT_MCHT.getCode().equals(mchtInfo.getSignType())){
+					String agentRateType = paramMap.get("extend2");
+					JSONObject jsonObject = null;
+					if(StringUtils.isBlank(mchtInfo.getExtend2())){
+						jsonObject = new JSONObject();
+						jsonObject.put("agentFeeRateType",agentRateType);
+					}else{
+						jsonObject = JSONObject.parseObject(mchtInfo.getExtend2());
+						jsonObject.put("agentFeeRateType",agentRateType);
+
+					}
+					mchtInfo.setExtend2(JSONObject.toJSONString(jsonObject));
+					logger.info("代理商费率类型(Extend2字段)为："+agentRateType);
+				}
+				logger.info("商户基本信息，Extend2字段增加可展示的支付类型，mchtInfo=" + JSONObject.toJSONString(mchtInfo) + ",选中的selectMchtInfo=" + JSONObject.toJSONString(selectMchtInfo));
 				int i = merchantService.updateBySelective(mchtInfo, selectMchtInfo);
 				logger.info("商户基本信息，Extend2字段增加可展示的支付类型，mchtInfo=" + JSONObject.toJSONString(mchtInfo) + ",选中的selectMchtInfo=" + JSONObject.toJSONString(selectMchtInfo) + ",更新数据库的结果为：" + i);
+
 			}
 
 			message = "操作完成";
