@@ -1,3 +1,4 @@
+<%@ taglib prefix="s" uri="http://www.springframework.org/tags/form" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
@@ -24,9 +25,9 @@
 
         $(document).ready(function () {
             $("#btnExport").click(function () {
-                $("#searchForm").attr("action", "${ctx}/mchtOrder/export");
+                $("#searchForm").attr("action", "${ctx}/agentMchtOrder/export");
                 $("#searchForm").submit();
-                $("#searchForm").attr("action", "${ctx}/mchtOrder/list");
+                $("#searchForm").attr("action", "${ctx}/agentMchtOrder/list");
             });
         });
 
@@ -96,7 +97,7 @@
         <th><a href="#">交易管理</a> > <a href="#"><b>交易流水列表</b></a></th>
     </label>
 </div>
-<form id="searchForm" action="${ctx}/mchtOrder/list" method="post" class="breadcrumb form-search">
+<form id="searchForm" action="${ctx}/agentMchtOrder/list" method="post" class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
     <input id="paging" name="paging" type="hidden" value="0"/>
@@ -147,14 +148,27 @@
                     </div>
                 </div>
             </td>
+            <%--<td>--%>
+                <%--<div class="control-group">--%>
+                    <%--<label class="control-label">补单状态：</label>--%>
+                    <%--<div class="controls">--%>
+                        <%--<select id="supplyStatus" name="supplyStatus">--%>
+                            <%--<option value="">---请选择---</option>--%>
+                            <%--<option value="0" <c:if test="${paramMap.supplyStatus eq '0'}">selected</c:if>>成功</option>--%>
+                            <%--<option value="1" <c:if test="${paramMap.supplyStatus eq '1'}">selected</c:if>>失败</option>--%>
+                        <%--</select>--%>
+                    <%--</div>--%>
+                <%--</div>--%>
+            <%--</td>--%>
             <td>
                 <div class="control-group">
-                    <label class="control-label">补单状态：</label>
+                    <label class="control-label">下级商户：</label>
                     <div class="controls">
-                        <select id="supplyStatus" name="supplyStatus">
-                            <option value="">---请选择---</option>
-                            <option value="0" <c:if test="${paramMap.supplyStatus eq '0'}">selected</c:if>>成功</option>
-                            <option value="1" <c:if test="${paramMap.supplyStatus eq '1'}">selected</c:if>>失败</option>
+                        <select name="subMchtId" id="subMchtId">
+                            <option value="">---全部---</option>
+                            <c:forEach items="${agentSubMchtInfoMap}" var="agentSubMchtInfo">
+                                <option value="${agentSubMchtInfo.key}" <c:if test="${paramMap.subMchtId eq agentSubMchtInfo.key}">selected</c:if>>${agentSubMchtInfo.value}</option>
+                            </c:forEach>
                         </select>
                     </div>
                 </div>
@@ -184,7 +198,6 @@
                 </div>
             </td>
         </tr>
-
         <tr>
             <td colspan="2">
                 <div class="control-group">
@@ -202,7 +215,7 @@
                     </div>
                 </div>
             </td>
-            <td colspan="2" align="right">
+            <td>
                 <div class="btn-group">
                     <input id="btnSubmit" class="btn btn-primary pull-right" type="submit" value="查询">
                 </div>
@@ -235,7 +248,7 @@
         <th>官方订单号</th>
         <th>交易金额</th>
         <th>订单状态</th>
-        <th>补单状态</th>
+        <%--<th>补单状态</th>--%>
         <th>创建时间</th>
         <shiro:hasPermission name="order:list:op">
             <th>&nbsp;操&nbsp;作&nbsp;&nbsp;</th>
@@ -258,9 +271,9 @@
             <td>
                     ${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}
             </td>
-            <td>
-                    ${fns:getDictLabel(orderInfo.supplyStatus,'supply_status' ,'' )}
-            </td>
+            <%--<td>--%>
+                    <%--${fns:getDictLabel(orderInfo.supplyStatus,'supply_status' ,'' )}--%>
+            <%--</td>--%>
             <td><fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <shiro:hasPermission name="order:list:op">
                 <td>

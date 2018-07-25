@@ -1,5 +1,6 @@
-package com.sys.admin.modules.merchant.controller;
+package com.sys.admin.modules.agentmcht.controller;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
@@ -9,6 +10,7 @@ import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.AccAccountTypeEnum;
 import com.sys.common.enums.AccOpTypeEnum;
 import com.sys.common.enums.AccTradeTypeEnum;
+import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.NumberUtils;
@@ -26,6 +28,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -42,11 +45,11 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * 账务明细controller--过滤某个商户
+ * 账务明细controller--过滤某个代理商
  */
 @Controller
-@RequestMapping("${adminPath}/merchant/mchtAccountDetail")
-public class MchtFilterAccountDetailController extends BaseController {
+@RequestMapping("${adminPath}/agentMchtAccountDetail")
+public class AgentMchtFilterAccountDetailController extends BaseController {
     @Autowired
     private MchtAccountDetailService mchtAccountDetailService;
     @Autowired
@@ -58,12 +61,41 @@ public class MchtFilterAccountDetailController extends BaseController {
      * 账务明细列表
      */
     @RequestMapping(value = {"list", ""})
-    @RequiresPermissions("merchant:accountDetail:list")
-    public String list(MchtAccountDetail mchtAccountDetail, HttpServletRequest request, Model model) {
+//    @RequiresPermissions("merchant:accountDetail:list")
+    public String list(MchtAccountDetail mchtAccountDetail, HttpServletRequest request, Model model, @RequestParam Map<String, String> paramMap) {
 
-        //登陆用户
         User user = UserUtils.getUser();
+        //代理商id
         String loginName = user.getLoginName();
+        MchtInfo agentMchtInfo = merchantService.queryByKey(loginName);
+        /**
+         COMMON_MCHT("1","支付商户"),
+         SIGN_MCHT("2","申报商户"),
+         SERVER_MCHT("3","服务商"),
+         CLIENT_MCHT("4","代理商"),
+         */
+        if (null == agentMchtInfo || !SignTypeEnum.CLIENT_MCHT.getCode().equals(agentMchtInfo.getSignType())) {
+            String msg = "代理商才能查看该数据";
+            logger.info(msg+"："+ JSONObject.toJSONString(agentMchtInfo));
+            model.addAttribute("message", msg);
+            model.addAttribute("messageType", "error");
+            return "modules/agentmcht/agentMchtAccountDetailList";
+        }
+        //根据代理商id,查出所有的下级商户
+        String parentId = loginName;
+        MchtInfo selectAgentMchtInfo = new MchtInfo();
+        selectAgentMchtInfo.setParentId(parentId);
+        List<MchtInfo> agentSubMchtInfolist = merchantService.list(selectAgentMchtInfo);
+        logger.info("根据代理商商户号："+parentId+"，查出的下级商户集合为："+JSONObject.toJSONString(agentSubMchtInfolist));
+        if (CollectionUtils.isEmpty(agentSubMchtInfolist)) {
+            String msg = "未查到该代理商的下级商户";
+            logger.info(msg+"："+JSONObject.toJSONString(agentSubMchtInfolist));
+            model.addAttribute("message", msg);
+            model.addAttribute("messageType", "error");
+            return "modules/agentmcht/agentMchtAccountDetailList";
+        }
+        Map<String, String> agentSubMchtInfoMap = Collections3.extractToMap(agentSubMchtInfolist, "id", "name");
+        model.addAttribute("agentSubMchtInfoMap",agentSubMchtInfoMap);
 
         String createTimeStr = request.getParameter("createTime");
         if(StringUtils.isBlank(createTimeStr)){
@@ -74,8 +106,30 @@ public class MchtFilterAccountDetailController extends BaseController {
 
         String isSelectInfo = request.getParameter("isSelectInfo");
         PageInfo pageInfo = new PageInfo();
+        //获取当前第几页
+        String pageNoString = paramMap.get("pageNo");
+        int pageNo = 1;
+        if (StringUtils.isNotBlank(pageNoString) && "1".equals(paramMap.get("paging"))) {
+            pageNo = Integer.parseInt(pageNoString);
+        }
+        pageInfo.setPageNo(pageNo);
         mchtAccountDetail.setPageInfo(pageInfo);
-        mchtAccountDetail.setMchtId(loginName);
+
+        //过滤商户的流水
+        StringBuilder sb = new StringBuilder();
+        for(MchtInfo info : agentSubMchtInfolist){
+            sb.append(info.getMchtCode()).append("&");
+        }
+        String selectMchtId = sb.toString();
+        String subMchtId = paramMap.get("subMchtId");
+        if(StringUtils.isNotBlank(subMchtId)){
+            //如果查询条件指定了下级商户，则只查出下级商户的流水
+            selectMchtId = subMchtId;
+        }else if(selectMchtId.endsWith("&")){
+            selectMchtId = selectMchtId.substring(0, selectMchtId.length()-1);
+        }
+
+        mchtAccountDetail.setMchtId(selectMchtId);
 
         if (StringUtils.isNotBlank(request.getParameter("pageNo")))
             pageInfo.setPageNo(Integer.parseInt(request.getParameter("pageNo")));
@@ -96,10 +150,10 @@ public class MchtFilterAccountDetailController extends BaseController {
 
         } else {
             if (StringUtils.isNotBlank(isSelectInfo)) {
-                list = accountAdminService.list(mchtAccountDetail);
                 count = mchtAccountDetailService.count(mchtAccountDetail);
+                list = accountAdminService.list(mchtAccountDetail);
                 //初始化商户名称
-                Map<String, String> mchtMap = com.sys.common.util.Collections3.extractToMap(
+                Map<String, String> mchtMap = Collections3.extractToMap(
                         merchantService.list(new MchtInfo()), "id", "name");
                 if(list != null){
                     for (MchtAccountDetail detail : list) {
@@ -111,12 +165,11 @@ public class MchtFilterAccountDetailController extends BaseController {
             }
         }
 
-        Page page = new Page(pageInfo.getPageNo(), pageInfo.getPageSize(), count, true);
+        Page page = new Page(pageInfo.getPageNo(), pageInfo.getPageSize(), count, list, true);
 
-
-        model.addAttribute("list", list);
         model.addAttribute("page", page);
-        return "modules/merchant/mchtAccountDetailList";
+        model.addAttribute("paramMap", paramMap);
+        return "modules/agentmcht/agentMchtAccountDetailList";
     }
 
     /**
@@ -142,8 +195,38 @@ public class MchtFilterAccountDetailController extends BaseController {
     @RequestMapping(value = "/export")
     public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
                          @RequestParam Map<String, String> paramMap) throws IOException {
+        User user = UserUtils.getUser();
+        //代理商id
+        String loginName = user.getLoginName();
+        MchtInfo agentMchtInfo = merchantService.queryByKey(loginName);
+        /**
+         *   COMMON_MCHT("1","支付商户"),
+         SIGN_MCHT("2","申报商户"),
+         SERVER_MCHT("3","服务商"),
+         CLIENT_MCHT("4","代理商"),
+         */
+        if (null == agentMchtInfo || !SignTypeEnum.CLIENT_MCHT.getCode().equals(agentMchtInfo.getSignType())) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "代理商才能导出该数据");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/agentMchtOrder/list";
+        }
+        //根据代理商id,查出所有的下级商户
+        String parentId = loginName;
+        MchtInfo selectAgentMchtInfo = new MchtInfo();
+        selectAgentMchtInfo.setParentId(parentId);
+        List<MchtInfo> agentSubMchtInfolist = merchantService.list(selectAgentMchtInfo);
+        logger.info("根据代理商商户号："+parentId+"，查出的下级商户集合为："+JSONObject.toJSONString(agentSubMchtInfolist));
+        if (CollectionUtils.isEmpty(agentSubMchtInfolist)) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "未查到该代理商的下级商户");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/agentMchtOrder/list";
+        }
+
+
         MchtAccountDetail mchtAccountDetail = new MchtAccountDetail();
-        assemblySearch(paramMap, mchtAccountDetail);
+        assemblySearch(paramMap, mchtAccountDetail, agentSubMchtInfolist);
 
         int orderCount = mchtAccountDetailService.count(mchtAccountDetail);
         //计算条数 上限五万条
@@ -151,13 +234,13 @@ public class MchtFilterAccountDetailController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/mchtAccountDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/agentMchtAccountDetail/list";
         }
         if (orderCount > 50000) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/mchtAccountDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/agentMchtAccountDetail/list";
         }
         //获取数据List
         List<MchtAccountDetail> list = accountAdminService.list(mchtAccountDetail);
@@ -165,7 +248,7 @@ public class MchtFilterAccountDetailController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/mchtAccountDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/agentMchtAccountDetail/list";
         }
 
         //获取商户列表
@@ -188,7 +271,8 @@ public class MchtFilterAccountDetailController extends BaseController {
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+        System.out.println((StringUtils.isNotBlank(paramMap.get("subMchtId"))? mchtMap.get(paramMap.get("subMchtId"))+"_" :"")  + URLEncoder.encode(fileName, "UTF-8"));
+        response.setHeader("Content-Disposition", "attachment; filename=" + (StringUtils.isNotBlank(paramMap.get("subMchtId"))? URLEncoder.encode(mchtMap.get(paramMap.get("subMchtId")), "utf-8")+"_" :"")  + URLEncoder.encode(fileName, "UTF-8"));
         OutputStream out = response.getOutputStream();
 
         // 第一步，创建一个webbook，对应一个Excel文件
@@ -312,18 +396,37 @@ public class MchtFilterAccountDetailController extends BaseController {
         redirectAttributes.addFlashAttribute("messageType", "success");
         redirectAttributes.addFlashAttribute("message", "导出完毕");
         response.setCharacterEncoding("UTF-8");
-        return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/mchtAccountDetail/list";
+        return "redirect:" + GlobalConfig.getAdminPath() + "/agentMchtAccountDetail/list";
     }
 
-    private void assemblySearch(Map<String, String> paramMap, MchtAccountDetail detail) {
+    private void assemblySearch(Map<String, String> paramMap, MchtAccountDetail detail, List<MchtInfo> agentSubMchtInfolist) {
         if (StringUtils.isNotBlank(paramMap.get("id"))) {
             detail.setId(paramMap.get("id"));
         }
-        if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
-            detail.setMchtId(paramMap.get("mchtId"));
+
+        //过滤商户的流水
+        StringBuilder sb = new StringBuilder();
+        for(MchtInfo info : agentSubMchtInfolist){
+            sb.append(info.getMchtCode()).append("&");
+        }
+        String selectMchtId = sb.toString();
+
+        String subMchtId = paramMap.get("subMchtId");
+        if(StringUtils.isNotBlank(subMchtId)){
+            //如果查询条件指定了下级商户，则只查出下级商户的流水
+            selectMchtId = subMchtId;
+        }else if(selectMchtId.endsWith("&")){
+            selectMchtId = selectMchtId.substring(0, selectMchtId.length()-1);
+        }
+
+        if (StringUtils.isNotBlank(selectMchtId)) {
+            detail.setMchtId(selectMchtId);
         }
         if (StringUtils.isNotBlank(paramMap.get("mchtOrderId"))) {
             detail.setMchtOrderId(paramMap.get("mchtOrderId"));
+        }
+        if (StringUtils.isNotBlank(paramMap.get("tradeType"))) {
+            detail.setTradeType(paramMap.get("tradeType"));
         }
         if (StringUtils.isNotBlank(paramMap.get("platOrderId"))) {
             detail.setPlatOrderId(paramMap.get("platOrderId"));
@@ -341,12 +444,6 @@ public class MchtFilterAccountDetailController extends BaseController {
         } else {
             detail.setSuffix(createTime.replace("-", "").substring(0, 6));
             detail.setCreateTime(DateUtils.parseDate(createTime));
-        }
-
-        User user = UserUtils.getUser();
-        if (user != null) {
-            String loginName = user.getLoginName();
-            detail.setMchtId(loginName);
         }
     }
 }
