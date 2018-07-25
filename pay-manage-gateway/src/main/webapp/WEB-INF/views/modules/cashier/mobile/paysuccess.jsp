@@ -5,6 +5,8 @@
 		<meta charset="utf-8">
 		<meta name="viewport" content="maximum-scale=1.0,minimum-scale=1.0,user-scalable=0,width=device-width,initial-scale=1.0"/>
 		<meta name="format-detection" content="telephone=no,email=no,date=no,address=no">
+		<meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+		<meta name="renderer" content="webkit">
 		<title>支付中心</title>
 		<link rel="stylesheet" type="text/css" href="${ctxStatic}/css/aui.css" />
         <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/app.css" />
@@ -25,7 +27,7 @@
 			</header>
         <div class="item" style="margin-top: 1rem;">
            
-          	<div class="payResult">
+          	<div class="payResult" style="margin: 0 auto;">
           		<div class="resultHeader">
           				<img src="${ctxStatic}/images/susess.png" alt="" /><span>恭喜你,支付成功！</span>
           		</div>	
@@ -37,15 +39,15 @@
           		</div>    		
           	</div>
             
-            <div class="submitBox paysuccess" style="margin-top: 1.7rem;position: absolute;">
+            <div class="submitBox paysuccess" style="margin-top: 1.7rem;">
               <a href="javaScript:void(0)">
                 <input type="button" class="repay" onclick="toCallBackUrl('${callbackUrl}')" value="好的">
               </a>
             </div>
         </div>
         <!--广告位置，id必须命名为divTag-->
-        <div id="divTag" style="width:84%;height: 60px;position: relative;left:50%;top:15%;margin-left:-42%;margin-top:0%;"></div>
-        <div class="tipbox" style="position:relative;bottom: -20%;">
+        <div id="divTag" style="width:290px;height: 60px;margin:0 auto;margin:1rem auto 0;"></div>
+        <div class="tipbox" style="bottom: 4%;">
 			<c:if test="${ !empty mobile || !empty qq}">
 				<p>如遇支付问题请联系客服</p>
 			</c:if>
