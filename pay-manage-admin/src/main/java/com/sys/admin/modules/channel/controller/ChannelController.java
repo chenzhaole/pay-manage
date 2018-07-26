@@ -26,10 +26,12 @@ import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.PlatFeerateService;
+import com.sys.trans.api.entry.ChanMchtPaytypeTO;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.SingleDF;
 import com.sys.trans.api.entry.Trade;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -445,6 +447,9 @@ public class ChannelController extends BaseController {
 		ChanMchtFormInfo chanMchtPaytype = chanMchtAdminService.getChanMchtPaytypeById(paramMap.get("chanId"));
 
 		Config config = new Config();
+		ChanMchtPaytypeTO chanMchtPaytypeTO = new ChanMchtPaytypeTO();
+		BeanUtils.copyProperties(chanMchtPaytype, chanMchtPaytypeTO);
+		config.setChanMchtPaytype(chanMchtPaytypeTO);
 		config.setPayUrl(chanMchtPaytype.getPayUrl());
 		config.setQueryUrl(chanMchtPaytype.getQueryBalanceUrl());
 		config.setTranUrl(chanMchtPaytype.getTranUrl());
