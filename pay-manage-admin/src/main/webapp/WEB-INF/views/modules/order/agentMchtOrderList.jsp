@@ -52,7 +52,8 @@
             // $("#chanMchtPaytypeId")[0].value = "";
             $("#payType")[0].value = "";
             $("#status")[0].value = "";
-            $("#supplyStatus")[0].value = "";
+            // $("#supplyStatus")[0].value = "";
+            $("#subMchtId")[0].value = "";
         }
 
         function approveSend(content) {

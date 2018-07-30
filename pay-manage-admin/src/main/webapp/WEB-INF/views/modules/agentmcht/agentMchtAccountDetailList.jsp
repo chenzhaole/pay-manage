@@ -86,13 +86,13 @@
                     </select>
                 </div>
             </td>
-            <td>
-                <label>账户类型：</label>
-                <form:select path="accountType" >
-                    <form:option value="">--全部--</form:option>
-                    <form:options items="${fns:getDictList('account_type')}" itemLabel="label" itemValue="value"/>
-                </form:select>
-            </td>
+            <%--<td>--%>
+                <%--<label>账户类型：</label>--%>
+                <%--<form:select path="accountType" >--%>
+                    <%--<form:option value="">--全部--</form:option>--%>
+                    <%--<form:options items="${fns:getDictList('account_type')}" itemLabel="label" itemValue="value"/>--%>
+                <%--</form:select>--%>
+            <%--</td>--%>
             <td>
                 <label>交易类型：</label>
                 <form:select path="tradeType" >
@@ -117,7 +117,7 @@
         <th>商户号</th>
         <th>商户订单号</th>
         <th>平台订单号</th>
-        <th>账户类型</th>
+        <%--<th>账户类型</th>--%>
         <%--<th>记账类型</th>--%>
         <th>交易类型</th>
         <th>交易金额（元）</th>
@@ -138,14 +138,14 @@
             <td>${accountDetail.mchtId}</td>
             <td>${accountDetail.mchtOrderId}</td>
             <td>${accountDetail.platOrderId}</td>
-            <td>${fns:getDictLabel(accountDetail.accountType,'account_type' ,'' )}</td>
+            <%--<td>${fns:getDictLabel(accountDetail.accountType,'account_type' ,'' )}</td>--%>
             <%--<td>${accountDetail.opType}</td>--%>
             <td>${accountDetail.tradeType}</td>
             <td><fmt:formatNumber type="number" value="${accountDetail.tradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${accountDetail.addAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${accountDetail.reduceAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td>
-                <c:if test="${accountDetail.tradeType == '支付'}">
+                <c:if test="${accountDetail.tradeType == '支付' || accountDetail.tradeType == '调账' }">
                     <fmt:formatNumber type="number" value="${accountDetail.tradeAmount*0.01 - accountDetail.addAmount*0.01}" pattern="0.00"
                                       maxFractionDigits="2"/>
                 </c:if>
