@@ -1,7 +1,9 @@
-package com.sys.admin.modules.platform.controller;
+package com.sys.admin.modules.merchant.controller;
 
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.sys.entity.User;
+import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.service.stat.StatReportDayPayDetailService;
 import com.sys.boss.api.service.stat.StatReportDayPayService;
 import com.sys.common.util.Collections3;
@@ -32,8 +34,8 @@ import java.util.List;
 import java.util.Map;
 
 @Controller
-@RequestMapping("${adminPath}/platform/statReportDayPay")
-public class StatReportDayPayController extends BaseController {
+@RequestMapping("${adminPath}/merchant/statReport")
+public class MchtStatReportDayPayController extends BaseController {
     @Autowired
     private ReportDayPayService reportDayPayService;
 
@@ -50,7 +52,26 @@ public class StatReportDayPayController extends BaseController {
     @RequestMapping("list")
     public String list(String startDate , String endDate , HttpServletRequest request,  Model model) {
         if(StringUtils.isBlank(startDate) || StringUtils.isBlank(endDate)){
-            return "modules/platform/statReportDayPayList";
+            return "modules/merchant/statReportDayPayList";
+        }
+        User user = UserUtils.getUser();
+        String loginName = user.getLoginName();
+
+        StatReportDayPay info = new StatReportDayPay();
+        info.setMchtCode(loginName);
+        List<StatReportDayPay> list = reportDayPayService.list(info, startDate, endDate);
+
+        model.addAttribute("list", list);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
+        return "modules/merchant/statReportDayPayList";
+
+    }
+
+    @RequestMapping("detailList")
+    public String detailList(String startDate , String endDate , HttpServletRequest request,  Model model) {
+        if(StringUtils.isBlank(startDate) || StringUtils.isBlank(endDate)){
+            return "modules/merchant/statReportDayPayList";
         }
 
         StatReportDayPay info = new StatReportDayPay();
@@ -59,10 +80,10 @@ public class StatReportDayPayController extends BaseController {
         model.addAttribute("list", list);
         model.addAttribute("startDate", startDate);
         model.addAttribute("endDate", endDate);
-        return "modules/platform/statReportDayPayList";
+        return "modules/merchant/statReportDayPayList";
 
     }
-
+    
     @RequestMapping("reStat")
     public String reStat( String tradeDate , HttpServletRequest request, RedirectAttributes redirectAttributes) {
         try {
@@ -71,7 +92,7 @@ public class StatReportDayPayController extends BaseController {
                 String messageType = "fail";
                 redirectAttributes.addFlashAttribute("messageType", messageType);
                 redirectAttributes.addFlashAttribute("message", message);
-                return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+                return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
             }
             //重新统计日报详情信息；
             StatReportDayPayDetail statReportDayPayDetail = new StatReportDayPayDetail();
@@ -91,7 +112,7 @@ public class StatReportDayPayController extends BaseController {
             String messageType = "success";
             redirectAttributes.addFlashAttribute("messageType", messageType);
             redirectAttributes.addFlashAttribute("message", message);
-            String s = "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+            String s = "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
             return s;
         } catch (Exception e) {
             e.printStackTrace();
@@ -99,7 +120,7 @@ public class StatReportDayPayController extends BaseController {
             String messageType = "fail";
             redirectAttributes.addFlashAttribute("messageType", messageType);
             redirectAttributes.addFlashAttribute("message", message);
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
         }
 
     }
@@ -112,25 +133,26 @@ public class StatReportDayPayController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "请选择统计日期");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
         }
-
+        User user = UserUtils.getUser();
+        String loginName = user.getLoginName();
         //创建查询实体
         StatReportDayPay info = new StatReportDayPay();
-
+        info.setMchtCode(loginName);
         //计算条数 上限五万条
         int orderCount = reportDayPayService.ordeCount(info ,paramMap.get("startDate"),paramMap.get("endDate"));
         if (orderCount <= 0) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
         }
         if (orderCount > 50000) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
         }
 
         // 访问数据库，得到数据集
@@ -140,7 +162,7 @@ public class StatReportDayPayController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
         }
 
         String startDate = paramMap.get("startDate").replaceAll("-","").substring(4);
@@ -148,7 +170,7 @@ public class StatReportDayPayController extends BaseController {
         //获取当前日期，为文件名
         String fileName = "REPORT"+startDate+"-"+endDate+ ".xls";
 
-        String[] headers = {"日期","支付业务交易金额(元)" ,"支付业务利润(元)","代付业务交易金额(元)" ,"代付业务利润(元)","代付交易笔数","代付交易利润(元)","利润合计(元)"};
+        String[] headers = {"日期","交易金额(元)" ,"手续费(元)","结算金额(元)" ,"代付利润(元)","代付手续费(元)","操作"};
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
@@ -182,46 +204,36 @@ public class StatReportDayPayController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getPayBizTradeAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getPayBizTradeAmount());
-                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                    cell.setCellValue(bigDecimal.doubleValue());
                 }
                 cellIndex++;
 
                 cell = row.createCell(cellIndex);
                 if (detail.getPayBizProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getPayBizProfitAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                    cell.setCellValue(bigDecimal.doubleValue());
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getPayBizProfitAmount() != null && detail.getPayBizTradeAmount() != null) {
+                    BigDecimal subtract = detail.getPayBizTradeAmount().subtract(detail.getPayBizProfitAmount());
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), subtract);
+                    cell.setCellValue(bigDecimal.doubleValue());
                 }
                 cellIndex++;
 
                 cell = row.createCell(cellIndex);
                 if (detail.getDfBizTradeAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getDfBizTradeAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                    cell.setCellValue(bigDecimal.doubleValue());
                 }
-                cellIndex++;
-
-                cell = row.createCell(cellIndex);
-                if (detail.getDfBizProfitAmount() != null) {
-                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getDfBizProfitAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                }
-                cellIndex++;
-
-                cell = row.createCell(cellIndex);
-                cell.setCellValue(detail.getDfTradeCount());
                 cellIndex++;
 
                 cell = row.createCell(cellIndex);
                 if (detail.getDfProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getDfProfitAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                }
-                cellIndex++;
-
-                cell = row.createCell(cellIndex);
-                if (detail.getTotalProfitAmount() != null) {
-                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getTotalProfitAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                    cell.setCellValue(bigDecimal.doubleValue());
                 }
                 rowIndex++;
 
@@ -234,7 +246,7 @@ public class StatReportDayPayController extends BaseController {
         redirectAttributes.addFlashAttribute("messageType", "success");
         redirectAttributes.addFlashAttribute("message", "导出完毕");
         response.setCharacterEncoding("UTF-8");
-        return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+        return "redirect:" + GlobalConfig.getAdminPath() + "/merchant/statReportDayPay/list";
     }
 
 

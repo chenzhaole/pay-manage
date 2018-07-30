@@ -97,10 +97,14 @@ public class MchtPaytypeFeeController extends BaseController {
 
 			merchantFees.add(merchantFee);
 		}
-		if(StringUtils.isNotBlank(mchtInfo.getExtend3()) ){
-			JSONObject jsonObject = JSONObject.parseObject(mchtInfo.getExtend3());
+		if(StringUtils.isNotBlank(mchtInfo.getExtend2()) ){
+			JSONObject jsonObject = JSONObject.parseObject(mchtInfo.getExtend2());
 			model.addAttribute("agentFeeRateType", jsonObject.get("agentFeeRateType"));
-
+			if(StringUtils.isNotBlank((String)jsonObject.get("agentFeeRateType"))){
+				model.addAttribute("rateType", "update");
+			}else{
+				model.addAttribute("rateType", "add");
+			}
 		}
 		model.addAttribute("mchtInfo", mchtInfo);
 		model.addAttribute("mchtId", mchtId);
@@ -250,7 +254,6 @@ public class MchtPaytypeFeeController extends BaseController {
 					}else{
 						jsonObject = JSONObject.parseObject(mchtInfo.getExtend2());
 						jsonObject.put("agentFeeRateType",agentRateType);
-
 					}
 					mchtInfo.setExtend2(JSONObject.toJSONString(jsonObject));
 					logger.info("代理商费率类型(Extend2字段)为："+agentRateType);
