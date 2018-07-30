@@ -59,6 +59,11 @@ public class GwDFController {
     @RequestMapping(value="req",produces = "application/json;charset=utf-8")
     @ResponseBody
     public String req(@RequestBody String data, HttpServletRequest request){
+        //2018年7月27日，通服-创海商户联调代付api，现网接口传输的报文最后一个字母多了一个=号，针对此问题特殊处理
+        if(data.endsWith("=")){
+            logger.info("代付API，【代付请求接口】收到客户端请求参数,最后一个字母为=号，需要截取掉，截取之前的值为data="+data);
+            data = data.substring(0, data.length()-1);
+        }
         logger.info("代付API，【代付请求接口】收到客户端请求参数：data="+data);
         DFCreateOrderResponse resp = new DFCreateOrderResponse();
         DFCreateOrderResponse.DFCreateResponseHead head = new DFCreateOrderResponse.DFCreateResponseHead();
