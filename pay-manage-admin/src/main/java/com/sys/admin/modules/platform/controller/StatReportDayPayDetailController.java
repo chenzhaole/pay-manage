@@ -46,6 +46,7 @@ public class StatReportDayPayDetailController extends BaseController {
 
         StatReportDayPayDetail info = new StatReportDayPayDetail();
         info.setBizType(StatReportDayPayDetailBizTypeEnum.BUSINESS_PAY.getCode());
+        info.setTradeDate(tradeDate);
         List<StatReportDayPayDetail> payList = reportDayPayDetailService.list(info);
 
         info.setBizType(StatReportDayPayDetailBizTypeEnum.BUSINESS_PROXY.getCode());
@@ -166,7 +167,7 @@ public class StatReportDayPayDetailController extends BaseController {
 
                 cell = row.createCell(cellIndex);
                 if (detail.getCmpFeerate() != null) {
-                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.001), detail.getCmpFeerate());
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(1), detail.getCmpFeerate());
                     cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
                 } else {
                     cell.setCellValue(0);
@@ -175,7 +176,7 @@ public class StatReportDayPayDetailController extends BaseController {
 
                 cell = row.createCell(cellIndex);
                 if (detail.getPayMchtFeerate() != null) {
-                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.001), detail.getPayMchtFeerate());
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(1), detail.getPayMchtFeerate());
                     cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
                 } else {
                     cell.setCellValue(0);
@@ -184,7 +185,7 @@ public class StatReportDayPayDetailController extends BaseController {
 
                 cell = row.createCell(cellIndex);
                 if (detail.getAgenMchtFeerate() != null) {
-                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.001), detail.getAgenMchtFeerate());
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(1), detail.getAgenMchtFeerate());
                     cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
                 } else {
                     cell.setCellValue(0);
@@ -194,7 +195,7 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getAgentMchtProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getAgentMchtProfitAmount());
-                    cell.setCellValue(bigDecimal.doubleValue());
+                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 }else{
                     cell.setCellValue(0);
                 }
@@ -203,7 +204,7 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getTotalProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getTotalProfitAmount());
-                    cell.setCellValue(bigDecimal.doubleValue());
+                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 }else{
                     cell.setCellValue(0);
                 }
@@ -285,7 +286,7 @@ public class StatReportDayPayDetailController extends BaseController {
         // 第一步，创建一个webbook，对应一个Excel文件
         HSSFWorkbook wb = new HSSFWorkbook();
         // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
-        HSSFSheet sheet = wb.createSheet("地府业务");
+        HSSFSheet sheet = wb.createSheet("代付业务");
         sheet.setColumnWidth(0, 20 * 1256);
         // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
         HSSFRow row = sheet.createRow((int) 0);
@@ -313,7 +314,7 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getTradeAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(detail.getTradeAmount()));
-                    cell.setCellValue(bigDecimal.doubleValue());
+                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 }else{
                     cell.setCellValue(0);
                 }
@@ -322,7 +323,7 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getAccAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getAccAmount());
-                    cell.setCellValue(bigDecimal.doubleValue());
+                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 }else{
                     cell.setCellValue(0);
                 }
@@ -331,7 +332,7 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getTotalProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getTotalProfitAmount());
-                    cell.setCellValue(bigDecimal.doubleValue());
+                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 }else{
                     cell.setCellValue(0);
                 }

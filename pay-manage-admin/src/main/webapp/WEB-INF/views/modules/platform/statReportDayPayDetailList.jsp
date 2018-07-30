@@ -74,9 +74,9 @@
             <td>${info.payType}</td>
             <td>${info.cmpName}</td>
             <td><fmt:formatNumber type="number" value="${info.tradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${info.cmpFeerate*0.001}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${info.payMchtFeerate*0.001}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${info.agenMchtFeerate*0.001}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${info.cmpFeerate*1}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${info.payMchtFeerate*1}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${info.agenMchtFeerate*1}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${info.agentMchtProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${info.totalProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td>${info.tradeSuccessCount}</td>
