@@ -413,7 +413,7 @@ public class ProxyOrderController extends BaseController {
 						logger.info("代付批次和代付明细入库返回结果 rs=" + rs);
 
 						int rps = insert2redisProxyTask(batch);
-						logger.info("代付批次和代付明细入库返回结果 rps=" + rps);
+						logger.info("代付批次加入redis队列 rps=" + rps);
 
 						respMsg = "ok";
 					} else {

@@ -676,7 +676,7 @@ public class AgentMchtOrderController extends BaseController {
         }
 
         String[] headers = {"商户名称", "支付方式", "商户订单号",
-                "平台订单号", "官方订单号", "交易金额(元)", "订单状态", "补单状态", "创建时间"};
+                "平台订单号", "官方订单号", "交易金额(元)", "订单状态", /*"补单状态",*/ "创建时间"};
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
@@ -742,10 +742,10 @@ public class AgentMchtOrderController extends BaseController {
                 cell.setCellValue(orderTemp.getStatus());
                 cellIndex++;
 
-                cell = row.createCell(cellIndex);
-                if ("0".equals(orderTemp.getSupplyStatus())) {
-                    cell.setCellValue("成功");
-                }
+//                cell = row.createCell(cellIndex);
+//                if ("0".equals(orderTemp.getSupplyStatus())) {
+//                    cell.setCellValue("成功");
+//                }
 
                 cellIndex++;
 
