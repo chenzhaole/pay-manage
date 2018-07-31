@@ -203,7 +203,7 @@ public class StatReportDayPayDetailController extends BaseController {
 
                 cell = row.createCell(cellIndex);
                 if (detail.getTotalProfitAmount() != null) {
-                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getTotalProfitAmount());
+                    BigDecimal bigDecimal = detail.getTotalProfitAmount().divide(new BigDecimal(100));
                     cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 }else{
                     cell.setCellValue(0);

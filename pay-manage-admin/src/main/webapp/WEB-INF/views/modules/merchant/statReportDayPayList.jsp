@@ -83,7 +83,7 @@
             <td><fmt:formatNumber type="number" value="${info.payBizProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${info.payBizTradeAmount*0.01 - info.payBizProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${info.dfBizTradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${info.dfBizProfitAmount}" pattern="0" maxFractionDigits="0"/></td>
+            <td><fmt:formatNumber type="number" value="${info.dfBizProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td>
                 <a href="${ctx}/merchant/statReport/detailList?tradeDate=${info.tradeDate}" >详情</a>
             </td>

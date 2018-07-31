@@ -34,7 +34,7 @@
 <tags:message content="${message}"/>
 <form id="searchFormPay" action="${ctx}/merchant/statReport/detailList" method="post" class="breadcrumb form-search">
     <input  name="tradeDate" type="hidden" value="${tradeDate}"/>
-    <input  name="bizType" type="hidden" value="${1}"/>
+    <input  name="bizType" type="hidden" value="${4}"/>
     <table>
         <tr>
             <td colspan="2">
@@ -63,8 +63,8 @@
             <td>${info.tradeDate}</td>
             <td>${info.payType}</td>
             <td><fmt:formatNumber type="number" value="${info.tradeAmount * 0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${info.tradeAmount*10* cmpFeerate }" pattern="0.00" maxFractionDigits="2"/></td>
-            <td><fmt:formatNumber type="number" value="${info.tradeAmount * 0.01  - info.tradeAmount*10* cmpFeerate}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${info.totalProfitAmount* 0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${info.tradeAmount * 0.01  - info.totalProfitAmount* 0.01}" pattern="0.00" maxFractionDigits="2"/></td>
         </tr>
     </c:forEach>
     </tbody>
@@ -72,7 +72,7 @@
 
 <form id="searchFormProxy" action="${ctx}/merchant/statReport/detailList" method="post" class="breadcrumb form-search">
     <input  name="tradeDate" type="hidden" value="${tradeDate}"/>
-    <input  name="bizType" type="hidden" value="${2}"/>
+    <input  name="bizType" type="hidden" value="${5}"/>
     <table>
         <tr>
             <td colspan="2">
@@ -102,7 +102,7 @@
             <td>${info.tradeSuccessCount}</td>
             <td><fmt:formatNumber type="number" value="${info.tradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${info.totalProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td>${info.tradeFailCount}</td>
+            <td><fmt:formatNumber type="number" value="${info.tradeFailCount}"/></td>
             <td><fmt:formatNumber type="number" value="${info.tradeFailAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
         </tr>
     </c:forEach>

@@ -183,6 +183,8 @@ public class StatReportDayPayController extends BaseController {
                 if (detail.getPayBizTradeAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getPayBizTradeAmount());
                     cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
                 }
                 cellIndex++;
 
@@ -190,6 +192,8 @@ public class StatReportDayPayController extends BaseController {
                 if (detail.getPayBizProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getPayBizProfitAmount());
                     cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
                 }
                 cellIndex++;
 
@@ -197,6 +201,8 @@ public class StatReportDayPayController extends BaseController {
                 if (detail.getDfBizTradeAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getDfBizTradeAmount());
                     cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
                 }
                 cellIndex++;
 
@@ -204,6 +210,8 @@ public class StatReportDayPayController extends BaseController {
                 if (detail.getDfBizProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getDfBizProfitAmount());
                     cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
                 }
                 cellIndex++;
 
@@ -215,6 +223,8 @@ public class StatReportDayPayController extends BaseController {
                 if (detail.getDfProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getDfProfitAmount());
                     cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
                 }
                 cellIndex++;
 
@@ -222,6 +232,8 @@ public class StatReportDayPayController extends BaseController {
                 if (detail.getTotalProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getTotalProfitAmount());
                     cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
                 }
                 rowIndex++;
 
