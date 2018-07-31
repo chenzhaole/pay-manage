@@ -79,13 +79,13 @@ public class StatReportDayPayDetailController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPayDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
         }
         if (orderCount > 50000) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPayDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
         }
 
         // 访问数据库，得到数据集
@@ -95,7 +95,7 @@ public class StatReportDayPayDetailController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPayDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
         }
 
         if (list != null) {
@@ -220,7 +220,7 @@ public class StatReportDayPayDetailController extends BaseController {
 
                 cell = row.createCell(cellIndex);
                 if (detail.getTradeSuccessCount() != null && detail.getTradeTotalCount() != null) {
-                    double successRate = detail.getTradeSuccessCount()/detail.getTradeTotalCount() * 100;
+                    double successRate = (double)detail.getTradeSuccessCount()/(double)detail.getTradeTotalCount() * 100;
                     cell.setCellValue(new BigDecimal(successRate).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
                 }else{
                     cell.setCellValue(0);
@@ -243,6 +243,8 @@ public class StatReportDayPayDetailController extends BaseController {
     public String exportProxy(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
                               @RequestParam Map<String, String> paramMap) throws IOException {
 
+
+
         //创建查询实体
         StatReportDayPayDetail info = new StatReportDayPayDetail();
         assemblySearch(paramMap, info);
@@ -253,13 +255,13 @@ public class StatReportDayPayDetailController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPayDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
         }
         if (orderCount > 50000) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPayDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
         }
 
         // 访问数据库，得到数据集
@@ -269,7 +271,7 @@ public class StatReportDayPayDetailController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPayDetail/list";
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
         }
 
         String date = paramMap.get("tradeDate").replaceAll("-", "").substring(4);
