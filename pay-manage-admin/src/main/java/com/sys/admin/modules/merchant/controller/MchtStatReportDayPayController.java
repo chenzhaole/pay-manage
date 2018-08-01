@@ -392,7 +392,7 @@ public class MchtStatReportDayPayController extends BaseController {
         //获取当前日期，为文件名
         String fileName = "REPORT-DF" + date + ".xls";
 
-        String[] headers = {"日期", "代付成功笔数", "代付成功(元)", "代付手续费(元)", "代付失败笔数", "代付失败金额"};
+        String[] headers = {"日期", "代付成功笔数", "代付成功(元)", "代付手续费(元)", "代付失败笔数", "代付失败金额(元)"};
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
@@ -402,7 +402,7 @@ public class MchtStatReportDayPayController extends BaseController {
         // 第一步，创建一个webbook，对应一个Excel文件
         HSSFWorkbook wb = new HSSFWorkbook();
         // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
-        HSSFSheet sheet = wb.createSheet("代付业务");
+        HSSFSheet sheet = wb.createSheet("代付交易");
         sheet.setColumnWidth(0, 20 * 1256);
         // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
         HSSFRow row = sheet.createRow((int) 0);

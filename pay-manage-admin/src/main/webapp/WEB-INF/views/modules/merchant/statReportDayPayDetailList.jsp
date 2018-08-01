@@ -77,7 +77,7 @@
         <tr>
             <td colspan="2">
                 <div class="btn-group">
-                    <label class="control-label">代付业务  </label>&nbsp;&nbsp;<input id="btnExportProxy" class="btn btn-primary" type="button" value="导出"/>
+                    <label class="control-label">代付交易  </label>&nbsp;&nbsp;<input id="btnExportProxy" class="btn btn-primary" type="button" value="导出"/>
                 </div>
             </td>
         </tr>
