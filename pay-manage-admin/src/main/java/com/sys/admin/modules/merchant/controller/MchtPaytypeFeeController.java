@@ -246,17 +246,19 @@ public class MchtPaytypeFeeController extends BaseController {
 
 				//当商户是代理商户时，判断代理商户费率类型
 				if(SignTypeEnum.CLIENT_MCHT.getCode().equals(mchtInfo.getSignType())){
-					String agentRateType = paramMap.get("extend2");
+					String agentRateType = paramMap.get("agentFeeRateType");
 					JSONObject jsonObject = null;
 					if(StringUtils.isBlank(mchtInfo.getExtend2())){
 						jsonObject = new JSONObject();
 						jsonObject.put("agentFeeRateType",agentRateType);
 					}else{
 						jsonObject = JSONObject.parseObject(mchtInfo.getExtend2());
-						jsonObject.put("agentFeeRateType",agentRateType);
+						if(StringUtils.isNotBlank(agentRateType)){
+							jsonObject.put("agentFeeRateType" , agentRateType);
+						}
 					}
 					mchtInfo.setExtend2(JSONObject.toJSONString(jsonObject));
-					logger.info("代理商费率类型(Extend2字段)为："+agentRateType);
+					logger.info("代理商费率类型(Extend2字段)为："+JSONObject.toJSONString(jsonObject));
 				}
 				logger.info("商户基本信息，Extend2字段增加可展示的支付类型，mchtInfo=" + JSONObject.toJSONString(mchtInfo) + ",选中的selectMchtInfo=" + JSONObject.toJSONString(selectMchtInfo));
 				int i = merchantService.updateBySelective(mchtInfo, selectMchtInfo);

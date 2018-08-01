@@ -133,7 +133,7 @@
         <div class="control-group">
             <label class="control-label">代理商费率类型</label>
             <div class="controls">
-                <select name="extend2" class="input-xlarge" id="" <c:if test="${rateType eq 'update'}">disabled="disabled"</c:if>>
+                <select name="agentFeeRateType" class="input-xlarge" id="" <c:if test="${rateType eq 'update'}">disabled="disabled"</c:if>>
                     <option value="2">
                         代理商固定费率
                     </option>
