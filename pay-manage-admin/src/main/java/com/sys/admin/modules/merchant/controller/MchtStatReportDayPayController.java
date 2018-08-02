@@ -392,7 +392,7 @@ public class MchtStatReportDayPayController extends BaseController {
         //获取当前日期，为文件名
         String fileName = "REPORT-DF" + date + ".xls";
 
-        String[] headers = {"日期", "代付成功笔数", "代付成功(元)", "代付手续费(元)", "代付失败笔数", "代付失败金额(元)"};
+        String[] headers = {"日期", "代付成功笔数", "代付成功金额(元)", "代付手续费(元)", "代付失败笔数", "代付失败金额(元)"};
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
