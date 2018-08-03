@@ -76,7 +76,7 @@
 						scrolling="yes" frameborder="no" width="100%" height="650"></iframe>
 				</div>
 				<div id="openClose" class="close">&nbsp;</div>
-				<div id="right">
+				<div id="right" style="overflow-x: auto;">
 					<iframe id="mainFrame" name="mainFrame" src="" style="overflow:visible;"
 						scrolling="yes" frameborder="no" width="100%" height="650"></iframe>
 				</div>

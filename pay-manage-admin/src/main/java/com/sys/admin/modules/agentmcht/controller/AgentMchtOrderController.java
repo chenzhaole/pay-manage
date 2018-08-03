@@ -680,7 +680,7 @@ public class AgentMchtOrderController extends BaseController {
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
-        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(loginName +  (StringUtils.isNotBlank(subMchtId)? "_"+agentSubMchtInfoMap.get(subMchtId):"")+"_" + DateUtils.getNoSpSysTimeString() + ".xls", "UTF-8"));
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(loginName +  (StringUtils.isNotBlank(subMchtId)? "_"+agentSubMchtInfoMap.get(subMchtId):"")+"_" + DateUtils.getNoSpSysDateString() + ".xls", "UTF-8"));
         OutputStream out = response.getOutputStream();
 
         // 第一步，创建一个webbook，对应一个Excel文件
@@ -747,7 +747,7 @@ public class AgentMchtOrderController extends BaseController {
 //                    cell.setCellValue("成功");
 //                }
 
-                cellIndex++;
+//                cellIndex++;
 
                 cell = row.createCell(cellIndex);
                 if (orderTemp.getCreateTime() != null) {

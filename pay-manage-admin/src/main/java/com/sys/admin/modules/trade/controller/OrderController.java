@@ -6,6 +6,7 @@
 package com.sys.admin.modules.trade.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
 import com.sys.admin.common.config.GlobalConfig;
@@ -37,6 +38,7 @@ import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -90,6 +92,27 @@ public class OrderController extends BaseController {
 
 	@Autowired
 	private OrderAdminService orderAdminService;
+
+	@Autowired
+	private MchtAccountDetailService mchtAccountDetailService;
+
+    //商户账户详情信息接口地址
+    @Value("${mchtAccountDetailData.url}")
+    private String mchtAccountDetailUrl;
+
+    //查询所有商户账户详情信息接口地址
+    @Value("${mchtAllAccountDetailData.url}")
+    private String mchtAllAccountDetailUrl;
+
+	//汇总商户总金额接口地址
+	@Value("${mchtCashTotalAmountUrl.url}")
+    private String mchtCashTotalAmountUrl;
+
+	//汇总商户可用余额接口地址
+	@Value("${mchtSettleTotalAmountUrl.url}")
+	private String mchtSettleTotalAmountUrl;
+
+
 
 	@RequiresPermissions("process:question:view")
 	@RequestMapping(value = {"list", ""})
@@ -276,38 +299,189 @@ public class OrderController extends BaseController {
 	public String balance(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 						  Model model, @RequestParam Map<String, String> paramMap) {
 		try {
+			//查出所有商户信息
+			List<MchtInfo> mchtInfoList = merchantService.list(new MchtInfo());
+
+			Map<String, String> mchtMap = Collections3.extractToMap(mchtInfoList, "id", "name");
+
+			MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
+			//获取当前第几页
+			String pageNoString = paramMap.get("pageNo");
+			int pageNo = 1;
+			if (StringUtils.isNotBlank(pageNoString) && "1".equals(paramMap.get("paging"))) {
+				pageNo = Integer.parseInt(pageNoString);
+			}
+			PageInfo pageInfo = new PageInfo();
+			pageInfo.setPageNo(pageNo);
+			selectMchtAccountDetail.setPageInfo(pageInfo);
 			String mchtId = StringUtils.isNotBlank(request.getParameter("mchtId")) ? request.getParameter("mchtId") : "";
-			String queryDay = StringUtils.isNotBlank(request.getParameter("queryDay")) ? request.getParameter("queryDay") : "";
-//			List<CpInfo> cpInfoList = new ArrayList<CpInfo>();
-//			Map<String, BigDecimal> balanceMap = new HashMap<String, BigDecimal>();
-//
-//			if (StringUtils.isNotBlank(mchtId) || StringUtils.isNotBlank(queryDay)) {
-//				cpInfoList = configSysService.listAllCpInfo();
-//				balanceMap = orderProxypay4ManageService.listMerchantsBalance(mchtId, "1", queryDay);
-//				for (Iterator<CpInfo> it = cpInfoList.iterator(); it.hasNext(); ) {
-//					String cpId = it.next().getCpId().toString();
-//					if (balanceMap.get(cpId) == null) {
-//						it.remove();
-//					} else {
-//						balanceMap.put(cpId, balanceMap.get(cpId)
-//								.divide(BigDecimal.valueOf(100)).setScale(4, BigDecimal.ROUND_DOWN));
-//					}
-//				}
-//			}
-//
-//			model.addAttribute("cpInfoList", cpInfoList);
-//			model.addAttribute("balanceMap", balanceMap);
-			model.addAttribute("cpInfoList", new ArrayList());
-			model.addAttribute("balanceMap", new HashMap());
+			//截至到某个时间的余额
+			String queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd HH:mm:ss");
+            List<MchtAccountDetail> listMchtAccountDetail = new ArrayList<>();
+            //通过左侧菜单栏进入，不查数据
+            String isSelectInfo = request.getParameter("isSelectInfo");
+            long count = 0;
+            if(StringUtils.isNotBlank(isSelectInfo) && "0".equals(isSelectInfo)){
+				if(StringUtils.isNotBlank(mchtId)){
+					selectMchtAccountDetail.setMchtId(mchtId);
+					listMchtAccountDetail = queryMchtAccountDetailByHttp(selectMchtAccountDetail);
+					if(!CollectionUtils.isEmpty(listMchtAccountDetail)){
+						count = listMchtAccountDetail.size();
+					}
+				}else{
+					selectMchtAccountDetail.setCreateTime(DateUtils.parseDate(queryDate, "yyyy-MM-dd HH:mm:ss"));
+					listMchtAccountDetail = queryListLastOneMchtAccountDetailDataByHttp(selectMchtAccountDetail);
+					count = queryListLastOneMchtAccountDetailCount(selectMchtAccountDetail);
+				}
+				if(!CollectionUtils.isEmpty(listMchtAccountDetail)){
+					for(MchtAccountDetail mchtAccountDetail : listMchtAccountDetail){
+						//商户名称
+						mchtAccountDetail.setMchtName(mchtMap.get(mchtAccountDetail.getMchtId()));
+						//商户总金额
+						BigDecimal cashTotalAmount = mchtAccountDetail.getCashTotalAmount();
+						cashTotalAmount = cashTotalAmount.divide(new BigDecimal(100)).setScale(4,BigDecimal.ROUND_HALF_UP);
+						mchtAccountDetail.setCashTotalAmount(cashTotalAmount);
+						//商户冻结金额
+						BigDecimal freezeTotalAmount = mchtAccountDetail.getFreezeTotalAmount();
+						freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(4,BigDecimal.ROUND_HALF_UP);
+						mchtAccountDetail.setFreezeTotalAmount(freezeTotalAmount);
+						//商户可用余额,可用余额=总金额-冻结金额
+						BigDecimal settleTotalAmount = cashTotalAmount.subtract(freezeTotalAmount).setScale(4, BigDecimal.ROUND_HALF_UP);
+						mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
+					}
+				}
+			}
+
+			Page page = new Page(pageNo, pageInfo.getPageSize(), count, listMchtAccountDetail, true);
+			model.addAttribute("page", page);
+			BigDecimal mchtTotalBalance = null;
+			BigDecimal mchtAvailTotalBalance = null;
+			BigDecimal mchtFreezeTotalAmountBalance = null;
+			if(!CollectionUtils.isEmpty(listMchtAccountDetail) && listMchtAccountDetail.size() > 1){
+                // 商户总金额合计（元）
+                mchtTotalBalance = this.statisticsMchtTotalBalance(selectMchtAccountDetail);
+                mchtTotalBalance = null!=mchtTotalBalance ? mchtTotalBalance.divide(new BigDecimal(100)) : new BigDecimal(0);
+                // 商户可用余额合计（元）
+                mchtAvailTotalBalance = this.statisticsMchtAvailTotalBalance(selectMchtAccountDetail);
+				mchtAvailTotalBalance = null!=mchtAvailTotalBalance ? mchtAvailTotalBalance.divide(new BigDecimal(100)) : new BigDecimal(0);
+				//商户冻结金额合计
+				mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+
+			}else if(!CollectionUtils.isEmpty(listMchtAccountDetail) && 1 == listMchtAccountDetail.size()){
+				MchtAccountDetail oneMchtAccountDetail = listMchtAccountDetail.get(0);
+				//单个商户的总金额汇总，可用总金额汇总
+				// 商户总金额合计（元）
+				mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount();
+				// 商户可用余额合计（元）
+				mchtAvailTotalBalance = oneMchtAccountDetail.getCashTotalAmount().subtract(oneMchtAccountDetail.getFreezeTotalAmount());
+				//商户冻结金额合计
+				mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+			}
+			model.addAttribute("mchtInfoList", mchtInfoList);
 			model.addAttribute("mchtId", mchtId);
-			model.addAttribute("queryDay", queryDay);
+			model.addAttribute("queryDate", queryDate);
+			model.addAttribute("mchtTotalBalance", mchtTotalBalance);
+			model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalance);
+			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalance);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
 		}
-
 		return "modules/order/balanceList";
 	}
+
+    //商户总金额合计（元）
+    private BigDecimal statisticsMchtTotalBalance(MchtAccountDetail selectMchtAccountDetail) {
+		String retData = "";
+		try {
+			String url = mchtCashTotalAmountUrl;
+			logger.info("汇总商户总金额合计（元），请求地址："+url);
+			Map paramsMap = new HashMap();
+			paramsMap.put("params", URLEncoder.encode(JSONObject.toJSONString(selectMchtAccountDetail), "utf-8"));
+			logger.info("汇总商户总金额合计（元），请求参数："+paramsMap);
+			retData = HttpUtil.postConnManager(url, paramsMap);
+			logger.info("汇总商户总金额合计（元），接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return new BigDecimal(retData).setScale(4, BigDecimal.ROUND_HALF_UP);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+    }
+
+    //商户可用余额合计（元）
+    private BigDecimal statisticsMchtAvailTotalBalance(MchtAccountDetail selectMchtAccountDetail) {
+		String retData = "";
+		try {
+			String url = mchtSettleTotalAmountUrl;
+			logger.info("汇总商户可用余额合计（元），请求地址："+url);
+			Map paramsMap = new HashMap();
+			paramsMap.put("params", URLEncoder.encode(JSONObject.toJSONString(selectMchtAccountDetail), "utf-8"));
+			logger.info("汇总商户可用余额合计（元），请求参数："+paramsMap);
+			retData = HttpUtil.postConnManager(url, paramsMap);
+			logger.info("汇总商户可用余额合计（元），接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return new BigDecimal(retData).setScale(4, BigDecimal.ROUND_HALF_UP);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+    }
+
+    /**
+	 *  查询所有商户账户详情信息的个数
+	 * @return
+	 */
+	private long queryListLastOneMchtAccountDetailCount(MchtAccountDetail selectMchtAccountDetail) {
+		return mchtAccountDetailService.queryLastOneMchtAccountDetailCount(selectMchtAccountDetail);
+	}
+
+	/**
+     *  查询所有商户账户详情信息
+     * @return
+     */
+    private List<MchtAccountDetail> queryListLastOneMchtAccountDetailDataByHttp(MchtAccountDetail selectMchtAccountDetail) {
+        String retData = "";
+        try {
+	        String url = mchtAllAccountDetailUrl;
+	        logger.info("查询所有商户账户详情信息，请求地址："+url);
+	        Map paramsMap = new HashMap();
+	        paramsMap.put("params", URLEncoder.encode(JSONObject.toJSONString(selectMchtAccountDetail), "utf-8"));
+	        logger.info("查询所有商户账户详情信息，请求参数："+paramsMap);
+            retData = HttpUtil.postConnManager(url, paramsMap);
+            logger.info("查询所有商户账户详情信息，接口返回的数据为："+JSONObject.toJSONString(retData));
+            if(StringUtils.isNotBlank(retData)){
+                return JSONArray.parseArray(retData, MchtAccountDetail.class);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    /**
+     * 商户账户详情信息
+     */
+    private List<MchtAccountDetail> queryMchtAccountDetailByHttp(MchtAccountDetail selectMchtAccountDetail) {
+        String url = mchtAccountDetailUrl+"/"+selectMchtAccountDetail.getMchtId();
+        logger.info("商户首页，查询商户账户详情信息，请求地址："+url);
+        String retData = "";
+        try {
+            retData = HttpUtil.postConnManager(url, null);
+            logger.info("商户首页，查询商户账户详情信息，接口返回的数据为："+JSONObject.toJSONString(retData));
+            if(StringUtils.isNotBlank(retData) && !"null".equals(retData)){
+                MchtAccountDetail mchtAccountDetail = JSONObject.parseObject(retData, MchtAccountDetail.class);
+                List<MchtAccountDetail> list = new ArrayList<>();
+                list.add(mchtAccountDetail);
+                return list;
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 
 	@RequestMapping(value = {"payQRCode", ""})
 	public String payQRCode(HttpServletRequest request, HttpServletResponse response, HttpSession session,

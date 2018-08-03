@@ -25,11 +25,8 @@
 	    	return false;
 	    }
 	    function reSet() {
-			$("#customerSeq")[0].value = "";
-			$("#platformSeq")[0].value = "";
-			$("#status")[0].value = "";
-			$("#beginDate")[0].value = "";
-			$("#endDate")[0].value = "";
+			$("#mchtId")[0].value = "";
+			$("#queryDate")[0].value = "";
         }
         function approveSend(content){
             var orderId = $(content).parent().parent().children().eq(0).text();
@@ -63,27 +60,30 @@
 	</script>
 </head>
 <body>
-<!-- 	<ul class="nav nav-tabs"> -->
-<%-- 		<li class="active"><a href="${ctx}/order/list">交易订单列表</a></li> --%>
-<!-- 	</ul> -->
-
-
-
+	<div class="breadcrumb">
+		<label>
+			<th><a href="#">交易管理</a> > <a href="#"><b>余额查询</b></a></th>
+		</label>
+	</div>
 	<form id="searchForm" action="${ctx}/order/balance" method="post" class="breadcrumb form-search">
-		<div class="panel panel-default">
+		<input id="pageNo" name="pageNo" type="hidden" value="${page.pageNo}"/>
+		<input id="pageSize" name="pageSize" type="hidden" value="${page.pageSize}"/>
+		<input id="paging" name="paging" type="hidden" value="1"/>
+		<input id="isSelectInfo" name="isSelectInfo" type="hidden" value="0"/>
+        <div class="panel panel-default">
 	        <div class="panel-heading clearfix">
 	            <div class="pull-left">
-	            	<label for="status">商户名称：</label>
+	            	<label>商户名称：</label>
 			        <select id="mchtId" name="mchtId">
 			            <option value="">---请选择---</option>
-			            <c:forEach items="${cpInfoList}" var="cpInfo">
-			            	<option value="${cpInfo.cpId}" <c:if test="${cpInfo.cpId eq mchtId}">selected</c:if>>${cpInfo.cpName}</option>
+			            <c:forEach items="${mchtInfoList}" var="mchtInfo">
+			            	<option value="${mchtInfo.mchtCode}" <c:if test="${mchtInfo.mchtCode eq mchtId}">selected</c:if>>${mchtInfo.name}</option>
 			            </c:forEach>
 			        </select>&nbsp;
-					<label for="beginDate">查询日期：</label>
+					<label>查询日期：</label>
 					&nbsp;
-			        <input id="queryDay" name="queryDay" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-			               value="${queryDay}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+			        <input id="queryDate" name="queryDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+			               value="${queryDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
 				</div>
 		            <div class="pull-right" >
 		           	    <div class="btn-group">
@@ -93,33 +93,34 @@
 		                	<input id="clearButton" class="btn btn-primary pull-right" type="button" value="重置" onclick="reSet()" />
 		                </div>
 		            </div>
-	        
 			</div>
 		</div>
 	</form>
-	
+	<label>商户总金额合计：${mchtTotalBalance}元</label>&nbsp;&nbsp;|&nbsp;&nbsp;
+	<label>商户可用余额合计：${mchtAvailTotalBalance}元</label>&nbsp;&nbsp;|&nbsp;&nbsp;
+	<label>商户冻结金额合计：${mchtFreezeTotalAmountBalance}元</label>&nbsp;&nbsp;|&nbsp;&nbsp;
+
 	<tags:message content="${message}"/>
-	
 	<table id="contentTable" class="table table-striped table-bordered table-condensed table-hover">
 		<thead>
 			<tr >
-				<th width="50%">商户名称</th>
-				<th width="50%">余额</th>
+				<th width="25%">商户名称</th>
+				<th width="25%">总金额(元)</th>
+				<th width="25%">可用余额(元)</th>
+				<th width="25%">冻结金额(元)</th>
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach items="${cpInfoList}" var="cpInfo" >
+			<c:forEach items="${page.list}" var="mchtAccountDetail" >
 				<tr>
-					<td>${cpInfo.cpName }</td>
-					<td>
-						<c:set var="key"> 
-						    <c:out value="${cpInfo.cpId}" /> 
-						</c:set> 
-						<c:out value="${balanceMap[key]}" /> 
-					</td>
+					<td>${mchtAccountDetail.mchtName}</td>
+					<td  <c:if test="${mchtAccountDetail.cashTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.cashTotalAmount}</td>
+					<td  <c:if test="${mchtAccountDetail.settleTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.settleTotalAmount}</td>
+					<td  <c:if test="${mchtAccountDetail.freezeTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.freezeTotalAmount}</td>
 				</tr>
 			</c:forEach>
 		</tbody>
 	</table>
+	<div class="pagination">${page}</div>
 </body>
 </html>
