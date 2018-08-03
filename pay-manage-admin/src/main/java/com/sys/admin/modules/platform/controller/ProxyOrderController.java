@@ -306,8 +306,8 @@ public class ProxyOrderController extends BaseController {
 		String message = null;
 		try {
 			//检查代付商户状态
-			MchtInfo mcht = merchantService.queryByKey(mchtId);
-			if (mcht == null || StatusEnum.INVALID.getCode().equals(mcht.getStatus())){
+			MchtInfo mchtInfo = merchantService.queryByKey(mchtId);
+			if (mchtInfo == null || StatusEnum.INVALID.getCode().equals(mchtInfo.getStatus())){
 				messageType = "error";
 				message = "创建代付失败，请检查商户状态！";
 				redirectAttributes.addFlashAttribute("messageType", messageType);
