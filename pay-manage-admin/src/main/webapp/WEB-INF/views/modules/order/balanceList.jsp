@@ -85,7 +85,7 @@
 			        <input id="queryDate" name="queryDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
 			               value="${queryDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
 				</div>
-		            <div class="pull-right" >
+		            <div class="pull-right" style="margin-right: 20%;" >
 		           	    <div class="btn-group">
 		           	    	<input id="btnSubmit" class="btn btn-primary pull-right" type="submit" value="查询" >
 		               	</div>
@@ -121,6 +121,6 @@
 			</c:forEach>
 		</tbody>
 	</table>
-	<div class="pagination">${page}</div>
+	<%--<div class="pagination">${page}</div>--%>
 </body>
 </html>

@@ -97,7 +97,7 @@ public class OrderController extends BaseController {
 	private MchtAccountDetailService mchtAccountDetailService;
 
     //商户账户详情信息接口地址
-    @Value("${mchtAccountDetailData.url}")
+    @Value("${oneMchtAccountDetail.url}")
     private String mchtAccountDetailUrl;
 
     //查询所有商户账户详情信息接口地址
@@ -339,14 +339,14 @@ public class OrderController extends BaseController {
 						mchtAccountDetail.setMchtName(mchtMap.get(mchtAccountDetail.getMchtId()));
 						//商户总金额
 						BigDecimal cashTotalAmount = mchtAccountDetail.getCashTotalAmount();
-						cashTotalAmount = cashTotalAmount.divide(new BigDecimal(100)).setScale(4,BigDecimal.ROUND_HALF_UP);
+						cashTotalAmount = cashTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 						mchtAccountDetail.setCashTotalAmount(cashTotalAmount);
 						//商户冻结金额
 						BigDecimal freezeTotalAmount = mchtAccountDetail.getFreezeTotalAmount();
-						freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(4,BigDecimal.ROUND_HALF_UP);
+						freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 						mchtAccountDetail.setFreezeTotalAmount(freezeTotalAmount);
 						//商户可用余额,可用余额=总金额-冻结金额
-						BigDecimal settleTotalAmount = cashTotalAmount.subtract(freezeTotalAmount).setScale(4, BigDecimal.ROUND_HALF_UP);
+						BigDecimal settleTotalAmount = cashTotalAmount.subtract(freezeTotalAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
 						mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
 					}
 				}
@@ -360,10 +360,10 @@ public class OrderController extends BaseController {
 			if(!CollectionUtils.isEmpty(listMchtAccountDetail) && listMchtAccountDetail.size() > 1){
                 // 商户总金额合计（元）
                 mchtTotalBalance = this.statisticsMchtTotalBalance(selectMchtAccountDetail);
-                mchtTotalBalance = null!=mchtTotalBalance ? mchtTotalBalance.divide(new BigDecimal(100)) : new BigDecimal(0);
+                mchtTotalBalance = null!=mchtTotalBalance ? mchtTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
                 // 商户可用余额合计（元）
                 mchtAvailTotalBalance = this.statisticsMchtAvailTotalBalance(selectMchtAccountDetail);
-				mchtAvailTotalBalance = null!=mchtAvailTotalBalance ? mchtAvailTotalBalance.divide(new BigDecimal(100)) : new BigDecimal(0);
+				mchtAvailTotalBalance = null!=mchtAvailTotalBalance ? mchtAvailTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
 				//商户冻结金额合计
 				mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
 
