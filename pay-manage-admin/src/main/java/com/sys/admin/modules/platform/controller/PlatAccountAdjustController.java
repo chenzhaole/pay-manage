@@ -301,40 +301,53 @@ public class PlatAccountAdjustController extends BaseController {
 		response.getWriter().print(platBalance.stripTrailingZeros().toPlainString());
 	}
 
-	/**
-	 * 缓存中,未入账队列是否存在某条订单记录
-	 */
-	boolean queryCachePayOrderForAccount(String accountId) {
+    /**
+     * 缓存中,未入账及已入账队列是否存在某条订单记录
+     */
+    boolean queryCachePayOrderForAccount(String accountId) {
 
-		String key = IdUtil.REDIS_ACCT_MCHT_ACCOUNT_ADJUST_TASK_LIST;
-		JedisPool pool = null;
-		Jedis jedis = null;
+        String taskKey = IdUtil.REDIS_ACCT_MCHT_ACCOUNT_ADJUST_TASK_LIST;
+        String doneKey = IdUtil.REDIS_ACCT_MCHT_ACCOUNT_ADJUST_DONE_LIST;
+        JedisPool pool = null;
+        Jedis jedis = null;
 
-		try {
-			pool = JedisConnPool.getPool();
-			jedis = pool.getResource();
+        try {
+            pool = JedisConnPool.getPool();
+            jedis = pool.getResource();
 
-			List<String> payList = jedis.lrange(key, 0, -1);
-			if (CollectionUtils.isEmpty(payList)) {
-				return false;
-			}
-			for (String value : payList) {
-				CacheMchtAccount cacheMchtAccount = JSON.parseObject(value, CacheMchtAccount.class);
-				PlatAccountAdjust cacheOrder = cacheMchtAccount.getPlatAccountAdjust();
-				if (cacheOrder != null && accountId.equals(cacheOrder.getId())) {
-					return true;
-				}
-			}
+            //未入账
+            List<String> payList = jedis.lrange(taskKey, 0, -1);
+            if (!CollectionUtils.isEmpty(payList)) {
+                for (String value : payList) {
+                    CacheMchtAccount cacheMchtAccount = JSON.parseObject(value, CacheMchtAccount.class);
+                    PlatAccountAdjust cacheOrder = cacheMchtAccount.getPlatAccountAdjust();
+                    if (cacheOrder != null && accountId.equals(cacheOrder.getId())) {
+                        return true;
+                    }
+                }
+            }
 
-		} catch (JedisConnectionException var8) {
-			var8.printStackTrace();
-		} catch (Exception var9) {
-			var9.printStackTrace();
-		} finally {
-			JedisConnPool.returnResource(pool, jedis, "");
-		}
-		return false;
-	}
+            //已入账
+            List<String> doneList = jedis.lrange(doneKey, 0, -1);
+            if (!CollectionUtils.isEmpty(doneList)) {
+                for (String value : doneList) {
+                    CacheMchtAccount cacheMchtAccount = JSON.parseObject(value, CacheMchtAccount.class);
+                    PlatAccountAdjust cacheOrder = cacheMchtAccount.getPlatAccountAdjust();
+                    if (cacheOrder != null && accountId.equals(cacheOrder.getId())) {
+                        return true;
+                    }
+                }
+            }
+
+        } catch (JedisConnectionException var8) {
+            var8.printStackTrace();
+        } catch (Exception var9) {
+            var9.printStackTrace();
+        } finally {
+            JedisConnPool.returnResource(pool, jedis, "");
+        }
+        return false;
+    }
 
 	protected void insertMchtAccountInfo2redis(CacheMchtAccount cacheMchtAccount) {
 		JedisPool pool = null;
