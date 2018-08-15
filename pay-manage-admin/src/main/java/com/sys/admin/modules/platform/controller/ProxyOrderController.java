@@ -1,6 +1,7 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
@@ -11,11 +12,43 @@ import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.common.db.JedisConnPool;
-import com.sys.common.enums.*;
-import com.sys.common.util.*;
+import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.MchtAccountTypeEnum;
+import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.ProxyPayBatchStatusEnum;
+import com.sys.common.enums.ProxyPayDetailStatusEnum;
+import com.sys.common.enums.ProxyPayRequestEnum;
+import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.Collections3;
+import com.sys.common.util.DateUtils;
+import com.sys.common.util.DesUtil32;
+import com.sys.common.util.HttpUtil;
+import com.sys.common.util.IdUtil;
+import com.sys.common.util.JedisUtil;
+import com.sys.common.util.NumberUtils;
+import com.sys.common.util.PostUtil;
+import com.sys.common.util.SignUtil;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.*;
-import com.sys.core.service.*;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.MchtAccountDetail;
+import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatBank;
+import com.sys.core.dao.dmo.PlatFeerate;
+import com.sys.core.dao.dmo.PlatProduct;
+import com.sys.core.dao.dmo.PlatProxyBatch;
+import com.sys.core.dao.dmo.PlatProxyDetail;
+import com.sys.core.service.ChannelService;
+import com.sys.core.service.MchtAccountDetailService;
+import com.sys.core.service.MchtAccountInfoService;
+import com.sys.core.service.MchtProductService;
+import com.sys.core.service.MerchantService;
+import com.sys.core.service.PlatBankService;
+import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductService;
+import com.sys.core.service.ProxyBatchService;
+import com.sys.core.service.ProxyDetailService;
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
 import org.apache.poi.hssf.usermodel.HSSFRow;
@@ -30,7 +63,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
@@ -46,7 +78,13 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Controller
 @RequestMapping(value = "${adminPath}/proxy")
@@ -267,6 +305,26 @@ public class ProxyOrderController extends BaseController {
 		String messageType = null;
 		String message = null;
 		try {
+			//检查代付商户状态
+			MchtInfo mchtInfo = merchantService.queryByKey(mchtId);
+			if (mchtInfo == null || StatusEnum.INVALID.getCode().equals(mchtInfo.getStatus())){
+				messageType = "error";
+				message = "创建代付失败，请检查商户状态！";
+				redirectAttributes.addFlashAttribute("messageType", messageType);
+				redirectAttributes.addFlashAttribute("message", message);
+				return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
+			}
+
+			//检查代付产品及其状态
+			PlatProduct platProduct = queryProduct(mchtId, "");
+			if (platProduct == null){
+				messageType = "error";
+				message = "创建代付失败，产品有误！";
+				redirectAttributes.addFlashAttribute("messageType", messageType);
+				redirectAttributes.addFlashAttribute("message", message);
+				return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
+			}
+
 			//检验excel文件
 			Sheet sheet = checkFile(mchtId, file);
 			//查询代付手续费
@@ -412,7 +470,8 @@ public class ProxyOrderController extends BaseController {
 						int rs = proxyBatchService.saveBatchAndDetails(batch, details);
 						logger.info("代付批次和代付明细入库返回结果 rs=" + rs);
 
-						int rps = insert2redisProxyTask(batch);
+						int rps =
+								insert2redisProxyTask(batch);
 						logger.info("代付批次加入redis队列 rps=" + rps);
 
 						respMsg = "ok";
@@ -601,7 +660,6 @@ public class ProxyOrderController extends BaseController {
 	/**
 	 * 获取String 的 cell数据
 	 */
-
 	private String getStringData(Cell cell) {
 		String result = "";
 		if (cell != null) {
@@ -925,5 +983,39 @@ public class ProxyOrderController extends BaseController {
 		if (StringUtils.isNotBlank(paramMap.get("batchId"))) {
 			proxyDetail.setPlatBatchId(paramMap.get("batchId"));
 		}
+	}
+
+	/**
+	 * 根据商户编号查询平台支付产品列表(包含组合支付产品)
+	 *
+	 * @param mchtId
+	 * @param midoid
+	 * @return
+	 */
+	protected PlatProduct queryProduct(String mchtId, String midoid) {
+		List<PlatProduct> productList;
+		// 查询该支付商户下的所有商户产品
+		MchtProduct mchtProduct = new MchtProduct();
+		mchtProduct.setMchtId(mchtId);
+		mchtProduct.setIsValid(1); // 是否生效： 1-有效；0-失效
+		List<MchtProduct> list = mchtProductService.list(mchtProduct);
+		logger.info(midoid +"，查询的MchtProduct列表信息为：" + JSONArray.toJSONString(list));
+		// 遍历商户产品信息，取出对应的平台支付产品id，找到对应的支付类型的支付产品
+		PlatProduct product = null;
+		PlatProduct productQuery = null;
+		if(CollectionUtils.isNotEmpty(list)){
+			for (MchtProduct mprod : list) {
+				productQuery = new PlatProduct();
+				productQuery.setId(mprod.getProductId());
+				productQuery.setPayType(PayTypeEnum.SINGLE_DF.getCode());
+				productQuery.setStatus(StatusEnum.VALID.getCode());
+				productList = productService.list(productQuery);
+				if (CollectionUtils.isNotEmpty(productList)){
+					return productList.get(0);
+				}
+			}
+		}
+		logger.info(midoid +"，产品有误");
+		return null;
 	}
 }

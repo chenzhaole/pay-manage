@@ -267,7 +267,7 @@ public class AgentMchtFilterAccountDetailController extends BaseController {
         String fileName = DateUtils.formatDate(new Date()) + ".xls";
 
         String[] headers = {"账务明细号", "商户名称", "商户号", "商户订单号",
-                "平台订单号", "账户类型", /*"记账类型", */ "交易类型", "交易金额(元)", "增加(元)", "减少(元)", "手续费(元)", "可提现金额(元)", "记账时间"};
+                "平台订单号", /*"账户类型", "记账类型", */ "交易类型", "交易金额(元)", "增加(元)", "减少(元)", "手续费(元)", "可提现金额(元)", "记账时间"};
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
@@ -316,9 +316,9 @@ public class AgentMchtFilterAccountDetailController extends BaseController {
                 cell.setCellValue(accountDetail.getPlatOrderId());
                 cellIndex++;
 
-                cell = row.createCell(cellIndex);
-                cell.setCellValue(accountDetail.getAccountType());
-                cellIndex++;
+//                cell = row.createCell(cellIndex);
+//                cell.setCellValue(accountDetail.getAccountType());
+//                cellIndex++;
 //
 //                cell = row.createCell(cellIndex);
 //                cell.setCellValue(accountDetail.getOpType());

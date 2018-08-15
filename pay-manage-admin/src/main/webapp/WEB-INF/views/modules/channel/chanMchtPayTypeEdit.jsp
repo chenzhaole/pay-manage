@@ -62,16 +62,16 @@
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
                 onkeyup: false,
                 submitHandler: function (form) {   //表单提交句柄,为一回调函数，带一个参数：form
-                    if ( parseFloat($("#tradeStartTimeH").val()) > parseFloat($("#tradeEndTimeH").val())){
-                        alert("开始时间必须小于结束时间!");
-                        return false;
-                    }
-                    if ( parseFloat($("#tradeStartTimeH").val()) == parseFloat($("#tradeEndTimeH").val())){
-                        if ( parseFloat($("#tradeStartTimeS").val()) >= parseFloat($("#tradeEndTimeS").val())){
-                            alert("开始时间必须小于结束时间。");
-                            return false;
-                        }
-                    }
+                    // if ( parseFloat($("#tradeStartTimeH").val()) > parseFloat($("#tradeEndTimeH").val())){
+                    //     alert("开始时间必须小于结束时间!");
+                    //     return false;
+                    // }
+                    // if ( parseFloat($("#tradeStartTimeH").val()) == parseFloat($("#tradeEndTimeH").val())){
+                    //     if ( parseFloat($("#tradeStartTimeS").val()) >= parseFloat($("#tradeEndTimeS").val())){
+                    //         alert("开始时间必须小于结束时间。");
+                    //         return false;
+                    //     }
+                    // }
                     if ( parseFloat($("#tradeMinMoney").val()) >= parseFloat($("#tradeMaxMoney").val())){
                         alert("最低金额必须小于最高金额");
                         return false;
