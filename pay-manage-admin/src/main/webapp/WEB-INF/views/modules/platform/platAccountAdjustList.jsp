@@ -119,10 +119,7 @@
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
                     <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
-                        <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=4"
-                           onclick="return confirmx('确认通过？', this.href)">通过</a>|
-                        <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=5"
-                           onclick="return confirmx('确认拒绝？', this.href)">拒绝</a>
+                        <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
                     </c:if>
                 </td>
             </shiro:hasPermission>

@@ -355,4 +355,21 @@ public class PlatAccountAdjustController extends BaseController {
 		}
 	}
 
+
+	/**
+	 * 调账审批
+	 */
+	@RequestMapping("viewAudit")
+	@RequiresPermissions("platform:adjust:audit")
+	public String viewAudit(PlatAccountAdjust platAccountAdjust, Model model) {
+
+		PlatAccountAdjust platAccountAdjustOri = platAccountAdjustService.queryByKey(platAccountAdjust.getId());
+		MchtInfo mchtInfo = merchantService.queryByKey(platAccountAdjust.getMchtId());
+		if(mchtInfo!= null){
+			platAccountAdjustOri.setMchtName(mchtInfo.getName());
+		}
+		model.addAttribute("platAccountAdjustOri", platAccountAdjustOri);
+		return "modules/platform/platAccountViewAdjustForm";
+	}
+
 }
