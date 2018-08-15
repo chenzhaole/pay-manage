@@ -4,14 +4,7 @@
 <head>
     <title>调账记录列表</title>
     <meta name="decorator" content="default"/>
-    <style type="text/css">
-        .wrap{
-            width: 100px; //设置需要固定的宽度
-        white-space: nowrap; //不换行
-        text-overflow: ellipsis; //超出部分用....代替
-        overflow: hidden; //超出隐藏
-        }
-    </style>
+
     <script type="text/javascript">
 
         //下拉搜索框初始化
@@ -31,12 +24,12 @@
 <body>
 
 <shiro:hasPermission name="platform:adjust:apply">
-<ul class="nav nav-tabs">
-    <li class="active"><a href="${ctx}/platform/adjust">调账列表</a></li>
-    <c:if test="${logo == 'apply'}">
-        <li><a href="${ctx}/platform/adjust/form">调账添加</a></li>
-    </c:if>
-</ul>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="${ctx}/platform/adjust">调账列表</a></li>
+        <c:if test="${logo == 'apply'}">
+            <li><a href="${ctx}/platform/adjust/form">调账添加</a></li>
+        </c:if>
+    </ul>
 </shiro:hasPermission>
 
 <tags:message content="${message}" type="${messageType}"/>
@@ -53,14 +46,14 @@
                     <c:forEach items="${mchtInfos}" var="mchtInfo">
                         <option value="${mchtInfo.id}"
                                 <c:if test="${adjustInfo.mchtId == mchtInfo.id}">selected</c:if>
-                                >${mchtInfo.name}</option>
+                        >${mchtInfo.name}</option>
                     </c:forEach>
                 </select>
             </td>
             <td>
                 <label>申请日期：</label>
                 <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                      value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                       value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
             </td>
             <td>
                 <label>审批日期：</label>
@@ -110,16 +103,19 @@
             <td><fmt:formatNumber type="number" value="${adjust.adjustAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatDate value="${adjust.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
-                ${adjust.creatorName}
+                    ${adjust.creatorName}
             </td>
             <td><fmt:formatDate value="${adjust.auditTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${adjust.auditorName}</td>
             <td>${fns:getDictLabel(adjust.auditStatus,'account_adjust_status' ,'' )}</td>
-            <td <div  title="${adjust.remark}" class="wrap">${fn:substring(adjust.remark,0,50)}</div></td>
+            <td>${adjust.remark}</td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
                     <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
-                        <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
+                        <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=4"
+                           onclick="return confirmx('确认通过？', this.href)">通过</a>|
+                        <a href="${ctx}/platform/adjust/audit?id=${adjust.id}&auditStatus=5"
+                           onclick="return confirmx('确认拒绝？', this.href)">拒绝</a>
                     </c:if>
                 </td>
             </shiro:hasPermission>
