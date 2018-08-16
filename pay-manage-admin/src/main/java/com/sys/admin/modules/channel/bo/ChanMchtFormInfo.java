@@ -876,7 +876,7 @@ public class ChanMchtFormInfo {
 
 			this.tradeMaxMoney = StringUtils.isBlank(requestMap.get("tradeMaxMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMaxMoney"));
 			this.tradeMinMoney = StringUtils.isBlank(requestMap.get("tradeMinMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMinMoney"));
-			this.tradeRangeMoney = requestMap.get("tradeRangeMoney");
+			this.tradeRangeMoney = requestMap.get("tradeRangeMoney") == null ? "" : requestMap.get("tradeRangeMoney");
 		}
 	}
 

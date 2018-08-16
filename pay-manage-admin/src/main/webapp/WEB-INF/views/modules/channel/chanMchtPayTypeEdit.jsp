@@ -78,6 +78,10 @@
             cascadeSmsContent();
             rateOrAmount();
 
+            // jQuery.validator.addMethod("digit", function (value, element) {
+            //     return this.optional(element) || /^d+$/.test(value);
+            // }, "只可以填写正整数和0");
+
             $("#chanMchtForm").validate({
                 debug: true, //调试模式取消submit的默认提交功能
                 //errorClass: "label.error", //默认为错误的样式类为：error
@@ -148,11 +152,11 @@
                     },
                     tradeMinMoney: {
                         max: 9999999,
-                        number: true
+                        digits:true
                     },
                     tradeMaxMoney: {
                         max: 9999999,
-                        number: true
+                        digits:true
                     }
 
                 }
