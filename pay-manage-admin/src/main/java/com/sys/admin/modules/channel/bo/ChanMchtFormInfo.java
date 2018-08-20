@@ -157,6 +157,8 @@ public class ChanMchtFormInfo {
 
 	private BigDecimal tradeMaxMoney;
 
+	private String tradeRangeMoney;
+
 	private String tradeStartTime;
 
 	private String tradeEndTime;
@@ -167,6 +169,14 @@ public class ChanMchtFormInfo {
 	private String tradeEndTimeS;
 
 	private static final long serialVersionUID = 1L;
+
+	public String getTradeRangeMoney() {
+		return tradeRangeMoney;
+	}
+
+	public void setTradeRangeMoney(String tradeRangeMoney) {
+		this.tradeRangeMoney = tradeRangeMoney;
+	}
 
 	public String getTradeStartTimeH() {
 		return tradeStartTimeH;
@@ -866,6 +876,7 @@ public class ChanMchtFormInfo {
 
 			this.tradeMaxMoney = StringUtils.isBlank(requestMap.get("tradeMaxMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMaxMoney"));
 			this.tradeMinMoney = StringUtils.isBlank(requestMap.get("tradeMinMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMinMoney"));
+			this.tradeRangeMoney = requestMap.get("tradeRangeMoney") == null ? "" : requestMap.get("tradeRangeMoney");
 		}
 	}
 

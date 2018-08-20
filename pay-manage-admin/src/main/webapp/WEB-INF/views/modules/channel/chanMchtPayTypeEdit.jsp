@@ -22,6 +22,28 @@
 
         }
 
+        //金额限制联动
+        function amountRange() {
+            if ($("#tradeRangeMoney").val() === "") {
+                $("#tradeMinMoney").attr("disabled", false);
+                $("#tradeMaxMoney").attr("disabled", false);
+            } else {
+
+                $("#tradeMinMoney").attr("disabled", true);
+                $("#tradeMinMoney").val("");
+                $("#tradeMaxMoney").attr("disabled", true);
+                $("#tradeMaxMoney").val("");
+            }
+        }
+        function amountMaxMin() {
+            if ($("#tradeMinMoney").val() === "" && $("#tradeMaxMoney").val() === "" ) {
+                $("#tradeRangeMoney").attr("disabled", false);
+            } else {
+                $("#tradeRangeMoney").attr("disabled", true);
+                $("#tradeRangeMoney").val("");
+            }
+        }
+
         //合同类型决定是否有上下级
         function parentDiss() {
             if ($("#contractType").val() === "2") {
@@ -56,25 +78,31 @@
             cascadeSmsContent();
             rateOrAmount();
 
+            // jQuery.validator.addMethod("digit", function (value, element) {
+            //     return this.optional(element) || /^d+$/.test(value);
+            // }, "只可以填写正整数和0");
+
             $("#chanMchtForm").validate({
                 debug: true, //调试模式取消submit的默认提交功能
                 //errorClass: "label.error", //默认为错误的样式类为：error
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
                 onkeyup: false,
                 submitHandler: function (form) {   //表单提交句柄,为一回调函数，带一个参数：form
-                    if ( parseFloat($("#tradeStartTimeH").val()) > parseFloat($("#tradeEndTimeH").val())){
-                        alert("开始时间必须小于结束时间!");
-                        return false;
-                    }
+                    // if ( parseFloat($("#tradeStartTimeH").val()) > parseFloat($("#tradeEndTimeH").val())){
+                    //     alert("开始时间必须小于结束时间!");
+                    //     return false;
+                    // }
                     if ( parseFloat($("#tradeStartTimeH").val()) == parseFloat($("#tradeEndTimeH").val())){
-                        if ( parseFloat($("#tradeStartTimeS").val()) >= parseFloat($("#tradeEndTimeS").val())){
-                            alert("开始时间必须小于结束时间。");
+                        if ( parseFloat($("#tradeStartTimeS").val()) == parseFloat($("#tradeEndTimeS").val())){
+                            alert("开始时间不能等于结束时间。");
                             return false;
                         }
                     }
-                    if ( parseFloat($("#tradeMinMoney").val()) >= parseFloat($("#tradeMaxMoney").val())){
-                        alert("最低金额必须小于最高金额");
-                        return false;
+                    if ( parseFloat($("#tradeMinMoney").val()) > 0 || parseFloat($("#tradeMaxMoney").val()) > 0){
+                        if ( parseFloat($("#tradeMinMoney").val()) >= parseFloat($("#tradeMaxMoney").val())){
+                            alert("最低金额必须小于最高金额");
+                            return false;
+                        }
                     }
                     form.submit();   //提交表单
                 },
@@ -124,11 +152,11 @@
                     },
                     tradeMinMoney: {
                         max: 9999999,
-                        number: true
+                        digits:true
                     },
                     tradeMaxMoney: {
                         max: 9999999,
-                        number: true
+                        digits:true
                     }
 
                 }
@@ -708,7 +736,7 @@
                     <label class="control-label" for="tranUrl">平台接口地址<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="tranUrl" value="${chanMchPaytye.tranUrl }" placeholder=""
-                               style="width:500px;" type="text" id="tranUrl" class=" {required:true,url:true}">
+                               type="text" id="tranUrl" class="input-xxlarge {required:true,url:true}">
                     </div>
                 </div>
             </td>
@@ -764,14 +792,14 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label" for="feeAmount">每笔交易限额(分)</label>
+                    <label class="control-label" for="feeAmount">每笔交易限额区间（分）</label>
                     <div class="controls">
-                        <input name="tradeMinMoney" value="${chanMchPaytye.tradeMinMoney }" placeholder="最低金额(分)"
-                               class="input-large"
+                        <input name="tradeMinMoney" value="<fmt:formatNumber type="number" value="${chanMchPaytye.tradeMinMoney}" pattern="0.00" maxFractionDigits="0"/>" placeholder="最低金额"
+                               class="input-large" onchange="amountMaxMin()"
                                type="text" id="tradeMinMoney">
                         -
-                        <input name="tradeMaxMoney" value="${chanMchPaytye.tradeMaxMoney }" placeholder="最高金额(分)"
-                               class="input-large"
+                        <input name="tradeMaxMoney" value="<fmt:formatNumber type="number" value="${chanMchPaytye.tradeMaxMoney}" pattern="0.00" maxFractionDigits="0"/>" placeholder="最高金额"
+                               class="input-large" onchange="amountMaxMin()"
                                type="text" id="tradeMaxMoney">
                     </div>
                 </div>
@@ -804,6 +832,17 @@
                     <div class="controls">
                         <textarea name="extend1" placeholder="" style="width:500px;" id="extend1"
                                   rows="3">${chanMchPaytye.extend1}</textarea>
+                    </div>
+                </div>
+            </td>
+
+            <td>
+                <div class="control-group">
+                    <label class="control-label" for="feeAmount">每笔交易限额固定金额（元）</label>
+                    <div class="controls">
+                        <input name="tradeRangeMoney" value="${chanMchPaytye.tradeRangeMoney}" placeholder="交易限额范围，各单位之间半角逗号分隔，如 1,5,10,30,50"
+                               class="input-xxlarge" onchange="amountRange()"
+                               type="text" id="tradeRangeMoney">
                     </div>
                 </div>
             </td>
