@@ -9,6 +9,7 @@ import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderQueryResponse;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwApiPayService;
+import com.sys.gateway.service.GwApiQueryService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,9 +33,9 @@ public class GwApiQueryController {
 	protected final Logger logger = LoggerFactory.getLogger(GwApiQueryController.class);
 
 	@Autowired
-	GwApiPayService gwApiPayService;
+	GwApiQueryService gwApiQueryService;
 	/**
-	 * 查询支付订单
+	 * api支付查询支付订单
      */
 	@RequestMapping(value="/gateway/api/queryPay")
 	@ResponseBody
@@ -43,12 +44,13 @@ public class GwApiQueryController {
 		ApiPayOrderQueryResponse.ApiPayOrderQueryResponseHead head = new ApiPayOrderQueryResponse.ApiPayOrderQueryResponseHead();
 
 		try {
-			String ip = IpUtil.getRemoteHost(request);//请求ip
+			//请求ip
+			String ip = IpUtil.getRemoteHost(request);
 			logger.info("queryPay查询支付订单获取到客户端请求ip："+ip);
 			data = URLDecoder.decode(data, "utf-8");
 			logger.info("queryPay查询支付订单收到客户端请求参数后做url解码后的值为："+data);
 			//校验请求参数
-			CommonResponse checkResp = new CommonResponse();//TODO: gwApiPayService.checkParam(data);
+			CommonResponse checkResp = gwApiQueryService.checkParam(data);
 			checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
 			logger.info("queryPay查询支付订单校验请求参数的结果为："+JSONObject.toJSONString(checkResp));
 			if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
@@ -59,7 +61,7 @@ public class GwApiQueryController {
 				//queryPay查询支付订单接口
 				TradeApiQueryRequest tradeRequest = (TradeApiQueryRequest) checkResp.getData();
 				logger.info("调用queryPay查询支付订单接口，传入的TradeCommRequest信息："+JSONObject.toJSONString(tradeRequest));
-				apiPayResp = (ApiPayOrderQueryResponse) gwApiPayService.pay(tradeRequest, ip);
+				apiPayResp = (ApiPayOrderQueryResponse) gwApiQueryService.query(tradeRequest, ip);
 				logger.info("调用queryPay查询支付订单接口，返回的CommOrderQueryResponse信息："+JSONObject.toJSONString(apiPayResp));
 			}
 		} catch (Exception e) {
@@ -68,7 +70,7 @@ public class GwApiQueryController {
 			head.setRespCode(ErrorCodeEnum.FAILURE.getCode());
 			head.setRespMsg("支付网关错误："+e.getMessage());
 		}
-		logger.info("创建comm订单，返回下游商户值："+JSON.toJSONString(apiPayResp));
+		logger.info("queryPay查询支付订单接口，返回下游商户值："+JSON.toJSONString(apiPayResp));
 		return JSON.toJSONString(apiPayResp);
 	}
 
