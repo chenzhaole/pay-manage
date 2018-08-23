@@ -55,7 +55,9 @@ public class StatReportDayPayDetailController extends BaseController {
 
         if (payList != null) {
             for (StatReportDayPayDetail detail : payList) {
-                detail.setPayType(PayTypeEnum.toEnum(detail.getPayType()).getDesc());
+                PayTypeEnum p = PayTypeEnum.toEnum(detail.getPayType());
+                String desc = p == null ? "" : p.getDesc();
+                detail.setPayType(desc);
             }
         }
 
@@ -160,7 +162,7 @@ public class StatReportDayPayDetailController extends BaseController {
                 if (detail.getTradeAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(detail.getTradeAmount()));
                     cell.setCellValue(bigDecimal.doubleValue());
-                }else{
+                } else {
                     cell.setCellValue(0);
                 }
                 cellIndex++;
@@ -195,8 +197,8 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getAgentMchtProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getAgentMchtProfitAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                }else{
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
                     cell.setCellValue(0);
                 }
                 cellIndex++;
@@ -204,8 +206,8 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getTotalProfitAmount() != null) {
                     BigDecimal bigDecimal = detail.getTotalProfitAmount().divide(new BigDecimal(100));
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                }else{
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
                     cell.setCellValue(0);
                 }
                 cellIndex++;
@@ -220,9 +222,9 @@ public class StatReportDayPayDetailController extends BaseController {
 
                 cell = row.createCell(cellIndex);
                 if (detail.getTradeSuccessCount() != null && detail.getTradeTotalCount() != null) {
-                    double successRate = (double)detail.getTradeSuccessCount()/(double)detail.getTradeTotalCount() * 100;
-                    cell.setCellValue(new BigDecimal(successRate).setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue()+"%");
-                }else{
+                    double successRate = (double) detail.getTradeSuccessCount() / (double) detail.getTradeTotalCount() * 100;
+                    cell.setCellValue(new BigDecimal(successRate).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() + "%");
+                } else {
                     cell.setCellValue(0);
                 }
                 rowIndex++;
@@ -242,7 +244,6 @@ public class StatReportDayPayDetailController extends BaseController {
     @RequestMapping(value = "/exportProxy")
     public String exportProxy(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
                               @RequestParam Map<String, String> paramMap) throws IOException {
-
 
 
         //创建查询实体
@@ -316,8 +317,8 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getTradeAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(detail.getTradeAmount()));
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                }else{
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
                     cell.setCellValue(0);
                 }
                 cellIndex++;
@@ -325,8 +326,8 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getAccAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getAccAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                }else{
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
                     cell.setCellValue(0);
                 }
                 cellIndex++;
@@ -334,8 +335,8 @@ public class StatReportDayPayDetailController extends BaseController {
                 cell = row.createCell(cellIndex);
                 if (detail.getTotalProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getTotalProfitAmount());
-                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
-                }else{
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
                     cell.setCellValue(0);
                 }
                 rowIndex++;
