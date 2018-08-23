@@ -28,6 +28,12 @@
 						<a href="index-api-pay.jsp">通用API支付</a>
 					</dd>
 				</dl>
+				<dl class="">
+
+					<dd>
+						<a href="index-api-query.jsp">通用API查单</a>
+					</dd>
+				</dl>
              	<dl class="">
 
 					<dd>

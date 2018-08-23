@@ -36,6 +36,15 @@
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>TestApiQuery</servlet-name>
+		<servlet-class>com.demo.action.TestApiQueryServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestApiQuery</servlet-name>
+		<url-pattern>/testApiQuery</url-pattern>
+	</servlet-mapping>
+
+	<servlet>
 		<servlet-name>TestPayResult</servlet-name>
 		<servlet-class>com.demo.action.TestPayResultSerlet</servlet-class>
 	</servlet>
