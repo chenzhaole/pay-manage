@@ -90,6 +90,7 @@
                         <option value="http://114.115.206.62:12080/gateway/api/commPay/">开发 http://114.115.206.62:12080/gateway/api/commPay/</option>
                         <option value="http://114.115.206.62:12080/gateway/api/commPay/">测试 http://114.115.206.62:12080/gateway/api/commPay/</option>
                         <option value="http://106.2.6.41:12080/gateway/api/commPay/">生产 http://106.2.6.41:12080/gateway/api/commPay/</option>
+                        <option value="http://13.250.235.186:12080/gateway/api/commPay">AWS http://13.250.235.186:12080/gateway/api/commPay</option>
                     </select>
                     <span class="null-star">(payUrl)*</span>
                     <span></span>
