@@ -7,6 +7,7 @@ import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.MerchantService;
+import com.sys.gateway.common.ConfigUtil;
 import com.sys.gateway.service.GwSdkConfigService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -22,6 +23,8 @@ public class GwSdkConfigServiceImpl implements GwSdkConfigService {
 
     protected final Logger logger = LoggerFactory.getLogger(GwSdkConfigServiceImpl.class);
     private final String BIZ_NAME = "支付SDK-获取配置信息-";
+
+    private static final String CLIENT_SDK_DEFAULT_CONFIG = ConfigUtil.getValue("client_sdk_default_config");
 
     @Autowired
     private ITradeApiPayHandler tradeApiPayHandler;
@@ -79,20 +82,7 @@ public class GwSdkConfigServiceImpl implements GwSdkConfigService {
     public Map config(Map map, String ip) {
         Map rtnMap = new HashMap();
         try {
-            Map defaultPaySdkMap = new HashMap();
-            defaultPaySdkMap.put("serviceQQ", "");
-            defaultPaySdkMap.put("serviceTel", "");
-            defaultPaySdkMap.put("version", "200");
-            defaultPaySdkMap.put("isShowPayResultPage", "1");
-            defaultPaySdkMap.put("isShowPayPage", "1");
-            defaultPaySdkMap.put("payUrl", "http://106.2.6.41:12080/gateway/sdk/commPay/");
-            defaultPaySdkMap.put("al", "0");
-            defaultPaySdkMap.put("wx", "1");
-            defaultPaySdkMap.put("sn", "0");
-            defaultPaySdkMap.put("qq", "0");
-            defaultPaySdkMap.put("jd", "0");
-            defaultPaySdkMap.put("yl", "0");
-            defaultPaySdkMap.put("qj", "0");
+            Map defaultPaySdkMap = JSON.parseObject(CLIENT_SDK_DEFAULT_CONFIG,Map.class);
 
             String mchtId = (String) map.get("mchtId");
             MchtInfo merchant = merchantService.queryByKey(mchtId);

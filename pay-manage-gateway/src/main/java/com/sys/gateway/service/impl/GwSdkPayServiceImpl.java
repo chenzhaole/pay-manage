@@ -11,6 +11,7 @@ import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.MerchantService;
+import com.sys.gateway.common.ConfigUtil;
 import com.sys.gateway.service.GwSdkPayService;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
@@ -26,6 +27,7 @@ import java.util.Map;
 public class GwSdkPayServiceImpl implements GwSdkPayService {
 
     protected final Logger logger = LoggerFactory.getLogger(GwSdkPayServiceImpl.class);
+
     private final String BIZ_NAME = "支付SDK-创建支付订单-";
 
     @Autowired
