@@ -59,7 +59,7 @@
                 <dt>代付查余额地址：</dt>
                 <dd>
                     <span class="null-star"></span>
-                    <input name="payUrl" value="http://localhost:12080/df/gateway/balance/" maxlength="128" size="40"  placeholder="长度128"/>
+                    <input name="payUrl" value="http://106.2.6.41:17082/df/gateway/balance/" maxlength="128" size="40"  placeholder="长度128"/>
                     <span class="null-star">(payUrl)*</span>
                     <span></span>
                 </dd>

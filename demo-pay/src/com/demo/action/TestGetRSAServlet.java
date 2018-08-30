@@ -38,4 +38,12 @@ public class TestGetRSAServlet extends HttpServlet {
             response.getWriter().write(respStr);
         }
     }
+
+    public static void main(String[] args) throws Exception {
+        Map<String, Object> keypair = RSAUtils.genKeyPair();
+        String publicKey = RSAUtils.getPublicKey(keypair);
+        String privateKey =  RSAUtils.getPrivateKey(keypair);
+        System.out.println("publicKey:" + publicKey);
+        System.out.println("privateKey:" + privateKey);
+    }
 }
