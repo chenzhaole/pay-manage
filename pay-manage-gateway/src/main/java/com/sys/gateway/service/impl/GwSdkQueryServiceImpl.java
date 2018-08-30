@@ -7,6 +7,7 @@ import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.apipay.ApiQueryRequestBody;
 import com.sys.boss.api.entry.trade.request.apipay.TradeApiQueryRequest;
 import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
+import com.sys.boss.api.service.trade.handler.ITradeApiQueryHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -29,7 +30,7 @@ public class GwSdkQueryServiceImpl implements GwSdkQueryService {
     private final String BIZ_NAME = "支付SDK-查询支付订单-";
 
     @Autowired
-    private ITradeApiPayHandler tradeApiPayHandler;
+    private ITradeApiQueryHandler tradeApiQueryHandler;
 
     @Autowired
     private MerchantService merchantService;
@@ -128,21 +129,27 @@ public class GwSdkQueryServiceImpl implements GwSdkQueryService {
             queryRequest.setSign(sign);
 
             logger.info(BIZ_NAME + "调用boss-trade查询订单，参数值queryRequest：" + JSON.toJSONString(queryRequest));
-            CommonResult commonResult = tradeApiPayHandler.process(queryRequest, ip);
+            CommonResult commonResult = tradeApiQueryHandler.process(queryRequest, ip);
             logger.info(BIZ_NAME + "调用boss-trade查询订单，返回值commonResult：" + JSON.toJSONString(commonResult));
 
             if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
-                Result mchtResult = (Result) commonResult.getData();
+                Map tradeData = (Map) commonResult.getData();
+                rtnMap  = JSON.parseObject ((String)tradeData.get("data"),Map.class);
+
+                logger.info(BIZ_NAME + "返回值sdk客户端原始tradeData-1---：" + JSON.toJSONString(tradeData));
+                logger.info(BIZ_NAME + "返回值sdk客户端原始tradeData-2---：" + JSON.toJSONString(rtnMap));
+
                 rtnMap.put("code", ErrorCodeEnum.SUCCESS.getCode());
                 rtnMap.put("msg", ErrorCodeEnum.SUCCESS.getDesc());
-                rtnMap.put("mchtId", mchtResult.getMchtId());
-                rtnMap.put("orderId", mchtResult.getMchtOrderNo());//商户订单号
-                rtnMap.put("payType", map.get("payType"));
-                rtnMap.put("amount", mchtResult.getOrderAmount());
-                rtnMap.put("tradeId", mchtResult.getOrderNo());//平台订单号
-                rtnMap.put("status", mchtResult.getStatus());
-                rtnMap.put("chargeTime", mchtResult.getPayTime());
-                sign = SignUtil.md5Sign(rtnMap, mchtResult.getMchtKey(), moid);// 签名
+//                rtnMap.put("mchtId", (String)tradeData.get("mchtId"));
+//                rtnMap.put("orderId", (String)tradeData.get("orderId"));//商户订单号
+//                rtnMap.put("payType", map.get("payType"));
+//                rtnMap.put("amount", (String)tradeData.get("amount"));
+//                rtnMap.put("tradeId", (String)tradeData.get("tradeId"));//平台订单号
+//                rtnMap.put("status", (String)tradeData.get("status"));
+//                rtnMap.put("chargeTime" rtnMap = tradeData;
+                logger.info(BIZ_NAME + "返回值sdk客户端原始rtnMap：" + JSON.toJSONString(rtnMap));
+                sign = SignUtil.md5Sign(rtnMap, merchant.getMchtKey(), moid);// 签名
                 rtnMap.put("sign", sign);
             } else {
                 rtnMap.put("code", ErrorCodeEnum.FAILURE.getCode());
