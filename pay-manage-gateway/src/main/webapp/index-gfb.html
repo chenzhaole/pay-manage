@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="UTF-8">
+		<title>支付页面</title>
+		
+	</head>
+	<body onload="onload();">
+		<div id="payInfo"></div>
+	<script type="text/javascript">
+     function onload(){
+        var payUrl = decodeURI(GetQueryString("payUrl"));
+        //document.write("<form action=\""+payUrl+"\" name=\"reload\" style='display:none'>");
+        var html ="<form action=\""+payUrl+"\" name=\"reload\" style='display:none'>";
+        var payInfo = window.location.search.substr(1).split("&");
+        for(j = 0; j < payInfo.length; j++) {
+        	var arr = payInfo[j].split("=");
+        	//alert("key="+arr[0]+"value="+arr[1]);
+        	if(arr[0]=="payUrl"){
+        		continue;
+        	}
+        	//document.write("<input type=\"hidden\" name=\""+ arr[0] + "\" value=\""+arr[1]+"\"");
+        	html =html + "<input type=\"hidden\" name=\""+ arr[0] + "\" value=\""+arr[1]+"\">";
+        } 
+        //document.write("</form>");
+        //document.reload.submit(); 
+        html =html +"</form>";
+        document.getElementById("payInfo").innerHTML=html;
+        document.getElementsByTagName('form')[0].submit();
+    };
+    
+    function GetQueryString(name)
+    {
+         var reg = new RegExp("(^|&)"+ name +"=([^&]*)(&|$)");
+         var r = window.location.search.substr(1).match(reg);//search,查询？后面的参数，并匹配正则
+         if(r!=null)return  unescape(r[2]); return null;
+    }
+
+</script>
+	</body>
+</html>
+
+
