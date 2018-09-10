@@ -1,5 +1,6 @@
 package com.sys.gateway.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
@@ -101,6 +102,23 @@ public class GwCashierMchtController extends GwCashierBaseController {
 					}else{
 						//先判断是否跳转上游收银台
 						if(isUseChanCashierPage(result.getData(), midoid)){
+							//国付宝单独处理
+							Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
+					        Result resultInfo = (Result) retMapInfo.get("result");
+							if(PayChannelEnum.GFB.getCode().equals(resultInfo.getExtend()) 
+									&& PayTypeEnum.QUICK_ONLINE_BANK.getCode().equals(resultInfo.getPaymentType())){
+								Map<String,String>payInfo=(Map<String,String>)JSONObject.parse(resultInfo.getPayInfo());
+								StringBuilder sb = new StringBuilder(payInfo.get("redirectUrl"));
+								payInfo.remove("redirectUrl");
+								sb.append("?");
+								for(String key:payInfo.keySet()){
+									sb.append(key).append("=").append(payInfo.get(key)).append("&");
+								}
+								String url =sb.toString();
+								url=url.substring(0,url.length()-1);
+								logger.info("国付宝跳转url"+url);
+								return "redirect:"+url;
+							}
 							//跳转到上游收银台的中转页面
 							page = "modules/chanCashier/chanCashier";
 							//跳转到上游收银台的中转页面，携带的数据
