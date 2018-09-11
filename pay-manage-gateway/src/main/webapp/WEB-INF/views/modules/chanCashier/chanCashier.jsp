@@ -29,6 +29,7 @@
         var clientPayWay = $("#clientPayWay").val();
         var payInfo = $("#payInfo").html();
         if("08" == clientPayWay){
+            payInfo = document.getElementById("payInfo").innerText;
             //掉起上游收银台支付唤起支付--url方式
             location.href = payInfo;
         }else if("09" == clientPayWay){
