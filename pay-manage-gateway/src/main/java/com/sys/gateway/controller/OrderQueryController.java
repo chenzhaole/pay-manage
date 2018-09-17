@@ -1,5 +1,6 @@
 package com.sys.gateway.controller;
 
+import com.alibaba.dubbo.common.utils.ConfigUtils;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.alibaba.fastjson.TypeReference;
@@ -11,7 +12,11 @@ import com.sys.boss.api.entry.trade.request.quickpay.TXQuickQueryRequestBody;
 import com.sys.boss.api.entry.trade.response.quickpay.TXQuickQueryOrderResponse;
 import com.sys.boss.api.service.trade.handler.ITradeQueryOrderHandler;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PayChannelEnum;
+import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.util.SignUtil;
+import com.sys.core.dao.dmo.MchtGatewayOrder;
+import com.sys.core.service.MchtGwOrderService;
 import com.sys.core.service.TaskLogService;
 import com.sys.gateway.common.IpUtil;
 import com.sys.trans.api.entry.Result;
@@ -28,6 +33,9 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLDecoder;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -46,6 +54,9 @@ public class OrderQueryController {
     private TaskLogService taskLogService;;
 
     private ExecutorService executor = Executors.newFixedThreadPool(20);
+
+    @Autowired
+    private MchtGwOrderService mchtGwOrderService;
 
     /**
      * 单笔订单查询接口
@@ -136,6 +147,56 @@ public class OrderQueryController {
         }
         logger.info("查单，返回下游商户值：" + JSON.toJSONString(queryResp));
         return JSON.toJSONString(queryResp);
+    }
+
+    /**
+     * 多笔订单查询接口 定时任务调度(10分钟内订单)
+     * @return String
+     * @throws java.io.IOException
+     */
+    @RequestMapping(value = "/gateway/queryMoreOrder")
+    @ResponseBody
+    public String queryMoreQuickOrder( HttpServletRequest request, HttpServletResponse response) throws java.io.IOException {
+        String METHOD = "多笔订单查询-";
+        //构建需要查单的查询条件
+        MchtGatewayOrder mchtGatewayOrder = new MchtGatewayOrder();
+        Date currentTime= new Date();
+        mchtGatewayOrder.setUpdateTime(currentTime);
+        logger.info("查询的结束时间为："+currentTime);
+        //int interval =Integer.valueOf(ConfigUtils.getProperty("query_order_time_interval"))*60*1000;
+        int interval =10*60*1000;
+        Date beginDate =new Date(currentTime.getTime()-interval);
+        mchtGatewayOrder.setCreateTime(beginDate);
+        logger.info("查询的开始时间为："+beginDate);
+        //查询处理中和提交成功的订单
+        //TODO:未知状态
+        mchtGatewayOrder.setStatus(PayStatusEnum.SUBMIT_SUCCESS.getCode()+","+PayStatusEnum.PROCESSING.getCode());
+        mchtGatewayOrder.setChanCode(PayChannelEnum.YINJUN.getCode());
+
+        List<MchtGatewayOrder> orders=mchtGwOrderService.morelist(mchtGatewayOrder);
+
+        if(orders == null || orders.size() ==0){
+            return null;
+        }
+
+        for(MchtGatewayOrder order: orders){
+            //封装请求参数
+            TXQuickQueryRequest mchtRequest = new TXQuickQueryRequest();
+            TXQuickQueryRequestBody body = new TXQuickQueryRequestBody();
+            TradeReqHead head = new TradeReqHead();
+            head.setBiz(order.getPayType());
+            body.setTradeId(order.getPlatOrderId());
+            mchtRequest.setHead(head);
+            mchtRequest.setBody(body);
+
+            try {
+                CommonResult commonResult = tradeQueryOrderHandler.processMore(mchtRequest);
+            }catch (Exception e){
+                logger.info("平台订单号-"+order.getPlatOrderId()+"状态查询异常");
+            }
+
+        }
+        return null;
     }
 
     /**

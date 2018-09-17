@@ -52,6 +52,31 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 
 		return null;
 	}
+	/*
+	导出修改，关联订单外币附属信息表
+	 */
+	@Override
+	public List<MchtGatewayOrder> listCurr(MchtGatewayOrder order) {
+		String url = CONFIG_URL + "orderQuery";
+		Map<String, String> params = new HashMap<>();
+		params.put("order", JSON.toJSONString(order));
+		params.put("export","true");
+		String result;
+
+		try {
+			result = HttpUtil.postConnManager(url, params);
+		} catch (Exception e) {
+			log.error("查询 Order 模块出错：", e);
+			return null;
+		}
+
+		List<MchtGatewayOrder> mchtGatewayOrders = JSON.parseArray(result, MchtGatewayOrder.class);
+
+		if (!CollectionUtils.isEmpty(mchtGatewayOrders)) {
+			return mchtGatewayOrders;
+		}
+		return null;
+	}
 
 	@Override
 	public MchtGatewayOrder queryByKey(String id) {

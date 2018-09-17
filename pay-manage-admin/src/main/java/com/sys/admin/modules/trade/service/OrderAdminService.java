@@ -14,6 +14,8 @@ public interface OrderAdminService {
 
 	List<MchtGatewayOrder> list(MchtGatewayOrder order);
 
+	List<MchtGatewayOrder> listCurr(MchtGatewayOrder order);
+
 	MchtGatewayOrder queryByKey(String id);
 
 	/**
