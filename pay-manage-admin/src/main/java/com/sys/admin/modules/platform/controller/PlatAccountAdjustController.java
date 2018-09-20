@@ -93,17 +93,24 @@ public class PlatAccountAdjustController extends BaseController {
 			PageInfo pageInfo = new PageInfo();
 			platAccountAdjust.setPageInfo(pageInfo);
 
-			if (StringUtils.isNotBlank(request.getParameter("pageNo")))
+			if (StringUtils.isNotBlank(request.getParameter("pageNo"))){
 				pageInfo.setPageNo(Integer.parseInt(request.getParameter("pageNo")));
+			}
 
-			if (StringUtils.isNotBlank(request.getParameter("pageSize")))
+			if (StringUtils.isNotBlank(request.getParameter("pageSize"))){
 				pageInfo.setPageSize(Integer.parseInt(request.getParameter("pageSize")));
+			}
 
-			if (StringUtils.isNotBlank(request.getParameter("createTime")))
+			if (StringUtils.isNotBlank(request.getParameter("createTime"))){
 				platAccountAdjust.setCreateTime(DateUtils.parseDate(request.getParameter("createTime")));
+			}
 
-			if (StringUtils.isNotBlank(request.getParameter("auditTime")))
-				platAccountAdjust.setAuditTime(DateUtils.parseDate(request.getParameter("auditTime")));
+			if (StringUtils.isNotBlank(request.getParameter("auditStartTime"))){
+				platAccountAdjust.setAuditStartTime(DateUtils.parseDate(request.getParameter("auditStartTime")));
+			}
+			if (StringUtils.isNotBlank(request.getParameter("auditEndTime"))){
+				platAccountAdjust.setAuditEndTime(DateUtils.parseDate(request.getParameter("auditEndTime")));
+			}
 
 			List<PlatAccountAdjust> list = platAccountAdjustService.list(platAccountAdjust);
 			List<PlatAccountAdjustBO> showList = new ArrayList<>(list.size());
