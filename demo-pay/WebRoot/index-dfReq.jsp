@@ -86,6 +86,7 @@
                     <span class="null-star"></span>
                     <select name="payUrl">
                         <option value="http://127.0.0.1:12080/df/gateway/req/">本地 http://127.0.0.1:12080/df/gateway/req/</option>
+                        <option value="http://127.0.0.1:8092/df/gateway/req/">本地 http://127.0.0.1:8092/df/gateway/req/</option>
                         <option value="http://114.115.206.62:12080/df/gateway/req/">开发 http://114.115.206.62:12080/df/gateway/req/</option>
                         <option value="http://114.115.206.62:12080/df/gateway/req/">测试 http://114.115.206.62:12080/df/gateway/req/</option>
                         <option value="http://api.ihengyuan.cn:17082/df/gateway/req/">生产 http://api.ihengyuan.cn:17082/df/gateway/req/</option>

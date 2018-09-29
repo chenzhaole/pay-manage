@@ -1,6 +1,7 @@
 package com.demo.util;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
 
@@ -52,7 +53,35 @@ public class SignUtil {
         platSignOrigStr = platSignOrigStr + "key=" + signkey;
         System.out.println("签名的字符串为"+platSignOrigStr);
         platSignStr = MD5Util.MD5Encode(platSignOrigStr).toUpperCase();
+        System.out.println("签名后字符串:"+ platSignStr);
         return platSignStr;
+    }
+
+
+    public static void main (String [] args) throws Exception {
+        Map<String,String> map = new HashMap();
+        map.put("orderId", "6666201808211810005746");
+        //yyyyMMddHHmmss
+        map.put("orderTime", "20180821180820");
+        map.put("amount", "1");
+        map.put("currencyType", "CNY");
+        map.put("goods", "H5");
+        map.put("notifyUrl", "http://kvpaytest.iask.in:8080/gateway/scanPayNotify/notifyLT/b3cc7816a4f6494a99b1f5b3b48b94f7");
+        map.put("callBackUrl", "");
+        map.put("desc", "");
+        map.put("appId", "");
+        map.put("appName", "");
+        map.put("operator", "");
+        map.put("expireTime", "");
+        map.put("openId", "");
+        map.put("payScene", "");
+        map.put("deviceType", "");
+        map.put("param", "");
+        map.put("ip", "");
+
+        String key = "1bd91dc5af4e400aabd253d938296bcd";
+
+        System.out.println(md5Sign(map, key));
     }
 
 }
