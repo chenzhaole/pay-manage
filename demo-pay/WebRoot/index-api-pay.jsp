@@ -118,6 +118,7 @@
                         <option value="wx000">微信</option>
                         <option value="wx101">微信H5</option>
                         <option value="wx401">微信扫码</option>
+                        <option value="wxgm001">微信固码</option>
                         <option value="al000">支付宝</option>
                         <option value="al101">支付宝H5</option>
                         <option value="al401">支付宝扫码</option>
