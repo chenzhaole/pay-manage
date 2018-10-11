@@ -329,4 +329,31 @@ public class GwCashierMchtController extends GwCashierBaseController {
 		System.out.println("测试页面");
 		return "modules/cashier/pc/test";
 	}
+
+	/**
+	 * 中间页面跳转
+	 * @param request
+	 * @param model
+	 * @return
+	 * @throws Exception
+	 */
+	@RequestMapping(value="transfer", method = RequestMethod.POST)
+	public String transfer(HttpServletRequest request, Model model) throws Exception {
+		String page = "modules/paytransfer";
+		Map<String,String[]> map = request.getParameterMap();
+		Map<String,String> paramsMap = new HashMap<>();
+		for (Map.Entry<String, String[]> entry : map.entrySet()) {
+			if("payUrl".equals(entry.getKey())){
+				continue;
+			}
+			String value = entry.getValue()!=null&&entry.getValue().length>=1?entry.getValue()[0]:"";
+			paramsMap.put(entry.getKey(),value);
+		}
+
+		String payUrl = map.get("payUrl")!=null&&map.get("payUrl").length>=1?map.get("payUrl")[0]:"";
+		logger.info("transfer接收到的数据为:map="+JSON.toJSONString(paramsMap)+",payUrl="+payUrl);
+		model.addAttribute("payUrl",payUrl);
+		model.addAttribute("map",paramsMap);
+		return page;
+	}
 }

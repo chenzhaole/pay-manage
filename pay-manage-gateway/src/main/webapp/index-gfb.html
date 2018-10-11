@@ -11,7 +11,7 @@
      function onload(){
         var payUrl = decodeURI(GetQueryString("payUrl"));
         //document.write("<form action=\""+payUrl+"\" name=\"reload\" style='display:none'>");
-        var html ="<form action=\""+payUrl+"\" name=\"reload\" style='display:none'>";
+        var html ="<form action=\""+payUrl+"\" name=\"reload\" style='display:none' method='post'>";
         var payInfo = window.location.search.substr(1).split("&");
         for(j = 0; j < payInfo.length; j++) {
         	var arr = payInfo[j].split("=");
