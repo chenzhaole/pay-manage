@@ -882,10 +882,100 @@
         </tr>
     </table>
 
+    <!-- ********************************************************************** -->
+    <div class="breadcrumb">
+        <label>
+            <th>商户充值信息</th>
+        </label>
+    </div>
+    <table class="table">
+        <tr>
+            <td colspan="2">
+                <div class="control-group">
+                    <label class="control-label">运营免审时间段</label>
+                    <div class="controls">
+                        <div class="controls">
+                            <div class="control-group">
+                                <div class="controls" style="    display: inline-block;">
+                                    开始时间
+                                    <input type="text" id="exemptReviewStartTime" value="${merchant.exemptReviewStartTime}" name="exemptReviewStartTime"
+                                           onclick="WdatePicker({skin:'whyGreen',dateFmt:'H:mm:ss'})" class="Wdate"/>
+                                </div>
+                                <div class="controls" style="    display: inline-block;">
+                                    结束时间
+                                    <input type="text" id="exemptReviewEndTime" value="${merchant.exemptReviewEndTime}" name="exemptReviewEndTime"
+                                           onclick="WdatePicker({skin:'whyGreen',dateFmt:'H:mm:ss'})" class="Wdate"/>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">运营免审金额<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <div class="controls">
+                        <input name="exemptReviewAmount" value="${merchant.exemptReviewAmount}" placeholder="" class="input-xlarge" type="text"
+                               maxlength="64">
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td >
+                <div class="control-group">
+                    <label class="control-label">充值费率</label>
+                    <div class="controls">
+                        <input name="tradeFeeAmount" value="${merchant.tradeFeeAmount}" placeholder="" class="input-nomal"
+                               type="text" />
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">公司收款账户名<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <div class="controls">
+                        <input name="compReceiptAcctName" value="${merchant.compReceiptAcctName}" placeholder="" class="input-nomal"
+                               type="text" />
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">公司收款账户号<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <div class="controls">
+                        <input name="compReceiptAcctNo" value="${merchant.compReceiptAcctNo}" placeholder="" class="input-nomal"
+                               type="text" />
+                    </div>
+                </div>
+            </td>
+        </tr>
+        <tr>
+            <td >
+                <div class="control-group">
+                    <label class="control-label">商户汇款专属尾号</label>
+                    <div class="controls">
+                        <input name="mchtRemittanceAmountSuffix" value="${merchant.mchtRemittanceAmountSuffix}" placeholder="" class="input-nomal"
+                               type="text" />
+                    </div>
+                </div>
+            </td>
+
+        </tr>
+
+    </table>
+
+
+
+
     <div class="breadcrumb">
         <input name="btnCancel" class="btn" type="button" value="返 回" onclick="window.history.go(-1);"/>
         <input name="btnSubmit" class="btn btn-primary" type="submit" value="保存" style="margin-left: 5px;">
     </div>
+
+
+
+
 
 </form>
 </body>

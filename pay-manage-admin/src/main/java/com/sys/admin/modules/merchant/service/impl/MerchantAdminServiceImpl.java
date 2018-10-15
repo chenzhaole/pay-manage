@@ -6,6 +6,8 @@ import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.MchtRechargeConfig;
+import com.sys.core.service.MchtRechargeConfigService;
 import com.sys.core.service.MerchantService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,9 @@ public class MerchantAdminServiceImpl extends BaseService implements MerchantAdm
 	@Autowired
 	MerchantService merchantService;
 
+	@Autowired
+	MchtRechargeConfigService rechargeConfigService;
+
 	@Override
 	public String addMerchantService(MerchantForm merchantForm){
 		if(merchantForm != null){
@@ -43,6 +48,9 @@ public class MerchantAdminServiceImpl extends BaseService implements MerchantAdm
 			mchtInfo.setMchtKey(IdUtil.getUUID());
 			try{
 				merchantService.create(mchtInfo);
+
+				merchantForm.setId(merchantForm.getMchtCode());
+				insertMchtRechargeConfig(merchantForm);
 				return "success";
 			}catch(Exception e){
 				return "fail";
@@ -71,6 +79,7 @@ public class MerchantAdminServiceImpl extends BaseService implements MerchantAdm
 			mchtInfo.setUpdateDate(new Date());
 			try{
 				merchantService.saveByKey(mchtInfo);
+				updateMchtRechargeConfig(merchantForm);
 				return "success";
 			}catch(Exception e){
 				return "fail";
@@ -85,6 +94,7 @@ public class MerchantAdminServiceImpl extends BaseService implements MerchantAdm
 		if(mchtInfo != null){
 			MerchantForm merchantForm = new MerchantForm();
 			BeanUtils.copyProperties(mchtInfo, merchantForm);
+			merchantForm = setRechargeConfig(merchantForm);
 			return merchantForm;
 		}
 		return null;
@@ -98,5 +108,64 @@ public class MerchantAdminServiceImpl extends BaseService implements MerchantAdm
 	@Override
 	public int mchtCount(MchtInfo mchtInfo) {
 		return merchantService.mchtCount(mchtInfo);
+	}
+
+
+	/**
+	 * 添加商户充值配置信息
+	 * 2018-09-26 10:31:02
+	 * @param merchantForm
+	 * @return
+	 */
+	public Integer insertMchtRechargeConfig(MerchantForm merchantForm){
+		MchtRechargeConfig rechargeConfig = getRechargeConfig(merchantForm);
+		return rechargeConfigService.insertMchtRechargeConfig(rechargeConfig);
+	}
+
+
+	/**
+	 * 更新商户充值配置信息
+	 * 2018-09-26 10:34:35
+	 * @param merchantForm
+	 * @return
+	 */
+	public Integer updateMchtRechargeConfig(MerchantForm merchantForm){
+
+		MchtRechargeConfig dbRechargeConfig = rechargeConfigService.findByRechargeConfigMchtId(merchantForm.getId());
+		if(dbRechargeConfig == null){
+			return insertMchtRechargeConfig(merchantForm);
+		}else{
+			MchtRechargeConfig rechargeConfig = getRechargeConfig(merchantForm);
+			return rechargeConfigService.updateMchtRechargeConfig(rechargeConfig);
+		}
+	}
+
+	public MchtRechargeConfig getRechargeConfig(MerchantForm merchantForm){
+		MchtRechargeConfig rechargeConfig = new MchtRechargeConfig();
+		rechargeConfig.setMchtId(merchantForm.getId());
+		rechargeConfig.setExemptReviewStartTime(merchantForm.getExemptReviewStartTime());
+		rechargeConfig.setExemptReviewEndTime(merchantForm.getExemptReviewEndTime());
+		rechargeConfig.setExemptReviewAmount(merchantForm.getExemptReviewAmount());
+		rechargeConfig.setTradeFeeAmount(merchantForm.getTradeFeeAmount());
+		rechargeConfig.setCompReceiptAcctName(merchantForm.getCompReceiptAcctName());
+		rechargeConfig.setCompReceiptAcctNo(merchantForm.getCompReceiptAcctNo());
+		rechargeConfig.setMchtRemittanceAmountSuffix(merchantForm.getMchtRemittanceAmountSuffix());
+		return rechargeConfig;
+	}
+
+
+	public MerchantForm setRechargeConfig(MerchantForm merchantForm){
+		MchtRechargeConfig rechargeConfig = rechargeConfigService.findByRechargeConfigMchtId(merchantForm.getMchtCode());
+		if(rechargeConfig == null){
+			return merchantForm;
+		}
+		merchantForm.setExemptReviewStartTime(rechargeConfig.getExemptReviewStartTime());
+		merchantForm.setExemptReviewEndTime(rechargeConfig.getExemptReviewEndTime());
+		merchantForm.setExemptReviewAmount(rechargeConfig.getExemptReviewAmount());
+		merchantForm.setTradeFeeAmount(rechargeConfig.getTradeFeeAmount());
+		merchantForm.setCompReceiptAcctName(rechargeConfig.getCompReceiptAcctName());
+		merchantForm.setCompReceiptAcctNo(rechargeConfig.getCompReceiptAcctNo());
+		merchantForm.setMchtRemittanceAmountSuffix(rechargeConfig.getMchtRemittanceAmountSuffix());
+		return merchantForm;
 	}
 }

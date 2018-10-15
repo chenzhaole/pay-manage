@@ -1,6 +1,7 @@
 package com.sys.admin.modules.merchant.bo;
 
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.util.DateUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -175,6 +176,25 @@ public class MerchantForm {
 	private String isShowPayResultPage;//是否展示支付结果页
 	private String mchtPropertyTag;//商户标签
 
+	//商户充值信息
+
+	//运营免审开始时间
+	private String exemptReviewStartTime;
+	//运营免审结束时间
+	private String exemptReviewEndTime;
+	//免审金额
+	private BigDecimal exemptReviewAmount;
+	//交易手续费金额，单位:分
+	private BigDecimal tradeFeeAmount;
+	//公司收款账户号
+	private String compReceiptAcctNo;
+	//公司收款账户名称
+	private String compReceiptAcctName;
+	//公司汇款尾数
+	private String mchtRemittanceAmountSuffix;
+
+
+
 	public MerchantForm() {
 	}
 
@@ -264,6 +284,13 @@ public class MerchantForm {
 			this.signType = signType.substring(0, signType.length() - 1);
 		}
 
+		this.exemptReviewStartTime = requestMap.get("exemptReviewStartTime") ;
+		this.exemptReviewEndTime = requestMap.get("exemptReviewEndTime") ;
+		this.exemptReviewAmount = requestMap.get("exemptReviewAmount") == null ? null : new BigDecimal(requestMap.get("exemptReviewAmount"));
+		this.tradeFeeAmount = requestMap.get("tradeFeeAmount") == null ? null : new BigDecimal(requestMap.get("tradeFeeAmount"));
+		this.compReceiptAcctNo = requestMap.get("compReceiptAcctNo");
+		this.compReceiptAcctName = requestMap.get("compReceiptAcctName");
+		this.mchtRemittanceAmountSuffix = requestMap.get("mchtRemittanceAmountSuffix");
 	}
 
 	public String getCertPath1() {
@@ -1007,4 +1034,61 @@ public class MerchantForm {
     public void setMchtPropertyTag(String mchtPropertyTag) {
         this.mchtPropertyTag = mchtPropertyTag;
     }
+
+
+	public BigDecimal getExemptReviewAmount() {
+		return exemptReviewAmount;
+	}
+
+	public void setExemptReviewAmount(BigDecimal exemptReviewAmount) {
+		this.exemptReviewAmount = exemptReviewAmount;
+	}
+
+	public BigDecimal getTradeFeeAmount() {
+		return tradeFeeAmount;
+	}
+
+	public void setTradeFeeAmount(BigDecimal tradeFeeAmount) {
+		this.tradeFeeAmount = tradeFeeAmount;
+	}
+
+	public String getCompReceiptAcctNo() {
+		return compReceiptAcctNo;
+	}
+
+	public void setCompReceiptAcctNo(String compReceiptAcctNo) {
+		this.compReceiptAcctNo = compReceiptAcctNo;
+	}
+
+	public String getCompReceiptAcctName() {
+		return compReceiptAcctName;
+	}
+
+	public void setCompReceiptAcctName(String compReceiptAcctName) {
+		this.compReceiptAcctName = compReceiptAcctName;
+	}
+
+	public String getMchtRemittanceAmountSuffix() {
+		return mchtRemittanceAmountSuffix;
+	}
+
+	public void setMchtRemittanceAmountSuffix(String mchtRemittanceAmountSuffix) {
+		this.mchtRemittanceAmountSuffix = mchtRemittanceAmountSuffix;
+	}
+
+	public String getExemptReviewStartTime() {
+		return exemptReviewStartTime;
+	}
+
+	public void setExemptReviewStartTime(String exemptReviewStartTime) {
+		this.exemptReviewStartTime = exemptReviewStartTime;
+	}
+
+	public String getExemptReviewEndTime() {
+		return exemptReviewEndTime;
+	}
+
+	public void setExemptReviewEndTime(String exemptReviewEndTime) {
+		this.exemptReviewEndTime = exemptReviewEndTime;
+	}
 }

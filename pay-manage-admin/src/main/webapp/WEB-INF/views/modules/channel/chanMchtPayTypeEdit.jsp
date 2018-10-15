@@ -848,6 +848,48 @@
             </td>
         </tr>
     </table>
+
+
+    <!-- ********************************************************************** -->
+    <div class="breadcrumb">
+        <label>账务信息</label>
+    </div>
+    <table class="table">
+        <tr>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">账务信息</label>
+                    <div class="controls">
+                        <!--      `trade_type` varchar(2) DEFAULT NULL COMMENT '交易类型，0:默认保留，1:支付，2:代付，3:调账，4:退款，5:清分 6,充值',-->
+                        <select name="accType" class="input-xlarge" id="accType">
+                            <option value="">无</option>
+                            <option
+                                    <c:if test="${chanMchPaytye.accType == 1}">selected</c:if> value="1">支付
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.accType == 2}">selected</c:if> value="2">代付
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.accType == 3}">selected</c:if> value="3">调账
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.accType == 4}">selected</c:if> value="4">退款
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.accType == 5}">selected</c:if> value="5">清分
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.accType == 6}">selected</c:if> value="6">充值
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+
+        </tr>
+    </table>
+
+
     <div class="breadcrumb">
         <input name="btnCancel" class="btn center-block" type="button" value="返 回" onclick="window.history.go(-1);"/>
         <input name="btnSubmit" class="btn btn-primary" type="submit" value="保存" style="margin-left: 5px;">
