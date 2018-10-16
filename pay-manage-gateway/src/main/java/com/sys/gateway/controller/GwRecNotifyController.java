@@ -25,9 +25,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.net.URLDecoder;
-import java.util.Enumeration;
-import java.util.HashMap;
-import java.util.TreeMap;
+import java.util.*;
 
 /**
  * 接收通道异步通知
@@ -162,13 +160,27 @@ public class GwRecNotifyController {
         String resp2chan = "FAILURE";
         try {
             TreeMap<String, String> dataMap = new TreeMap<String, String>();
-            Enumeration<?> temp = request.getParameterNames();
-            if (null != temp) {
-                while (temp.hasMoreElements()) {
-                    String en = (String) temp.nextElement();
-                    String value = request.getParameter(en);
-                    dataMap.put(en, value);
+//            Enumeration<?> temp = request.getParameterNames();
+//            if (null != temp) {
+//                while (temp.hasMoreElements()) {
+//                    String en = (String) temp.nextElement();
+//                    String value = request.getParameter(en);
+//                    dataMap.put(en, value);
+//                }
+//            }
+            //修改为这种，可能有数组问题支付宝
+            Map requestParams = request.getParameterMap();
+            for (Iterator iter = requestParams.keySet().iterator(); iter.hasNext();) {
+                String name = (String) iter.next();
+                String[] values = (String[]) requestParams.get(name);
+                String valueStr = "";
+                for (int i = 0; i < values.length; i++) {
+                    valueStr = (i == values.length - 1) ? valueStr + values[i]
+                            : valueStr + values[i] + ",";
                 }
+                //乱码解决，这段代码在出现乱码时使用。
+                //valueStr = new String(valueStr.getBytes("ISO-8859-1"), "utf-8");
+                dataMap.put(name, valueStr);
             }
             String data = JSON.toJSONString(dataMap);
             logger.info(BIZ+" parameter数据 [START] chanCode=" + chanCode + " platOrderId=" + platOrderId + " 异步通知原始报文data="+ data + "");

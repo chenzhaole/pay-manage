@@ -29,6 +29,9 @@
 	<dubbo:reference id="mchtGwOrderService" interface="com.sys.core.service.MchtGwOrderService" timeout="30000"/>
 	<dubbo:reference id="merchantService" interface="com.sys.core.service.MerchantService" timeout="30000"/>
 	<dubbo:reference id="taskLogService" interface="com.sys.core.service.TaskLogService" timeout="30000"/>
+	<!--sdk配置信息获取-->
+	<dubbo:reference id="mchtProductService" interface="com.sys.core.service.MchtProductService" timeout="30000"/>
+	<dubbo:reference id="productService" interface="com.sys.core.service.ProductService" timeout="30000"/>
 
 
 

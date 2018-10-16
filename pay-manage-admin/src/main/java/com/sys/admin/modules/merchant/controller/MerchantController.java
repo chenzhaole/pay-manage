@@ -338,6 +338,9 @@ public class MerchantController extends BaseController {
 				if(extend2Json.containsKey("isShowPayResultPage")){
 					mchtInfo.setIsShowPayResultPage(extend2Json.getString("isShowPayResultPage"));
 				}
+				if(extend2Json.containsKey("isShowPayPage")){
+					mchtInfo.setIsShowPayPage(extend2Json.getString("isShowPayPage"));
+				}
 				if(extend2Json.containsKey("mchtPropertyTag")){
 					String mchtPropertyTagStr = extend2Json.getString("mchtPropertyTag");
 					if(mchtPropertyTagStr.contains("&")){
@@ -454,6 +457,7 @@ public class MerchantController extends BaseController {
 				JSONObject extend2Json = new JSONObject();
 				extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
 				extend2Json.put("mchtPropertyTag", this.geneMchtPropertyTagStr(merchantForm.getMchtPropertyTag()));
+				extend2Json.put("isShowPayPage",merchantForm.getIsShowPayPage());
 				merchantForm.setExtend2(extend2Json.toJSONString());
         		String result = merchantAdminService.addMerchantService(merchantForm);
         		if("success".equals(result)){
@@ -498,6 +502,11 @@ public class MerchantController extends BaseController {
 							}
 							extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
 
+							if (extend2Json.containsKey("isShowPayPage")) {
+								extend2Json.remove("isShowPayPage");
+							}
+							extend2Json.put("isShowPayPage", merchantForm.getIsShowPayPage());
+
 							//设置mchtPropertyTag的值
 							if (extend2Json.containsKey("mchtPropertyTag")) {
 								extend2Json.remove("mchtPropertyTag");
@@ -510,6 +519,8 @@ public class MerchantController extends BaseController {
 							extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
 							//设置mchtPropertyTag的值
 							extend2Json.put("mchtPropertyTag", merchantForm.getMchtPropertyTag());
+
+							extend2Json.put("isShowPayPage", merchantForm.getIsShowPayPage());
 						}
 						merchantForm.setExtend2(extend2Json.toJSONString());
                     }
