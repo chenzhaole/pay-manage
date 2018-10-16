@@ -185,13 +185,27 @@ public class PlatformController extends BaseController {
 		} else if (payType.endsWith("000")) {
 			subPro = true;
 			String payChan = payType.split("000")[0];
-
+			//遍历组合支付类型
+			List<String> payTypeList = new ArrayList<String>();
+			for(PayTypeEnum payTypeEnum: PayTypeEnum.values()){
+				if(payTypeEnum.getCode().endsWith("000")){
+					payTypeList.add(payTypeEnum.getCode().split("000")[0]);
+				}
+			}
 			//子产品不可选收银台和组合产品，只可选组合产品相关的产品
 			List<ProductFormInfo> productTemps = productAdminService.getProductList(new ProductFormInfo());
 			if (!CollectionUtils.isEmpty(productTemps)) {
 				for (ProductFormInfo productTemp : productTemps) {
 					if (PayTypeEnum.CASHIER_PLAT.getCode().equals(productTemp.getPayType()) ||
 							productTemp.getPayType().endsWith("000")) {
+						continue;
+					}
+					//sdk组合支付类型包括所有的细粒度的产品
+					if(PayTypeEnum.SDK_GROUP.getCode().split("000")[0].equals(payChan) ){
+						if(payTypeList.contains(productTemp.getPayType().replaceAll("\\d",""))){
+							logger.info(productTemp.getPayType().replaceAll("\\d",""));
+							productInfos.add(productTemp);
+						}
 						continue;
 					}
 					if (productTemp.getPayType().startsWith(payChan)){

@@ -869,6 +869,20 @@
                     <p class="help-block"></p>
                 </div>
             </td>
+            <td>
+                <label class="control-label">是否展示支付页</label>
+                <div class="controls">
+                    <div class="input-prepend">
+                        <select style="width:50px;" name="isShowPayPage">
+                            <option value="0" <c:if test="${merchant.isShowPayPage == '0'}">selected</c:if>>否
+                            </option>
+                            <option value="1" <c:if test="${merchant.isShowPayPage == '1'}">selected</c:if>>是
+                            </option>
+                        </select>
+                    </div>
+                    <p class="help-block"></p>
+                </div>
+            </td>
             <td colspan="3">
                 <div class="control-group">
                     <label class="control-label" for="mchtPropertyTag">商户标签（半角逗号分隔）</label>

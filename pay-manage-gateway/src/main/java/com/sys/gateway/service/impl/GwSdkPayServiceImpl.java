@@ -1,13 +1,18 @@
 package com.sys.gateway.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.apipay.ApiPayRequestBody;
 import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
 import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
+import com.sys.common.enums.ClientPayWayEnum;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.util.DesUtil32;
+import com.sys.common.util.IdUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.MerchantService;
@@ -20,6 +25,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -162,8 +168,16 @@ public class GwSdkPayServiceImpl implements GwSdkPayService {
                 rtnMap.put("msg", ErrorCodeEnum.SUCCESS.getDesc());
                 rtnMap.put("mchtId", mchtResult.getMchtId());
                 rtnMap.put("orderId", mchtResult.getMchtOrderNo());//商户订单号
-                rtnMap.put("payType", map.get("payType"));
-                rtnMap.put("payInfo", mchtResult.getPayInfo());
+                if(ClientPayWayEnum.SCAN_INSIDE.getCode().equals(mchtResult.getClientPayWay())) {
+                    rtnMap.put("payInfo",this.geneQrcodeUrl(mchtResult.getQrCodeDomain(),mchtResult.getPayInfo()));
+                }else if(ClientPayWayEnum.H5_FORM.getCode().equals(mchtResult.getClientPayWay()) ||
+                        ClientPayWayEnum.CHAN_CASHIER_FORM.getCode().equals(mchtResult.getClientPayWay())){
+                    rtnMap.put("payInfo",this.getFromUrl(mchtResult.getQrCodeDomain(),mchtResult.getPayInfo()));
+                }else {
+                    rtnMap.put("payInfo", mchtResult.getPayInfo());
+                }
+
+                rtnMap.put("payType", mchtResult.getPaymentType());
                 rtnMap.put("tradeId", mchtResult.getOrderNo());//平台订单号
                 sign = SignUtil.md5Sign(rtnMap, mchtKey, mchtId + "-" + mchtResult.getOrderNo());// 签名
                 rtnMap.put("sign", sign);
@@ -180,6 +194,40 @@ public class GwSdkPayServiceImpl implements GwSdkPayService {
         logger.info(BIZ_NAME + "返回gateway客户端:" + JSON.toJSONString(rtnMap));
         return rtnMap;
     }
+
+    private String geneQrcodeUrl(String qrCodeDomain, String qrCodepayInfo) {
+        String payInfo = "";
+        try {
+            String seq = IdUtil.getUUID();
+            String url = "http://"+qrCodeDomain+"/qrCode/gen";
+            Map<String, String> desData = new HashMap();
+            desData.put("seq", seq);
+            desData.put("qrCodepayInfo", qrCodepayInfo);
+            String desResult = DesUtil32.encode(JSONObject.toJSONString(desData), "Zhrt2018");
+            logger.info("生成二维码之前对数据进行des加密，密钥为：Zhrt2018"+"，加密后的值为："+desResult);
+            payInfo = url + "?uuid=" + URLEncoder.encode(qrCodepayInfo, "UTF-8")+"&seq="+seq+"&data="+desResult;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.info("扫码支付，自己封装的二维码url："+payInfo);
+        return payInfo;
+    }
+
+    private String getFromUrl(String qrCodeDomain, String payInfo) {
+        try {
+
+            String url = "http://"+qrCodeDomain+"/form/data";
+            String desResult = DesUtil32.encode(payInfo, "Zhrt2018");
+            logger.info("生成二维码之前对数据进行des加密，密钥为：Zhrt2018"+"，加密后的值为："+desResult);
+            payInfo = url + "?data="+desResult;
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.info("from表单，自己封装的url："+payInfo);
+        return payInfo;
+    }
+
+
 
 
 }

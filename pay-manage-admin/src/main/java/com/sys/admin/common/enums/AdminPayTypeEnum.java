@@ -25,6 +25,7 @@ public enum AdminPayTypeEnum {
 	ALIPAY_GROUP("al000","支付宝组合支付类型"),
 	ALIPAY_H5("al101","支付宝H5支付"),
 	ALIPAY_ONLINE_SCAN2WAP("al102","支付宝扫码转H5"),
+	ALIPAY_APP( "al201", "支付宝APP"),
 	ALIPAY_ONLINE_QRCODE("al401","支付宝扫码"),
 	ALIPAY_BARCODE("al501", "支付宝付款码支付"),
 
@@ -65,6 +66,7 @@ public enum AdminPayTypeEnum {
 	QUICK_ONLINE_BANK ("qj301", "网银/网银退款支付"),
 
 
+	SDK_GROUP("sdk000","sdk组合支付类型")
 	;
 
 	private String code;
