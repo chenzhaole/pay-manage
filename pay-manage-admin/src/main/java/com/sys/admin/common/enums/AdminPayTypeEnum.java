@@ -19,6 +19,7 @@ public enum AdminPayTypeEnum {
 	WX_BARCODE("wx501", "微信付款码支付"),
 	WX_BARCODE_PC("wx502","微信付款码包装成PC支付"),
 	WX_BARCODE_H5("wx503","微信付款码包装成H5支付"),
+	WX_GM("wxgm001","微信固码"),
 
 	//支付宝--以al开头
 	ALIPAY_GROUP("al000","支付宝组合支付类型"),

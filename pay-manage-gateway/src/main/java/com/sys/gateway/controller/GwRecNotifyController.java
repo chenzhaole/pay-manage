@@ -7,6 +7,7 @@ import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PageTypeEnum;
+import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.util.BeanUtils;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.service.GwRecNotifyService;
@@ -70,20 +71,22 @@ public class GwRecNotifyController {
                     //通知商户信息源
                     CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
                     logger.info(BIZ + platOrderId + "，bossTrade查询的缓存订单Trade对象:" + JSON.toJSONString(redisOrderTrade));
-                    CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
-                    if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
-                        logger.info(BIZ + platOrderId + "，通知商户成功");
-                    } else {
-                        logger.info(BIZ + platOrderId + "，通知商户失败");
-                        //开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
-                        new Thread("Thread-name-"+platOrderId){
-                            @Override
-                            public void run() {
-                                int count = 1;//开始补抛
-                                logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,count="+count+",payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
-                                throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count);
-                            }
-                        }.start();
+                    if(PayStatusEnum.PAY_SUCCESS.getCode().equals(redisOrderTrade.getCacheOrder().getStatus())){
+                        CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
+                        if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
+                            logger.info(BIZ + platOrderId + "，通知商户成功");
+                        } else {
+                            logger.info(BIZ + platOrderId + "，通知商户失败");
+                            //开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
+                            new Thread("Thread-name-"+platOrderId){
+                                @Override
+                                public void run() {
+                                    int count = 1;//开始补抛
+                                    logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,count="+count+",payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                                    throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count);
+                                }
+                            }.start();
+                        }
                     }
                 }
             } else {
@@ -196,20 +199,22 @@ public class GwRecNotifyController {
                     //通知商户信息源
                     CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
                     logger.info(BIZ + platOrderId + "，bossTrade查询的缓存订单Trade对象:" + JSON.toJSONString(redisOrderTrade));
-                    CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
-                    if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
-                        logger.info(BIZ + platOrderId + "，通知商户成功");
-                    } else {
-                        logger.info(BIZ + platOrderId + "，通知商户失败");
-                        //开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
-                        new Thread("Thread-name-"+platOrderId){
-                            @Override
-                            public void run() {
-                                int count = 1;//开始补抛
-                                logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,count="+count+",payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
-                                throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count);
-                            }
-                        }.start();
+                    if(PayStatusEnum.PAY_SUCCESS.getCode().equals(redisOrderTrade.getCacheOrder().getStatus())){
+                        CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
+                        if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
+                            logger.info(BIZ + platOrderId + "，通知商户成功");
+                        } else {
+                            logger.info(BIZ + platOrderId + "，通知商户失败");
+                            //开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
+                            new Thread("Thread-name-"+platOrderId){
+                                @Override
+                                public void run() {
+                                    int count = 1;//开始补抛
+                                    logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,count="+count+",payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                                    throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count);
+                                }
+                            }.start();
+                        }
                     }
                 }
             }else{

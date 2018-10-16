@@ -182,6 +182,7 @@
                             <option value="wx401">微信扫码支付</option>
                             <option value="wx502">微信付款码包装成PC支付</option>
                             <option value="wx503">微信付款码包装成h5支付</option>
+                            <option value="wxgm001">微信固码</option>
                             <option value="al000">支付宝组合支付类型</option>
                             <option value="al101">支付宝h5支付</option>
                             <option value="al102">支付宝扫码转h5支付</option>
