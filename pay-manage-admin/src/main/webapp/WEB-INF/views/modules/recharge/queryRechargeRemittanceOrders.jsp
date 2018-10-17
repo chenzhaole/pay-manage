@@ -125,12 +125,12 @@
                             <option value="operate_refuse"
                                     <c:if test="${orderInfo.auditStatus eq 'operate_refuse'}">
                                         selected
-                                    </c:if> 运营审核未通过>
+                                    </c:if> >运营审核未通过
                             </option>
                             <option value="no_need_audit"
                                     <c:if test="${orderInfo.auditStatus eq 'no_need_audit'}">
                                         selected
-                                    </c:if> 无需审核>
+                                    </c:if> >无需审核
                             </option>
                         </select>
                     </div>
@@ -188,7 +188,7 @@
             <td>${orderInfo.mchtId}</td>
             <td>${orderInfo.platOrderId}</td>
             <td><fmt:formatNumber type="number" value="${orderInfo.amount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
-            <td>${orderInfo.rechargeConfig.tradeFeeAmount}</td>
+            <td>${orderInfo.mchtFeeAmount}</td>
             <td>${orderInfo.rechargeConfig.compReceiptAcctNo}</td>
             <td>${orderInfo.rechargeConfig.compReceiptAcctName}</td>
             <td><fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
@@ -213,16 +213,20 @@
                     无需审核
                 </c:if>
             </td>
-            <shiro:hasPermission name="order:list:op">
+
                 <td>
-                    <c:if test="${orderInfo.auditStatus eq 'created'}">
-                        <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}">客服审批</a>
-                    </c:if>
-                    <c:if test="${orderInfo.auditStatus eq 'customer_pass'}">
-                        <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}">运营审批</a>
-                    </c:if>
+                    <shiro:hasPermission name="mcht:proxy:customer">
+                        <c:if test="${orderInfo.auditStatus eq 'created'}">
+                            <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}">客服审批</a>
+                        </c:if>
+                    </shiro:hasPermission>
+                    <shiro:hasPermission name="mcht:proxy:operate">
+                        <c:if test="${orderInfo.auditStatus eq 'customer_pass'}">
+                            <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}">运营审批</a>
+                        </c:if>
+                    </shiro:hasPermission>
                 </td>
-            </shiro:hasPermission>
+
         </tr>
     </c:forEach>
     </tbody>

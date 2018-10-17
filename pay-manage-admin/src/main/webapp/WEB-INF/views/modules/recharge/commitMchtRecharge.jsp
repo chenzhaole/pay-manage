@@ -24,9 +24,15 @@
     <script type="text/javascript">
         function chongZhiOnClick(val) {
             if(val == 1){
+                $("#chongzhi_recharge_id").attr("checked","checked");
+                $("#pay_recharge_id").removeAttr("checked");
+
                 document.getElementById("huikuang_id").style="display:block";
                 document.getElementById("zhifu_id").style="display:none";
             }else if(val == 2){
+                $("#pay_recharge_id").attr("checked","checked");
+                $("#chongzhi_recharge_id").removeAttr("checked");
+
                 document.getElementById("huikuang_id").style="display:none";
                 document.getElementById("zhifu_id").style="display:block";
             }else{
@@ -39,11 +45,13 @@
         function submitRecharge() {
             //1 汇款充值  2 支付充值
             //充值类型
-            var rechargeType = $("input[name='rechargeType']").val();
+            var rechargeType = $("input[name='rechargeType']:checked").val();
+
             var rechargeAmount = 0;
             var payAmount = 0;
 
             if(1 == rechargeType){
+
                 //充值金额
                 rechargeAmount = $("#rechargeAmountId").val();
                 if(Number(rechargeAmount) <= 1000){
@@ -56,18 +64,21 @@
                     alert('请上传支付凭证.');
                     return false;
                 }
+                $("#rechargeFromId").submit();
             }else if(2 == rechargeType){
                 //支付金额
                 payAmount = $("#payAmountId").val();
-                if(Number(payAmount) <= 1000){
+                if(Number(payAmount) <= 10){
                     alert('金额需大于1000元');
                     return false;
                 }
+                $("#rechargeFromId").attr("action", "${ctx}/mchtRecharge/commitMchtRechargePayInfo")
+                $("#rechargeFromId").submit();
             }else{
                 alert('请选择支付类型');
                 return false;
             }
-            $("#rechargeFromId").submit();
+
         }
     </script>
     <script type="text/javascript" src="${ctxStatic}/js/img_upload/pictureHandle.js"/>
@@ -89,10 +100,10 @@
             充值方式:
         </span>
         <span style="margin-left: 5%">
-            <input type="radio" checked="checked" name="rechargeType" onclick="chongZhiOnClick('1')" value="1"/>&nbsp;&nbsp;汇款充值
+            <input type="radio" id="chongzhi_recharge_id" checked="checked" name="rechargeType" onclick="chongZhiOnClick('1')" value="1"/>&nbsp;&nbsp;汇款充值
         </span>
         <span style="margin-left: 5%">
-            <input type="radio" name="rechargeType" value="2" onclick="chongZhiOnClick('2')"/>&nbsp;&nbsp;支付充值
+            <input type="radio" id="pay_recharge_id" name="rechargeType" value="2" onclick="chongZhiOnClick('2')"/>&nbsp;&nbsp;支付充值
         </span>
     </div>
     <div id="huikuang_id">

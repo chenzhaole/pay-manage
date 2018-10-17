@@ -149,6 +149,7 @@
                             <option selected="selected" value="http://114.115.206.62:12080/gateway/cashier/mchtCall">开发 http://114.115.206.62:12080/gateway/cashier/mchtCall</option>
                             <option value="http://114.115.206.62:12080/gateway/cashier/mchtCall">测试 http://114.115.206.62:12080/gateway/cashier/mchtCall</option>
                             <option value="http://106.2.6.41:12080/gateway/cashier/mchtCall">生产 http://106.2.6.41:12080/gateway/cashier/mchtCall</option>
+                            <option value="http://106.2.6.41:12680/gateway/cashier/mchtCall">AWS http://106.2.6.41:12680/gateway/cashier/mchtCall</option>
                         </select>
                         <span class="null-star">(payUrl)*</span>
                         <span></span>

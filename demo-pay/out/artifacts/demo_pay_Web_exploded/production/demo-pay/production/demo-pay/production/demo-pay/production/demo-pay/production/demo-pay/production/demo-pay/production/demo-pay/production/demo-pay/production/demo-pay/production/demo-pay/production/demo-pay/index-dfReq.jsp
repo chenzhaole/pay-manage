@@ -90,6 +90,7 @@
                         <option value="http://114.115.206.62:12080/df/gateway/req/">开发 http://114.115.206.62:12080/df/gateway/req/</option>
                         <option value="http://114.115.206.62:12080/df/gateway/req/">测试 http://114.115.206.62:12080/df/gateway/req/</option>
                         <option value="http://api.ihengyuan.cn:17082/df/gateway/req/">生产 http://api.ihengyuan.cn:17082/df/gateway/req/</option>
+                        <option value="http://13.251.217.11:17082/df/gateway/req/">AWS http://13.251.217.11:17082/df/gateway/req/</option>
                     </select>
 
                     <span class="null-star">(payUrl)*</span>
