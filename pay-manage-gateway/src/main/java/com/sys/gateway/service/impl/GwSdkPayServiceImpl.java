@@ -138,7 +138,7 @@ public class GwSdkPayServiceImpl implements GwSdkPayService {
             TradeApiPayRequest tradeRequest = new TradeApiPayRequest();
             ApiPayRequestBody body = new ApiPayRequestBody();
             TradeReqHead head = new TradeReqHead();
-            head.setBiz((String) map.get("payType"));
+            head.setBiz((String) map.get("payType")+","+PayTypeEnum.SDK_GROUP.getCode());
             head.setMchtId(mchtId);
             head.setVersion((String) map.get("version"));
             body.setOrderId(mchtOrderId);
