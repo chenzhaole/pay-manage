@@ -160,10 +160,6 @@ public class GwSdkConfigServiceImpl implements GwSdkConfigService {
 //                }
                 //TODO:网关支付，wap支付
             }
-            if(StringUtils.isNotEmpty(merchant.getServiceQq()))
-            defaultPaySdkMap.put("serviceQQ",merchant.getServiceQq());
-            if(StringUtils.isNotEmpty(merchant.getServicePhone()))
-            defaultPaySdkMap.put("serviceTel",merchant.getServicePhone());
             defaultPaySdkMap.put("version",map.get("version"));
 
 
