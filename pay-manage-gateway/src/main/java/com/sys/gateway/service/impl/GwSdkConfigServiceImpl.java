@@ -154,9 +154,10 @@ public class GwSdkConfigServiceImpl implements GwSdkConfigService {
                         }
                         responseMap(defaultPaySdkMap,subPlatProduct1.getPayType());
                     }
-                }else{
-                   responseMap(defaultPaySdkMap,platProduct1.getPayType());
                 }
+//                else{
+//                   responseMap(defaultPaySdkMap,platProduct1.getPayType());
+//                }
                 //TODO:网关支付，wap支付
             }
             if(StringUtils.isNotEmpty(merchant.getServiceQq()))
