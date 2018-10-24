@@ -17,7 +17,9 @@ import com.sys.boss.api.service.trade.handler.ITradeDFCreateHandler;
 import com.sys.boss.api.service.trade.handler.ITradeDFQueryChanHandler;
 import com.sys.boss.api.service.trade.handler.ITradeDFQueryPlatHandler;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.util.PostUtil;
 import com.sys.core.service.TaskLogService;
+import com.sys.gateway.common.ConfigUtil;
 import com.sys.gateway.common.IpUtil;
 import com.sys.trans.api.entry.Trade;
 import org.apache.commons.lang3.StringUtils;
@@ -53,6 +55,9 @@ public class GwDFController {
     @Autowired
     private TaskLogService taskLogService;
 
+
+
+    private static final String CREATED_DF_ORDER_URL = ConfigUtil.getValue("created_df_order_url");
     /**
      * 代付请求接口
      */
@@ -241,7 +246,7 @@ public class GwDFController {
      * -查询代付状态为 审核中 的代付订单，并向上游发起
      * -若余额不足或查询余额失败，将代付状态置为 审核通过
      */
-    @RequestMapping("taskProxyPayFirstTime")
+    /*@RequestMapping("taskProxyPayFirstTime")
     @ResponseBody
     public String taskProxyPayFirstTime(@RequestParam(required = false,value = "id") Integer logId){
 //        logger.debug("代付API，【定时任务发起代付】任务执行logId开始："+logId);
@@ -249,7 +254,7 @@ public class GwDFController {
         taskLogService.recordLog(logId,result);
         logger.info("代付API，【定时任务发起代付】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
         return "ok";
-    }
+    }*/
 
     /**
      * 定时发起代付
@@ -258,10 +263,19 @@ public class GwDFController {
     @RequestMapping("taskProxyPay")
     @ResponseBody
     public String taskProxyPay(@RequestParam(required = false,value = "id") Integer logId){
-        logger.debug("代付API，【定时任务发起代付】任务执行logId开始："+logId);
-        CommonResult result = tradeDFBatchHandler.process(false);
+        logger.debug("代付下单API，【定时任务发起代付】任务执行logId开始："+logId);
+        //CommonResult result = tradeDFBatchHandler.process(false);
+        CommonResult result = new CommonResult();
+        try {
+            String res = PostUtil.postMsg((CREATED_DF_ORDER_URL), "false");
+            logger.debug("代付下单API，【定时任务发起代付】任务执行logId开始："+logId+",res"+ res);
+            result = JSON.parseObject(res, CommonResult.class);
+        } catch (Exception e) {
+            logger.error("代付基类调用TranWeb异常,errorMsg=" + e.getMessage(), e);
+            result.setRespMsg(e.getMessage());
+        }
         taskLogService.recordLog(logId,result);
-        logger.info("代付API，【定时任务发起代付】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
+        logger.info("代付下单API，【定时任务发起代付】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
         return "ok";
     }
 
