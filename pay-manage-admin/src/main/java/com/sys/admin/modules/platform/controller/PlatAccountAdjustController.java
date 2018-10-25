@@ -119,6 +119,8 @@ public class PlatAccountAdjustController extends BaseController {
 			Page page = new Page(pageInfo.getPageNo(), pageInfo.getPageSize(), count, true);
 			model.addAttribute("list", list);
 			model.addAttribute("page", page);
+			model.addAttribute("auditStartTime", request.getParameter("auditStartTime"));
+			model.addAttribute("auditEndTime", request.getParameter("auditEndTime"));
 
 			//初始化商户名称
 			List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());

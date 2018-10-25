@@ -34,6 +34,8 @@
         </property>
         <property name="filterChainDefinitions">            <value>
                 /static/** = anon
+                /images/** =anon
+                ${adminPath}/rechargeNotify/** = anon
                 ${adminPath}/login = authc
                 ${adminPath}/timer/task/** = anon
                 ${adminPath}/logout = logout

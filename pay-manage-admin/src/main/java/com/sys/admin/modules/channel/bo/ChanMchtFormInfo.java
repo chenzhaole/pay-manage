@@ -168,6 +168,9 @@ public class ChanMchtFormInfo {
 	private String tradeEndTimeH;
 	private String tradeEndTimeS;
 
+	//账务类型	0:默认保留，1:支付，2:代付，3:调账，4:退款，5:清分 6 充值
+	private String accType;
+
 	private static final long serialVersionUID = 1L;
 
 	public String getTradeRangeMoney() {
@@ -877,6 +880,7 @@ public class ChanMchtFormInfo {
 			this.tradeMaxMoney = StringUtils.isBlank(requestMap.get("tradeMaxMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMaxMoney"));
 			this.tradeMinMoney = StringUtils.isBlank(requestMap.get("tradeMinMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMinMoney"));
 			this.tradeRangeMoney = requestMap.get("tradeRangeMoney") == null ? "" : requestMap.get("tradeRangeMoney");
+			this.accType = requestMap.get("accType") == null ? "" : requestMap.get("accType");
 		}
 	}
 
@@ -923,4 +927,11 @@ public class ChanMchtFormInfo {
 		}
 	}
 
+	public String getAccType() {
+		return accType;
+	}
+
+	public void setAccType(String accType) {
+		this.accType = accType;
+	}
 }

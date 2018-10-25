@@ -52,6 +52,9 @@ public class StatReportDayPayDetailController extends BaseController {
         info.setBizType(StatReportDayPayDetailBizTypeEnum.BUSINESS_PROXY.getCode());
         List<StatReportDayPayDetail> proxyList = reportDayPayDetailService.list(info);
 
+        info.setBizType(StatReportDayPayDetailBizTypeEnum.CHONG_ZHI.getCode());
+        List<StatReportDayPayDetail> chongzhiList = reportDayPayDetailService.list(info);
+
 
         if (payList != null) {
             for (StatReportDayPayDetail detail : payList) {
@@ -61,9 +64,18 @@ public class StatReportDayPayDetailController extends BaseController {
             }
         }
 
+        if(chongzhiList!=null){
+            for (StatReportDayPayDetail detail : chongzhiList) {
+                PayTypeEnum p = PayTypeEnum.toEnum(detail.getPayType());
+                String desc = p == null ? "" : p.getDesc();
+                detail.setPayType(desc);
+            }
+        }
+
         model.addAttribute("tradeDate", tradeDate);
         model.addAttribute("payList", payList);
         model.addAttribute("proxyList", proxyList);
+        model.addAttribute("chongzhiList",chongzhiList);
         return "modules/platform/statReportDayPayDetailList";
     }
 
@@ -336,6 +348,180 @@ public class StatReportDayPayDetailController extends BaseController {
                 if (detail.getTotalProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getTotalProfitAmount());
                     cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
+                    cell.setCellValue(0);
+                }
+                rowIndex++;
+
+            }
+        }
+        wb.write(out);
+        out.flush();
+        out.close();
+
+        redirectAttributes.addFlashAttribute("messageType", "success");
+        redirectAttributes.addFlashAttribute("message", "导出完毕");
+        response.setCharacterEncoding("UTF-8");
+        return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPayDetail/list";
+    }
+
+    @RequestMapping(value = "/exportChongzhi")
+    public String exportChongzhi(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
+                         @RequestParam Map<String, String> paramMap) throws IOException {
+
+        //创建查询实体
+        StatReportDayPayDetail info = new StatReportDayPayDetail();
+        assemblySearch(paramMap, info);
+
+        //计算条数 上限五万条
+        int orderCount = reportDayPayDetailService.ordeCount(info);
+        if (orderCount <= 0) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+        }
+        if (orderCount > 50000) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+        }
+
+        // 访问数据库，得到数据集
+        List<StatReportDayPayDetail> list = reportDayPayDetailService.list(info);
+
+        if (list == null || list.size() == 0) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "导出条数为0条");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+        }
+
+        if (list != null) {
+            for (StatReportDayPayDetail detail : list) {
+                detail.setPayType(PayTypeEnum.toEnum(detail.getPayType()).getDesc());
+            }
+        }
+
+        String date = paramMap.get("tradeDate").replaceAll("-", "").substring(4);
+        //获取当前日期，为文件名
+        String fileName = "REPORT-CZ" + date + ".xls";
+
+        String[] headers = {"日期", "代理商名称", "商户名称", "支付方式",
+                "通道名称", "交易金额(元)", "通道费率(‰)", "商户费率(‰)", "代理商费率(‰)", "代理商分润(元)", "利润(元)", "成功笔数", "交易笔数", "成功率"};
+
+        response.reset();
+        response.setContentType("application/octet-stream; charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+        OutputStream out = response.getOutputStream();
+
+        // 第一步，创建一个webbook，对应一个Excel文件
+        HSSFWorkbook wb = new HSSFWorkbook();
+        // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
+        HSSFSheet sheet = wb.createSheet("充值业务");
+        sheet.setColumnWidth(0, 20 * 1256);
+        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
+        HSSFRow row = sheet.createRow((int) 0);
+
+        int j = 0;
+        for (String header : headers) {
+            HSSFCell cell = row.createCell((short) j);
+            cell.setCellValue(header);
+            sheet.autoSizeColumn(j);
+            j++;
+        }
+        if (!Collections3.isEmpty(list)) {
+            int rowIndex = 1;//行号
+            for (StatReportDayPayDetail detail : list) {
+                int cellIndex = 0;
+                row = sheet.createRow(rowIndex);
+                HSSFCell cell = row.createCell(cellIndex);
+                cell.setCellValue(detail.getTradeDate());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(detail.getAgentMchtName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(detail.getPayMchtName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(detail.getPayType());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(detail.getCmpName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getTradeAmount() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), new BigDecimal(detail.getTradeAmount()));
+                    cell.setCellValue(bigDecimal.doubleValue());
+                } else {
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getCmpFeerate() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(1), detail.getCmpFeerate());
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getPayMchtFeerate() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(1), detail.getPayMchtFeerate());
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getAgenMchtFeerate() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(1), detail.getAgenMchtFeerate());
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getAgentMchtProfitAmount() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getAgentMchtProfitAmount());
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getTotalProfitAmount() != null) {
+                    BigDecimal bigDecimal = detail.getTotalProfitAmount().divide(new BigDecimal(100));
+                    cell.setCellValue(bigDecimal.setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue());
+                } else {
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(detail.getTradeSuccessCount());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(detail.getTradeTotalCount());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getTradeSuccessCount() != null && detail.getTradeTotalCount() != null) {
+                    double successRate = (double) detail.getTradeSuccessCount() / (double) detail.getTradeTotalCount() * 100;
+                    cell.setCellValue(new BigDecimal(successRate).setScale(2, BigDecimal.ROUND_HALF_UP).doubleValue() + "%");
                 } else {
                     cell.setCellValue(0);
                 }
