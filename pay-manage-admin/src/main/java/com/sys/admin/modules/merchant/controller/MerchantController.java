@@ -539,7 +539,7 @@ public class MerchantController extends BaseController {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return "modules/merchant/merchantEdit";
+		return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 	}
 
     /**

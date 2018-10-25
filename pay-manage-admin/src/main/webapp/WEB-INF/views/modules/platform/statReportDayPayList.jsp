@@ -73,6 +73,8 @@
         <th>代付业务利润</th>
         <th>代付交易笔数</th>
         <th>代付交易利润</th>
+        <th>充值业务交易金额</th>
+        <th>充值业务利润</th>
         <th>利润合计</th>
         <th>操作</th>
     </tr>
@@ -87,6 +89,8 @@
             <td><fmt:formatNumber type="number" value="${info.dfBizProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${info.dfTradeCount}" pattern="0" maxFractionDigits="0"/></td>
             <td><fmt:formatNumber type="number" value="${info.dfProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${info.chongzhiBizTradeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number" value="${info.chongzhiBizProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatNumber type="number" value="${info.totalProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
 
             <td>

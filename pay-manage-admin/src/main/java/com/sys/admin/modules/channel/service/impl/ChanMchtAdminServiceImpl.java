@@ -45,6 +45,9 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 	@Autowired
 	PlatFeerateService platFeerateService;
 
+	@Autowired
+	private ChanMchtPaytypeAccConfigService chanMchtPaytypeAccConfigService;
+
 	@Override
 	public List<ChanMchtFormInfo> getChannelList(ChanMchtFormInfo chanMchtFormInfo) {
 		ChanMchtPaytypeSearch chanMchtPaytype = new ChanMchtPaytypeSearch();
@@ -162,6 +165,12 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		platFeerate.setCreateTime(new Date());
 		platFeerate.setStatus(chanMchtFormInfo.getFeeStatus());
 
+		/** 添加 通道商户支付方式账务类型 xq.w **/
+		ChanMchtPaytypeAccConfig accConfig = new ChanMchtPaytypeAccConfig();
+		accConfig.setChanMchtPaytypeId(chanMchtPaytype.getId());
+		accConfig.setTradeType(chanMchtFormInfo.getAccType());
+		chanMchtPaytypeAccConfigService.insertChanMchtPaytypeAccConfig(accConfig);
+
 		return chanMchtPaytypeService.create(chanMchtPaytype,platFeerate);
 	}
 
@@ -181,6 +190,13 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		platFeerate.setBizRefId(chanMchtPaytype.getId());
 		platFeerate.setCreateTime(new Date());
 		platFeerate.setStatus(chanMchtFormInfo.getFeeStatus());
+
+		/** 更新 通道商户支付方式账务类型 xq.w **/
+		ChanMchtPaytypeAccConfig accConfig = new ChanMchtPaytypeAccConfig();
+		accConfig.setChanMchtPaytypeId(chanMchtPaytype.getId());
+		accConfig.setTradeType(chanMchtFormInfo.getAccType());
+		accConfig.setUpdatedTime(new Date());
+		chanMchtPaytypeAccConfigService.updateChanMchtPaytypeAccConfig(accConfig);
 		
 		return chanMchtPaytypeService.saveByKey(chanMchtPaytype,platFeerate);
 	}
@@ -230,6 +246,13 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		//查找最新费率
 		PlatFeerate platFeerate = platFeerateService.getLastFee(FeeRateBizTypeEnum.CHAN_MCHT_PAYTYPE_BIZTYPE.getCode(), id);
 		chanMchtFormInfo.setFee(platFeerate);
+
+		//查询通道商户支付方式账务信息
+		ChanMchtPaytypeAccConfig accConfig = chanMchtPaytypeAccConfigService.findAccConfigByChanMchtPaytypeId(id);
+		if(accConfig!= null){
+			chanMchtFormInfo.setAccType(accConfig.getTradeType());
+		}
+
 		return chanMchtFormInfo;
 	}
 
