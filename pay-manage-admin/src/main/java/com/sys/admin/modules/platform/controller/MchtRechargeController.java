@@ -18,6 +18,8 @@ import com.sys.core.service.MerchantService;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -52,6 +54,8 @@ public class MchtRechargeController extends BaseController {
 
 
     public static final String IMAGES_PATH = "/images/";
+
+    protected  final static Logger logger = LoggerFactory.getLogger(MchtRechargeController.class);
 
 
 
@@ -207,8 +211,17 @@ public class MchtRechargeController extends BaseController {
     @RequiresPermissions("mcht:proxy:commit")
     public ModelAndView queryRechargePayOrders(HttpServletRequest request ,
                                             @RequestParam Map<String, String> paramMap){
+        this.logger.info("亲故参数:"+JSONObject.toJSONString(paramMap));
         ModelAndView modelAndView = new ModelAndView();
         MchtGatewayRechargeOrder rechargeOrder = new MchtGatewayRechargeOrder();
+        //获取参数
+        rechargeOrder.setMchtName(paramMap.get("mchtName"));
+        rechargeOrder.setPlatOrderId(paramMap.get("platOrderId"));
+        rechargeOrder.setStatus(paramMap.get("status"));
+        rechargeOrder.setAuditStatus(paramMap.get("auditStatus"));
+        rechargeOrder.setCreateStartTime(paramMap.get("beginDate"));
+        rechargeOrder.setCreateEndTime(paramMap.get("endDate"));
+        rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
         //获取当前第几页
         String pageNoString = paramMap.get("pageNo");
         int pageNo = 1;
@@ -242,6 +255,7 @@ public class MchtRechargeController extends BaseController {
         Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, rechargeOrders, true);
         modelAndView.addObject("page", page);
         modelAndView.addObject("orderCount", orderCount);
+        modelAndView.addObject("paramMap",paramMap);
         modelAndView.setViewName("modules/recharge/queryRechargePayOrders");
         return modelAndView;
     }
@@ -393,8 +407,17 @@ public class MchtRechargeController extends BaseController {
     @RequiresPermissions("operate:recharge:query")
     public ModelAndView queryOperateRechargePayOrders(HttpServletRequest request ,
                                                       @RequestParam Map<String, String> paramMap){
+        this.logger.info("亲故参数:"+JSONObject.toJSONString(paramMap));
         ModelAndView modelAndView = new ModelAndView();
         MchtGatewayRechargeOrder rechargeOrder = new MchtGatewayRechargeOrder();
+        //获取参数
+        rechargeOrder.setMchtName(paramMap.get("mchtName"));
+        rechargeOrder.setPlatOrderId(paramMap.get("platOrderId"));
+        rechargeOrder.setStatus(paramMap.get("status"));
+        rechargeOrder.setAuditStatus(paramMap.get("auditStatus"));
+        rechargeOrder.setCreateStartTime(paramMap.get("beginDate"));
+        rechargeOrder.setCreateEndTime(paramMap.get("endDate"));
+        rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
         //获取当前第几页
         String pageNoString = paramMap.get("pageNo");
         int pageNo = 1;
@@ -424,6 +447,7 @@ public class MchtRechargeController extends BaseController {
         Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, rechargeOrders, true);
         modelAndView.addObject("page", page);
         modelAndView.addObject("orderCount", orderCount);
+        modelAndView.addObject("paramMap",paramMap);
         modelAndView.setViewName("modules/recharge/queryOperateRechargePayOrders");
         return modelAndView;
     }

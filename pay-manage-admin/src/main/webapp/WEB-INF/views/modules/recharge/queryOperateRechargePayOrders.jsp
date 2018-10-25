@@ -123,7 +123,7 @@
                 <div class="control-group">
                     <label class="control-label">审核状态：</label>
                     <div class="controls">
-                        <select id="auditStatus" name="status">
+                        <select id="auditStatus" name="auditStatus">
                             <option value="">---请选择---</option>
                             <option value="created">未审核</option>
                             <option value="customerPass">客服审核通过</option>
@@ -156,7 +156,7 @@
                 <div class="control-group">
                     <label class="control-label">充值方式：</label>
                     <div class="controls">
-                        <select id="rechargeType" name="status">
+                        <select id="rechargeType" name="rechargeType">
                             <option value="">---请选择---</option>
                             <option value="1">汇款</option>
                             <option value=2"">支付</option>

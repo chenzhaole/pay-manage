@@ -929,7 +929,7 @@
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">运营免审金额<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label">运营免审金额<span style="color: red;"></span></label>
                     <div class="controls">
                         <input name="exemptReviewAmount" value="${merchant.exemptReviewAmount}" placeholder="" class="input-xlarge" type="text"
                                maxlength="64">
