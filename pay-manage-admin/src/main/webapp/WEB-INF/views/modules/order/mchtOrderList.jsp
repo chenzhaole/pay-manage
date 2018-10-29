@@ -181,7 +181,9 @@
 
                             <option value="qj301" <c:if test="${paramMap.payType eq 'qj301' }">selected</c:if>>网银支付</option>
 
+<%--
                             <option value="df101" <c:if test="${paramMap.payType eq 'df101'}">selected</c:if>>单笔代付</option>
+--%>
                         </select>
                     </div>
                 </div>
