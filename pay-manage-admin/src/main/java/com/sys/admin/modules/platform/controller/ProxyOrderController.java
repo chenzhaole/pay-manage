@@ -111,6 +111,7 @@ public class ProxyOrderController extends BaseController {
 	private PlatBankService platBankService;
 	@Autowired
 	private AccountAdminService accountAdminService;
+	@Autowired
 	private IDfProducerService dfProducerService;
 
 	@Value("${sms_send}")

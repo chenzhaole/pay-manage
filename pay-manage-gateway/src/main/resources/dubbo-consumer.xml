@@ -85,7 +85,4 @@
 	<dubbo:reference id="tradeDFBatchHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFBatchHandler" timeout="30000"/>
 	<dubbo:reference id="tradeDFSingleHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFSingleHandler" timeout="30000"/>
 
-
-	<dubbo:reference id ="dfProducerService" interface="com.sys.boss.api.service.trade.service.IDfProducerService" timeout="30000"/>
-
 </beans>
