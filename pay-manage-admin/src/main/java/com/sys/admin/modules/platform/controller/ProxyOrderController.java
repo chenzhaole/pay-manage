@@ -11,6 +11,7 @@ import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
+import com.sys.boss.api.service.trade.service.IDfProducerService;
 import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
@@ -19,15 +20,7 @@ import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
 import com.sys.common.enums.ProxyPayRequestEnum;
 import com.sys.common.enums.StatusEnum;
-import com.sys.common.util.Collections3;
-import com.sys.common.util.DateUtils;
-import com.sys.common.util.DesUtil32;
-import com.sys.common.util.HttpUtil;
-import com.sys.common.util.IdUtil;
-import com.sys.common.util.JedisUtil;
-import com.sys.common.util.NumberUtils;
-import com.sys.common.util.PostUtil;
-import com.sys.common.util.SignUtil;
+import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
@@ -118,6 +111,7 @@ public class ProxyOrderController extends BaseController {
 	private PlatBankService platBankService;
 	@Autowired
 	private AccountAdminService accountAdminService;
+	private IDfProducerService dfProducerService;
 
 	@Value("${sms_send}")
 	private String sms_send;
@@ -470,9 +464,15 @@ public class ProxyOrderController extends BaseController {
 						int rs = proxyBatchService.saveBatchAndDetails(batch, details);
 						logger.info("代付批次和代付明细入库返回结果 rs=" + rs);
 
-						int rps =
-								insert2redisProxyTask(batch);
+						int rps = insert2redisProxyTask(batch);
 						logger.info("代付批次加入redis队列 rps=" + rps);
+
+						/** xq.w 添加MQ生产者		商户号, 商户批次号, 平台批次ID, 平台批次详情ID**/
+						for (PlatProxyDetail detail : details) {
+							dfProducerService.sendInfo(detail.getId(),QueueUtil.DF_CREATE_QUEUE);
+						}
+
+
 
 						respMsg = "ok";
 					} else {
@@ -485,6 +485,7 @@ public class ProxyOrderController extends BaseController {
 				respMsg = "batch not exist in redis";
 			}
 		} catch (Exception e) {
+			logger.error("代付入库异常");
 			e.printStackTrace();
 		}
 		response.reset();
