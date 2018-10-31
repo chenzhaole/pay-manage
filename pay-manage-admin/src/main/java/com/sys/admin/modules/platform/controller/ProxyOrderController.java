@@ -116,6 +116,11 @@ public class ProxyOrderController extends BaseController {
 	@Value("${sms_send}")
 	private String sms_send;
 
+	private static final int    maxProxyBatchDetailNum   =  Integer.parseInt(ConfigUtil.getValue("maxProxyBatchDetailNum"));             //最大代付批次明细数量
+
+	private static final BigDecimal maxProxyDetailAmount     =  new BigDecimal(ConfigUtil.getValue("maxProxyDetailAmount"));   //最大代付明细金额
+
+
 
 	/**
 	 * 代付批次列表
@@ -586,8 +591,8 @@ public class ProxyOrderController extends BaseController {
 
 		int rowCount = sheet.getLastRowNum();
 		logger.info("商户ID: {} 代付笔数: {}", mchtId, rowCount);
-		if (rowCount > 100) {
-			throw new RuntimeException("总笔数大于100条，如果空行较多，为避免提示笔数超限，请在EXCEL文件中选择多行进行整行删除！");
+		if (rowCount > maxProxyBatchDetailNum) {
+			throw new RuntimeException("总笔数大于"+maxProxyBatchDetailNum+"条，如果空行较多，为避免提示笔数超限，请在EXCEL文件中选择多行进行整行删除！");
 		}
 		if (rowCount == 0) {
 			throw new RuntimeException("EXCEL文件中无代付信息！");
@@ -744,8 +749,8 @@ public class ProxyOrderController extends BaseController {
 			if (amount.compareTo(BigDecimal.valueOf(30)) == -1) {
 				throw new RuntimeException("第" + k + "行的代付金额不能小于30元!");
 			}
-			if (amount.compareTo(BigDecimal.valueOf(50000)) == 1) {
-				throw new RuntimeException("第" + k + "行的代付金额大于50000元!");
+			if (amount.compareTo(maxProxyDetailAmount.divide(new BigDecimal(100))) == 1) {
+				throw new RuntimeException("第" + k + "行的代付金额大于"+maxProxyDetailAmount.divide(new BigDecimal(100))+"元!");
 			}
 		}
 
