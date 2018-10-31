@@ -468,8 +468,11 @@ public class ProxyOrderController extends BaseController {
 						int rps = insert2redisProxyTask(batch);
 						logger.info("代付批次加入redis队列 rps=" + rps);
 
+						logger.info("代付批次开始入MQ ," + JSONObject.toJSONString(details));
+
 						/** xq.w 添加MQ生产者		商户号, 商户批次号, 平台批次ID, 平台批次详情ID**/
 						for (PlatProxyDetail detail : details) {
+							logger.info("代付详情开始入MQ ," + JSONObject.toJSONString(detail));
 							dfProducerService.sendInfo(detail.getId(),QueueUtil.DF_CREATE_QUEUE);
 						}
 
