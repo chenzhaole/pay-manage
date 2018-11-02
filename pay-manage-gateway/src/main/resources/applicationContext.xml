@@ -33,7 +33,7 @@
     <bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
         <property name="cacheManagerConfigFile" value="classpath:cache/ehcache.xml" />
     </bean>
-    --> 
-    
-   
+    -->
+    <bean id="dfConsumerThread" class="com.sys.gateway.consumer.DFNotifyConsumerThread" init-method="init" scope="singleton"></bean>
+    <bean id="dfConsumerTask" class="com.sys.gateway.consumer.DFNotifyConsumerTask" scope="prototype" lazy-init="false" init-method="init"></bean>
 </beans>

@@ -1028,4 +1028,37 @@ public class ProxyOrderController extends BaseController {
 		logger.info(midoid +"，产品有误");
 		return null;
 	}
+
+	@RequestMapping("supplyNotify")
+	public String supplyNotify(String detailId, String batchId, RedirectAttributes redirectAttributes, HttpServletResponse response) {
+		String message = "代付明细补发通知失败";
+		try {
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String supplyUrl = gatewayUrl + "/gateway/dfrenotify";
+			Map<String, String> data = new HashMap<>();
+			data.put("detailId", detailId);
+			data.put("batchId", batchId);
+			String respStr = HttpUtil.post(supplyUrl, data);
+			logger.info("gateway补发通知返回：" + respStr);
+			if ("SUCCESS".equalsIgnoreCase(respStr)) {
+				message = "补发成功";
+			} else {
+				message = "已补发，商户响应：" + respStr;
+			}
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "success");
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/proxy/proxyDetailList?batchId="+batchId;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("补发失败，" + e.getMessage());
+			message = "补发失败，" + e.getMessage();
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "error");
+
+		} finally {
+			logger.info(message);
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		}
+	}
 }
