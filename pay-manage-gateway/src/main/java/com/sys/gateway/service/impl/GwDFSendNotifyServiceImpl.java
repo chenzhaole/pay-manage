@@ -14,6 +14,7 @@ import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
 import com.sys.common.util.BeanUtils;
 import com.sys.common.util.DateUtils;
@@ -85,7 +86,7 @@ public class GwDFSendNotifyServiceImpl implements GwDFSendNotifyService {
             //HTTP异步通知商户交易结果
             logger.info(log_tag+",异步通知商户信息为："+content);
             String mchtRes = HttpUtil.postConnManager(url, content, contentType, "UTF-8", "UTF-8");
-            logger.info(log_tag+",异步通知商户信息为："+content+",商户返回的结果为："+mchtRes);
+            logger.info(log_tag+",商户返回的结果为："+mchtRes);
 
             //补发通知成功后，修改补发状态
             PlatProxyDetail proxyDetail = new PlatProxyDetail();
@@ -131,7 +132,13 @@ public class GwDFSendNotifyServiceImpl implements GwDFSendNotifyService {
             body.setTradeId(detail.getPlatBatchId());       //平台批次号
             body.setDetailId(detail.getId());               //代付明细id
             body.setSeq(detail.getMchtSeq());               //序号
-            body.setBatchStatus(batchStatus);               //批次状态  DONE 代付结束 DOING 代付处理中
+            String batchStatusCode = "";//批次状态
+            if(ProxyPayBatchStatusEnum.DF_DONE.getCode().equals(batchStatus)){
+                batchStatusCode = "DONE";//代付结束
+            }else if(ProxyPayBatchStatusEnum.DF_DOING.getCode().equals(batchStatus)){
+                batchStatusCode = "DOING";//代付处理中
+            }
+            body.setBatchStatus(batchStatusCode);
             //代付结果
             String detailStatus = "UNKNOWN";//未知
             if(ProxyPayDetailStatusEnum.DF_SUCCESS.getCode().equals(detail.getPayStatus())){

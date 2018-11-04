@@ -83,7 +83,7 @@ public class GwSendNotifyController {
         String detailId = request.getParameter("detailId");
         PlatProxyDetail proxyDetail =  proxyDetailService.queryByKey(detailId);
         PlatProxyBatch  proxyBatch  = proxyBatchService.queryByKey(proxyDetail.getPlatBatchId());
-        String log_tag = "代付明细补发通知,商户代付批次号："+proxyDetail.getMchtBatchId()+"，平台批次号："+proxyDetail.getPlatBatchId()+",代付明细id:"+proxyDetail.getId();
+        String log_tag = "代付明细补发通知,商户代付批次号："+proxyDetail.getMchtBatchId()+"，平台批次号："+proxyDetail.getPlatBatchId()+",代付明细id:"+proxyDetail.getId()+",batchStatus="+proxyBatch.getPayStatus()+",notifyUrl="+proxyBatch.getNotifyUrl();
         CommonResult commonResult = gwDFSendNotifyService.sendNotify(proxyDetail,proxyBatch.getPayStatus(),proxyBatch.getNotifyUrl(),log_tag);
         String resultStr = commonResult.getRespCode();
         return resultStr;

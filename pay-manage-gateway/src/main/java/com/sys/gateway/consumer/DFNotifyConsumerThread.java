@@ -37,6 +37,7 @@ public class DFNotifyConsumerThread extends Thread {
 			if (!isStarted) {
 				start();
 				isStarted = true;
+				logger.info("DFNotifyConsumerThread start success");
 			}
 		}
 		catch (Exception e) {
@@ -49,7 +50,7 @@ public class DFNotifyConsumerThread extends Thread {
 		
 		final List<DFNotifyConsumerTask> consumers = new ArrayList<>();
 		for (int i = 0; i < consumerSize; i++) {
-			DFNotifyConsumerTask consumer = SpringContextHolder.getBean("newConsumerTask");
+			DFNotifyConsumerTask consumer = SpringContextHolder.getBean("dfConsumerTask");
 			consumers.add(consumer);
 			executorService.submit(consumer);
 		}

@@ -33,7 +33,8 @@
 	<dubbo:reference id="mchtProductService" interface="com.sys.core.service.MchtProductService" timeout="30000"/>
 	<dubbo:reference id="productService" interface="com.sys.core.service.ProductService" timeout="30000"/>
 
-
+	<dubbo:reference id="proxyDetailService" interface="com.sys.core.service.ProxyDetailService" timeout="30000"/>
+	<dubbo:reference id="proxyBatchService" interface="com.sys.core.service.ProxyBatchService" timeout="30000"/>
 
 	<!-- [boss-trade] 异步通知处理-->
 	<dubbo:reference id="tradePayNotifyHandler" interface="com.sys.boss.api.service.trade.handler.ITradePayNotifyHandler" timeout="30000"/>

@@ -16,6 +16,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 /**
  * 代付明细异步通知
@@ -30,6 +32,9 @@ public class DFNotifyConsumerTask implements Runnable {
 	private static final String BIZ = "[代付明细异步通知]";
 	@Autowired
 	private GwDFSendNotifyService sendDFNotifyService;
+
+	final ExecutorService threadPool = Executors.newFixedThreadPool(
+			Runtime.getRuntime().availableProcessors() * 2, new NamedThreadFactory("DFSendNotifyThreadPool"));
 	/**
 	 * 根据配置 初始化消费者
 	 */
@@ -46,9 +51,13 @@ public class DFNotifyConsumerTask implements Runnable {
 			for(;;) {
 					try {
 						String proxyDetail = jedis.rpoplpush(IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST, IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST);
+						if(proxyDetail==null||"".equals(proxyDetail)){
+							Thread.sleep(1000);
+							continue;
+						}
 						logger.info(BIZ + "读取队列的值 redisJsonStrValue=" + proxyDetail);
 						Map<String, Object> proxyDetailMap = JSON.parseObject(proxyDetail, Map.class);
-						PlatProxyDetail detail = (PlatProxyDetail)proxyDetailMap.get("detail");
+						PlatProxyDetail detail = JSON.parseObject(proxyDetailMap.get("detail").toString(), PlatProxyDetail.class);
 						String batchStatus = proxyDetailMap.get("batchStatus").toString();
 						String notifyUrl   = proxyDetailMap.get("notifyUrl").toString();
 						String log_tag = BIZ+"商户代付批次号："+detail.getMchtBatchId()+"，平台批次号："+detail.getPlatBatchId()+",代付明细id:"+detail.getId();
@@ -59,16 +68,18 @@ public class DFNotifyConsumerTask implements Runnable {
 							} else {
 								logger.info(log_tag + "，通知商户失败");
 								//开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
-								new Thread("Thread-name-"+detail.getId()){
+
+								threadPool.execute(new Runnable() {
 									@Override
 									public void run() {
 										int count = 1;//开始补抛
 										logger.info(log_tag +"，异步通知商户失败，开始执行补抛,count="+count+",batchStatus="+batchStatus+"，notifyUrl="+notifyUrl+",CacheTrade="+ JSONObject.toJSONString(detail));
 										throwMchtNotifyInfo(log_tag, detail,batchStatus,notifyUrl, count);
 									}
-								}.start();
+								});
 							}
 						}
+						jedis.rpop(IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST);
 						Thread.sleep(1);
 					} catch (Throwable e) {
 						// TODO: handle exception
@@ -128,4 +139,5 @@ public class DFNotifyConsumerTask implements Runnable {
 			}
 		}
 	}
+
 }
