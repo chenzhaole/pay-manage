@@ -398,12 +398,14 @@ public class ProxyChangeStatusController extends BaseController {
 							int rs = accountAdminService.insert2redisAccTask(cacheMchtAccount);
 							logger.info("代付的入账功能返回结果 rs=" + rs);
 						}
-						//将代付成功或失败的代付明细插入代付明细异步通知redis队列
-						Map<String,Object> detailMap = new HashMap<>();
-						detailMap.put("detail",proxyDetail);
-						detailMap.put("batchStatus",proxyBatch.getPayStatus());
-						detailMap.put("notifyUrl",proxyBatch.getNotifyUrl());
-						insert2redisPlatProxyDetail(detailMap);
+						if(proxyBatch.getNotifyUrl()!=null&&!"".equals(proxyBatch.getNotifyUrl())){
+							//将代付成功或失败的代付明细插入代付明细异步通知redis队列
+							Map<String,Object> detailMap = new HashMap<>();
+							detailMap.put("detail",proxyDetail);
+							detailMap.put("batchStatus",proxyBatch.getPayStatus());
+							detailMap.put("notifyUrl",proxyBatch.getNotifyUrl());
+							insert2redisPlatProxyDetail(detailMap);
+						}
 					}
 				}
 				proxyDetailAudit.setUpdateDate(new Date());
@@ -449,7 +451,7 @@ public class ProxyChangeStatusController extends BaseController {
 			jedis = pool.getResource();
 			rs = jedis.lpush(IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST, JSON.toJSONString(detailMap));
 
-			logger.info("缓存插入PlatProxyDetail信息： rsDf = " + rs);
+			logger.info("缓存插入PlatProxyDetail信息： rsDf = " + rs+",key="+IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST+",value="+JSON.toJSONString(detailMap));
 		} catch (JedisConnectionException je) {
 			logger.error("Redis Jedis连接异常：" + je.getMessage());
 			je.printStackTrace();

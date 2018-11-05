@@ -56,6 +56,7 @@ public class DFNotifyConsumerTask implements Runnable {
 							continue;
 						}
 						logger.info(BIZ + "读取队列的值 redisJsonStrValue=" + proxyDetail);
+						jedis.rpop(IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST);
 						Map<String, Object> proxyDetailMap = JSON.parseObject(proxyDetail, Map.class);
 						PlatProxyDetail detail = JSON.parseObject(proxyDetailMap.get("detail").toString(), PlatProxyDetail.class);
 						String batchStatus = proxyDetailMap.get("batchStatus").toString();
@@ -79,7 +80,6 @@ public class DFNotifyConsumerTask implements Runnable {
 								});
 							}
 						}
-						jedis.rpop(IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST);
 						Thread.sleep(1);
 					} catch (Throwable e) {
 						// TODO: handle exception
@@ -139,5 +139,6 @@ public class DFNotifyConsumerTask implements Runnable {
 			}
 		}
 	}
+
 
 }
