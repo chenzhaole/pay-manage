@@ -778,6 +778,14 @@ public class ChanMchtFormInfo {
 		this.deviceType = deviceType;
 	}
 
+	public String getAccType() {
+		return accType;
+	}
+
+	public void setAccType(String accType) {
+		this.accType = accType;
+	}
+
 	//空的构造方法
 	public ChanMchtFormInfo() {
 
@@ -927,11 +935,4 @@ public class ChanMchtFormInfo {
 		}
 	}
 
-	public String getAccType() {
-		return accType;
-	}
-
-	public void setAccType(String accType) {
-		this.accType = accType;
-	}
 }

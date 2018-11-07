@@ -11,6 +11,7 @@ import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
+import com.sys.boss.api.service.trade.service.IDfProducerService;
 import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.FeeRateBizTypeEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
@@ -89,9 +90,16 @@ public class ProxyOrderController extends BaseController {
 	private PlatBankService platBankService;
 	@Autowired
 	private AccountAdminService accountAdminService;
+	@Autowired
+	private IDfProducerService dfProducerService;
 
 	@Value("${sms_send}")
 	private String sms_send;
+
+	private static final int    maxProxyBatchDetailNum   =  Integer.parseInt(ConfigUtil.getValue("maxProxyBatchDetailNum"));             //最大代付批次明细数量
+
+	private static final BigDecimal maxProxyDetailAmount     =  new BigDecimal(ConfigUtil.getValue("maxProxyDetailAmount"));   //最大代付明细金额
+
 
 
 	/**
@@ -441,9 +449,18 @@ public class ProxyOrderController extends BaseController {
 						int rs = proxyBatchService.saveBatchAndDetails(batch, details);
 						logger.info("代付批次和代付明细入库返回结果 rs=" + rs);
 
-						int rps =
-								insert2redisProxyTask(batch);
+						int rps = insert2redisProxyTask(batch);
 						logger.info("代付批次加入redis队列 rps=" + rps);
+
+						logger.info("代付批次开始入MQ ," + JSONObject.toJSONString(details));
+
+						/** xq.w 添加MQ生产者		商户号, 商户批次号, 平台批次ID, 平台批次详情ID**/
+						for (PlatProxyDetail detail : details) {
+							logger.info("代付详情开始入MQ ," + JSONObject.toJSONString(detail));
+							dfProducerService.sendInfo(detail.getId(),QueueUtil.DF_CREATE_QUEUE);
+						}
+
+
 
 						respMsg = "ok";
 					} else {
@@ -456,6 +473,7 @@ public class ProxyOrderController extends BaseController {
 				respMsg = "batch not exist in redis";
 			}
 		} catch (Exception e) {
+			logger.error("代付入库异常");
 			e.printStackTrace();
 		}
 		response.reset();
@@ -556,8 +574,8 @@ public class ProxyOrderController extends BaseController {
 
 		int rowCount = sheet.getLastRowNum();
 		logger.info("商户ID: {} 代付笔数: {}", mchtId, rowCount);
-		if (rowCount > 100) {
-			throw new RuntimeException("总笔数大于100条，如果空行较多，为避免提示笔数超限，请在EXCEL文件中选择多行进行整行删除！");
+		if (rowCount > maxProxyBatchDetailNum) {
+			throw new RuntimeException("总笔数大于"+maxProxyBatchDetailNum+"条，如果空行较多，为避免提示笔数超限，请在EXCEL文件中选择多行进行整行删除！");
 		}
 		if (rowCount == 0) {
 			throw new RuntimeException("EXCEL文件中无代付信息！");
@@ -714,8 +732,8 @@ public class ProxyOrderController extends BaseController {
 			if (amount.compareTo(BigDecimal.valueOf(30)) == -1) {
 				throw new RuntimeException("第" + k + "行的代付金额不能小于30元!");
 			}
-			if (amount.compareTo(BigDecimal.valueOf(50000)) == 1) {
-				throw new RuntimeException("第" + k + "行的代付金额大于50000元!");
+			if (amount.compareTo(maxProxyDetailAmount.divide(new BigDecimal(100))) == 1) {
+				throw new RuntimeException("第" + k + "行的代付金额大于"+maxProxyDetailAmount.divide(new BigDecimal(100))+"元!");
 			}
 		}
 
@@ -992,4 +1010,36 @@ public class ProxyOrderController extends BaseController {
 
 
 
+	@RequestMapping("supplyNotify")
+	public String supplyNotify(String detailId, String batchId, RedirectAttributes redirectAttributes, HttpServletResponse response) {
+		String message = "代付明细补发通知失败";
+		try {
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String supplyUrl = gatewayUrl + "/gateway/dfrenotify";
+			Map<String, String> data = new HashMap<>();
+			data.put("detailId", detailId);
+			data.put("batchId", batchId);
+			String respStr = HttpUtil.post(supplyUrl, data);
+			logger.info("gateway补发通知返回：" + respStr);
+			if ("SUCCESS".equalsIgnoreCase(respStr)) {
+				message = "补发成功";
+			} else {
+				message = "已补发，商户响应：" + respStr;
+			}
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "success");
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/proxy/proxyDetailList?batchId="+batchId;
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			logger.error("补发失败，" + e.getMessage());
+			message = "补发失败，" + e.getMessage();
+			redirectAttributes.addFlashAttribute("message", message);
+			redirectAttributes.addFlashAttribute("messageType", "error");
+
+		} finally {
+			logger.info(message);
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		}
+	}
 }

@@ -55,4 +55,6 @@
 	<dubbo:reference id="rechargeService" interface="com.sys.boss.api.service.order.IRechargeService" timeout="30000"/>
 	<!-- 	[充值] 下单		-->
 	<dubbo:reference id="tradeApiRechargePayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeApiRechargePayHandler" timeout="30000" />
+	<dubbo:reference id ="dfProducerService" interface="com.sys.boss.api.service.trade.service.IDfProducerService" timeout="30000"/>
+
 </beans>

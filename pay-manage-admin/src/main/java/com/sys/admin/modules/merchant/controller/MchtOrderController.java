@@ -207,13 +207,16 @@ public class MchtOrderController extends BaseController {
             strPayType =  "京东支付";
         }else if(payType.startsWith("yl")){
             strPayType =  "银联支付";
-        }else if(payType.startsWith("qj")){
-            strPayType = "快捷支付";
         }else if(payType.startsWith("df")){
             strPayType = "单笔代付";
         }else if(payType.startsWith("dk")){
             strPayType = "代扣";
-        }else{
+        }else if(payType.equals("qj202")){
+            strPayType = "快捷支付";
+        }else if(payType.equals("qj301")){
+            strPayType = "网银支付";
+        }
+        else{
             strPayType = "其他";
         }
         return strPayType;
@@ -767,11 +770,11 @@ public class MchtOrderController extends BaseController {
                         .append(PayTypeEnum.UNIONPAY_QRCODE.getCode()).append("&").append(PayTypeEnum.UNIONPAY_SCAN2WAP.getCode()).append("&")
                         .append(PayTypeEnum.UNIONPAY_BARCODE.getCode()).append("&").append(PayTypeEnum.UNIONPAY_BARCODE_PC.getCode()).append("&")
                         .append(PayTypeEnum.UNIONPAY_BARCODE_h5.getCode());
-
-            }else if("qj".equals(paramMap.get("payType"))){
-                sb.append(PayTypeEnum.QUICK_GROUP.getCode()).append("&").append(PayTypeEnum.QUICK_PAY.getCode()).append("&")
-                        .append(PayTypeEnum.QUICK_COMB_DK.getCode());
-
+            }else if("qj202".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.QUICK_PAY.getCode());
+            }
+            else if("qj301".equals(paramMap.get("payType"))){
+                sb.append(PayTypeEnum.QUICK_ONLINE_BANK.getCode());
             }else if("df101".equals(paramMap.get("payType"))){
                 sb.append(PayTypeEnum.SINGLE_DF.getCode());
             }

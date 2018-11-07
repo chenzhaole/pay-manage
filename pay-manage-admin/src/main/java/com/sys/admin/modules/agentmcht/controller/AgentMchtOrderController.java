@@ -248,12 +248,15 @@ public class AgentMchtOrderController extends BaseController {
             strPayType =  "京东支付";
         }else if(payType.startsWith("yl")){
             strPayType =  "银联支付";
-        }else if(payType.startsWith("qj")){
-            strPayType = "快捷支付";
         }else if(payType.startsWith("df")){
             strPayType = "单笔代付";
         }else if(payType.startsWith("dk")){
             strPayType = "代扣";
+        }
+        else if(payType.equals("qj202")){
+            strPayType = "快捷支付";
+        }else if(payType.equals("qj301")){
+            strPayType = "网银支付";
         }else{
             strPayType = "其他";
         }

@@ -187,6 +187,7 @@
         <th>金额（元）</th>
         <th>手续费（元）</th>
         <th>状态</th>
+        <th>补单状态</th>
         <th>通道名称</th>
         <th width="100px">上游响应</th>
         <th>创建时间<br>更新时间</th>
@@ -212,12 +213,16 @@
             <td>
                 ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
             </td>
+                <td>${fns:getDictLabel(proxyDetail.supplyStatus,'supply_status' ,'' )}</td>
                 <td>${proxyDetail.extend3}</td>
 
                 <td><div  title="${proxyDetail.returnMessage2}" class="wrap">${fn:substring(proxyDetail.returnMessage2,0,50)} </div></td>
                 <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <a href="${ctx}/proxy/proxyDetail?detailId=${proxyDetail.id}">详情</a>
+                <c:if test="${proxyDetail.payStatus == '21'||proxyDetail.payStatus == '22'}">
+                    <a href="${ctx}/proxy/supplyNotify?detailId=${proxyDetail.id}&batchId=${proxyDetail.platBatchId}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>" onclick="return confirmx('是否确认向下游补发通知？', this.href)">| 补发通知</a>
+                </c:if>
                     <%--|<a href="${ctx}/platform/deleteCardBin?id=${proxyDetail.id}" onclick="return confirmx('是否确认删除此记录？', this.href)">删除</a>--%>
             </td>
         </tr>
