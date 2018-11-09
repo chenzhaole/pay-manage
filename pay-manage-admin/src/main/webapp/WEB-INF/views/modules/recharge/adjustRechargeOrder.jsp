@@ -147,17 +147,19 @@
                 </div>
             </div>
         </td>
-        <td>
-            <div class="control-group">
-                <label class="control-label">审核状态</label>
-                <div class="controls">
-                    <select name="auditStatus">
-                        <option value="pass" selected>通过</option>
-                        <option value="refuse">拒绝</option>
-                    </select>
+        <shiro:hasPermission name="mcht:proxy:customer">
+            <td>
+                <div class="control-group">
+                    <label class="control-label">审核状态</label>
+                    <div class="controls">
+                        <select name="auditStatus">
+                            <option value="pass" selected>通过</option>
+                            <option value="refuse">拒绝</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </td>
+            </td>
+        </shiro:hasPermission>
         <td>
             <input type="hidden" name="platOrderId" value="${auditRechargeOrder.platOrderId}">
                 <input type="hidden" name="auditType" value="customer"/>

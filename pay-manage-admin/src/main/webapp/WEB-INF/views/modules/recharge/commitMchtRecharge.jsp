@@ -163,7 +163,7 @@
                 </tr>
                 <tr>
                     <td>
-                        汇款充值费率: ${rechargeConfig.tradeFeeAmount}%
+                        汇款充值费率: ${platFeerate.feeRate}%
                     </td>
                     <td style="text-align: center">
                         <div style="text-align: left; margin-left: 38%;">
@@ -211,7 +211,7 @@
                 <tr>
                     <td>
                         <div>
-                            支付充值费率: ${rechargeConfig.tradeFeeAmount}%
+                            支付充值费率: ${platFeerate.feeRate}%
                         </div>
                         <div>
                             支付产品:

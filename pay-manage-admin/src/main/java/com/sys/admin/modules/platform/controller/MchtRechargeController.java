@@ -72,9 +72,11 @@ public class MchtRechargeController extends BaseController {
         MchtInfo mcht = merchantService.queryByKey(mchtId);
         MchtRechargeConfig rechargeConfig = mchtRechargeConfigService.findByRechargeConfigMchtId(mchtId);
         if (null != mcht) {
+            PlatFeerate platFeerate = tradeApiRechargePayHandler.queryMchtFeerateByMchtIdAndCode(mchtId, PayTypeEnum.CHONGZHI_WG.getCode());
             modelAndView.addObject("mchtName", mcht.getName());
             modelAndView.addObject("mchtId", mchtId);
             modelAndView.addObject("rechargeConfig", rechargeConfig);
+            modelAndView.addObject("platFeerate", platFeerate);
         }
         modelAndView.setViewName("modules/recharge/commitMchtRecharge");
         return modelAndView;
@@ -262,10 +264,9 @@ public class MchtRechargeController extends BaseController {
 
 
     /**
-     * 客服调账审批
+     * 客服充值审批
      */
     @RequestMapping("adjustRechargeOrder")
-    @RequiresPermissions("mcht:proxy:commit")
     public ModelAndView adjustRechargeOrder(HttpServletRequest request) {
         ModelAndView andView = new ModelAndView();
         andView.setViewName("modules/recharge/adjustRechargeOrder");
@@ -283,10 +284,9 @@ public class MchtRechargeController extends BaseController {
 
 
     /**
-     * 客服调账审批
+     * 运营充值审批
      */
     @RequestMapping("adjustOperateRechargeOrder")
-    @RequiresPermissions("mcht:proxy:commit")
     public ModelAndView adjustOperateRechargeOrder(HttpServletRequest request) {
         ModelAndView andView = new ModelAndView();
         andView.setViewName("modules/recharge/adjustOperateRechargeOrder");
@@ -309,7 +309,6 @@ public class MchtRechargeController extends BaseController {
      * @return
      */
     @RequestMapping("commitAdjustRechargeOrder")
-    @RequiresPermissions("mcht:proxy:commit")
     public String commitAdjustRechargeOrder(HttpServletRequest request){
         //customer
         //operate
