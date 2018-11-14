@@ -5,17 +5,11 @@
     <title>充值订单审批</title>
     <meta name="decorator" content="default"/>
 
-    <script type="text/javascript">
-        function subAdjustForm() {
-            var checkValue=$(".adjust_class").val(); //获取Select选择的Value
-            if(checkValue == null || checkValue == '' || checkValue == 0){
-                alert("请选择审批状态.")
-                return false;
-            }
-            $("#auditStatusId").val(checkValue);
-            $("#inputForm").submit();
-        }
-    </script>
+
+    <link href="${ctxStatic}/js/zoomify.css" type="text/css" rel="stylesheet" />
+    <script src="${ctxStatic}/js/zoomify.js" type="text/javascript"></script>
+
+
 </head>
 <body>
 
@@ -142,23 +136,25 @@
         <td>
             <div class="control-group">
                 <label class="control-label">凭据</label>
-                <div class="controls">
-                    <img src="${auditRechargeOrder.imgUrl}" width="200px" height="200px">
+                <div id="img_enlarge_id" class="controls" onclick="enlargeImg()">
+                    <img id="" src="${auditRechargeOrder.imgUrl}" width="200px" height="200px">
                 </div>
             </div>
         </td>
         <shiro:hasPermission name="mcht:proxy:customer">
-            <td>
-                <div class="control-group">
-                    <label class="control-label">审核状态</label>
-                    <div class="controls">
-                        <select name="auditStatus">
-                            <option value="pass" selected>通过</option>
-                            <option value="refuse">拒绝</option>
-                        </select>
+            <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
+                <td>
+                    <div class="control-group">
+                        <label class="control-label">审核状态</label>
+                        <div class="controls">
+                            <select name="auditStatus">
+                                <option value="pass" selected>通过</option>
+                                <option value="refuse">拒绝</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
-            </td>
+                </td>
+            </c:if>
         </shiro:hasPermission>
         <td>
             <input type="hidden" name="platOrderId" value="${auditRechargeOrder.platOrderId}">
@@ -191,6 +187,20 @@
         border-bottom: 1px solid #ddd;
     }
 </style>
+
+
+<script type="text/javascript">
+    function subAdjustForm() {
+        var checkValue=$(".adjust_class").val(); //获取Select选择的Value
+        if(checkValue == null || checkValue == '' || checkValue == 0){
+            alert("请选择审批状态.")
+            return false;
+        }
+        $("#auditStatusId").val(checkValue);
+        $("#inputForm").submit();
+    }
+    $('#img_enlarge_id img').zoomify();
+</script>
 </body>
 </html>
 

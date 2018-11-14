@@ -68,9 +68,8 @@ public enum AdminPayTypeEnum {
 
 
 	SDK_GROUP("sdk000","sdk组合支付类型"),
-	CHONGZHI_WG ( "cz001", "充值"),
+	ZHIFU_WG ( "zf001", "支付"),
 	HUIKUANG_WG ( "hk001", "汇款"),
-
 
 	;
 

@@ -86,11 +86,22 @@
     <table>
         <tr>
             <td>
-                <div class="control-group">
+                <%--<div class="control-group">
                     <label class="control-label">商户名称：</label>
                     <div class="controls">
                         <input value="${paramMap.mchtName}" id="mchtName" name="mchtName" type="text"
                                maxlength="64" class="input-large"/>
+                    </div>
+                </div>--%>
+                <div class="control-group">
+                    <label class="control-label">商户名称：</label>
+                    <div class="controls">
+                        <select name="mchtName" id="mchtId"  class="selectpicker bla bla bli" data-live-search="true">
+                            <option value="">---请选择---</option>
+                            <c:forEach var="mcht" items="${mchtList}">
+                                <option value="${mcht.name}" <c:if test="${paramMap.mchtName eq mcht.name}">selected</c:if> >${mcht.name}</option>
+                            </c:forEach>
+                        </select>
                     </div>
                 </div>
             </td>
@@ -125,12 +136,12 @@
                     <div class="controls">
                         <select id="auditStatus" name="auditStatus">
                             <option value="">---请选择---</option>
-                            <option value="created">未审核</option>
-                            <option value="customerPass">客服审核通过</option>
-                            <option value="operatePass">运营审核通过</option>
-                            <option value="customerRefuse">客服审核未通过</option>
-                            <option value=operateRefuse"">运营审核未通过</option>
-                            <option value=noNeedAudit"">无需审核</option>
+                            <option value="created" <c:if test="${paramMap.auditStatus eq 'created'}">selected</c:if> >未审核</option>
+                            <option value="customerPass" <c:if test="${paramMap.auditStatus eq 'customerPass'}">selected</c:if> >客服审核通过</option>
+                            <option value="operatePass" <c:if test="${paramMap.auditStatus eq 'operatePass'}">selected</c:if> >运营审核通过</option>
+                            <option value="customerRefuse" <c:if test="${paramMap.auditStatus eq 'customerRefuse'}">selected</c:if> >客服审核未通过</option>
+                            <option value="operateRefuse" <c:if test="${paramMap.auditStatus eq 'operateRefuse'}">selected</c:if> >运营审核未通过</option>
+                            <option value="noNeedAudit" <c:if test="${paramMap.auditStatus eq 'noNeedAudit'}">selected</c:if> >无需审核</option>
                         </select>
                     </div>
                 </div>
@@ -158,8 +169,8 @@
                     <div class="controls">
                         <select id="rechargeType" name="rechargeType">
                             <option value="">---请选择---</option>
-                            <option value="1">汇款</option>
-                            <option value=2"">支付</option>
+                            <option value="1" <c:if test="${paramMap.rechargeType eq 1}">selected</c:if>  >汇款</option>
+                            <option value="2" <c:if test="${paramMap.rechargeType eq 2}">selected</c:if>  >支付</option>
                         </select>
                     </div>
                 </div>
@@ -174,11 +185,11 @@
         </tr>
 
     </table>
-<label>| 总笔数：${orderCount} | </label>
-<label>总金额：${amount} 元| </label>
-<label>成功笔数：${successCount} | </label>
-<label>成功金额：${successAmount} 元| </label>
-<tags:message content="${message}" type="${messageType}"/>
+    <label>| 总笔数：${totalTotal} | </label>
+    <label>总金额：${totalAmount} 元| </label>
+    <label>成功笔数：${successTotal} | </label>
+    <label>成功金额：${successAmount} 元| </label>
+    <tags:message content="${message}" type="${messageType}"/>
 
 <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover"
        style="word-wrap:break-word; word-break:break-all;">
@@ -196,8 +207,8 @@
         <th>我司收款账号</th>
         <th>订单状态</th>
         <td>审核状态</td>
-
-
+        <td>客服审批人</td>
+        <td>运营审批人</td>
         <th>&nbsp;操&nbsp;作&nbsp;&nbsp;</th>
     </tr>
     </thead>
@@ -251,7 +262,12 @@
                     无需审核
                 </c:if>
             </td>
-
+            <td>
+                ${orderInfo.customerAuditUserName}
+            </td>
+            <td>
+                ${orderInfo.operateAuditUserName}
+            </td>
             <td>
                 <!--    查询订单详情         -->
                 <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}">查看详情</a>

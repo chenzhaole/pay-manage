@@ -123,7 +123,7 @@
             <br/>
             <br/>
             <div id="huikuang_content_id" style="width: 600px; margin: 0 auto;">
-                充值金额: <input type="text"  id="rechargeAmountId" name="rechargeAmount"/> &nbsp;元
+                充值金额: <input type="number"  id="rechargeAmountId" name="rechargeAmount"/> &nbsp;元
 
                 <br/>
 
@@ -163,7 +163,7 @@
                 </tr>
                 <tr>
                     <td>
-                        汇款充值费率: ${platFeerate.feeRate}%
+                        汇款充值费率: ${hkPlatFeerate.feeRate}%
                     </td>
                     <td style="text-align: center">
                         <div style="text-align: left; margin-left: 38%;">
@@ -191,7 +191,7 @@
             <br/>
             <br/>
             <div id="zhifu_content_id" style="width: 600px; margin: 0 auto;">
-                充值金额: <input type="text" id="payAmountId" name="payAmount"/> &nbsp;元
+                充值金额: <input type="number" id="payAmountId" name="payAmount"/> &nbsp;元
             </div>
 
             <table width="100%" border="1" cellspacing="0" cellpadding="1">
@@ -211,7 +211,7 @@
                 <tr>
                     <td>
                         <div>
-                            支付充值费率: ${platFeerate.feeRate}%
+                            支付充值费率: ${czPlatFeerate.feeRate}%
                         </div>
                         <div>
                             支付产品:

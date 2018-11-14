@@ -20,6 +20,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -72,11 +73,14 @@ public class MchtRechargeController extends BaseController {
         MchtInfo mcht = merchantService.queryByKey(mchtId);
         MchtRechargeConfig rechargeConfig = mchtRechargeConfigService.findByRechargeConfigMchtId(mchtId);
         if (null != mcht) {
-            PlatFeerate platFeerate = tradeApiRechargePayHandler.queryMchtFeerateByMchtIdAndCode(mchtId, PayTypeEnum.CHONGZHI_WG.getCode());
+            PlatFeerate czPlatFeerate = tradeApiRechargePayHandler.queryMchtFeerateByMchtIdAndCode(mchtId, PayTypeEnum.ZHIFU_WG.getCode());
+            PlatFeerate hkPlatFeerate = tradeApiRechargePayHandler.queryMchtFeerateByMchtIdAndCode(mchtId, PayTypeEnum.HUIKUANG_WG.getCode());
+
             modelAndView.addObject("mchtName", mcht.getName());
             modelAndView.addObject("mchtId", mchtId);
             modelAndView.addObject("rechargeConfig", rechargeConfig);
-            modelAndView.addObject("platFeerate", platFeerate);
+            modelAndView.addObject("czPlatFeerate", czPlatFeerate);
+            modelAndView.addObject("hkPlatFeerate", hkPlatFeerate);
         }
         modelAndView.setViewName("modules/recharge/commitMchtRecharge");
         return modelAndView;
@@ -139,7 +143,7 @@ public class MchtRechargeController extends BaseController {
         //String mchtId, String payType, String amount, String ip
         //获取请求ip，值必须真实，某些上游通道要求必须是真实ip
         String ip = IpUtil.getRemoteHost(request);//请求ip
-        CommonResult commonResult = tradeApiRechargePayHandler.process(mchtId, PayTypeEnum.CHONGZHI_WG.getCode(), amount, ip, mchtMessage);
+        CommonResult commonResult = tradeApiRechargePayHandler.process(mchtId, PayTypeEnum.ZHIFU_WG.getCode(), amount, ip, mchtMessage);
 
         String page = null;
 
@@ -213,7 +217,7 @@ public class MchtRechargeController extends BaseController {
     @RequiresPermissions("mcht:proxy:commit")
     public ModelAndView queryRechargePayOrders(HttpServletRequest request ,
                                             @RequestParam Map<String, String> paramMap){
-        this.logger.info("亲故参数:"+JSONObject.toJSONString(paramMap));
+        this.logger.info("请求参数:"+JSONObject.toJSONString(paramMap));
         ModelAndView modelAndView = new ModelAndView();
         MchtGatewayRechargeOrder rechargeOrder = new MchtGatewayRechargeOrder();
         //获取参数
@@ -253,11 +257,32 @@ public class MchtRechargeController extends BaseController {
             return modelAndView;
         }
 
+        MchtGatewayRechargeOrder statisticsRechargeOrder = new MchtGatewayRechargeOrder();
+        BeanUtils.copyProperties(rechargeOrder, statisticsRechargeOrder);
+
+        //总金额
+        statisticsRechargeOrder.setStatus(null);
+        Long totalAmount = rechargeService.amount(statisticsRechargeOrder);
+        //总笔数
+        Integer totalTotal = rechargeService.orderCount(statisticsRechargeOrder);
+        //成功金额
+        statisticsRechargeOrder.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+        Long successAmount = rechargeService.amount(statisticsRechargeOrder);
+        //成功笔数
+        Integer successTotal = rechargeService.orderCount(statisticsRechargeOrder);
+
+
         rechargeOrders = buildChanName(rechargeOrders);
         Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, rechargeOrders, true);
         modelAndView.addObject("page", page);
         modelAndView.addObject("orderCount", orderCount);
         modelAndView.addObject("paramMap",paramMap);
+
+        modelAndView.addObject("totalAmount", totalAmount);
+        modelAndView.addObject("totalTotal", totalTotal);
+        modelAndView.addObject("successAmount", successAmount);
+        modelAndView.addObject("successTotal", successTotal);
+
         modelAndView.setViewName("modules/recharge/queryRechargePayOrders");
         return modelAndView;
     }
@@ -326,6 +351,7 @@ public class MchtRechargeController extends BaseController {
             if("pass".equals(auditStatus)){
                 rechargeOrder.setAuditStatus(RechargeAuditEnum.CUSTOMER_PASS.getCode());
             }else if("refuse".equals(auditStatus)){
+                rechargeOrder.setUpdateTime(new Date());
                 rechargeOrder.setAuditStatus(RechargeAuditEnum.CUSTOMER_REFUSE.getCode());
             }
         }else if("operate".equals(auditType)){
@@ -336,6 +362,7 @@ public class MchtRechargeController extends BaseController {
                 rechargeOrder.setAuditStatus(RechargeAuditEnum.OPERATE_PASS.getCode());
                 rechargeOrder.setUpdateTime(new Date());
             }else if("refuse".equals(auditStatus)){
+                rechargeOrder.setUpdateTime(new Date());
                 rechargeOrder.setAuditStatus(RechargeAuditEnum.OPERATE_REFUSE.getCode());
             }
         }
@@ -390,7 +417,7 @@ public class MchtRechargeController extends BaseController {
         if(StringUtils.isEmpty(platOrderId)){
             return "redirect:" + GlobalConfig.getAdminPath() + "/mchtRecharge/queryOperateRechargePayOrders";
         }
-        tradeApiRechargePayHandler.processQuery(platOrderId, PayTypeEnum.CHONGZHI_WG.getCode());
+        tradeApiRechargePayHandler.processQuery(platOrderId, PayTypeEnum.ZHIFU_WG.getCode());
         return "redirect:" + GlobalConfig.getAdminPath() + "/mchtRecharge/queryOperateRechargePayOrders";
     }
 
@@ -406,7 +433,7 @@ public class MchtRechargeController extends BaseController {
     @RequiresPermissions("operate:recharge:query")
     public ModelAndView queryOperateRechargePayOrders(HttpServletRequest request ,
                                                       @RequestParam Map<String, String> paramMap){
-        this.logger.info("亲故参数:"+JSONObject.toJSONString(paramMap));
+        this.logger.info("请求参数:"+JSONObject.toJSONString(paramMap));
         ModelAndView modelAndView = new ModelAndView();
         MchtGatewayRechargeOrder rechargeOrder = new MchtGatewayRechargeOrder();
         //获取参数
@@ -427,6 +454,9 @@ public class MchtRechargeController extends BaseController {
         pageInfo.setPageNo(pageNo);
         rechargeOrder.setPageInfo(pageInfo);
 
+        List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+        modelAndView.addObject("mchtList", mchtList);
+
         //获得总条数
         int orderCount = rechargeService.countMchtGatewayRechargeOrders(rechargeOrder);
         if (orderCount == 0) {
@@ -442,11 +472,34 @@ public class MchtRechargeController extends BaseController {
             return modelAndView;
         }
 
+
+        MchtGatewayRechargeOrder statisticsRechargeOrder = new MchtGatewayRechargeOrder();
+        BeanUtils.copyProperties(rechargeOrder, statisticsRechargeOrder);
+
+        //总金额
+        statisticsRechargeOrder.setStatus(null);
+        Long totalAmount = rechargeService.amount(statisticsRechargeOrder);
+        //总笔数
+        Integer totalTotal = rechargeService.orderCount(statisticsRechargeOrder);
+        //成功金额
+        statisticsRechargeOrder.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+        Long successAmount = rechargeService.amount(statisticsRechargeOrder);
+        //成功笔数
+        Integer successTotal = rechargeService.orderCount(statisticsRechargeOrder);
+
+
+        modelAndView.addObject("totalAmount", totalAmount);
+        modelAndView.addObject("totalTotal", totalTotal);
+        modelAndView.addObject("successAmount", successAmount);
+        modelAndView.addObject("successTotal", successTotal);
+
+
         rechargeOrders = buildChanName(rechargeOrders);
         Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, rechargeOrders, true);
         modelAndView.addObject("page", page);
         modelAndView.addObject("orderCount", orderCount);
         modelAndView.addObject("paramMap",paramMap);
+
         modelAndView.setViewName("modules/recharge/queryOperateRechargePayOrders");
         return modelAndView;
     }
@@ -456,15 +509,24 @@ public class MchtRechargeController extends BaseController {
         if(rechargeOrders == null || rechargeOrders.size() ==0){
             return rechargeOrders;
         }
+        List<String> mchtIds = new ArrayList<>();
         for(MchtGatewayRechargeOrder rechargeOrder: rechargeOrders){
-            MchtInfo mchtInfo = merchantService.queryByKey(rechargeOrder.getMchtId());
-            MchtRechargeConfig rechargeConfig = mchtRechargeConfigService.findByRechargeConfigMchtId(rechargeOrder.getMchtId());
+            mchtIds.add(rechargeOrder.getMchtId());
+        }
+
+        Map<String, MchtInfo> mchtInfoMap = buildMchtInfoMap(mchtIds);
+        Map<String, MchtRechargeConfig> rechargeConfigMap = buildMchtRechargeConfigMap(mchtIds);
+
+
+        for(MchtGatewayRechargeOrder rechargeOrder: rechargeOrders){
+            MchtInfo mchtInfo = mchtInfoMap.get(rechargeOrder.getMchtId());
+            MchtRechargeConfig rechargeConfig = rechargeConfigMap.get(rechargeOrder.getMchtId());
             if (null != mchtInfo) {
                 rechargeOrder.setMchtCode(mchtInfo.getName());
                 if("1".equals(rechargeOrder.getRechargeType())){
                     rechargeOrder.setPayType(PayTypeEnum.HUIKUANG_WG.getDesc());
                 }else if("2".equals(rechargeOrder.getRechargeType())){
-                    rechargeOrder.setPayType(PayTypeEnum.CHONGZHI_WG.getDesc());
+                    rechargeOrder.setPayType(PayTypeEnum.ZHIFU_WG.getDesc());
                 }
             }
             rechargeOrder.setMchtCode(mchtInfo.getName());
@@ -478,6 +540,34 @@ public class MchtRechargeController extends BaseController {
         return rechargeOrders;
     }
 
+    public Map<String, MchtInfo> buildMchtInfoMap(List<String>  mchtIds){
+        Map<String, MchtInfo> mchtInfoMap = new HashMap<>();
 
+        MchtInfo mchtInfoQuery = new MchtInfo();
+        mchtInfoQuery.setMchtIds(mchtIds);
+        List<MchtInfo> mchtInfos = merchantService.list(mchtInfoQuery);
+        if(mchtInfos== null || mchtInfos.size() == 0){
+            return mchtInfoMap;
+        }
+        for(MchtInfo mcht: mchtInfos){
+            mchtInfoMap.put(mcht.getId(), mcht);
+        }
+        return mchtInfoMap;
+    }
 
+    public Map<String, MchtRechargeConfig> buildMchtRechargeConfigMap(List<String>  mchtIds){
+        Map<String, MchtRechargeConfig> rechargeConfigMap = new HashMap<>();
+
+        MchtRechargeConfig rechargeConfigQuery = new MchtRechargeConfig();
+        rechargeConfigQuery.setMchtIds(mchtIds);
+        List<MchtRechargeConfig> rechargeConfigs = mchtRechargeConfigService.queryRechargeConfigs(rechargeConfigQuery);
+
+        if(rechargeConfigs == null || rechargeConfigs.size() == 0){
+            return rechargeConfigMap;
+        }
+        for(MchtRechargeConfig rechargeConfig: rechargeConfigs){
+            rechargeConfigMap.put(rechargeConfig.getMchtId(), rechargeConfig);
+        }
+        return rechargeConfigMap;
+    }
 }
