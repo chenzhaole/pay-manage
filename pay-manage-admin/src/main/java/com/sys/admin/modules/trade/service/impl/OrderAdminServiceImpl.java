@@ -60,7 +60,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		String url = CONFIG_URL + "orderQuery";
 		Map<String, String> params = new HashMap<>();
 		params.put("order", JSON.toJSONString(order));
-		params.put("export","true");
+		//params.put("export","true");
 		String result;
 
 		try {
