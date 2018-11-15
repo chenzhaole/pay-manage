@@ -167,6 +167,7 @@ public class ChanMchtFormInfo {
 	private String tradeStartTimeS;
 	private String tradeEndTimeH;
 	private String tradeEndTimeS;
+	private String accType;
 
 	private static final long serialVersionUID = 1L;
 
@@ -773,6 +774,14 @@ public class ChanMchtFormInfo {
 
 	public void setDeviceType(String deviceType) {
 		this.deviceType = deviceType;
+	}
+
+	public String getAccType() {
+		return accType;
+	}
+
+	public void setAccType(String accType) {
+		this.accType = accType;
 	}
 
 	//空的构造方法

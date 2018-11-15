@@ -95,7 +95,7 @@
                     </tr>
                     <tr>
                         <td align="left" colspan="3">
-                            说明2：单个Excel文件最多支持100笔付款
+                            说明2：单个Excel文件最多支持50笔付款
                         </td>
                     </tr>
                     <tr>

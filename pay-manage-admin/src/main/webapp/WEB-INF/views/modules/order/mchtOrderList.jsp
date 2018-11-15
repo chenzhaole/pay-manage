@@ -177,8 +177,13 @@
 
                             <option value="yl" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'yl' }">selected</c:if>>银联支付</option>
 
-                            <option value="qj" <c:if test="${fn:substring(paramMap.payType,0,2) eq 'qj' }">selected</c:if>>快捷支付</option>
+                            <option value="qj202" <c:if test="${paramMap.payType eq 'qj202' }">selected</c:if>>快捷支付</option>
+
+                            <option value="qj301" <c:if test="${paramMap.payType eq 'qj301' }">selected</c:if>>网银支付</option>
+
+<%--
                             <option value="df101" <c:if test="${paramMap.payType eq 'df101'}">selected</c:if>>单笔代付</option>
+--%>
                         </select>
                     </div>
                 </div>

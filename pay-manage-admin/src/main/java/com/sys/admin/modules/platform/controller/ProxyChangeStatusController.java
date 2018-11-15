@@ -1,5 +1,6 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
@@ -8,11 +9,13 @@ import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
+import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.AuditEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
 import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
 import com.sys.common.util.Collections3;
+import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
@@ -26,11 +29,15 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.exceptions.JedisConnectionException;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -391,6 +398,14 @@ public class ProxyChangeStatusController extends BaseController {
 							int rs = accountAdminService.insert2redisAccTask(cacheMchtAccount);
 							logger.info("代付的入账功能返回结果 rs=" + rs);
 						}
+						if(proxyBatch.getNotifyUrl()!=null&&!"".equals(proxyBatch.getNotifyUrl())){
+							//将代付成功或失败的代付明细插入代付明细异步通知redis队列
+							Map<String,Object> detailMap = new HashMap<>();
+							detailMap.put("detail",proxyDetail);
+							detailMap.put("batchStatus",proxyBatch.getPayStatus());
+							detailMap.put("notifyUrl",proxyBatch.getNotifyUrl());
+							insert2redisPlatProxyDetail(detailMap);
+						}
 					}
 				}
 				proxyDetailAudit.setUpdateDate(new Date());
@@ -422,5 +437,32 @@ public class ProxyChangeStatusController extends BaseController {
 		redirectAttributes.addFlashAttribute("messageType", messageType);
 		redirectAttributes.addFlashAttribute("message", message);
 		return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/changeProxyStatusAudit";
+	}
+
+	/**
+	 * 代付成功或失败将代付明细插入redis队列中
+	 */
+	protected int insert2redisPlatProxyDetail(Map detailMap) {
+		JedisPool pool = null;
+		Jedis jedis = null;
+		long rs = 0;
+		try {
+			pool = JedisConnPool.getPool("缓存插入PlatProxyDetail信息");
+			jedis = pool.getResource();
+			rs = jedis.lpush(IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST, JSON.toJSONString(detailMap));
+
+			logger.info("缓存插入PlatProxyDetail信息： rsDf = " + rs+",key="+IdUtil.REDIS_PROXY_DETAIL_RESULT_NOTIFY_LIST+",value="+JSON.toJSONString(detailMap));
+		} catch (JedisConnectionException je) {
+			logger.error("Redis Jedis连接异常：" + je.getMessage());
+			je.printStackTrace();
+			rs = -1;
+		} catch (Exception e) {
+			logger.error("<insertData-error>error[" + e.getMessage() + "]</insertData-error>");
+			e.printStackTrace();
+			rs = -1;
+		} finally {
+			JedisConnPool.returnResource(pool, jedis, "");
+		}
+		return (int) rs;
 	}
 }
