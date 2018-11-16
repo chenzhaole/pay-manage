@@ -1,8 +1,10 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
+import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.common.utils.IpUtil;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.sys.utils.UserUtils;
@@ -10,6 +12,7 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.service.order.IRechargeService;
 import com.sys.boss.api.service.trade.handler.ITradeApiRechargePayHandler;
 import com.sys.common.enums.*;
+import com.sys.common.util.HttpUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.ChannelService;
@@ -22,6 +25,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
@@ -30,6 +34,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -52,6 +57,10 @@ public class MchtRechargeController extends BaseController {
 
     @Autowired
     private ChannelService channelService;
+
+    //商户账户详情信息接口地址
+    @Value("${mchtAccountDetailData.url}")
+    private String mchtAccountDetailUrl;
 
 
     public static final String IMAGES_PATH = "/images/";
@@ -82,6 +91,9 @@ public class MchtRechargeController extends BaseController {
             modelAndView.addObject("czPlatFeerate", czPlatFeerate);
             modelAndView.addObject("hkPlatFeerate", hkPlatFeerate);
         }
+        //查询余额
+        BigDecimal balance = queryPlatBalance(mchtId);
+        modelAndView.addObject("balance", balance);
         modelAndView.setViewName("modules/recharge/commitMchtRecharge");
         return modelAndView;
     }
@@ -569,5 +581,35 @@ public class MchtRechargeController extends BaseController {
             rechargeConfigMap.put(rechargeConfig.getMchtId(), rechargeConfig);
         }
         return rechargeConfigMap;
+    }
+
+
+    /**
+     * 查询指定商户的平台余额
+     *
+     * @param mchtId
+     * @return
+     */
+    private BigDecimal queryPlatBalance(String mchtId) {
+        BigDecimal balance = BigDecimal.ZERO;
+        try {
+            String topUrl = ConfigUtil.getValue("gateway.url");
+            if (topUrl.endsWith("/")) {
+                topUrl = topUrl.substring(0, topUrl.length() - 1);
+            }
+            String gatewayUrl = topUrl + "/df/gateway/balanceForAdmin";
+            Map<String, String> params = new HashMap<>();
+            params.put("mchtId", mchtId);
+            logger.info(mchtId + " 查询mchtAccountInfo表商户余额,请求URL: " + gatewayUrl + " 请求参数: " + JSON.toJSONString(params));
+            String balanceString = null;
+            balanceString = HttpUtil.postConnManager(gatewayUrl, params, true);
+            if (StringUtils.isNotBlank(balanceString)) {
+                balance = new BigDecimal(balanceString);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        logger.info(mchtId + " 查询mchtAccountInfo表商户余额,返回值(平台余额): " + balance);
+        return balance;
     }
 }

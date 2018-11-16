@@ -178,7 +178,6 @@
 <label>总金额：${totalAmount} 元| </label>
 <label>成功笔数：${successTotal} | </label>
 <label>成功金额：${successAmount} 元| </label>
-<tags:message content="${message}" type="${messageType}"/>
 
 <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover"
        style="word-wrap:break-word; word-break:break-all;">
@@ -222,10 +221,10 @@
                 <fmt:formatDate value="${orderInfo.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
             <td>
-                ${orderInfo.rechargeConfig.compReceiptAcctNo}
+                    ${orderInfo.rechargeConfig.compReceiptAcctName}
             </td>
             <td>
-                ${orderInfo.rechargeConfig.compReceiptAcctName}
+                    ${orderInfo.rechargeConfig.compReceiptAcctNo}
             </td>
             <td>
                     ${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}

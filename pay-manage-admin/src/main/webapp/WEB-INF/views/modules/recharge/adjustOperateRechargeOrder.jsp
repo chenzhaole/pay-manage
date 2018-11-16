@@ -70,7 +70,7 @@
             <div class="control-group">
                 <label class="control-label">手续费金额</label>
                 <div class="controls">
-                    ${mchtInfo.id}
+                    ${auditRechargeOrder.mchtFeeAmount}
                 </div>
             </div>
         </td>

@@ -102,8 +102,12 @@ public class MchtAccountDetailController extends BaseController {
             if(list != null){
                 for (MchtAccountDetail detail : list) {
                     detail.setMchtName(mchtMap.get(detail.getMchtId()));
-                    detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
-                    detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+                    if(StringUtils.isNotEmpty(detail.getTradeType())){
+                        detail.setTradeType(AccTradeTypeEnum.toEnum(detail.getTradeType()).getDesc());
+                    }
+                    if(StringUtils.isNotEmpty(detail.getOpType())){
+                        detail.setOpType(AccOpTypeEnum.toEnum(detail.getOpType()).getDesc());
+                    }
                 }
             }else{
                 logger.info("查询list列表为空");

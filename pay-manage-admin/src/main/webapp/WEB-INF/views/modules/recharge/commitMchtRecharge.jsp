@@ -54,8 +54,8 @@
 
                 //充值金额
                 rechargeAmount = $("#rechargeAmountId").val();
-                if(Number(rechargeAmount) <= 1000){
-                    alert('金额需大于1000元');
+                if(Number(rechargeAmount) < 1000){
+                    alert('充值金额最低1000元');
                     return false;
                 }
                 //判断尾数
@@ -81,8 +81,8 @@
             }else if(2 == rechargeType){
                 //支付金额
                 payAmount = $("#payAmountId").val();
-                if(Number(payAmount) <= 10){
-                    alert('金额需大于1000元');
+                if(Number(payAmount) < 10){
+                    alert('支付金额最低1000元');
                     return false;
                 }
                 $("#rechargeFromId").attr("action", "${ctx}/mchtRecharge/commitMchtRechargePayInfo")
@@ -92,6 +92,32 @@
                 return false;
             }
 
+        }
+
+
+
+        //限制图片大小.
+        function limitJpg(fileId, imgId, urlId) {
+            var max_size = 500;// 300k
+            var tmpFile = document.getElementById(fileId);
+            if (tmpFile.value == '' || tmpFile.value == null) {
+                alert("请上传图片");
+                return false;
+            }
+            if (!/\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test(tmpFile.value)) {
+                alert("图片类型必须是[.gif,jpeg,jpg,png]中的一种");
+                tmpFile.value = "";
+                return false;
+            } else {
+                var fileData = tmpFile.files[0];
+                var size = fileData.size;
+                if (size > max_size * 1024) {
+                    alert("图片大小不能超过500k");
+                    tmpFile.value = "";
+                } else {
+                    ajaxFileUpload(fileId, imgId, urlId);
+                }
+            }
         }
     </script>
     <script type="text/javascript" src="${ctxStatic}/js/img_upload/pictureHandle.js"/>
@@ -126,7 +152,8 @@
                 充值金额: <input type="number"  id="rechargeAmountId" name="rechargeAmount"/> &nbsp;元
 
                 <br/>
-
+                <label style="color: red">(提示:您输入的金额尾数需为${rechargeConfig.mchtRemittanceAmountSuffix} :如 1000.${rechargeConfig.mchtRemittanceAmountSuffix})</label>
+                <br/>
                 汇款留言: <textarea id="mchtMessage" name="mchtMessage"></textarea>
 
                 <div>
@@ -138,7 +165,7 @@
                     </div>
                     <div style="position: relative; left: 290px; top: -50px; background-color: #0D8BBD; color: #ffffff; width: 90px">
                         <label>
-                            上传/更改图片<input type="file" id="upFile" name="proofImage" style="display:none" />
+                            上传/更改图片<input type="file" id="upFile" name="proofImage" style="display:none" onchange="limitJpg('upFile')" />
                         </label>
                     </div>
                     <div style="position: relative; left: 290px; top: -50px;">
@@ -163,7 +190,7 @@
                 </tr>
                 <tr>
                     <td>
-                        汇款充值费率: ${hkPlatFeerate.feeRate}%
+                        汇款充值费率: ${hkPlatFeerate.feeRate}‰
                     </td>
                     <td style="text-align: center">
                         <div style="text-align: left; margin-left: 38%;">
@@ -173,13 +200,13 @@
                             2.收款银行:${rechargeConfig.compReceiptAcctNo}
                         </div>
                         <div style="text-align: left; margin-left: 38%;">
-                            3.金额需大于1000元
+                            3.汇款金额最低1000元
                         </div>
                         <div style="text-align: left; margin-left: 38%;">
                             4.图片大小不超过500K
                         </div>
                         <div style="text-align: left; margin-left: 38%;">
-                            5.专属汇款尾数${rechargeConfig.mchtRemittanceAmountSuffix}
+                            5.专属汇款尾数 :${rechargeConfig.mchtRemittanceAmountSuffix}
                         </div>
                     </td>
                 </tr>
@@ -211,14 +238,14 @@
                 <tr>
                     <td>
                         <div>
-                            支付充值费率: ${czPlatFeerate.feeRate}%
+                            支付充值费率: ${czPlatFeerate.feeRate}‰
                         </div>
                         <div>
                             支付产品:
                         </div>
                     </td>
                     <td>
-                        1.金额需大于1000元
+                        1.支付金额最低1000元
                     </td>
                 </tr>
                 </tr>
