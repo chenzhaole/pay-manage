@@ -43,6 +43,12 @@
 
 
         function submitRecharge() {
+
+            var czFreeRate = '${czPlatFeerate.feeRate}';
+            var zfFreeRate = '${czPlatFeerate.feeRate}';
+
+
+
             //1 汇款充值  2 支付充值
             //充值类型
             var rechargeType = $("input[name='rechargeType']:checked").val();
@@ -51,6 +57,10 @@
             var payAmount = 0;
 
             if(1 == rechargeType){
+                if(czFreeRate == null || czFreeRate == '' || czFreeRate =='0.00'){
+                    alert('未配置充值费率，请联系客服');
+                    return false;
+                }
 
                 //充值金额
                 rechargeAmount = $("#rechargeAmountId").val();
@@ -79,9 +89,20 @@
                 }
                 $("#rechargeFromId").submit();
             }else if(2 == rechargeType){
+                var payFalg = "${payFalg}";
+                if(zfFreeRate == null || zfFreeRate == '' || zfFreeRate == '0.00'){
+                    alert('未配置支付费率，请联系客服');
+                    return false;
+                }
+                if(payFalg == "false"){
+                    alert("未配置产品,请联系客服");
+                    return false;
+                }
+
+
                 //支付金额
                 payAmount = $("#payAmountId").val();
-                if(Number(payAmount) < 10){
+                if(Number(payAmount) < 1000){
                     alert('支付金额最低1000元');
                     return false;
                 }
@@ -104,8 +125,8 @@
                 alert("请上传图片");
                 return false;
             }
-            if (!/\.(gif|jpg|jpeg|png|GIF|JPG|PNG)$/.test(tmpFile.value)) {
-                alert("图片类型必须是[.gif,jpeg,jpg,png]中的一种");
+            if (!/\.(jpg|jpeg|png|JPEG|JPG|PNG)$/.test(tmpFile.value)) {
+                alert("图片类型必须是[jpeg,jpg,png]中的一种");
                 tmpFile.value = "";
                 return false;
             } else {
@@ -125,13 +146,15 @@
 
 </head>
 <body>
+
+
+
+<tags:message content="${message}" type="${messageType}"/>
 <div class="breadcrumb">
     <label>
         <th><a href="#">代付管理</a> > <a href="#"><b>发起充值</b></a></th>
     </label>
 </div>
-<tags:message content="${message}" type="${messageType}"/>
-
 <form id="rechargeFromId" action="${ctx}/mchtRecharge/commitMchtRechargeInfo" method="post" enctype="multipart/form-data">
     <span style="font-size:15px;padding-left:15px;">商户名称：${mchtName}&nbsp;&nbsp;&nbsp;&nbsp;账户余额：<fmt:formatNumber type="number" value="${balance*0.01}" maxFractionDigits="2"/>元</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
     <div style="border: solid 1px #7D7D7D; padding: 2% 2%;">
@@ -150,11 +173,17 @@
             <br/>
             <div id="huikuang_content_id" style="width: 600px; margin: 0 auto;">
                 充值金额: <input type="number"  id="rechargeAmountId" name="rechargeAmount"/> &nbsp;元
-
-                <br/>
                 <label style="color: red">(提示:您输入的金额尾数需为${rechargeConfig.mchtRemittanceAmountSuffix} :如 1000.${rechargeConfig.mchtRemittanceAmountSuffix})</label>
                 <br/>
-                汇款留言: <textarea id="mchtMessage" name="mchtMessage"></textarea>
+                <br/>
+
+                <br/>
+                汇款留言: <textarea id="mchtMessage" name="mchtMessage" maxlength="50"></textarea>
+                &nbsp;&nbsp;<label style="color: red">最多输入50个字符</label>
+
+                <br/>
+                <br/>
+
 
                 <div>
                     汇款凭证:
@@ -194,10 +223,10 @@
                     </td>
                     <td style="text-align: center">
                         <div style="text-align: left; margin-left: 38%;">
-                            1.收款账户:${rechargeConfig.compReceiptAcctName}
+                            1.公司收款账户名:${rechargeConfig.compReceiptAcctName}
                         </div>
                         <div style="text-align: left; margin-left: 38%;">
-                            2.收款银行:${rechargeConfig.compReceiptAcctNo}
+                            2.公司收款账户号:${rechargeConfig.compReceiptAcctNo}
                         </div>
                         <div style="text-align: left; margin-left: 38%;">
                             3.汇款金额最低1000元
@@ -206,7 +235,7 @@
                             4.图片大小不超过500K
                         </div>
                         <div style="text-align: left; margin-left: 38%;">
-                            5.专属汇款尾数 :${rechargeConfig.mchtRemittanceAmountSuffix}
+                            5.商户汇款专属尾数 :${rechargeConfig.mchtRemittanceAmountSuffix}
                         </div>
                     </td>
                 </tr>
@@ -239,9 +268,6 @@
                     <td>
                         <div>
                             支付充值费率: ${czPlatFeerate.feeRate}‰
-                        </div>
-                        <div>
-                            支付产品:
                         </div>
                     </td>
                     <td>

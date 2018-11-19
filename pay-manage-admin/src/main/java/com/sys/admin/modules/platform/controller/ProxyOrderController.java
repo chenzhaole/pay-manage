@@ -93,6 +93,9 @@ public class ProxyOrderController extends BaseController {
 	@Autowired
 	private IDfProducerService dfProducerService;
 
+	@Autowired
+	private JedisPool jedisPool;
+
 	@Value("${sms_send}")
 	private String sms_send;
 
@@ -456,8 +459,14 @@ public class ProxyOrderController extends BaseController {
 
 						/** xq.w 添加MQ生产者		商户号, 商户批次号, 平台批次ID, 平台批次详情ID**/
 						for (PlatProxyDetail detail : details) {
-							logger.info("代付详情开始入MQ ," + JSONObject.toJSONString(detail));
-							dfProducerService.sendInfo(detail.getId(),QueueUtil.DF_CREATE_QUEUE);
+							//代付下单后将代付明细id存入redis
+							boolean flag = insertProxyDetail2Redis(detail.getId());
+							if(flag) {
+								logger.info("代付详情开始入MQ ," + JSONObject.toJSONString(detail));
+								dfProducerService.sendInfo(detail.getId(), QueueUtil.DF_CREATE_QUEUE);
+							}else{
+								logger.info("代付下单后将代付明细id存入redis失败,detailId="+detail.getId());
+							}
 						}
 
 
@@ -1040,6 +1049,35 @@ public class ProxyOrderController extends BaseController {
 		} finally {
 			logger.info(message);
 			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		}
+	}
+
+	/**
+	 *
+	 * @Title: 代付下单后将代付明细id存入redis
+	 * @param @param proxyDetailId
+	 * @throws
+	 */
+	public boolean insertProxyDetail2Redis(String proxyDetailId) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			// 判断key在缓存中是否存在
+			String key = "TRADE:PROXY:DETAIL:ACCOUNTFREEZE:"+proxyDetailId;
+			String value = jedis.set(key,proxyDetailId);
+			if (StringUtils.isNotBlank(value)) {
+				logger.info("代付下单后将代付明细id存入redis,key为"+key);
+				return true;
+			}else{
+				return false;
+			}
+		} catch (Exception e) {
+			logger.error("redis insert error: {}", e.getMessage(),e);
+			return false;
+		} finally {
+			if (jedis != null) {
+				jedisPool.returnResource(jedis);
+			}
 		}
 	}
 }

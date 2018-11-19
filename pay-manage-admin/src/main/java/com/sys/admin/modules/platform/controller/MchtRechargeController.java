@@ -1,6 +1,7 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
@@ -15,9 +16,7 @@ import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
-import com.sys.core.service.ChannelService;
-import com.sys.core.service.MchtRechargeConfigService;
-import com.sys.core.service.MerchantService;
+import com.sys.core.service.*;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
@@ -56,7 +55,16 @@ public class MchtRechargeController extends BaseController {
     private IRechargeService rechargeService;
 
     @Autowired
+    private ChanMchtPaytypeService chanMchtPaytypeService;
+
+    @Autowired
     private ChannelService channelService;
+
+    @Autowired
+    private MchtProductService mchtProductService;
+
+    @Autowired
+    ProductService productService;
 
     //商户账户详情信息接口地址
     @Value("${mchtAccountDetailData.url}")
@@ -90,11 +98,23 @@ public class MchtRechargeController extends BaseController {
             modelAndView.addObject("rechargeConfig", rechargeConfig);
             modelAndView.addObject("czPlatFeerate", czPlatFeerate);
             modelAndView.addObject("hkPlatFeerate", hkPlatFeerate);
+            //查询是否有支付通道
+            PlatProduct product = queryProduct(mchtId, PayTypeEnum.ZHIFU_WG.getCode());
+            if(product == null || StringUtils.isEmpty(product.getId())){
+                modelAndView.addObject("payFalg", "false");
+            }else{
+                modelAndView.addObject("payFalg", "true");
+            }
+
         }
         //查询余额
         BigDecimal balance = queryPlatBalance(mchtId);
         modelAndView.addObject("balance", balance);
         modelAndView.setViewName("modules/recharge/commitMchtRecharge");
+
+
+
+
         return modelAndView;
     }
 
@@ -249,12 +269,10 @@ public class MchtRechargeController extends BaseController {
         PageInfo pageInfo = new PageInfo();
         pageInfo.setPageNo(pageNo);
         rechargeOrder.setPageInfo(pageInfo);
+        //设置查询当前用户的
+        rechargeOrder.setMchtId(UserUtils.getUser().getLoginName());
+
         //获得总条数
-
-        //查询当前的商户信息
-        String mchtId = UserUtils.getUser().getLoginName();
-        rechargeOrder.setMchtId(mchtId);
-
         int orderCount = rechargeService.countMchtGatewayRechargeOrders(rechargeOrder);
         if (orderCount == 0) {
             modelAndView.addObject("paramMap", paramMap);
@@ -268,6 +286,7 @@ public class MchtRechargeController extends BaseController {
             modelAndView.setViewName("modules/recharge/queryRechargePayOrders");
             return modelAndView;
         }
+
 
         MchtGatewayRechargeOrder statisticsRechargeOrder = new MchtGatewayRechargeOrder();
         BeanUtils.copyProperties(rechargeOrder, statisticsRechargeOrder);
@@ -284,16 +303,18 @@ public class MchtRechargeController extends BaseController {
         Integer successTotal = rechargeService.orderCount(statisticsRechargeOrder);
 
 
+        modelAndView.addObject("totalAmount", totalAmount);
+        modelAndView.addObject("totalTotal", totalTotal);
+        modelAndView.addObject("successAmount", successAmount);
+        modelAndView.addObject("successTotal", successTotal);
+
+
         rechargeOrders = buildChanName(rechargeOrders);
         Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, rechargeOrders, true);
         modelAndView.addObject("page", page);
         modelAndView.addObject("orderCount", orderCount);
         modelAndView.addObject("paramMap",paramMap);
 
-        modelAndView.addObject("totalAmount", totalAmount);
-        modelAndView.addObject("totalTotal", totalTotal);
-        modelAndView.addObject("successAmount", successAmount);
-        modelAndView.addObject("successTotal", successTotal);
 
         modelAndView.setViewName("modules/recharge/queryRechargePayOrders");
         return modelAndView;
@@ -308,6 +329,7 @@ public class MchtRechargeController extends BaseController {
         ModelAndView andView = new ModelAndView();
         andView.setViewName("modules/recharge/adjustRechargeOrder");
         String platOrderId = request.getParameter("platOrderId");
+        String queryFlag = request.getParameter("queryFlag");
         MchtGatewayRechargeOrder auditRechargeOrder = rechargeService.findRechargeOrderByPlatOrderId(platOrderId);
         if(auditRechargeOrder != null){
             MchtInfo mchtInfo = merchantService.queryByKey(auditRechargeOrder.getMchtId());
@@ -315,6 +337,7 @@ public class MchtRechargeController extends BaseController {
             andView.addObject("rechargeConfig", rechargeConfig);
             andView.addObject("mchtInfo",mchtInfo);
         }
+        andView.addObject("queryFlag",queryFlag);
         andView.addObject("auditRechargeOrder", auditRechargeOrder);
         return andView;
     }
@@ -328,6 +351,7 @@ public class MchtRechargeController extends BaseController {
         ModelAndView andView = new ModelAndView();
         andView.setViewName("modules/recharge/adjustOperateRechargeOrder");
         String platOrderId = request.getParameter("platOrderId");
+        String queryFlag = request.getParameter("queryFlag");
         MchtGatewayRechargeOrder auditRechargeOrder = rechargeService.findRechargeOrderByPlatOrderId(platOrderId);
         if(auditRechargeOrder != null){
             MchtInfo mchtInfo = merchantService.queryByKey(auditRechargeOrder.getMchtId());
@@ -335,7 +359,7 @@ public class MchtRechargeController extends BaseController {
             andView.addObject("rechargeConfig", rechargeConfig);
             andView.addObject("mchtInfo",mchtInfo);
         }
-
+        andView.addObject("queryFlag",queryFlag);
         andView.addObject("auditRechargeOrder", auditRechargeOrder);
         return andView;
     }
@@ -543,7 +567,11 @@ public class MchtRechargeController extends BaseController {
             }
             rechargeOrder.setMchtCode(mchtInfo.getName());
             rechargeOrder.setRechargeConfig(rechargeConfig);
-            ChanInfo chanInfo = channelService.queryByKey(rechargeOrder.getChanMchtPaytypeId());
+            ChanMchtPaytype chanMchtPaytype = chanMchtPaytypeService.queryByKey(rechargeOrder.getChanMchtPaytypeId());
+            if(chanMchtPaytype == null || chanMchtPaytype.getChanCode() == null){
+                continue;
+            }
+            ChanInfo chanInfo =  channelService.queryByKey(chanMchtPaytype.getChanCode());
             if(chanInfo == null){
                 continue;
             }
@@ -611,5 +639,44 @@ public class MchtRechargeController extends BaseController {
         }
         logger.info(mchtId + " 查询mchtAccountInfo表商户余额,返回值(平台余额): " + balance);
         return balance;
+    }
+
+
+
+    /**
+     * @param mchtId
+     * @param payType
+     * @return
+     */
+    protected PlatProduct queryProduct(String mchtId, String payType) {
+        // 查询该支付商户下的所有商户产品
+        MchtProduct mchtProduct = new MchtProduct();
+        mchtProduct.setMchtId(mchtId);
+        mchtProduct.setIsValid(1); // 是否生效： 1-有效；0-失效
+//		mchtProduct.setIsDelete(0); // 删除标识：1-删除；0-有效
+        List<MchtProduct> list = mchtProductService.list(mchtProduct);
+        // 遍历商户产品信息，取出对应的平台支付产品id，找到对应的支付类型的支付产品
+        PlatProduct product = null;
+        if(null != list && list.size() > 0){
+            for (MchtProduct mprod : list) {
+                //TODO 这一块后期会改造，根据平台产品id跟支付类型两个条件来查询，避免每次循环都查询一次库，影响性能
+                product = productService.queryByKey(mprod.getProductId());
+                //			状态：1-有效，2-无效，3-待审核
+                if (null != product) {
+                    if(StatusEnum.VALID.getCode().equals(product.getStatus()) && payType.equals(product.getPayType())){
+                        break;
+                    }else{
+                        logger.info("，遍历MchtProduct列表信息，根据productId="+mprod.getProductId()+"，查出的PlatProduct为：" + JSONArray.toJSONString(product)+"，产品停用或类型不符，所以过滤掉此产品");
+                        product = null;
+                    }
+                } else {
+                    logger.info("，遍历MchtProduct列表信息，根据productId="+mprod.getProductId()+"，查出的PlatProduct为null");
+                }
+            }
+        }else{
+            logger.info("，查询的MchtProduct列表信息为null");
+        }
+        logger.info("，返回的PlatProduct信息为：" + JSONObject.toJSONString(product));
+        return product;
     }
 }

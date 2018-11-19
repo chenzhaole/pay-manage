@@ -137,11 +137,11 @@
                         <select id="auditStatus" name="auditStatus">
                             <option value="">---请选择---</option>
                             <option value="created" <c:if test="${paramMap.auditStatus eq 'created'}">selected</c:if> >未审核</option>
-                            <option value="customerPass" <c:if test="${paramMap.auditStatus eq 'customerPass'}">selected</c:if> >客服审核通过</option>
-                            <option value="operatePass" <c:if test="${paramMap.auditStatus eq 'operatePass'}">selected</c:if> >运营审核通过</option>
-                            <option value="customerRefuse" <c:if test="${paramMap.auditStatus eq 'customerRefuse'}">selected</c:if> >客服审核未通过</option>
-                            <option value="operateRefuse" <c:if test="${paramMap.auditStatus eq 'operateRefuse'}">selected</c:if> >运营审核未通过</option>
-                            <option value="noNeedAudit" <c:if test="${paramMap.auditStatus eq 'noNeedAudit'}">selected</c:if> >无需审核</option>
+                            <option value="customer_pass" <c:if test="${paramMap.auditStatus eq 'customer_pass'}">selected</c:if> >客服审核通过</option>
+                            <option value="operate_pass" <c:if test="${paramMap.auditStatus eq 'operate_pass'}">selected</c:if> >运营审核通过</option>
+                            <option value="customer_refuse" <c:if test="${paramMap.auditStatus eq 'customer_refuse'}">selected</c:if> >客服审核未通过</option>
+                            <option value="operate_refuse" <c:if test="${paramMap.auditStatus eq 'operate_refuse'}">selected</c:if> >运营审核未通过</option>
+                            <option value="no_need_audit" <c:if test="${paramMap.auditStatus eq 'no_need_audit'}">selected</c:if> >无需审核</option>
                         </select>
                     </div>
                 </div>
@@ -223,7 +223,7 @@
                 <fmt:formatNumber type="number" value="${orderInfo.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>
             </td>
             <td>
-               ${orderInfo.mchtFeeAmount}
+                <fmt:formatNumber type="number" value="${orderInfo.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>
             </td>
             <td>
                 <fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
@@ -232,7 +232,6 @@
             </td>
             <td>
                  ${orderInfo.rechargeConfig.compReceiptAcctName}
-
             </td>
             <td>
                     ${orderInfo.rechargeConfig.compReceiptAcctNo}
@@ -269,7 +268,7 @@
             </td>
             <td>
                 <!--    查询订单详情         -->
-                <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}">查看详情</a>
+                <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}&queryFlag=true">查看详情</a>
                 <c:if test="${orderInfo.rechargeType eq '2'}">
                     <!--    查询上游订单信息    -->
                     <c:if test="${orderInfo.status eq '0' }">

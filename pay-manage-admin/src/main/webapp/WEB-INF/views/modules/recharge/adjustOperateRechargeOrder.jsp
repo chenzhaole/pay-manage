@@ -2,26 +2,34 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
 <head>
-    <title>充值订单审批</title>
+    <c:if test="${queryFlag ne 'true'}">
+        <title>充值订单审批</title>
+    </c:if>
+    <c:if test="${queryFlag eq 'true'}">
+        <title>充值订单详情</title>
+    </c:if>
+
     <meta name="decorator" content="default"/>
 
-    <script type="text/javascript">
-        function subAdjustForm() {
-            var checkValue=$(".adjust_class").val(); //获取Select选择的Value
-            if(checkValue == null || checkValue == '' || checkValue == 0){
-                alert("请选择审批状态.")
-                return false;
-            }
-            $("#auditStatusId").val(checkValue);
-            $("#inputForm").submit();
-        }
-    </script>
+
+    <link href="${ctxStatic}/js/zoomify.css" type="text/css" rel="stylesheet" />
+    <script src="${ctxStatic}/js/zoomify.js" type="text/javascript"></script>
+
+
+
+
+
 </head>
 <body>
 
 
 <ul class="nav nav-tabs">
-    <li><a href="#">充值订单审批</a></li>
+    <c:if test="${queryFlag ne 'true'}">
+        <li><a href="#">充值订单审批</a></li>
+    </c:if>
+    <c:if test="${queryFlag eq 'true'}">
+        <li><a href="#">充值订单详情</a></li>
+    </c:if>
 </ul>
 
 
@@ -70,7 +78,7 @@
             <div class="control-group">
                 <label class="control-label">手续费金额</label>
                 <div class="controls">
-                    ${auditRechargeOrder.mchtFeeAmount}
+                    <fmt:formatNumber type="number" value="${auditRechargeOrder.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>
                 </div>
             </div>
         </td>
@@ -79,6 +87,14 @@
                 <label class="control-label">订单时间	</label>
                 <div class="controls">
                     <fmt:formatDate value="${auditRechargeOrder.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                </div>
+            </div>
+        </td>
+        <td class="bottom_border_class">
+            <div class="control-group">
+                <label class="control-label">订单完成时间	</label>
+                <div class="controls">
+                    <fmt:formatDate value="${auditRechargeOrder.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
                 </div>
             </div>
         </td>
@@ -142,22 +158,25 @@
         <td>
             <div class="control-group">
                 <label class="control-label">凭据</label>
-                <div class="controls">
+                <div id="img_enlarge_id" class="controls" onclick="enlargeImg()">
                     <img src="${auditRechargeOrder.imgUrl}" width="200px" height="200px">
                 </div>
             </div>
         </td>
-        <td>
-            <div class="control-group">
-                <label class="control-label">审核状态</label>
-                <div class="controls">
-                    <select name="auditStatus">
-                        <option value="pass" selected>通过</option>
-                        <option value="refuse">拒绝</option>
-                    </select>
+        <c:if test="${queryFlag ne 'true'}">
+            <td>
+                <div class="control-group">
+                    <label class="control-label">审核状态</label>
+                    <div class="controls">
+                        <select name="auditStatus">
+                            <option value="pass" selected>通过</option>
+                            <option value="refuse">拒绝</option>
+                        </select>
+                    </div>
                 </div>
-            </div>
-        </td>
+            </td>
+        </c:if>
+
         <td>
             <input type="hidden" name="platOrderId" value="${auditRechargeOrder.platOrderId}">
             <input type="hidden" name="auditType" value="operate"/>
@@ -167,16 +186,19 @@
 
 </table>
     <div style="position: relative; left: 45%;">
-        <shiro:hasPermission name="mcht:proxy:customer">
-            <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
-                <input type="submit" value="提交审批"/>
-            </c:if>
-        </shiro:hasPermission>
-        <shiro:hasPermission name="mcht:proxy:operate">
-            <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
-                <input type="submit" value="提交审批"/>
-            </c:if>
-        </shiro:hasPermission>
+        <c:if test="${queryFlag ne 'true'}">
+            <shiro:hasPermission name="mcht:proxy:customer">
+                <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
+                    <input type="submit" value="提交审批"/>
+                </c:if>
+            </shiro:hasPermission>
+            <shiro:hasPermission name="mcht:proxy:operate">
+                <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
+                    <input type="submit" value="提交审批"/>
+                </c:if>
+            </shiro:hasPermission>
+        </c:if>
+
     </div>
 </form>
 
@@ -188,7 +210,21 @@
     .bottom_border_class{
         border-bottom: 1px solid #ddd;
     }
+
 </style>
+
+<script type="text/javascript">
+    function subAdjustForm() {
+        var checkValue=$(".adjust_class").val(); //获取Select选择的Value
+        if(checkValue == null || checkValue == '' || checkValue == 0){
+            alert("请选择审批状态.")
+            return false;
+        }
+        $("#auditStatusId").val(checkValue);
+        $("#inputForm").submit();
+    }
+    $('#img_enlarge_id img').zoomify();
+</script>
 </body>
 </html>
 
