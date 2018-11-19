@@ -57,28 +57,16 @@
                     </c:forEach>
                 </select>
             </td>
-
-            <td>
-                <label>审批日期：</label>
-                <input id="auditStartTime" name="auditStartTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${auditStartTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
-                ---
-                <input id="auditEndTime" name="auditEndTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${auditEndTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <br/>
-            </td>
-        </tr>
-        <tr>
             <td>
                 <label>申请日期：</label>
                 <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
                        value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
             </td>
-
+            <td>
+                <label>审批日期：</label>
+                <input id="auditTime" name="auditTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                       value="${auditTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+            </td>
             <td>
                 <label>审核状态：</label>
                 <form:select path="auditStatus" >
@@ -86,10 +74,7 @@
                     <form:options items="${fns:getDictList('account_adjust_status')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
-            <td>
-                <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;">
-            </td>
-
+            <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;"></td>
         </tr>
     </table>
 </form:form>
@@ -130,12 +115,12 @@
             <td><fmt:formatDate value="${adjust.auditTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${adjust.auditorName}</td>
             <td>${fns:getDictLabel(adjust.auditStatus,'account_adjust_status' ,'' )}</td>
-            <td <div  title="${adjust.remark}" class="wrap">${fn:substring(adjust.remark,0,50)}</div></td>
+            <td>
+                <div  title="${adjust.remark}" class="wrap">${fn:substring(adjust.remark,0,50)}</div>
+            </td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
-                    <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
-                        <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
-                    </c:if>
+                    <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
                 </td>
             </shiro:hasPermission>
         </tr>
