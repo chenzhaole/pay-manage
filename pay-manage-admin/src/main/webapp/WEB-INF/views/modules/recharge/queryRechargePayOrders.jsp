@@ -165,10 +165,18 @@
         </tr>
 
     </table>
-<label>| 总笔数：${totalTotal} | </label>
-<label>总金额：${totalAmount} 元| </label>
-<label>成功笔数：${successTotal} | </label>
-<label>成功金额：${successAmount} 元| </label>
+    <label>
+        | 总笔数：${totalTotal} |
+    </label>
+    <label>
+        总金额：<fmt:formatNumber type="number" value="${totalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/> 元|
+    </label>
+    <label>
+        成功笔数：${successTotal} |
+    </label>
+    <label>
+        成功金额：<fmt:formatNumber type="number" value="${successAmount*0.01}" pattern="0.00" maxFractionDigits="2"/> 元|
+    </label>
 
 <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover"
        style="word-wrap:break-word; word-break:break-all;">
@@ -201,10 +209,10 @@
                ${orderInfo.payType}
             </td>
             <td>
-                <fmt:formatNumber type="number" value="${orderInfo.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                <fmt:formatNumber type="number" value="${orderInfo.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>元
             </td>
             <td>
-                <fmt:formatNumber type="number" value="${orderInfo.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                <fmt:formatNumber type="number" value="${orderInfo.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>元
             </td>
             <td>
                 <fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
@@ -212,10 +220,10 @@
                 <fmt:formatDate value="${orderInfo.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
             <td>
-                    ${orderInfo.rechargeConfig.compReceiptAcctName}
+                    ${orderInfo.bankAccountName}
             </td>
             <td>
-                    ${orderInfo.rechargeConfig.compReceiptAcctNo}
+                    ${orderInfo.bankCardNo}
             </td>
             <td>
                     ${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}

@@ -379,11 +379,17 @@ public class MchtRechargeController extends BaseController {
         String auditStatus = request.getParameter("auditStatus");
         //平台订单号
         String platOrderId = request.getParameter("platOrderId");
+        //商户留言
+        String customerMessage = request.getParameter("customerMessage");
+        //运营留言
+        String operateMessage = request.getParameter("operateMessage");
+
         MchtGatewayRechargeOrder rechargeOrder = new MchtGatewayRechargeOrder();
         if("customer".equalsIgnoreCase(auditType)){
             rechargeOrder.setCustomerAuditTime(new Date());
             rechargeOrder.setCustomerAuditUserId(UserUtils.getUser().getLoginName());
             rechargeOrder.setCustomerAuditUserName(UserUtils.getUser().getName());
+            rechargeOrder.setExtend1(customerMessage);
             if("pass".equals(auditStatus)){
                 rechargeOrder.setAuditStatus(RechargeAuditEnum.CUSTOMER_PASS.getCode());
             }else if("refuse".equals(auditStatus)){
@@ -394,6 +400,7 @@ public class MchtRechargeController extends BaseController {
             rechargeOrder.setOperateAuditTime(new Date());
             rechargeOrder.setOperateAuditUserId(UserUtils.getUser().getLoginName());
             rechargeOrder.setOperateAuditUserName(UserUtils.getUser().getName());
+            rechargeOrder.setExtend2(operateMessage);
             if("pass".equals(auditStatus)){
                 rechargeOrder.setAuditStatus(RechargeAuditEnum.OPERATE_PASS.getCode());
                 rechargeOrder.setUpdateTime(new Date());

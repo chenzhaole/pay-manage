@@ -44,7 +44,7 @@
 
         function submitRecharge() {
 
-            var czFreeRate = '${czPlatFeerate.feeRate}';
+            var czFreeRate = '${hkPlatFeerate.feeRate}';
             var zfFreeRate = '${czPlatFeerate.feeRate}';
 
 

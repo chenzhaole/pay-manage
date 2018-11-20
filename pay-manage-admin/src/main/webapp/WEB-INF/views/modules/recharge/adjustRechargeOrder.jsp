@@ -67,7 +67,7 @@
                 <label class="">订单金额</label>
                 <div class="">
                     <label>
-                        <fmt:formatNumber type="number" value="${auditRechargeOrder.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                        <fmt:formatNumber type="number" value="${auditRechargeOrder.amount*0.01}" pattern="0.00" maxFractionDigits="2"/> (元)
                     </label>
                 </div>
             </div>
@@ -76,7 +76,7 @@
             <div class="control-group">
                 <label class="control-label">手续费金额</label>
                 <div class="controls">
-                    <fmt:formatNumber type="number" value="${auditRechargeOrder.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                    <fmt:formatNumber type="number" value="${auditRechargeOrder.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/> (元)
                 </div>
             </div>
         </td>
@@ -155,7 +155,7 @@
         </td>
     </tr>
     <tr>
-        <td>
+        <td style="width: 30%">
             <div class="control-group">
                 <label class="control-label">商户留言</label>
                 <div class="controls">
@@ -171,9 +171,83 @@
                 </div>
             </div>
         </td>
+
+        <td>
+            <input type="hidden" name="platOrderId" value="${auditRechargeOrder.platOrderId}">
+                <input type="hidden" name="auditType" value="customer"/>
+        </td>
+    </tr>
+    <tr>
+        <c:if test="${queryFlag eq 'true'}">
+            <shiro:hasPermission name="mcht:proxy:customer">
+                <!--    不是客服审核通过的显示 客服留言 和 运营留言     -->
+                <!--    客服审核通过      -->
+                <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass' ||
+                        auditRechargeOrder.auditStatus eq 'operate_pass' ||
+                        auditRechargeOrder.auditStatus eq 'customer_refuse' ||
+                        auditRechargeOrder.auditStatus eq 'operate_refuse'}">
+                    <c:if test="${queryFlag eq 'true'}">
+                        <td style="width: 30%">
+                            <div class="control-group">
+                                <label class="control-label">客服留言</label>
+                                <div class="controls">
+                                        ${auditRechargeOrder.extend1}
+                                </div>
+                            </div>
+                        </td>
+                        <td style="width: 30%">
+                            <div class="control-group">
+                                <label class="control-label">运营留言</label>
+                                <div class="controls">
+                                        ${auditRechargeOrder.extend2}
+                                </div>
+                            </div>
+                        </td>
+                    </c:if>
+                </c:if>
+            </shiro:hasPermission>
+            <shiro:hasPermission name="mcht:proxy:operate">
+                <!--    不是客服审核通过的显示 客服留言 和 运营留言     -->
+                <!--    客服审核通过      -->
+                <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass' ||
+                        auditRechargeOrder.auditStatus eq 'operate_pass' ||
+                        auditRechargeOrder.auditStatus eq 'customer_refuse' ||
+                        auditRechargeOrder.auditStatus eq 'operate_refuse'}">
+                    <c:if test="${queryFlag eq 'true'}">
+                        <td>
+                            <div class="control-group">
+                                <label class="control-label">客服留言</label>
+                                <div class="controls">
+                                        ${auditRechargeOrder.extend1}
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="control-group">
+                                <label class="control-label">运营留言</label>
+                                <div class="controls">
+                                        ${auditRechargeOrder.extend2}
+                                </div>
+                            </div>
+                        </td>
+                    </c:if>
+                </c:if>
+            </shiro:hasPermission>
+        </c:if>
+    </tr>
+    <tr>
         <shiro:hasPermission name="mcht:proxy:customer">
             <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
                 <c:if test="${queryFlag ne 'true'}">
+                    <td>
+                        <div class="control-group">
+                            <label class="control-label">客服留言</label>
+                            <div class="controls">
+                                <textarea id="customerMessage" name="customerMessage" maxlength="100"></textarea>
+                                &nbsp;&nbsp;<label style="color: red">最多输入100个字符</label>
+                            </div>
+                        </div>
+                    </td>
                     <td>
                         <div class="control-group">
                             <label class="control-label">审核状态</label>
@@ -186,13 +260,10 @@
                         </div>
                     </td>
                 </c:if>
-
             </c:if>
+
+
         </shiro:hasPermission>
-        <td>
-            <input type="hidden" name="platOrderId" value="${auditRechargeOrder.platOrderId}">
-                <input type="hidden" name="auditType" value="customer"/>
-        </td>
     </tr>
 
 

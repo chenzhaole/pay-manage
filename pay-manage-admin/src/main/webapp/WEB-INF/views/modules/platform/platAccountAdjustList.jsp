@@ -120,7 +120,9 @@
             </td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
-                    <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
+                    <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
+                        <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
+                    </c:if>
                 </td>
             </shiro:hasPermission>
         </tr>

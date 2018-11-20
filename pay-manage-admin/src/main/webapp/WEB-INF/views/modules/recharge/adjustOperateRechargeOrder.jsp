@@ -69,7 +69,7 @@
                 <label class="">订单金额</label>
                 <div class="">
                     <label>
-                        <fmt:formatNumber type="number" value="${auditRechargeOrder.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                        <fmt:formatNumber type="number" value="${auditRechargeOrder.amount*0.01}" pattern="0.00" maxFractionDigits="2"/> (元)
                     </label>
                 </div>
             </div>
@@ -78,7 +78,7 @@
             <div class="control-group">
                 <label class="control-label">手续费金额</label>
                 <div class="controls">
-                    <fmt:formatNumber type="number" value="${auditRechargeOrder.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                    <fmt:formatNumber type="number" value="${auditRechargeOrder.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/> (元)
                 </div>
             </div>
         </td>
@@ -146,6 +146,7 @@
             </div>
         </td>
     </tr>
+
     <tr>
         <td>
             <div class="control-group">
@@ -155,6 +156,35 @@
                 </div>
             </div>
         </td>
+        <!--    不是客服审核通过的显示 客服留言 和 运营留言     -->
+        <!--    客服审核通过      -->
+        <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass' ||
+                        auditRechargeOrder.auditStatus eq 'operate_pass' ||
+                        auditRechargeOrder.auditStatus eq 'customer_refuse' ||
+                        auditRechargeOrder.auditStatus eq 'operate_refuse'}">
+                <td width="30%">
+                    <div class="control-group">
+                        <label class="control-label">客服留言</label>
+                        <div class="controls">
+                                ${auditRechargeOrder.extend1}
+                        </div>
+                    </div>
+                </td>
+
+        </c:if>
+        <c:if test="auditRechargeOrder.auditStatus eq 'operate_pass' ||
+                        auditRechargeOrder.auditStatus eq 'operate_refuse'}">
+            <td width="30%">
+                <div class="control-group">
+                    <label class="control-label">运营留言</label>
+                    <div class="controls">
+                            ${auditRechargeOrder.extend2}
+                    </div>
+                </div>
+            </td>
+        </c:if>
+    </tr>
+    <tr>
         <td>
             <div class="control-group">
                 <label class="control-label">凭据</label>
@@ -164,6 +194,16 @@
             </div>
         </td>
         <c:if test="${queryFlag ne 'true'}">
+
+            <td width="30%">
+                <div class="control-group">
+                    <label class="control-label">运营留言</label>
+                    <div class="controls">
+                        <textarea id="operateMessage" name="operateMessage" maxlength="100"></textarea>
+                        &nbsp;&nbsp;<label style="color: red">最多输入100个字符</label>
+                    </div>
+                </div>
+            </td>
             <td>
                 <div class="control-group">
                     <label class="control-label">审核状态</label>
