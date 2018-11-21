@@ -115,6 +115,15 @@ public class MchtOrderController extends BaseController {
         String beginDate = paramMap.get("beginDate");
         //结束时间
         String endDate = paramMap.get("endDate");
+
+        BigDecimal amount 		 = new BigDecimal(0);
+        long 	   successCount  = 0;
+        BigDecimal successAmount = new BigDecimal(0);
+        int orderCount = 0;
+        model.addAttribute("successCount", successCount);
+        model.addAttribute("amount", amount.toString());
+        model.addAttribute("successAmount", successAmount.toString());
+        model.addAttribute("orderCount", orderCount);
         if (StringUtils.isNotBlank(beginDate) && StringUtils.isNotBlank(endDate)) {
             String msg = this.checkDate(beginDate, endDate);
             if (!"ok".equals(msg)) {
@@ -145,7 +154,7 @@ public class MchtOrderController extends BaseController {
         pageInfo.setPageNo(pageNo);
         order.setPageInfo(pageInfo);
 
-        int orderCount = 0;
+
         if (StringUtils.isNotBlank(isSelectInfo)) {
             orderCount = orderAdminService.ordeCount(order);
             if (orderCount == 0) {
@@ -174,9 +183,6 @@ public class MchtOrderController extends BaseController {
                 }
             }
 
-            BigDecimal amount 		 = new BigDecimal(0);
-            long 	   successCount  = 0;
-            BigDecimal successAmount = new BigDecimal(0);
             //是否统计汇总
             if("1".equals(paramMap.get("isstat"))) {
                 //交易开始时间:交易结束时间:商户:上游通道:支付产品:支付方式:官方订单号:商户订单号:平台订单号:上游订单号:通道商户支付方式:订单状态:补单状态
@@ -212,10 +218,7 @@ public class MchtOrderController extends BaseController {
         Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
         model.addAttribute("page", page);
 
-
         model.addAttribute("orderCount", orderCount);
-
-
         return "modules/order/mchtOrderList";
     }
 

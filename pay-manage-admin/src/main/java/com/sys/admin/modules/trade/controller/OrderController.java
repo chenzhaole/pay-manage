@@ -148,6 +148,15 @@ public class OrderController extends BaseController {
 		model.addAttribute("productList", productList);
 		model.addAttribute("chanMchtPaytypeList", chanMchtPaytypeList);
 
+		BigDecimal amount 		 = new BigDecimal(0);
+		long 	   successCount  = 0;
+		BigDecimal successAmount = new BigDecimal(0);
+		int 	   orderCount = 0;
+		model.addAttribute("orderCount", orderCount);
+		model.addAttribute("successCount", successCount);
+		model.addAttribute("amount", amount.toString());
+		model.addAttribute("successAmount", successAmount.toString());
+		model.addAttribute("isstat",paramMap.get("isstat"));
 		if ("no".equals(paramMap.get("query"))) {
 			return "modules/order/orderList";
 		}
@@ -166,7 +175,7 @@ public class OrderController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		order.setPageInfo(pageInfo);
 
-		int orderCount = orderAdminService.ordeCount(order);
+		orderCount = orderAdminService.ordeCount(order);
 
 		model.addAttribute("paramMap", paramMap);
 
@@ -189,9 +198,6 @@ public class OrderController extends BaseController {
 		Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
 		model.addAttribute("page", page);
 
-		BigDecimal amount 		 = new BigDecimal(0);
-		long 	   successCount  = 0;
-		BigDecimal successAmount = new BigDecimal(0);
 		//是否统计汇总
 		if("1".equals(paramMap.get("isstat"))){
 			//交易开始时间:交易结束时间:商户:上游通道:支付产品:支付方式:官方订单号:商户订单号:平台订单号:上游订单号:通道商户支付方式:订单状态:补单状态
