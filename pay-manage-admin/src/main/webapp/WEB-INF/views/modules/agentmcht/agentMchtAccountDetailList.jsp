@@ -153,6 +153,10 @@
                     <fmt:formatNumber type="number" value="${accountDetail.tradeFeeAmount*0.01}" pattern="0.00"
                                       maxFractionDigits="2"/>
                 </c:if>
+                <c:if test="${accountDetail.tradeType == '充值'}">
+                    <fmt:formatNumber type="number" value="${accountDetail.tradeFeeAmount*0.01}" pattern="0.00"
+                                      maxFractionDigits="2"/>
+                </c:if>
             </td>
             <%--<td><fmt:formatNumber type="number" value="${accountDetail.freezeTotalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>--%>
             <td><fmt:formatNumber type="number" value="${accountDetail.cashTotalAmount*0.01 - accountDetail.freezeTotalAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>

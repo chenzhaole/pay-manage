@@ -22,25 +22,8 @@ import com.sys.common.enums.ProxyPayRequestEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.ChanInfo;
-import com.sys.core.dao.dmo.MchtAccountDetail;
-import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.MchtProduct;
-import com.sys.core.dao.dmo.PlatBank;
-import com.sys.core.dao.dmo.PlatFeerate;
-import com.sys.core.dao.dmo.PlatProduct;
-import com.sys.core.dao.dmo.PlatProxyBatch;
-import com.sys.core.dao.dmo.PlatProxyDetail;
-import com.sys.core.service.ChannelService;
-import com.sys.core.service.MchtAccountDetailService;
-import com.sys.core.service.MchtAccountInfoService;
-import com.sys.core.service.MchtProductService;
-import com.sys.core.service.MerchantService;
-import com.sys.core.service.PlatBankService;
-import com.sys.core.service.PlatFeerateService;
-import com.sys.core.service.ProductService;
-import com.sys.core.service.ProxyBatchService;
-import com.sys.core.service.ProxyDetailService;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.*;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -59,25 +42,21 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
+import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import java.awt.image.BufferedImage;
+import java.io.*;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @RequestMapping(value = "${adminPath}/proxy")
@@ -1037,6 +1016,8 @@ public class ProxyOrderController extends BaseController {
 		logger.info(midoid +"，产品有误");
 		return null;
 	}
+
+
 
 	@RequestMapping("supplyNotify")
 	public String supplyNotify(String detailId, String batchId, RedirectAttributes redirectAttributes, HttpServletResponse response) {

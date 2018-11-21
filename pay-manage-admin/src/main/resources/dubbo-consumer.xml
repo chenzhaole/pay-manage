@@ -47,6 +47,14 @@
 	<dubbo:reference id="reportDayPayService" interface="com.sys.core.service.ReportDayPayService" timeout="30000"/>
 	<dubbo:reference id="statReportDayPayDetailService" interface="com.sys.boss.api.service.stat.StatReportDayPayDetailService" timeout="30000"/>
 	<dubbo:reference id="statReportDayPayService" interface="com.sys.boss.api.service.stat.StatReportDayPayService" timeout="30000"/>
+	<!--	通道商户支付方式账务	-->
+	<dubbo:reference id="chanMchtPaytypeAccConfigService" interface="com.sys.core.service.ChanMchtPaytypeAccConfigService" timeout="30000"/>
+	<!--	商户充值配置信息		-->
+	<dubbo:reference id="mchtRechargeConfigService" interface="com.sys.core.service.MchtRechargeConfigService" timeout="30000"/>
+	<!--	商户充值订单信息		-->
+	<dubbo:reference id="rechargeService" interface="com.sys.boss.api.service.order.IRechargeService" timeout="30000"/>
+	<!-- 	[充值] 下单		-->
+	<dubbo:reference id="tradeApiRechargePayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeApiRechargePayHandler" timeout="30000" />
 	<dubbo:reference id ="dfProducerService" interface="com.sys.boss.api.service.trade.service.IDfProducerService" timeout="30000"/>
 
 </beans>
