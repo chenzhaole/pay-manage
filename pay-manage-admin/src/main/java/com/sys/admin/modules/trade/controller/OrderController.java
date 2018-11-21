@@ -45,6 +45,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -112,6 +114,11 @@ public class OrderController extends BaseController {
 	@Value("${mchtSettleTotalAmountUrl.url}")
 	private String mchtSettleTotalAmountUrl;
 
+	@Value("${payOrderListExpireSecond}")
+	private String payOrderListExpireSecond;
+
+	@Autowired
+	private JedisPool jedisPool;
 
 
 	@RequiresPermissions("process:question:view")
@@ -182,21 +189,43 @@ public class OrderController extends BaseController {
 		Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
 		model.addAttribute("page", page);
 
-		//金额总数
-		BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+		BigDecimal amount 		 = new BigDecimal(0);
+		long 	   successCount  = 0;
+		BigDecimal successAmount = new BigDecimal(0);
+		//是否统计汇总
+		if("1".equals(paramMap.get("isstat"))){
+			//交易开始时间:交易结束时间:商户:上游通道:支付产品:支付方式:官方订单号:商户订单号:平台订单号:上游订单号:通道商户支付方式:订单状态:补单状态
+			String key = "PAYORDER:LIST:"+DateUtils.formatDate(order.getCreateTime(),"yyyy-MM-dd HH:mm:ss") +":"+DateUtils.formatDate(order.getUpdateTime(),"yyyy-MM-dd HH:mm:ss")
+					+":"+order.getMchtId()+":"+order.getChanId()+":"+order.getPlatProductId()+":"+order.getPayType()+":"+order.getOfficialOrderId()
+					+":"+order.getMchtOrderId()+":"+order.getPlatOrderId()+":"+order.getChanOrderId()+":"+order.getChanMchtPaytypeId()+":"+order.getStatus()+":"+order.getSupplyStatus();
+			String value = getFromRedis(key);
+			if(value==null||"".equals(value)){
+				//金额总数
+				amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
 
-		//支付成功
-		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
-		//支付成功总数
-		long successCount = orderAdminService.ordeCount(order);
-		//支付成功金额总数
-		BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				//支付成功
+				order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+				//支付成功总数
+				successCount = orderAdminService.ordeCount(order);
+				//支付成功金额总数
+				successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				insert2Redis(key,amount.toString()+","+successCount+","+successAmount.toString(),Integer.parseInt(payOrderListExpireSecond));
+			}else{
+				String[] values = value.split(",");
+				if(values.length>=3){
+					amount = new BigDecimal(values[0]);
+					successCount = Long.parseLong(values[1]);
+					successAmount = new BigDecimal(values[2]);
+				}
+			}
+
+		}
 
 		model.addAttribute("orderCount", orderCount);
 		model.addAttribute("successCount", successCount);
 		model.addAttribute("amount", amount.toString());
 		model.addAttribute("successAmount", successAmount.toString());
-
+		model.addAttribute("isstat",paramMap.get("isstat"));
 		return "modules/order/orderList";
 	}
 
@@ -933,4 +962,46 @@ public class OrderController extends BaseController {
 			return "redirect:" + GlobalConfig.getAdminPath() + "/order/list";
 		}
 	}
+
+	/**
+	 *
+	 * @Title: 缓存数据到redis
+	 * @throws
+	 */
+	public void insert2Redis(String key,String value,int expireSecond) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			// NX是不存在时才set， XX是存在时才set， EX是秒，PX是毫秒
+			jedis.set(key,value,"NX","EX",expireSecond);
+
+		} catch (Exception e) {
+			logger.error("redis insert error: {}", e.getMessage(),e);
+		} finally {
+			if (jedis != null) {
+				jedisPool.returnResource(jedis);
+			}
+		}
+	}
+
+	/**
+	 * 从redis缓存中获取数据
+	 * @param key
+	 * @return
+	 */
+	public String getFromRedis(String key) {
+		Jedis jedis = null;
+		try {
+			jedis = jedisPool.getResource();
+			return jedis.get(key);
+		} catch (Exception e) {
+			logger.error("redis insert error: {}", e.getMessage(),e);
+		} finally {
+			if (jedis != null) {
+				jedisPool.returnResource(jedis);
+			}
+		}
+		return null;
+	}
+
 }

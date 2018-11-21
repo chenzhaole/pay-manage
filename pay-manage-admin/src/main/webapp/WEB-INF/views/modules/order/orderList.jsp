@@ -245,7 +245,9 @@
 
 			               <input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
 				               value="${paramMap.endDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:false,readOnly:true,minDate:$dp.$('beginDate').value,isShowOK:false,isShowToday:false});"/>
-	               		 </div>
+							<input type="checkbox" name="isstat" id="isstat" value="1"/>统计汇总
+						</div>
+
 	               	</div>
 	         	</td>
 	         	<td colspan="2" align="right">
