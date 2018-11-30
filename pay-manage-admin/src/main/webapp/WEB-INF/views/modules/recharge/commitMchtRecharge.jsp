@@ -82,11 +82,13 @@
                 }
 
                 //图片
+                /*
                 var upFileVal = $("#upFile").val();
                 if(upFileVal == null || upFileVal == ''){
                     alert('请上传支付凭证.');
                     return false;
-                }
+                }*/
+                $("#proofImage").val($("#preview").attr("src"));
                 $("#rechargeFromId").submit();
             }else if(2 == rechargeType){
                 var payFalg = "${payFalg}";
@@ -189,9 +191,11 @@
                     汇款凭证:
                 </div>
                 <div>
-                    <div style="width: 201px; height: 201px; border: 1px solid #000;   position: relative; left: 65px;">
-                        <img src="" id="preview" />
+                    <input type="hidden" name="proofImage" id="proofImage" value=""/>
+                    <div style="width:400px;height:200px;border: 1px solid #000;   position: relative; left: 65px;" id="showimage">
+
                     </div>
+                    <!--
                     <div style="position: relative; left: 290px; top: -50px; background-color: #0D8BBD; color: #ffffff; width: 90px">
                         <label>
                             上传/更改图片<input type="file" id="upFile" name="proofImage" style="display:none" onchange="limitJpg('upFile')" />
@@ -200,6 +204,7 @@
                     <div style="position: relative; left: 290px; top: -50px;">
                         (图片大小不超过500K, 支持JPG,JPEG,PNG格式)
                     </div>
+                    -->
                 </div>
             </div>
 
@@ -283,6 +288,11 @@
         <input type="button" onclick="submitRecharge()" value="确认提交"/>
     </div>
 </form>
+<script src="${ctxStatic}/js/paste.js"></script>
+<script>
+    // 初始化插件，传入展示图片标签的jq对象
+    upImageInit($("#showimage"));
+</script>
 </body>
 
 
