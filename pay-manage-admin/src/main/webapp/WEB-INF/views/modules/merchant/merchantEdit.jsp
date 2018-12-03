@@ -590,7 +590,7 @@
                                     <c:if test="${empty merchant.merchantSettleCycle && op !='add'}">selected</c:if> value="T0">实时结算
                             </option>
                             <option
-                                    <c:if test="${merchant.merchantSettleCycle == 'T1'}">selected</c:if> value="T1">非实时结算
+                                    <c:if test="${merchant.merchantSettleCycle == 'TN'}">selected</c:if> value="TN">非实时结算
                             </option>
                         </select>
                     </div>

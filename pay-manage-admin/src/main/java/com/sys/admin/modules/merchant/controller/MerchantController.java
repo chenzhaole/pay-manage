@@ -111,6 +111,7 @@ public class MerchantController extends BaseController {
 			mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
 			mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
 			//20181128 账户改造
+			//代结算金额
 			model.addAttribute("settleTotalAmount",settleTotalAmount);
 		}
 
