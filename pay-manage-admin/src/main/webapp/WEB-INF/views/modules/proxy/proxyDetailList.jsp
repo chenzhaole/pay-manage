@@ -67,7 +67,10 @@
                 <label>商户订单号：</label>
                 <input value="${paramMap.mchtBatchId}" name="mchtBatchId" type="text" maxlength="64" class="input-medium"/>
             </td>
-
+            <td>
+                <label>收款账号：</label>
+                <input value="${paramMap.bankCardNo}" name="bankCardNo" type="text" maxlength="64" class="input-medium"/>
+            </td>
         </tr>
         <tr>
             <td>
@@ -102,10 +105,6 @@
                     </c:forEach>
                 </select>
             </td>
-            <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">
-                &nbsp;&nbsp;<input id="btnExport" class="btn btn-primary" type="button" value="导出"/></td>
-            </td>
-
             <%--<td>
                 <label>代付结果：</label>
                 <select name="checkStatus" class="input-medium">
@@ -114,9 +113,35 @@
                     <option <c:if test="${paramMap.checkStatus == 2}">selected</c:if> value="2">失败</option>
                 </select>&nbsp;&nbsp;&nbsp;
             </td>--%>
-
-
-    </tr>
+        </tr>
+        <tr>
+            <td>
+                <label>开始时间：</label>
+                <input id="startTime" name="startTime" type="text" readonly="readonly" class="input-medium Wdate"
+                       value="${paramMap.startTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'
+                       ,isShowClear:false,readOnly:true,maxDate:$dp.$('endTime').value,isShowOK:false,isShowToday:false});"/>
+            </td>
+            <td>
+                <label>结束时间：</label>
+                <input id="endTime" name="endTime" type="text" readonly="readonly" class="input-medium Wdate"
+                       value="${paramMap.endTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'
+                       ,isShowClear:false,readOnly:true,minDate:$dp.$('startTime').value,isShowOK:false,isShowToday:false});"/>
+            </td>
+            <td>
+                <label>收款户名：</label>
+                <input value="${paramMap.bankCardName}" name="bankCardName" type="text" maxlength="64" class="input-medium"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label>平台银行：</label>
+                <input value="${paramMap.bankName}" name="bankName" type="text" maxlength="64" class="input-medium"/>
+            </td>
+            <td>
+                <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;">&nbsp;&nbsp;
+                <input id="btnExport" class="btn btn-primary" type="button" value="导出"/></td>
+            </td>
+        </tr>
 </table>
 </form>
 

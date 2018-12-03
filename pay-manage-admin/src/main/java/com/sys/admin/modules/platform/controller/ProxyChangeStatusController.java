@@ -6,6 +6,7 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.platform.service.AccountAdminService;
+import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
@@ -15,6 +16,7 @@ import com.sys.common.enums.MchtAccountTypeEnum;
 import com.sys.common.enums.ProxyPayBatchStatusEnum;
 import com.sys.common.enums.ProxyPayDetailStatusEnum;
 import com.sys.common.util.Collections3;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
@@ -228,11 +230,7 @@ public class ProxyChangeStatusController extends BaseController {
 	@RequestMapping(value = {"changeProxyStatusAudit", ""})
 	public String changeProxyStatusAudit(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 		PlatProxyDetailAudit proxyDetail = new PlatProxyDetailAudit();
-		proxyDetail.setChanId(paramMap.get("chanId"));
-		proxyDetail.setMchtId(paramMap.get("mchtId"));
-		proxyDetail.setId(paramMap.get("detailId"));
-		proxyDetail.setPayStatus(paramMap.get("payStatus"));
-		proxyDetail.setPlatBatchId(paramMap.get("batchId"));
+		assemblySearch(paramMap, proxyDetail);
 
 		//分页
 		String pageNoString = paramMap.get("pageNo");
@@ -249,12 +247,15 @@ public class ProxyChangeStatusController extends BaseController {
 		//  上游通道列表
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 
+		List<User> userList = UserUtils.getAllUserList();
+
 
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
 
 		model.addAttribute("chanInfos", chanInfoList);
 		model.addAttribute("mchtInfos", mchtInfos);
+		model.addAttribute("users", userList);
 //		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
 
 		int proxyCount = proxyDetailAuditService.count(proxyDetail);
@@ -464,5 +465,54 @@ public class ProxyChangeStatusController extends BaseController {
 			JedisConnPool.returnResource(pool, jedis, "");
 		}
 		return (int) rs;
+	}
+
+	private void assemblySearch(Map<String, String> paramMap, PlatProxyDetailAudit proxyDetail) {
+		//代付通道
+		if (StringUtils.isNotBlank(paramMap.get("chanId"))) {
+			proxyDetail.setChanId(paramMap.get("chanId"));
+		}
+		//代付商户
+		if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
+			proxyDetail.setMchtId(paramMap.get("mchtId"));
+		}
+		//明细订单号
+		if (StringUtils.isNotBlank(paramMap.get("detailId"))) {
+			proxyDetail.setId(paramMap.get("detailId"));
+		}
+		//代付状态
+		if (StringUtils.isNotBlank(paramMap.get("payStatus"))) {
+			proxyDetail.setPayStatus(paramMap.get("payStatus"));
+		}
+		//平台批次号
+		if (StringUtils.isNotBlank(paramMap.get("batchId"))) {
+			proxyDetail.setPlatBatchId(paramMap.get("batchId"));
+		}
+		//申请人
+		if (StringUtils.isNotBlank(paramMap.get("operatorId"))) {
+			proxyDetail.setOperatorId(paramMap.get("operatorId"));
+		}
+		//审批人
+		if (StringUtils.isNotBlank(paramMap.get("auditorId"))) {
+			proxyDetail.setAuditorId(paramMap.get("auditorId"));
+		}
+		//初始化页面开始时间
+		String startTime = paramMap.get("startTime");
+		if (StringUtils.isBlank(startTime)) {
+			proxyDetail.setStartTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+			paramMap.put("startTime", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
+		} else {
+			paramMap.put("startTime", startTime);
+			proxyDetail.setStartTime(DateUtils.parseDate(startTime));
+		}
+		String endTime = paramMap.get("endTime");
+		//初始化页面结束时间
+		if (StringUtils.isBlank(endTime)) {
+			proxyDetail.setEndTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+			paramMap.put("endTime", DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
+		} else {
+			paramMap.put("endTime", endTime);
+			proxyDetail.setEndTime(DateUtils.parseDate(endTime));
+		}
 	}
 }

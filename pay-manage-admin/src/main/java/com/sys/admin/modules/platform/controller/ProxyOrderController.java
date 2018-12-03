@@ -13,13 +13,7 @@ import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.boss.api.service.trade.service.IDfProducerService;
 import com.sys.common.db.JedisConnPool;
-import com.sys.common.enums.FeeRateBizTypeEnum;
-import com.sys.common.enums.MchtAccountTypeEnum;
-import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.enums.ProxyPayBatchStatusEnum;
-import com.sys.common.enums.ProxyPayDetailStatusEnum;
-import com.sys.common.enums.ProxyPayRequestEnum;
-import com.sys.common.enums.StatusEnum;
+import com.sys.common.enums.*;
 import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
@@ -42,20 +36,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.exceptions.JedisConnectionException;
 
-import javax.imageio.ImageIO;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.net.URLEncoder;
-import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -157,13 +149,7 @@ public class ProxyOrderController extends BaseController {
 	@RequestMapping(value = {"proxyDetailList", ""})
 	public String proxyDetailList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 		PlatProxyDetail proxyDetail = new PlatProxyDetail();
-		proxyDetail.setChanId(paramMap.get("chanId"));
-		proxyDetail.setMchtId(paramMap.get("mchtId"));
-		proxyDetail.setId(paramMap.get("detailId"));
-		proxyDetail.setPayStatus(paramMap.get("payStatus"));
-		proxyDetail.setCheckStatus(paramMap.get("checkStatus"));
-		proxyDetail.setPlatBatchId(paramMap.get("batchId"));
-		proxyDetail.setMchtBatchId(paramMap.get("mchtBatchId"));
+		assemblySearch(paramMap, proxyDetail);
 
 		//分页
 		String pageNoString = paramMap.get("pageNo");
@@ -175,8 +161,11 @@ public class ProxyOrderController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		proxyDetail.setPageInfo(pageInfo);
 
+		PlatProxyBatch proxyBatch = null;
 		//批次信息
-		PlatProxyBatch proxyBatch = proxyBatchService.queryByKey(paramMap.get("batchId"));
+		if (StringUtils.isNotBlank(paramMap.get("batchId"))){
+			proxyBatch = proxyBatchService.queryByKey(paramMap.get("batchId"));
+		}
 
 		//查询商户列表
 		List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
@@ -962,24 +951,64 @@ public class ProxyOrderController extends BaseController {
 	}
 
 	private void assemblySearch(Map<String, String> paramMap, PlatProxyDetail proxyDetail) {
-
+		//代付通道
 		if (StringUtils.isNotBlank(paramMap.get("chanId"))) {
 			proxyDetail.setChanId(paramMap.get("chanId"));
 		}
+		//代付商户
 		if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
 			proxyDetail.setMchtId(paramMap.get("mchtId"));
 		}
+		//平台明细订单号
 		if (StringUtils.isNotBlank(paramMap.get("detailId"))) {
 			proxyDetail.setId(paramMap.get("detailId"));
 		}
+		//代付状态
 		if (StringUtils.isNotBlank(paramMap.get("payStatus"))) {
 			proxyDetail.setPayStatus(paramMap.get("payStatus"));
 		}
+		//代付结果
 		if (StringUtils.isNotBlank(paramMap.get("checkStatus"))) {
 			proxyDetail.setCheckStatus(paramMap.get("checkStatus"));
 		}
+		//平台批次号
 		if (StringUtils.isNotBlank(paramMap.get("batchId"))) {
 			proxyDetail.setPlatBatchId(paramMap.get("batchId"));
+		}
+		//商户订单号
+		if (StringUtils.isNotBlank(paramMap.get("mchtBatchId"))) {
+			proxyDetail.setMchtBatchId(paramMap.get("mchtBatchId"));
+		}
+		//收款账号
+		if (StringUtils.isNotBlank(paramMap.get("bankCardNo"))) {
+			proxyDetail.setBankCardNo(paramMap.get("bankCardNo"));
+		}
+		//收款户名
+		if (StringUtils.isNotBlank(paramMap.get("bankCardName"))) {
+			proxyDetail.setBankCardName(paramMap.get("bankCardName"));
+		}
+		//平台银行
+		if (StringUtils.isNotBlank(paramMap.get("bankName"))) {
+			proxyDetail.setBankName(paramMap.get("bankName"));
+		}
+
+		//初始化页面开始时间
+		String startTime = paramMap.get("startTime");
+		if (StringUtils.isBlank(startTime)) {
+			proxyDetail.setStartTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+			paramMap.put("startTime", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
+		} else {
+			paramMap.put("startTime", startTime);
+			proxyDetail.setStartTime(DateUtils.parseDate(startTime));
+		}
+		String endTime = paramMap.get("endTime");
+		//初始化页面结束时间
+		if (StringUtils.isBlank(endTime)) {
+			proxyDetail.setEndTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+			paramMap.put("endTime", DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
+		} else {
+			paramMap.put("endTime", endTime);
+			proxyDetail.setEndTime(DateUtils.parseDate(endTime));
 		}
 	}
 
