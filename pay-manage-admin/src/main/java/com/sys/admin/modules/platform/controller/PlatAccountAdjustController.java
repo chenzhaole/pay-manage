@@ -15,6 +15,7 @@ import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.boss.api.entry.cache.CacheOrder;
 import com.sys.common.db.JedisConnPool;
+import com.sys.common.enums.AccAccountTypeEnum;
 import com.sys.common.enums.AuditEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
 import com.sys.common.enums.SignTypeEnum;
@@ -274,12 +275,13 @@ public class PlatAccountAdjustController extends BaseController {
 	 */
 	@RequestMapping("balance")
 	@RequiresPermissions("platform:adjust:apply")
-	public void balance(String mchtId, HttpServletResponse response) throws IOException {
+	public void balance(String mchtId,String accountType, HttpServletResponse response) throws IOException {
 		PageInfo pageInfo = new PageInfo();
 		BigDecimal platBalance = null;
 		MchtAccountDetail detailQuery = new MchtAccountDetail();
 		detailQuery.setMchtId(mchtId);
 		detailQuery.setSuffix(DateUtils.formatDate(new Date(), "yyyyMM"));
+		detailQuery.setAccountType(accountType);
 
 		pageInfo.setPageNo(1);
 		pageInfo.setPageSize(1);
@@ -289,11 +291,17 @@ public class PlatAccountAdjustController extends BaseController {
 
 		if (!CollectionUtils.isEmpty(list)) {
 			logger.info("账务信息：" + JSON.toJSONString(list.get(0)));
-			platBalance = list.get(0).getCashTotalAmount();
-			//余额 = 现金金额 - 冻结金额
-			if (list.get(0).getFreezeTotalAmount() != null) {
-				platBalance = platBalance.subtract(list.get(0).getFreezeTotalAmount());
+			//20181129 账户修改
+			if(AccAccountTypeEnum.CASH.getCode().equals(accountType)){
+				platBalance = list.get(0).getCashTotalAmount();
+				//余额 = 现金金额 - 冻结金额
+				if (list.get(0).getFreezeTotalAmount() != null) {
+					platBalance = platBalance.subtract(list.get(0).getFreezeTotalAmount());
+				}
+			}else{
+				platBalance=list.get(0).getSettleTotalAmount();
 			}
+
 		}
 
 		if (platBalance != null) {

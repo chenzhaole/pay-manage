@@ -105,7 +105,8 @@
             <td>${adjust.id}</td>
             <td>${adjust.mchtName}</td>
             <td>${adjust.mchtId}</td>
-            <td>${fns:getDictLabel(adjust.accountType,'account_type' ,'' )}</td>
+            <td><c:if test="${adjust.accountType=='2'}">现金账户</c:if>
+                <c:if test="${adjust.accountType=='1'}">结算账户</c:if></td>
             <td>${fns:getDictLabel(adjust.adjustType,'account_adjust_type' ,'' )}</td>
             <td><fmt:formatNumber type="number" value="${adjust.adjustAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatDate value="${adjust.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>

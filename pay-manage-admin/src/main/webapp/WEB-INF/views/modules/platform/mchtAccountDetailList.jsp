@@ -81,10 +81,11 @@
 
             <td>
                 <label>账户类型：</label>
-                <form:select path="accountType">
-                    <form:option value="">--全部--</form:option>
-                    <form:options items="${fns:getDictList('account_type')}" itemLabel="label" itemValue="value"/>
-                </form:select>
+                <select name="accountType" class="input-xlarge" id="accountType">
+                    <option value="">--全部--</option>
+                    <option value="2">现金账户</option>
+                    <option value="1">结算账户</option>
+                </select>
             </td>
             <td>
                 <label>记账类型：</label>
@@ -132,7 +133,8 @@
             <td>${accountDetail.mchtId}</td>
             <td>${accountDetail.mchtOrderId}</td>
             <td>${accountDetail.platOrderId}</td>
-            <td>${fns:getDictLabel(accountDetail.accountType,'account_type' ,'' )}</td>
+            <td><c:if test="${accountDetail.accountType=='2'}">现金账户</c:if>
+                <c:if test="${accountDetail.accountType=='1'}">结算账户</c:if></td>
             <td>${accountDetail.opType}</td>
             <td>${accountDetail.tradeType}</td>
             <td><fmt:formatNumber type="number" value="${accountDetail.tradeAmount*0.01}" pattern="0.00"

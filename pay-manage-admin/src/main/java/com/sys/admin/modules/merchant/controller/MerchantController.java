@@ -15,10 +15,7 @@ import com.sys.admin.modules.platform.service.MchtProductAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.service.SysAreaService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.common.enums.CertTypeEnum;
-import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
@@ -39,6 +36,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -73,6 +71,8 @@ public class MerchantController extends BaseController {
 	@Value("${mchtFeerateInfoData.url}")
 	private String mchtFeerateInfoDataUrl;
 
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 	/**
 	 * 商户首页
 	 */
@@ -101,6 +101,8 @@ public class MerchantController extends BaseController {
 			//可提现金额 = 现金总金额 - 冻结总金额;
 			//现金总金额
 			BigDecimal cashTotalAmount = mchtAccountDetailData.getCashTotalAmount();
+			//待结算金额
+			BigDecimal settleTotalAmount =mchtAccountDetailData.getSettleTotalAmount().divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 			//可提现金额
 			BigDecimal presentedAmount = cashTotalAmount.subtract(freezeTotalAmount);
 			presentedAmount = presentedAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
@@ -108,6 +110,8 @@ public class MerchantController extends BaseController {
 			freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 			mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
 			mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
+			//20181128 账户改造
+			model.addAttribute("settleTotalAmount",settleTotalAmount);
 		}
 
 		model.addAttribute("mchtAccountDetailData", mchtAccountDetailData);
@@ -351,7 +355,7 @@ public class MerchantController extends BaseController {
 
 			}
 
-
+			model.addAttribute("activeTime",mchtInfo.getActiveTime()==null?"":sdf.format(mchtInfo.getActiveTime()));
 			model.addAttribute("merchant", mchtInfo);
 			model.addAttribute("op", "edit");
 
@@ -452,7 +456,11 @@ public class MerchantController extends BaseController {
 					redirectAttributes.addFlashAttribute("messageType", "error");
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 				}
-
+				if(FixEnum.DELAY.getCode().equals(merchantForm.getIsFixed())){
+					merchantForm.setOldMerchantSettleCycle(StringUtils.isEmpty(
+							mchtInfo.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():mchtInfo.getMerchantSettleCycle()
+					);
+				}
 				//将 是否显示支付结果页、商户标签 的信息，封装成json格式的数据。存入extend2字段中
 				JSONObject extend2Json = new JSONObject();
 				extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
@@ -523,6 +531,36 @@ public class MerchantController extends BaseController {
 							extend2Json.put("isShowPayPage", merchantForm.getIsShowPayPage());
 						}
 						merchantForm.setExtend2(extend2Json.toJSONString());
+						//定时
+						if(FixEnum.DELAY.getCode().equals(merchantForm.getIsFixed())){
+							String merchantSettleCycle =StringUtils.isEmpty(mchtInfo.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():mchtInfo.getMerchantSettleCycle();
+							//旧数据为有效或者为空 且周期类型不同，说明定时任务修改周期
+							if((mchtInfo.getIsEffective()==null || StatusEnum.VALID.getCode().equals(mchtInfo.getIsEffective())
+							    && !merchantForm.getMerchantSettleCycle().equals(merchantSettleCycle))){
+
+								merchantForm.setOldMerchantSettleCycle(StringUtils.isEmpty(
+										mchtInfo.getMerchantSettleCycle()) ? SettleTypeEnum.FIX_SETTLE.getCode() : mchtInfo.getMerchantSettleCycle()
+								);
+								merchantForm.setDoTaskType("A");
+							}
+							//如果定时执行的未生效，但是时间不同或者结算类型不同，说明调整了生效时间或周期
+							else if(StatusEnum.TOBEVALID.getCode().equals(mchtInfo.getIsEffective())
+									&& (mchtInfo.getActiveTime().getTime()!=merchantForm.getActiveTime().getTime()
+							            || !merchantForm.getMerchantSettleCycle().equals(mchtInfo.getMerchantSettleCycle()))) {
+								merchantForm.setIsEffective(mchtInfo.getIsEffective());
+								merchantForm.setDoTaskType("DA");
+							}else{
+								merchantForm.setIsEffective(mchtInfo.getIsEffective());
+							}
+						//立即
+						}else{
+							//定时任务未执行情况下，又改为立即生效，需要删除原来的定时任务
+							if(FixEnum.DELAY.getCode().equals(mchtInfo.getIsFixed())
+									&& StatusEnum.TOBEVALID.getCode().equals(mchtInfo.getIsEffective())){
+								merchantForm.setDoTaskType("D");
+							}
+						}
+
                     }
                 }
         		String result = merchantAdminService.updateMerchantService(merchantForm);

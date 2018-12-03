@@ -1,11 +1,14 @@
 package com.sys.admin.modules.merchant.bo;
 
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.FixEnum;
+import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -194,7 +197,20 @@ public class MerchantForm {
 	private String compReceiptAcctName;
 	//公司汇款尾数
 	private String mchtRemittanceAmountSuffix;
+	//账户类型改造：20181127 新增结算方式，生效方式，生效时间
+	private String merchantSettleCycle;
 
+	private String isFixed;
+
+	private Date activeTime;
+
+	private String isEffective;
+
+	private String oldMerchantSettleCycle;
+
+	private String doTaskType="N";// A 新增  N 不需要  D 删除  DA 先删除旧的，在新增 默认N
+
+	private static  final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
 
 	public MerchantForm() {
@@ -295,6 +311,24 @@ public class MerchantForm {
 		this.compReceiptAcctNo = requestMap.get("compReceiptAcctNo");
 		this.compReceiptAcctName = requestMap.get("compReceiptAcctName");
 		this.mchtRemittanceAmountSuffix = requestMap.get("mchtRemittanceAmountSuffix");
+		//20181126 账户类型改造
+		String date =requestMap.get("activeTime");
+		if(!StringUtils.isEmpty(date)){
+			try {
+				this.activeTime =sdf.parse(date) ;
+			}catch (Exception e){
+				e.printStackTrace();
+			}
+		}
+		this.isFixed =requestMap.get("isFixed");
+		this.merchantSettleCycle =requestMap.get("merchantSettleCycle");
+
+		if(FixEnum.FIX.getCode().equals(this.isFixed)){
+			this.isEffective=StatusEnum.VALID.getCode();
+		}else {
+			this.isEffective=StatusEnum.TOBEVALID.getCode();
+		}
+
 	}
 
 	public String getCertPath1() {
@@ -1101,5 +1135,53 @@ public class MerchantForm {
 
 	public void setExemptReviewEndTime(String exemptReviewEndTime) {
 		this.exemptReviewEndTime = exemptReviewEndTime;
+	}
+
+	public String getMerchantSettleCycle() {
+		return merchantSettleCycle;
+	}
+
+	public void setMerchantSettleCycle(String merchantSettleCycle) {
+		this.merchantSettleCycle = merchantSettleCycle;
+	}
+
+	public String getIsFixed() {
+		return isFixed;
+	}
+
+	public void setIsFixed(String isFixed) {
+		this.isFixed = isFixed;
+	}
+
+	public Date getActiveTime() {
+		return activeTime;
+	}
+
+	public void setActiveTime(Date activeTime) {
+		this.activeTime = activeTime;
+	}
+
+	public String getIsEffective() {
+		return isEffective;
+	}
+
+	public void setIsEffective(String isEffective) {
+		this.isEffective = isEffective;
+	}
+
+	public String getOldMerchantSettleCycle() {
+		return oldMerchantSettleCycle;
+	}
+
+	public void setOldMerchantSettleCycle(String oldMerchantSettleCycle) {
+		this.oldMerchantSettleCycle = oldMerchantSettleCycle;
+	}
+
+	public String getDoTaskType() {
+		return doTaskType;
+	}
+
+	public void setDoTaskType(String doTaskType) {
+		this.doTaskType = doTaskType;
 	}
 }
