@@ -94,6 +94,15 @@
                     <form:options items="${fns:getDictList('record_type')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
+            <%--*********************************--%>
+            <td>
+                <label>交易类型：</label>
+                <form:select path="tradeType">
+                    <form:option value="">--全部--</form:option>
+                    <form:options items="${fns:getDictList('trade_type')}" itemLabel="label" itemValue="value"/>
+                </form:select>
+            </td>
+                <%--*********************************--%>
             <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();"
                        style="margin-left: 5px;">&nbsp;&nbsp;<input id="btnExport" class="btn btn-primary" type="button" value="导出"/></td>
 

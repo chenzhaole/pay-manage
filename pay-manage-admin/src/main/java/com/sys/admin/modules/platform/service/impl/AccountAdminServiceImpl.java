@@ -43,7 +43,7 @@ public class AccountAdminServiceImpl implements AccountAdminService {
 	@Override
 	public List<MchtAccountDetail> list(MchtAccountDetail mchtAccountDetail) {
 
-		String url = CONFIG_URL + "accountList";
+		String url = CONFIG_URL + "accountListAdmin";
 		Map<String, String> params = new HashMap<>();
 		params.put("mchtAccountDetail", JSON.toJSONString(mchtAccountDetail));
 

@@ -50,10 +50,45 @@
     <table>
         <tr>
             <td>
+                <label> 申&nbsp;&nbsp;请&nbsp;&nbsp;人：</label>
+                <select name="operatorId" class="selectpicker bla bla bli" data-live-search="true">
+                    <option value="">--请选择--</option>
+                    <c:forEach items="${users}" var="user">
+                        <option value="${user.id}"
+                                <c:if test="${paramMap.operatorId == user.id}">selected</c:if>
+                        >${user.name}</option>
+                    </c:forEach>
+                </select>
+                <%--<input value="${paramMap.operatorId}" name="operatorId" type="text" maxlength="64" class="input-medium"/>--%>
+            </td>
+            <td>
+                <label>审&nbsp;&nbsp;批&nbsp;&nbsp;人：</label>
+                <select name="auditorId" class="selectpicker bla bla bli" data-live-search="true">
+                    <option value="">--请选择--</option>
+                    <c:forEach items="${users}" var="user">
+                        <option value="${user.id}"
+                                <c:if test="${paramMap.auditorId == user.id}">selected</c:if>
+                        >${user.name}</option>
+                    </c:forEach>
+                </select>
+                <%--<input value="${paramMap.auditorName}" name="auditorName" type="text" maxlength="64" class="input-medium"/>--%>
+            </td>
+            <td>
                 <label>明细订单号：</label>
                 <input value="${paramMap.detailId}" name="detailId" type="text" maxlength="64" class="input-medium"/>
             </td>
-
+        </tr>
+        <tr>
+            <td>
+                <label>原始状态：</label>
+                <select name="payStatus" class="input-medium" id="">
+                    <option value="">--请选择--</option>
+                    <c:forEach var="ps" items="${fns:getDictList('proxypay_detail_status')}">
+                        <option value="${ps.value}"
+                                <c:if test="${paramMap.payStatus == ps.value}">selected</c:if>>${ps.label}</option>
+                    </c:forEach>
+                </select>&nbsp;&nbsp;&nbsp;
+            </td>
             <td>
                 <label>代付商户：</label>
                 <select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
@@ -67,7 +102,7 @@
             </td>
 
             <td>
-                <label>代付通道：</label>
+                <label>代&nbsp;付&nbsp;通&nbsp;&nbsp;道：</label>
                 <select name="chanId" class="selectpicker bla bla bli" data-live-search="true">
                     <option value="">--请选择--</option>
                     <c:forEach items="${chanInfos}" var="chanInfo">
@@ -77,19 +112,19 @@
                     </c:forEach>
                 </select>
             </td>
-
-
         </tr>
         <tr>
             <td>
-                <label>原始状态：</label>
-                <select name="payStatus" class="input-medium" id="">
-                    <option value="">--请选择--</option>
-                    <c:forEach var="ps" items="${fns:getDictList('proxypay_detail_status')}">
-                        <option value="${ps.value}"
-                                <c:if test="${paramMap.payStatus == ps.value}">selected</c:if>>${ps.label}</option>
-                    </c:forEach>
-                </select>&nbsp;&nbsp;&nbsp;
+                <label>开始时间：</label>
+                <input id="startTime" name="startTime" type="text" readonly="readonly" class="input-medium Wdate"
+                       value="${paramMap.startTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'
+                       ,isShowClear:false,readOnly:true,maxDate:$dp.$('endTime').value,isShowOK:false,isShowToday:false});"/>
+            </td>
+            <td>
+                <label>结束时间：</label>
+                <input id="endTime" name="endTime" type="text" readonly="readonly" class="input-medium Wdate"
+                       value="${paramMap.endTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'
+                       ,isShowClear:false,readOnly:true,minDate:$dp.$('startTime').value,isShowOK:false,isShowToday:false});"/>
             </td>
             <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" style="margin-left: 5px;"></td>
 

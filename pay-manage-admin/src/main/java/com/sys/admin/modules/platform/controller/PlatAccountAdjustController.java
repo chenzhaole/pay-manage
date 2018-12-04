@@ -13,15 +13,16 @@ import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.boss.api.entry.cache.CacheOrder;
 import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.AccAccountTypeEnum;
 import com.sys.common.enums.AuditEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
 import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.enums.*;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
+import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
@@ -34,6 +35,10 @@ import org.apache.commons.beanutils.ConvertUtils;
 import org.apache.commons.beanutils.converters.BigDecimalConverter;
 import org.apache.commons.beanutils.converters.DateConverter;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -50,7 +55,9 @@ import redis.clients.jedis.exceptions.JedisConnectionException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -93,6 +100,11 @@ public class PlatAccountAdjustController extends BaseController {
 		try {
 			PageInfo pageInfo = new PageInfo();
 			platAccountAdjust.setPageInfo(pageInfo);
+
+			String idKey = request.getParameter("idKey");
+			if(StringUtils.isNotBlank(idKey)){
+				platAccountAdjust.setId(idKey);
+			}
 
 			if (StringUtils.isNotBlank(request.getParameter("pageNo"))){
 				pageInfo.setPageNo(Integer.parseInt(request.getParameter("pageNo")));
@@ -400,5 +412,219 @@ public class PlatAccountAdjustController extends BaseController {
 		model.addAttribute("platAccountAdjustOri", platAccountAdjustOri);
 		return "modules/platform/platAccountViewAdjustForm";
 	}
+
+	@RequestMapping(value = "/export")
+	public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
+						 @RequestParam Map<String, String> paramMap) throws IOException {
+		PlatAccountAdjust platAccountAdjust = new PlatAccountAdjust();
+		assemblySearch(paramMap, platAccountAdjust,request);
+		String flag = request.getParameter("flag");
+		if (StringUtils.isNotBlank(flag)){
+			platAccountAdjust.setFlag(flag);
+		}
+		int orderCount = platAccountAdjustService.count(platAccountAdjust);
+		//计算条数 上限五万条
+		if (orderCount <= 0) {
+			redirectAttributes.addFlashAttribute("messageType", "fail");
+			redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
+			response.setCharacterEncoding("UTF-8");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/platform/adjust/list";
+		}
+		if (orderCount > 50000) {
+			redirectAttributes.addFlashAttribute("messageType", "fail");
+			redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
+			response.setCharacterEncoding("UTF-8");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/platform/adjust/list";
+		}
+		//获取数据List
+		List<PlatAccountAdjust> list = platAccountAdjustService.list(platAccountAdjust);
+		if (list == null || list.size() == 0) {
+			redirectAttributes.addFlashAttribute("messageType", "fail");
+			redirectAttributes.addFlashAttribute("message", "导出条数为0条");
+			response.setCharacterEncoding("UTF-8");
+			return "redirect:" + GlobalConfig.getAdminPath() + "/platform/adjust/list";
+		}
+
+		//获取商户列表
+		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+
+		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
+
+		for (PlatAccountAdjust adjust : list) {
+			adjust.setMchtName(mchtMap.get(adjust.getMchtId()));
+			adjust.setAccountType(AccAccountTypeEnum.toEnum(adjust.getAccountType()).getDesc());
+		}
+
+		//获取当前日期，为文件名
+		String fileName = DateUtils.formatDate(new Date()) + ".xls";
+
+		String[] headers = {"调账订单号", "商户名称", "商户号", "账户类型","调账方向", "申请调账金额(元)", "申请调账日期", "申请人", "审批日期", "审批人", "审批状态","备注"};
+
+		response.reset();
+		response.setContentType("application/octet-stream; charset=utf-8");
+		response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+		OutputStream out = response.getOutputStream();
+
+		// 第一步，创建一个webbook，对应一个Excel文件
+		HSSFWorkbook wb = new HSSFWorkbook();
+		// 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
+		HSSFSheet sheet = wb.createSheet("调账申请表");
+		sheet.setColumnWidth(0, 20 * 1256);
+		// 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
+		HSSFRow row = sheet.createRow((int) 0);
+
+		int j = 0;
+		for (String header : headers) {
+			HSSFCell cell = row.createCell((short) j);
+			cell.setCellValue(header);
+			sheet.autoSizeColumn(j);
+			j++;
+		}
+
+		if (!Collections3.isEmpty(list)) {
+			int rowIndex = 1;//行号
+			String adjustTypeName = "";
+			String auditStatus = "";
+			for (PlatAccountAdjust accountAdjust : list) {
+				int cellIndex = 0;
+				row = sheet.createRow(rowIndex);
+				HSSFCell cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getId());
+				cellIndex++;
+
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getMchtName());
+				cellIndex++;
+
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getMchtId());
+				cellIndex++;
+
+
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getAccountType());
+				cellIndex++;
+
+
+				if (accountAdjust.getAdjustType().equals(AdjustTypeEnum.ADJUST_ADD.getCode())){
+					adjustTypeName = AdjustTypeEnum.ADJUST_ADD.getMessage();
+				}else if (accountAdjust.getAdjustType().equals(AdjustTypeEnum.ADJUST_REDUCE.getCode())){
+					adjustTypeName = AdjustTypeEnum.ADJUST_REDUCE.getMessage();
+				}else if (accountAdjust.getAdjustType().equals(AdjustTypeEnum.ADJUST_FREEZE.getCode())){
+					adjustTypeName = AdjustTypeEnum.ADJUST_FREEZE.getMessage();
+				}else if (accountAdjust.getAdjustType().equals(AdjustTypeEnum.ADJUST_UNFREEZE.getCode())){
+					adjustTypeName = AdjustTypeEnum.ADJUST_UNFREEZE.getMessage();
+				}
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(adjustTypeName);
+				cellIndex++;
+
+
+				cell = row.createCell(cellIndex);
+				if (accountAdjust.getAdjustAmount() != null) {
+					BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), accountAdjust.getAdjustAmount()).setScale(2, BigDecimal.ROUND_HALF_UP);
+					cell.setCellValue(bigDecimal.doubleValue());
+				}
+				cellIndex++;
+
+				cell = row.createCell(cellIndex);
+				if (accountAdjust.getCreateTime() != null) {
+					cell.setCellValue(DateUtils.formatDate(accountAdjust.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+				}
+				cellIndex++;
+
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getCreatorName());
+				cellIndex++;
+
+
+				cell = row.createCell(cellIndex);
+				if (accountAdjust.getAuditTime() != null) {
+					cell.setCellValue(DateUtils.formatDate(accountAdjust.getAuditTime(), "yyyy-MM-dd HH:mm:ss"));
+				}
+				cellIndex++;
+
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getAuditorName());
+				cellIndex++;
+
+				if (accountAdjust.getAuditStatus().equals(AuditEnum.VALID.getCode())){
+					auditStatus = AuditEnum.VALID.getMessage();
+				}else if (accountAdjust.getAuditStatus().equals(AuditEnum.INVALID.getCode())){
+					auditStatus = AuditEnum.INVALID.getMessage();
+				}else if (accountAdjust.getAuditStatus().equals(AuditEnum.AUDITING.getCode())){
+					auditStatus = AuditEnum.AUDITING.getMessage();
+				}else if (accountAdjust.getAuditStatus().equals(AuditEnum.AUDITED.getCode())){
+					auditStatus = AuditEnum.AUDITED.getMessage();
+				}else if (accountAdjust.getAuditStatus().equals(AuditEnum.UNAUDITED.getCode())){
+					auditStatus = AuditEnum.UNAUDITED.getMessage();
+				}else if (accountAdjust.getAuditStatus().equals(AuditEnum.FROZEN.getCode())){
+					auditStatus = AuditEnum.FROZEN.getMessage();
+				}
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(auditStatus);
+				cellIndex++;
+
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getRemark());
+				cellIndex++;
+
+				rowIndex++;
+			}
+		}
+		wb.write(out);
+		out.flush();
+		out.close();
+
+		redirectAttributes.addFlashAttribute("messageType", "success");
+		redirectAttributes.addFlashAttribute("message", "导出完毕");
+		response.setCharacterEncoding("UTF-8");
+		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/adjust/list";
+	}
+
+	private void assemblySearch(Map<String, String> paramMap, PlatAccountAdjust platAccountAdjust,HttpServletRequest request) {
+		String idKey = request.getParameter("idKey");
+		if(StringUtils.isNotBlank(idKey)){
+			platAccountAdjust.setId(idKey);
+		}
+		/*if (StringUtils.isNotBlank(paramMap.get("id"))) {
+			platAccountAdjust.setId(paramMap.get("id"));
+		}*/
+		if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
+			platAccountAdjust.setMchtId(paramMap.get("mchtId"));
+		}
+		if (StringUtils.isNotBlank(paramMap.get("auditStatus"))) {
+			platAccountAdjust.setAccountType(paramMap.get("auditStatus"));
+		}
+
+		String createTime = paramMap.get("createTime");
+		String createTimeStr = "";
+		if (StringUtils.isNotBlank(createTime)){
+			platAccountAdjust.setSuffix(createTime.replace("-", "").substring(0, 6));
+			createTimeStr = paramMap.get("createTime");
+			platAccountAdjust.setCreateTime(DateUtils.parseDate(createTimeStr));
+		}
+
+		String auditTime = paramMap.get("auditTime");
+		String auditTimeStr = "";
+		if (StringUtils.isNotBlank(auditTime)){
+			platAccountAdjust.setSuffix(auditTime.replace("-", "").substring(0, 6));
+			auditTimeStr = paramMap.get("auditTime");
+			platAccountAdjust.setAuditTime(DateUtils.parseDate(auditTimeStr));
+		}
+
+		/*String createTime = paramMap.get("createTime");
+		String createTimeStr = "";
+		if (StringUtils.isBlank(createTime)) {
+			platAccountAdjust.setSuffix(DateUtils.formatDate(new Date(), "yyyyMM"));
+			createTimeStr = DateUtils.getDate();
+			platAccountAdjust.setCreateTime(DateUtils.parseDate(createTimeStr));
+		} else {
+			platAccountAdjust.setSuffix(createTime.replace("-", "").substring(0, 6));
+			createTimeStr = paramMap.get("createTime");
+			platAccountAdjust.setCreateTime(DateUtils.parseDate(createTimeStr));
+		}*/
+	}
+
 
 }

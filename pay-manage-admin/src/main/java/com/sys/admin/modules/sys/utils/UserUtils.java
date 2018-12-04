@@ -13,6 +13,7 @@ import com.sys.admin.modules.sys.entity.Menu;
 import com.sys.admin.modules.sys.entity.Office;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.security.SystemAuthorizingRealm.Principal;
+import org.apache.commons.collections.IteratorUtils;
 import org.apache.shiro.SecurityUtils;
 import org.apache.shiro.UnavailableSecurityManagerException;
 import org.apache.shiro.subject.Subject;
@@ -21,6 +22,7 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -246,5 +248,12 @@ public class UserUtils extends BaseService {
 			loginFailMap.remove(useruame);
 		}
 		return loginFailNum >= 3;
+	}
+
+	public static List<User> getAllUserList() {
+		Iterable<User> userIterable = userDao.findAll();
+		Iterator<User> userIterator = userIterable.iterator();
+		List<User> userList = IteratorUtils.toList(userIterator);
+		return userList;
 	}
 }

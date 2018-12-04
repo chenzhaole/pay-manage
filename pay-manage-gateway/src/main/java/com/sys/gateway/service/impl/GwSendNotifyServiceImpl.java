@@ -261,7 +261,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                 String requestMsg = JSON.toJSONString(tradeNotify.getResponse());
                 logger.info("[start] 异步通知商户开始，请求地址：{} 请求内容：{}", requestUrl, requestMsg);
                 String result = HttpUtil.postConnManager(requestUrl, requestMsg, "application/json", "UTF-8", "UTF-8");
-                logger.info("[end] 异步通知商户结束，请求地址：{} 请求内容：{} 商户响应：", requestUrl, requestMsg);
+                logger.info("[end] 异步通知商户结束，请求地址：{} 请求内容：{} 商户响应：{}", requestUrl, requestMsg,result);
 
                 if ("SUCCESS".equalsIgnoreCase(result)) {
                     order.setSupplyStatus("0");
@@ -306,6 +306,10 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         body.setTradeId(order.getId());
         body.setBankCardNo(order.getBankCardNo());
         body.setAmount(order.getAmount() + "");
+        body.setBiz(order.getPayType());
+        body.setChargeTime(order.getUpdateTime()==null?DateUtils.getNoSpSysTimeString():DateUtils.formatDate(order.getUpdateTime(),"yyyyMMddHHmmss"));
+        body.setPayType(order.getPayType()!=null?order.getPayType().substring(0, 2):"");
+        body.setSeq(IdUtil.getUUID());
         TreeMap<String, String> treeMap = BeanUtils.bean2TreeMap(body);
         String mchtKey = merchantService.queryByKey(order.getMchtCode()).getMchtKey();
         String log_moid = order.getMchtCode()+"-->"+order.getPlatOrderId();
