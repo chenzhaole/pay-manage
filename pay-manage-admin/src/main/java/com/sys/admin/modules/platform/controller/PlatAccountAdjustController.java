@@ -13,7 +13,6 @@ import com.sys.admin.modules.platform.service.AccountAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.boss.api.entry.cache.CacheOrder;
 import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.*;
 import com.sys.common.util.Collections3;
@@ -97,6 +96,11 @@ public class PlatAccountAdjustController extends BaseController {
 		try {
 			PageInfo pageInfo = new PageInfo();
 			platAccountAdjust.setPageInfo(pageInfo);
+
+			String idKey = request.getParameter("idKey");
+			if(StringUtils.isNotBlank(idKey)){
+				platAccountAdjust.setId(idKey);
+			}
 
 			if (StringUtils.isNotBlank(request.getParameter("pageNo"))){
 				pageInfo.setPageNo(Integer.parseInt(request.getParameter("pageNo")));
@@ -402,8 +406,11 @@ public class PlatAccountAdjustController extends BaseController {
 	public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
 						 @RequestParam Map<String, String> paramMap) throws IOException {
 		PlatAccountAdjust platAccountAdjust = new PlatAccountAdjust();
-		assemblySearch(paramMap, platAccountAdjust);
-
+		assemblySearch(paramMap, platAccountAdjust,request);
+		String flag = request.getParameter("flag");
+		if (StringUtils.isNotBlank(flag)){
+			platAccountAdjust.setFlag(flag);
+		}
 		int orderCount = platAccountAdjustService.count(platAccountAdjust);
 		//计算条数 上限五万条
 		if (orderCount <= 0) {
@@ -440,7 +447,7 @@ public class PlatAccountAdjustController extends BaseController {
 		//获取当前日期，为文件名
 		String fileName = DateUtils.formatDate(new Date()) + ".xls";
 
-		String[] headers = {"调账订单号", "商户名称", "商户号", "账户类型","调账方向", "申请调账金额(元)", "申请调账日期", "申请人", "审批日期", "审批人", "审批状态"};
+		String[] headers = {"调账订单号", "商户名称", "商户号", "账户类型","调账方向", "申请调账金额(元)", "申请调账日期", "申请人", "审批日期", "审批人", "审批状态","备注"};
 
 		response.reset();
 		response.setContentType("application/octet-stream; charset=utf-8");
@@ -547,6 +554,10 @@ public class PlatAccountAdjustController extends BaseController {
 				cell.setCellValue(auditStatus);
 				cellIndex++;
 
+				cell = row.createCell(cellIndex);
+				cell.setCellValue(accountAdjust.getRemark());
+				cellIndex++;
+
 				rowIndex++;
 			}
 		}
@@ -560,10 +571,14 @@ public class PlatAccountAdjustController extends BaseController {
 		return "redirect:" + GlobalConfig.getAdminPath() + "/platform/adjust/list";
 	}
 
-	private void assemblySearch(Map<String, String> paramMap, PlatAccountAdjust platAccountAdjust) {
-		if (StringUtils.isNotBlank(paramMap.get("id"))) {
-			platAccountAdjust.setId(paramMap.get("id"));
+	private void assemblySearch(Map<String, String> paramMap, PlatAccountAdjust platAccountAdjust,HttpServletRequest request) {
+		String idKey = request.getParameter("idKey");
+		if(StringUtils.isNotBlank(idKey)){
+			platAccountAdjust.setId(idKey);
 		}
+		/*if (StringUtils.isNotBlank(paramMap.get("id"))) {
+			platAccountAdjust.setId(paramMap.get("id"));
+		}*/
 		if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
 			platAccountAdjust.setMchtId(paramMap.get("mchtId"));
 		}
@@ -571,23 +586,23 @@ public class PlatAccountAdjustController extends BaseController {
 			platAccountAdjust.setAccountType(paramMap.get("auditStatus"));
 		}
 
-		String auditStartTime = paramMap.get("auditStartTime");
-		String auditStartTimeStr = "";
-		if (StringUtils.isNotBlank(auditStartTime)){
-			platAccountAdjust.setSuffix(auditStartTime.replace("-", "").substring(0, 6));
-			auditStartTimeStr = paramMap.get("auditStartTime");
-			platAccountAdjust.setAuditStartTime(DateUtils.parseDate(auditStartTimeStr));
-		}
-
-		String auditEndTime = paramMap.get("auditEndTime");
-		String auditEndTimeStr = "";
-		if (StringUtils.isNotBlank(auditEndTime)){
-			platAccountAdjust.setSuffix(auditEndTime.replace("-", "").substring(0, 6));
-			auditEndTimeStr = paramMap.get("auditEndTime");
-			platAccountAdjust.setAuditEndTime(DateUtils.parseDate(auditEndTimeStr));
-		}
-
 		String createTime = paramMap.get("createTime");
+		String createTimeStr = "";
+		if (StringUtils.isNotBlank(createTime)){
+			platAccountAdjust.setSuffix(createTime.replace("-", "").substring(0, 6));
+			createTimeStr = paramMap.get("createTime");
+			platAccountAdjust.setCreateTime(DateUtils.parseDate(createTimeStr));
+		}
+
+		String auditTime = paramMap.get("auditTime");
+		String auditTimeStr = "";
+		if (StringUtils.isNotBlank(auditTime)){
+			platAccountAdjust.setSuffix(auditTime.replace("-", "").substring(0, 6));
+			auditTimeStr = paramMap.get("auditTime");
+			platAccountAdjust.setAuditTime(DateUtils.parseDate(auditTimeStr));
+		}
+
+		/*String createTime = paramMap.get("createTime");
 		String createTimeStr = "";
 		if (StringUtils.isBlank(createTime)) {
 			platAccountAdjust.setSuffix(DateUtils.formatDate(new Date(), "yyyyMM"));
@@ -597,7 +612,7 @@ public class PlatAccountAdjustController extends BaseController {
 			platAccountAdjust.setSuffix(createTime.replace("-", "").substring(0, 6));
 			createTimeStr = paramMap.get("createTime");
 			platAccountAdjust.setCreateTime(DateUtils.parseDate(createTimeStr));
-		}
+		}*/
 	}
 
 

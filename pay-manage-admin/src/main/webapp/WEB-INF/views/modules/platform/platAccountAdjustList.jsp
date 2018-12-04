@@ -27,7 +27,7 @@
 
         $(document).ready(function() {
             $("#btnExport").click(function(){
-                $("#searchForm").attr("action","${ctx}/platform/adjust/export");
+                $("#searchForm").attr("action","${ctx}/platform/adjust/export?flag=1");
                 $("#searchForm").submit();
                 $("#searchForm").attr("action","${ctx}/platform/adjust/list");
             });
@@ -85,7 +85,7 @@
             </td>
             <td>
                 <label>调账订单号：</label>
-                <input value="${adjustInfo.id}" name="id" type="text" maxlength="64" class="input-medium"/>
+                <input value="${adjustInfo.id}" name="idKey" type="text" maxlength="64" class="input-medium"/>
             </td>
             <td>
                 <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;">
