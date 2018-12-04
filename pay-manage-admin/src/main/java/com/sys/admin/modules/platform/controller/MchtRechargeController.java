@@ -140,14 +140,17 @@ public class MchtRechargeController extends BaseController {
         if(StringUtils.isEmpty(rechargeType)){
             return null;
         }
-
         //留言
         String mchtMessage = request.getParameter("mchtMessage");
-
         //支付金额
         String payAmount = request.getParameter("payAmount");
         if("1".equals(rechargeType)){
+            if(StringUtils.isEmpty(rechargeAmount)){
+                logger.error("商户发起充值信息提交,订单金额不正确,rechargeAmount:"+rechargeAmount +",rechargeType:" +rechargeType + ",mchtId:" +mchtId);
+                return "redirect:" + GlobalConfig.getAdminPath() + "/mchtRecharge/queryRechargePayOrders";
+            }
             amount = rechargeAmount;
+            logger.info("商户发起充值信息提交,rechargeAmount:"+rechargeAmount +",rechargeType:" +rechargeType + ",mchtId:" +mchtId);
             Integer insertFlag = tradeApiRechargePayHandler.insertRechargeOrder(mchtId, amount, rechargeType, imgUrl, mchtMessage);
         }
 
@@ -410,6 +413,7 @@ public class MchtRechargeController extends BaseController {
             }
         }
         rechargeOrder.setPlatOrderId(platOrderId);
+        logger.info("提交审批结果:"+ JSONObject.toJSONString(rechargeOrder));
         Integer backFlag =  tradeApiRechargePayHandler.modifyRechargeOrder(rechargeOrder);
         if(backFlag == 0){
             logger.error("msg", "审批失败,请联系管理员.");
