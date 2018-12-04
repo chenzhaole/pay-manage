@@ -27,17 +27,23 @@
                 $("#chongzhi_recharge_id").attr("checked","checked");
                 $("#pay_recharge_id").removeAttr("checked");
 
-                document.getElementById("huikuang_id").style="display:block";
-                document.getElementById("zhifu_id").style="display:none";
+                //document.getElementById("huikuang_id").style="display:block";
+                //document.getElementById("zhifu_id").style="display:none";
+                $("#huikuang_id").css("display","block");
+                $("#zhifu_id").css("display","none");
             }else if(val == 2){
                 $("#pay_recharge_id").attr("checked","checked");
                 $("#chongzhi_recharge_id").removeAttr("checked");
 
-                document.getElementById("huikuang_id").style="display:none";
-                document.getElementById("zhifu_id").style="display:block";
+                //document.getElementById("huikuang_id").style="display:none";
+                //document.getElementById("zhifu_id").style="display:block";
+                $("#huikuang_id").css("display","none");
+                $("#zhifu_id").css("display","block");
             }else{
-                document.getElementById("huikuang_id").style="display:block";
-                document.getElementById("zhifu_id").style="display:none";
+                $("#huikuang_id").css("display","block");
+                $("#zhifu_id").css("display","none");
+                //document.getElementById("huikuang_id").style="display:block";
+                //document.getElementById("zhifu_id").style="display:none";
             }
         }
 
@@ -143,8 +149,6 @@
             }
         }
     </script>
-    <script type="text/javascript" src="${ctxStatic}/js/img_upload/pictureHandle.js"/>
-    <script type="text/javascript" src="${ctxStatic}/js/img_upload/tools.js"/>
 
 </head>
 <body>

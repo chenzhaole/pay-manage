@@ -248,7 +248,7 @@ public class MchtRechargeController extends BaseController {
      * @return
      */
     public String convertImageFromBase64(String base64Image, HttpServletRequest request){
-        if (base64Image == null) return null;
+        if (base64Image == null||StringUtils.isBlank(base64Image)) return null;
         String base64Image1 = base64Image.substring(base64Image.indexOf("base64,")+"base64,".length());
         BASE64Decoder decoder = new BASE64Decoder();
         try {
