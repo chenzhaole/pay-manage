@@ -25,6 +25,13 @@
             return false;
         }
 
+        $(document).ready(function() {
+            $("#btnExport").click(function(){
+                $("#searchForm").attr("action","${ctx}/platform/adjust/export?flag=1");
+                $("#searchForm").submit();
+                $("#searchForm").attr("action","${ctx}/platform/adjust/list");
+            });
+        });
     </script>
 </head>
 
@@ -67,14 +74,24 @@
                 <input id="auditTime" name="auditTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
                        value="${auditTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
             </td>
+        </tr>
+        <tr>
             <td>
                 <label>审核状态：</label>
-                <form:select path="auditStatus" >
+                <form:select path="auditStatus">
                     <form:option value=""/>
                     <form:options items="${fns:getDictList('account_adjust_status')}" itemLabel="label" itemValue="value"/>
                 </form:select>
             </td>
-            <td><input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;"></td>
+            <td>
+                <label>调账订单号：</label>
+                <input value="${adjustInfo.id}" name="idKey" type="text" maxlength="64" class="input-medium"/>
+            </td>
+            <td>
+                <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;">
+                <input id="btnExport" class="btn btn-primary" type="button" value="导出"/>
+            </td>
+
         </tr>
     </table>
 </form:form>

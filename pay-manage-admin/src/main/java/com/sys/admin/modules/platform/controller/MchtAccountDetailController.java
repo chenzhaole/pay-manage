@@ -341,6 +341,9 @@ public class MchtAccountDetailController extends BaseController {
         if (StringUtils.isNotBlank(paramMap.get("opType"))) {
             detail.setOpType(paramMap.get("opType"));
         }
+        if(StringUtils.isNotBlank(paramMap.get("tradeType"))){
+            detail.setTradeType(paramMap.get("tradeType"));
+        }
         //初始化页面开始时间
         String createTime = paramMap.get("createTime");
         String createTimeStr = "";
@@ -353,6 +356,5 @@ public class MchtAccountDetailController extends BaseController {
             createTimeStr = paramMap.get("createTime");
             detail.setCreateTime(DateUtils.parseDate(createTimeStr));
         }
-
     }
 }
