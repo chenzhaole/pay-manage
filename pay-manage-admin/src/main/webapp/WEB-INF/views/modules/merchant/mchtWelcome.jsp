@@ -54,7 +54,7 @@
             </td>
             <td width="20%">
                 <div class="control-group">
-                    <label class="control-label"><h5>代结算金额(元)</h5></label>
+                    <label class="control-label"><h5>待结算金额(元)</h5></label>
                     <div class="controls">
                         <label id="settleTotalAmount">
                             <c:if test="${empty settleTotalAmount}">-</c:if>
