@@ -5,6 +5,7 @@ import com.sys.admin.common.web.BaseController;
 import com.sys.boss.api.service.stat.StatReportDayPayDetailService;
 import com.sys.boss.api.service.stat.StatReportDayPayService;
 import com.sys.common.util.Collections3;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.dmo.StatReportDayPay;
 import com.sys.core.dao.dmo.StatReportDayPayDetail;
@@ -148,7 +149,7 @@ public class StatReportDayPayController extends BaseController {
         //获取当前日期，为文件名
         String fileName = "REPORT"+startDate+"-"+endDate+ ".xls";
 
-        String[] headers = {"日期","支付业务交易金额(元)" ,"支付业务利润(元)","代付业务交易金额(元)" ,"代付业务利润(元)","代付交易笔数","代付交易利润(元)","利润合计(元)"};
+        String[] headers = {"日期","支付业务交易金额(元)" ,"支付业务利润(元)","代付业务交易金额(元)" ,"代付业务利润(元)","代付交易笔数","代付交易利润(元)","充值业务交易金额(元)" ,"充值业务利润(元)","利润合计(元)"};
 
         response.reset();
         response.setContentType("application/octet-stream; charset=utf-8");
@@ -176,6 +177,9 @@ public class StatReportDayPayController extends BaseController {
                 int cellIndex = 0;
                 row = sheet.createRow(rowIndex);
                 HSSFCell cell = row.createCell(cellIndex);
+                if(StringUtils.isEmpty(detail.getTradeDate())){
+                    detail.setTradeDate(DateUtils.getDate());
+                }
                 cell.setCellValue(detail.getTradeDate());
                 cellIndex++;
 
@@ -216,12 +220,38 @@ public class StatReportDayPayController extends BaseController {
                 cellIndex++;
 
                 cell = row.createCell(cellIndex);
-                cell.setCellValue(detail.getDfTradeCount());
+                if(detail.getDfTradeCount() == null){
+                    cell.setCellValue(0);
+                }else{
+                    cell.setCellValue(detail.getDfTradeCount());
+                }
+
                 cellIndex++;
 
                 cell = row.createCell(cellIndex);
                 if (detail.getDfProfitAmount() != null) {
                     BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getDfProfitAmount());
+                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+
+
+
+                cell = row.createCell(cellIndex);
+                if (detail.getChongzhiBizTradeAmount() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getChongzhiBizTradeAmount());
+                    cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
+                }else{
+                    cell.setCellValue(0);
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (detail.getChongzhiBizProfitAmount() != null) {
+                    BigDecimal bigDecimal = NumberUtils.multiplyHundred(new BigDecimal(0.01), detail.getChongzhiBizProfitAmount());
                     cell.setCellValue(bigDecimal.setScale(2,BigDecimal.ROUND_HALF_UP).doubleValue());
                 }else{
                     cell.setCellValue(0);
@@ -236,6 +266,8 @@ public class StatReportDayPayController extends BaseController {
                     cell.setCellValue(0);
                 }
                 rowIndex++;
+
+
 
             }
         }
