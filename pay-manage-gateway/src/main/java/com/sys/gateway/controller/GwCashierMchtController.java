@@ -99,7 +99,11 @@ public class GwCashierMchtController extends GwCashierBaseController {
 						//设置收银台页面需要的值
 						this.addCashierModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), midoid );
 						logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用收银台页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
-					}else{
+					}else if(PayTypeEnum.LOCAL_BANK.getCode().equals(requestInfo.getHead().getBiz())){
+						page = "modules/cashier/bank/cashierBank";
+						this.addCashierBankModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), midoid);
+						logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用网银页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+					} else{
 						//先判断是否跳转上游收银台
 						if(isUseChanCashierPage(result.getData(), midoid)){
 							//跳转到上游收银台的中转页面
