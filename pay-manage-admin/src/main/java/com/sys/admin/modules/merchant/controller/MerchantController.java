@@ -356,7 +356,6 @@ public class MerchantController extends BaseController {
 
 			}
 
-			model.addAttribute("activeTime",mchtInfo.getActiveTime()==null?"":sdf.format(mchtInfo.getActiveTime()));
 			model.addAttribute("merchant", mchtInfo);
 			model.addAttribute("op", "edit");
 
@@ -457,11 +456,6 @@ public class MerchantController extends BaseController {
 					redirectAttributes.addFlashAttribute("messageType", "error");
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 				}
-				if(FixEnum.DELAY.getCode().equals(merchantForm.getIsFixed())){
-					merchantForm.setOldMerchantSettleCycle(StringUtils.isEmpty(
-							mchtInfo.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():mchtInfo.getMerchantSettleCycle()
-					);
-				}
 				//将 是否显示支付结果页、商户标签 的信息，封装成json格式的数据。存入extend2字段中
 				JSONObject extend2Json = new JSONObject();
 				extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
@@ -532,36 +526,6 @@ public class MerchantController extends BaseController {
 							extend2Json.put("isShowPayPage", merchantForm.getIsShowPayPage());
 						}
 						merchantForm.setExtend2(extend2Json.toJSONString());
-						//定时
-						if(FixEnum.DELAY.getCode().equals(merchantForm.getIsFixed())){
-							String merchantSettleCycle =StringUtils.isEmpty(mchtInfo.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():mchtInfo.getMerchantSettleCycle();
-							//旧数据为有效或者为空 且周期类型不同，说明定时任务修改周期
-							if((mchtInfo.getIsEffective()==null || StatusEnum.VALID.getCode().equals(mchtInfo.getIsEffective())
-							    && !merchantForm.getMerchantSettleCycle().equals(merchantSettleCycle))){
-
-								merchantForm.setOldMerchantSettleCycle(StringUtils.isEmpty(
-										mchtInfo.getMerchantSettleCycle()) ? SettleTypeEnum.FIX_SETTLE.getCode() : mchtInfo.getMerchantSettleCycle()
-								);
-								merchantForm.setDoTaskType("A");
-							}
-							//如果定时执行的未生效，但是时间不同或者结算类型不同，说明调整了生效时间或周期
-							else if(StatusEnum.TOBEVALID.getCode().equals(mchtInfo.getIsEffective())
-									&& (mchtInfo.getActiveTime().getTime()!=merchantForm.getActiveTime().getTime()
-							            || !merchantForm.getMerchantSettleCycle().equals(mchtInfo.getMerchantSettleCycle()))) {
-								merchantForm.setIsEffective(mchtInfo.getIsEffective());
-								merchantForm.setDoTaskType("DA");
-							}else{
-								merchantForm.setIsEffective(mchtInfo.getIsEffective());
-							}
-						//立即
-						}else{
-							//定时任务未执行情况下，又改为立即生效，需要删除原来的定时任务
-							if(FixEnum.DELAY.getCode().equals(mchtInfo.getIsFixed())
-									&& StatusEnum.TOBEVALID.getCode().equals(mchtInfo.getIsEffective())){
-								merchantForm.setDoTaskType("D");
-							}
-						}
-
                     }
                 }
         		String result = merchantAdminService.updateMerchantService(merchantForm);

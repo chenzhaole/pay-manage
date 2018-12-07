@@ -67,8 +67,8 @@
             checkType();
             accountType();
 
-           /* $('#city').on('click', function () {
-                var json = ${areas};
+            /* $('#city').on('click', function () {
+                 var json = ${areas};
                 if(json!= null && json!= ''){
                     $.areaSelect(json);
                 }
@@ -91,15 +91,6 @@
                             alert("该商户已配置通道商户支付方式，必须勾选申报商户或服务商");
                             hideShadow();
                             return;
-                        }
-                    }
-                    var isFix =$("input[name='isFixed']:checked").val();
-                    if(isFix=="0"){
-                        var activeTime =$("#activeTime").val();
-                        if(activeTime == "" || activeTime ==null){
-                            alert("结算生效为定时时，生效时间必填");
-                            hideShadow();
-                            return ;
                         }
                     }
 
@@ -150,7 +141,6 @@
 //                    bankIdcardPath: {required: true},
 
                     signType: {required: true},
-                    merchantSettleCycle :{required:true},
                     name: {
                         required: true,
                         maxlength: 64
@@ -574,47 +564,6 @@
                                id="fundSettleLinkBankNo" placeholder="" type="text">
                     </div>
                     <p class="help-block"></p>
-                </div>
-            </td>
-
-        </tr>
-        <tr>
-            <td>
-                <div class="control-group">
-                    <label class="control-label">商户实时结算标志<span style="color: red;">*</span></label>
-                    <div class="controls">
-                        <select name="merchantSettleCycle" class="input-xlarge" id="merchantSettleCycle">
-                            <option value="">--请选择--</option>
-                            <option
-                                    <c:if test="${merchant.merchantSettleCycle == 'T0'}">selected</c:if>
-                                    <c:if test="${empty merchant.merchantSettleCycle && op !='add'}">selected</c:if> value="T0">实时结算
-                            </option>
-                            <option
-                                    <c:if test="${merchant.merchantSettleCycle == 'TN'}">selected</c:if> value="TN">非实时结算
-                            </option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-            <td>
-                <div class="control-group">
-                    <label class="control-label">生效时间</label>
-                    <div class="controls">
-                        <label class="control-label" for="activeNow">立即</label>
-                        <input name="isFixed" value="1" placeholder="" class="input-xlarge"
-                               type="radio"
-                               <c:if test="${merchant.isFixed == 1}">checked</c:if>
-                               <c:if test="${op == 'add'}">checked</c:if>
-                               <c:if test="${empty merchant.isFixed}">checked</c:if> id="activeNow">
-                        <label class="control-label" for="activeThan">定时</label>
-                        <input name="isFixed" value="0" placeholder="" class="input-xlarge"
-                               type="radio"
-                               <c:if test="${merchant.isFixed == 0}">checked</c:if> id="activeThan">
-                        <input id="activeTime" name="activeTime" type="text" class="input-medium Wdate"
-                               value="${activeTime}"
-                               onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true,readOnly:true,isShowOK:true,isShowToday:true, minDate:'%y-%M-%d'});"/>
-
-                    </div>
                 </div>
             </td>
 

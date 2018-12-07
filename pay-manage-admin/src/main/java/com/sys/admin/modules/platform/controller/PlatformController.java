@@ -17,8 +17,7 @@ import com.sys.admin.modules.platform.service.MchtChanAdminService;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
 import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.enums.*;
 import com.sys.common.util.Collections3;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
@@ -667,11 +666,45 @@ public class PlatformController extends BaseController {
 					response.setCharacterEncoding("UTF-8");
 					return "redirect:" + GlobalConfig.getAdminPath() + "/platform/platConfMchtProductList";
 				}
-
+				if(FixEnum.DELAY.getCode().equals(productFormInfo.getIsFixed())){
+					productFormInfo.setOldMerchantSettleCycle(StringUtils.isEmpty(
+							productFormInfo.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():productFormInfo.getMerchantSettleCycle()
+					);
+				}
 				result = mchtProductAdminService.addMchtProduct(productFormInfo);
 			}
 
 			if ("edit".equals(paramMap.get("op"))) {
+				MchtProductFormInfo mchtProductById = mchtProductAdminService.getMchtProductById(productFormInfo);
+				//定时
+				if(FixEnum.DELAY.getCode().equals(productFormInfo.getIsFixed())){
+					String merchantSettleCycle =StringUtils.isEmpty(mchtProductById.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():mchtProductById.getMerchantSettleCycle();
+					//旧数据为有效或者为空 且周期类型不同，说明定时任务修改周期
+					if((mchtProductById.getIsEffective()==null || StatusEnum.VALID.getCode().equals(mchtProductById.getIsEffective())
+							&& !productFormInfo.getMerchantSettleCycle().equals(merchantSettleCycle))){
+
+						productFormInfo.setOldMerchantSettleCycle(StringUtils.isEmpty(
+								mchtProductById.getMerchantSettleCycle()) ? SettleTypeEnum.FIX_SETTLE.getCode() : mchtProductById.getMerchantSettleCycle()
+						);
+						productFormInfo.setDoTaskType("A");
+					}
+					//如果定时执行的未生效，但是时间不同或者结算类型不同，说明调整了生效时间或周期
+					else if(StatusEnum.TOBEVALID.getCode().equals(mchtProductById.getIsEffective())
+							&& (mchtProductById.getActiveTime()!=productFormInfo.getActiveTime()
+							|| !productFormInfo.getMerchantSettleCycle().equals(mchtProductById.getMerchantSettleCycle()))) {
+						productFormInfo.setIsEffective(mchtProductById.getIsEffective());
+						productFormInfo.setDoTaskType("DA");
+					}else{
+						productFormInfo.setIsEffective(mchtProductById.getIsEffective());
+					}
+					//立即
+				}else{
+					//定时任务未执行情况下，又改为立即生效，需要删除原来的定时任务
+					if(FixEnum.DELAY.getCode().equals(mchtProductById.getIsFixed())
+							&& StatusEnum.TOBEVALID.getCode().equals(mchtProductById.getIsEffective())){
+						productFormInfo.setDoTaskType("D");
+					}
+				}
 				result = mchtProductAdminService.
 						updateMchtProduct(productFormInfo);
 			}

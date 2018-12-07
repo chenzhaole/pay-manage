@@ -1,22 +1,19 @@
 package com.sys.admin.modules.merchant.bo;
 
 import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.FixEnum;
-import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.DateUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
-import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
- * @ClassName: MerchantForm 
+ *
+ * @ClassName: MerchantForm
  * @Description: 商户信息表单实体类
  * @author: ALI
  * @date: 2017年10月10日 上午11:28:31
@@ -197,20 +194,7 @@ public class MerchantForm {
 	private String compReceiptAcctName;
 	//公司汇款尾数
 	private String mchtRemittanceAmountSuffix;
-	//账户类型改造：20181127 新增结算方式，生效方式，生效时间
-	private String merchantSettleCycle;
 
-	private String isFixed;
-
-	private Date activeTime;
-
-	private String isEffective;
-
-	private String oldMerchantSettleCycle;
-
-	private String doTaskType="N";// A 新增  N 不需要  D 删除  DA 先删除旧的，在新增 默认N
-
-	private static  final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd hh:mm:ss");
 
 
 	public MerchantForm() {
@@ -282,15 +266,15 @@ public class MerchantForm {
 		this.clientIp = requestMap.get("clientIp");
 		this.mchtKey = requestMap.get("mchtKey");
 
-        //是否展示支付结果页
-        this.isShowPayResultPage = requestMap.get("isShowPayResultPage");
-        //是否展示支付页
+		//是否展示支付结果页
+		this.isShowPayResultPage = requestMap.get("isShowPayResultPage");
+		//是否展示支付页
 		this.isShowPayPage =requestMap.get("isShowPayPage");
-        //商户标签
-        this.mchtPropertyTag = requestMap.get("mchtPropertyTag");
+		//商户标签
+		this.mchtPropertyTag = requestMap.get("mchtPropertyTag");
 
 
-        this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
+		this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
 
 		String[] signTypes = request.getParameterValues("signType");
 
@@ -311,24 +295,6 @@ public class MerchantForm {
 		this.compReceiptAcctNo = requestMap.get("compReceiptAcctNo");
 		this.compReceiptAcctName = requestMap.get("compReceiptAcctName");
 		this.mchtRemittanceAmountSuffix = requestMap.get("mchtRemittanceAmountSuffix");
-		//20181126 账户类型改造
-		String date =requestMap.get("activeTime");
-		if(!StringUtils.isEmpty(date)){
-			try {
-				this.activeTime =sdf.parse(date) ;
-			}catch (Exception e){
-				e.printStackTrace();
-			}
-		}
-		this.isFixed =requestMap.get("isFixed");
-		this.merchantSettleCycle =requestMap.get("merchantSettleCycle");
-
-		if(FixEnum.FIX.getCode().equals(this.isFixed)){
-			this.isEffective=StatusEnum.VALID.getCode();
-		}else {
-			this.isEffective=StatusEnum.TOBEVALID.getCode();
-		}
-
 	}
 
 	public String getCertPath1() {
@@ -1057,21 +1023,21 @@ public class MerchantForm {
 		this.extend3 = extend3;
 	}
 
-    public String getIsShowPayResultPage() {
-        return isShowPayResultPage;
-    }
+	public String getIsShowPayResultPage() {
+		return isShowPayResultPage;
+	}
 
-    public void setIsShowPayResultPage(String isShowPayResultPage) {
-        this.isShowPayResultPage = isShowPayResultPage;
-    }
+	public void setIsShowPayResultPage(String isShowPayResultPage) {
+		this.isShowPayResultPage = isShowPayResultPage;
+	}
 
-    public String getMchtPropertyTag() {
-        return mchtPropertyTag;
-    }
+	public String getMchtPropertyTag() {
+		return mchtPropertyTag;
+	}
 
-    public void setMchtPropertyTag(String mchtPropertyTag) {
-        this.mchtPropertyTag = mchtPropertyTag;
-    }
+	public void setMchtPropertyTag(String mchtPropertyTag) {
+		this.mchtPropertyTag = mchtPropertyTag;
+	}
 
 	public String getIsShowPayPage() {
 		return isShowPayPage;
@@ -1135,53 +1101,5 @@ public class MerchantForm {
 
 	public void setExemptReviewEndTime(String exemptReviewEndTime) {
 		this.exemptReviewEndTime = exemptReviewEndTime;
-	}
-
-	public String getMerchantSettleCycle() {
-		return merchantSettleCycle;
-	}
-
-	public void setMerchantSettleCycle(String merchantSettleCycle) {
-		this.merchantSettleCycle = merchantSettleCycle;
-	}
-
-	public String getIsFixed() {
-		return isFixed;
-	}
-
-	public void setIsFixed(String isFixed) {
-		this.isFixed = isFixed;
-	}
-
-	public Date getActiveTime() {
-		return activeTime;
-	}
-
-	public void setActiveTime(Date activeTime) {
-		this.activeTime = activeTime;
-	}
-
-	public String getIsEffective() {
-		return isEffective;
-	}
-
-	public void setIsEffective(String isEffective) {
-		this.isEffective = isEffective;
-	}
-
-	public String getOldMerchantSettleCycle() {
-		return oldMerchantSettleCycle;
-	}
-
-	public void setOldMerchantSettleCycle(String oldMerchantSettleCycle) {
-		this.oldMerchantSettleCycle = oldMerchantSettleCycle;
-	}
-
-	public String getDoTaskType() {
-		return doTaskType;
-	}
-
-	public void setDoTaskType(String doTaskType) {
-		this.doTaskType = doTaskType;
 	}
 }

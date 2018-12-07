@@ -1,5 +1,6 @@
 package com.sys.admin.modules.platform.bo;
 
+import com.sys.common.enums.FixEnum;
 import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.DateUtils;
 import com.sys.core.dao.common.PageInfo;
@@ -7,6 +8,7 @@ import com.sys.core.dao.dmo.PlatFeerate;
 import org.apache.commons.lang3.StringUtils;
 
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Map;
 
@@ -61,6 +63,19 @@ public class MchtProductFormInfo {
 	private String feeStatus;
 
 	private PageInfo pageInfo;
+
+	//账户类型改造：20181127 新增结算方式，生效方式，生效时间
+	private String merchantSettleCycle;
+
+	private String isFixed;
+
+	private String isEffective;
+
+	private String oldMerchantSettleCycle;
+
+	private String doTaskType="N";// A 新增  N 不需要  D 删除  DA 先删除旧的，在新增 默认N
+
+	//private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private static final long serialVersionUID = 1L;
 
@@ -240,6 +255,46 @@ public class MchtProductFormInfo {
 		this.feeStatus = feeStatus;
 	}
 
+	public String getMerchantSettleCycle() {
+		return merchantSettleCycle;
+	}
+
+	public void setMerchantSettleCycle(String merchantSettleCycle) {
+		this.merchantSettleCycle = merchantSettleCycle;
+	}
+
+	public String getIsFixed() {
+		return isFixed;
+	}
+
+	public void setIsFixed(String isFixed) {
+		this.isFixed = isFixed;
+	}
+
+	public String getIsEffective() {
+		return isEffective;
+	}
+
+	public void setIsEffective(String isEffective) {
+		this.isEffective = isEffective;
+	}
+
+	public String getOldMerchantSettleCycle() {
+		return oldMerchantSettleCycle;
+	}
+
+	public void setOldMerchantSettleCycle(String oldMerchantSettleCycle) {
+		this.oldMerchantSettleCycle = oldMerchantSettleCycle;
+	}
+
+	public String getDoTaskType() {
+		return doTaskType;
+	}
+
+	public void setDoTaskType(String doTaskType) {
+		this.doTaskType = doTaskType;
+	}
+
 	public MchtProductFormInfo() {
 	}
 
@@ -264,6 +319,17 @@ public class MchtProductFormInfo {
 		this.operatorId = StringUtils.isNotBlank(paramMap.get("operatorId")) ? paramMap.get("operatorId") : "0";
 		this.activeTime = paramMap.get("activeTime");
 		this.feeStatus = paramMap.get("feeStatus") != null ? paramMap.get("feeStatus") : StatusEnum.VALID.getCode();
+
+		//20181126 账户类型改造
+		this.activeTime=paramMap.get("activeTime");
+		this.isFixed =paramMap.get("isFixed");
+		this.merchantSettleCycle =paramMap.get("merchantSettleCycle");
+
+		if(FixEnum.FIX.getCode().equals(this.isFixed)){
+			this.isEffective=StatusEnum.VALID.getCode();
+		}else {
+			this.isEffective=StatusEnum.TOBEVALID.getCode();
+		}
 
 	}
 
