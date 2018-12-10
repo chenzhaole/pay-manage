@@ -12,6 +12,7 @@ import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
 import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PayTypeEnum;
 import com.sys.common.util.SignUtil;
 
 import com.sys.gateway.service.GwApiPayService;
@@ -107,7 +108,11 @@ public class GwApiPayServiceImpl implements GwApiPayService {
 				head.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
 				body.setMchtId(mchtResult.getMchtId());
 				body.setOrderId(mchtResult.getMchtOrderNo());//商户订单号
-				body.setPayUrl(mchtResult.getPayInfo());
+				if(tradeRequest.getHead()!= null && PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(tradeRequest.getHead().getBiz())){
+					body.setPayInfo(mchtResult.getPayInfo());
+				}else{
+					body.setPayUrl(mchtResult.getPayInfo());
+				}
 				body.setTradeId(mchtResult.getOrderNo());//平台订单号
 				// 签名
 				Map<String, String> params =  JSONObject.parseObject(
