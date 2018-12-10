@@ -82,6 +82,9 @@
                 </div>
             </div>
         </td>
+
+    </tr>
+    <tr>
         <td class="bottom_border_class">
             <div class="control-group">
                 <label class="control-label">订单时间	</label>
@@ -99,14 +102,12 @@
             </div>
         </td>
     </tr>
-
-
     <tr>
         <td class="bottom_border_class">
             <div class="control-group">
                 <label class="">收款账户</label>
                 <div class="">
-                    <label>
+                    <label style="width: 30%">
                         ${rechargeConfig.compReceiptAcctNo}
                     </label>
                 </div>
@@ -115,7 +116,7 @@
         <td class="bottom_border_class">
             <div class="control-group">
                 <label class="control-label">收款名称</label>
-                <div class="controls">
+                <div class="controls" style="width: 30%">
                     ${rechargeConfig.compReceiptAcctName}
                 </div>
             </div>
@@ -229,12 +230,12 @@
         <c:if test="${queryFlag ne 'true'}">
             <shiro:hasPermission name="mcht:proxy:customer">
                 <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
-                    <input type="submit" value="提交审批"/>
+                    <input id="customerButId" onclick="checkCustomerBut()" type="submit" value="提交审批"/>
                 </c:if>
             </shiro:hasPermission>
             <shiro:hasPermission name="mcht:proxy:operate">
                 <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
-                    <input type="submit" value="提交审批"/>
+                    <input id="operateButId" onclick="checkOperateBut()" type="submit" value="提交审批"/>
                 </c:if>
             </shiro:hasPermission>
         </c:if>
@@ -264,6 +265,16 @@
         $("#inputForm").submit();
     }
     $('#img_enlarge_id img').zoomify();
+    
+    
+    function checkCustomerBut() {
+        document.getElementById("customerButId").setAttribute("disabled", true);
+        $("#searchForm").submit();
+    }
+    function checkOperateBut() {
+        document.getElementById("operateButId").setAttribute("disabled", true);
+        $("#searchForm").submit();
+    }
 </script>
 </body>
 </html>

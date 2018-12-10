@@ -31,8 +31,12 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import sun.misc.BASE64Decoder;
+
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
@@ -128,8 +132,10 @@ public class MchtRechargeController extends BaseController {
      */
     @RequestMapping("/commitMchtRechargeInfo")
     @RequiresPermissions("mcht:proxy:commit")
-    public String commitMchtRechargeInfo(HttpServletRequest request, @RequestParam(value = "proofImage", required = false) MultipartFile proofImage){
-        String imgUrl = saveRechargeImage(proofImage, request);
+    public String commitMchtRechargeInfo(HttpServletRequest request, @RequestParam(value = "proofImage", required = false) String proofImage){
+        logger.info("商户发起充值信息提交-汇款凭证:"+(proofImage.length()>=22?proofImage.substring(0,22):""));
+        String imgUrl = convertImageFromBase64(proofImage,request);//saveRechargeImage(proofImage, request);
+
         String amount = null;
         //充值金额
         String rechargeAmount = request.getParameter("rechargeAmount");
@@ -140,17 +146,19 @@ public class MchtRechargeController extends BaseController {
         if(StringUtils.isEmpty(rechargeType)){
             return null;
         }
-
         //留言
         String mchtMessage = request.getParameter("mchtMessage");
-
         //支付金额
         String payAmount = request.getParameter("payAmount");
         if("1".equals(rechargeType)){
+            if(StringUtils.isEmpty(rechargeAmount)){
+                logger.error("商户发起充值信息提交,订单金额不正确,rechargeAmount:"+rechargeAmount +",rechargeType:" +rechargeType + ",mchtId:" +mchtId);
+                return "redirect:" + GlobalConfig.getAdminPath() + "/mchtRecharge/queryRechargePayOrders";
+            }
             amount = rechargeAmount;
+            logger.info("商户发起充值信息提交,rechargeAmount:"+rechargeAmount +",rechargeType:" +rechargeType + ",mchtId:" +mchtId);
             Integer insertFlag = tradeApiRechargePayHandler.insertRechargeOrder(mchtId, amount, rechargeType, imgUrl, mchtMessage);
         }
-
         return "redirect:" + GlobalConfig.getAdminPath() + "/mchtRecharge/queryRechargePayOrders";
     }
 
@@ -237,7 +245,48 @@ public class MchtRechargeController extends BaseController {
     }
 
 
+    /**
+     * base64编码转为图片
+     * @param base64Image
+     * @return
+     */
+    public String convertImageFromBase64(String base64Image, HttpServletRequest request){
+        if (base64Image == null||StringUtils.isBlank(base64Image)) return null;
+        String base64Image1 = base64Image.substring(base64Image.indexOf("base64,")+"base64,".length());
+        BASE64Decoder decoder = new BASE64Decoder();
+        try {
+            // 解密
+            byte[] b = decoder.decodeBuffer(base64Image1);
+            // 处理数据
+            for (int i = 0; i < b.length; ++i) {
+                if (b[i] < 0) {
+                    b[i] += 256;
+                }
+            }
+            String mchtId = UserUtils.getUser().getLoginName();
+            SimpleDateFormat fileFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            SimpleDateFormat fileDir = new SimpleDateFormat("yyyyMMddHH");
+            String ext = base64Image.substring(base64Image.indexOf("data:image/")+"data:image/".length(),base64Image.indexOf(";"));
+            String fileName = fileFormatter.format(new Date()) + new Random().nextInt(1000) + "." + ext;
+            String tempFileDir = fileDir.format(new Date());
+            String dir = getImageFileStorePath(request);
+            String path = dir  + tempFileDir ;
+            File file = new File(path);
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            OutputStream out = new FileOutputStream(path+ "/" + mchtId +"-"+ fileName);
+            out.write(b);
+            out.flush();
+            out.close();
+            String servletPath = IMAGES_PATH  + tempFileDir + "/" + mchtId +"-"+ fileName;
 
+            return servletPath;
+        } catch (Exception e) {
+            logger.error("base64编码转图片失败",e);
+        }
+        return null;
+    }
 
     /**
      * 查询支付订单
@@ -410,6 +459,7 @@ public class MchtRechargeController extends BaseController {
             }
         }
         rechargeOrder.setPlatOrderId(platOrderId);
+        logger.info("提交审批结果:"+ JSONObject.toJSONString(rechargeOrder));
         Integer backFlag =  tradeApiRechargePayHandler.modifyRechargeOrder(rechargeOrder);
         if(backFlag == 0){
             logger.error("msg", "审批失败,请联系管理员.");
@@ -686,4 +736,5 @@ public class MchtRechargeController extends BaseController {
         logger.info("，返回的PlatProduct信息为：" + JSONObject.toJSONString(product));
         return product;
     }
+
 }

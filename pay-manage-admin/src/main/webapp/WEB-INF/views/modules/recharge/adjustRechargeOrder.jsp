@@ -104,9 +104,6 @@
                 </div>
             </div>
         </td>
-        <td>
-
-        </td>
     </tr>
 
     <tr>
@@ -114,7 +111,7 @@
             <div class="control-group">
                 <label class="">收款账户</label>
                 <div class="">
-                    <label>
+                    <label style="width: 30%">
                         ${rechargeConfig.compReceiptAcctNo}
                     </label>
                 </div>
@@ -123,36 +120,41 @@
         <td class="bottom_border_class">
             <div class="control-group">
                 <label class="control-label">收款名称</label>
-                <div class="controls">
+                <div class="controls" style="width: 30%">
                     ${rechargeConfig.compReceiptAcctName}
                 </div>
             </div>
         </td>
-        <td class="bottom_border_class">
-            <div class="control-group">
-                <label class="control-label">审核状态</label>
-                <div class="controls">
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
-                        未审核
-                    </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
-                        客服审核通过
-                    </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq'operate_pass'}">
-                        运营审核通过
-                    </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'customer_refuse'}">
-                        客服审核未通过
-                    </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'operate_refuse'}">
-                        运营审核未通过
-                    </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'no_need_audit'}">
-                        无需审核
-                    </c:if>
-                </div>
-            </div>
-        </td>
+        <c:if test="${queryFlag eq 'true'}">
+            <shiro:hasPermission name="mcht:proxy:customer">
+                <td class="bottom_border_class">
+                    <div class="control-group">
+                        <label class="control-label">审核状态</label>
+                        <div class="controls">
+                            <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
+                                未审核
+                            </c:if>
+                            <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
+                                客服审核通过
+                            </c:if>
+                            <c:if test="${auditRechargeOrder.auditStatus eq'operate_pass'}">
+                                运营审核通过
+                            </c:if>
+                            <c:if test="${auditRechargeOrder.auditStatus eq 'customer_refuse'}">
+                                客服审核未通过
+                            </c:if>
+                            <c:if test="${auditRechargeOrder.auditStatus eq 'operate_refuse'}">
+                                运营审核未通过
+                            </c:if>
+                            <c:if test="${auditRechargeOrder.auditStatus eq 'no_need_audit'}">
+                                无需审核
+                            </c:if>
+                        </div>
+                    </div>
+                </td>
+            </shiro:hasPermission>
+        </c:if>
+
     </tr>
     <tr>
         <td style="width: 30%">
@@ -272,12 +274,12 @@
         <c:if test="${queryFlag ne 'true'}">
             <shiro:hasPermission name="mcht:proxy:customer">
                 <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
-                    <input type="submit" value="提交审批"/>
+                    <input  id="customerButId" onclick="checkCustomerBut()" type="submit" value="提交审批"/>
                 </c:if>
             </shiro:hasPermission>
             <shiro:hasPermission name="mcht:proxy:operate">
                 <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
-                    <input type="submit" value="提交审批"/>
+                    <input id="operateButId" onclick="checkOperateBut()"  type="submit" value="提交审批"/>
                 </c:if>
             </shiro:hasPermission>
         </c:if>
@@ -306,6 +308,15 @@
         $("#inputForm").submit();
     }
     $('#img_enlarge_id img').zoomify();
+
+    function checkCustomerBut() {
+        document.getElementById("customerButId").setAttribute("disabled", true);
+        $("#searchForm").submit();
+    }
+    function checkOperateBut() {
+        document.getElementById("operateButId").setAttribute("disabled", true);
+        $("#searchForm").submit();
+    }
 </script>
 </body>
 </html>
