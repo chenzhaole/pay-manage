@@ -109,10 +109,8 @@ public class MerchantController extends BaseController {
 			//冻结金额
 			freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 			mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
-			mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
-			//20181128 账户改造
-			//代结算金额
-			model.addAttribute("settleTotalAmount",settleTotalAmount);
+			mchtAccountDetailData.setSettleTotalAmount(settleTotalAmount);
+			mchtAccountDetailData.setAvailableBalance(presentedAmount);
 		}
 
 		model.addAttribute("mchtAccountDetailData", mchtAccountDetailData);

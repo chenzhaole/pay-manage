@@ -114,6 +114,10 @@ public class OrderController extends BaseController {
 	@Value("${mchtSettleTotalAmountUrl.url}")
 	private String mchtSettleTotalAmountUrl;
 
+	//汇总商待结算接口地址
+	@Value("${mchtWaitSettleTotalAmountUrl.url}")
+	private String mchtWaitSettleTotalAmountUrl;
+
 	@Value("${payOrderListExpireSecond}")
 	private String payOrderListExpireSecond;
 
@@ -372,17 +376,23 @@ public class OrderController extends BaseController {
 					for(MchtAccountDetail mchtAccountDetail : listMchtAccountDetail){
 						//商户名称
 						mchtAccountDetail.setMchtName(mchtMap.get(mchtAccountDetail.getMchtId()));
-						//商户总金额
+						//商户现金金额
 						BigDecimal cashTotalAmount = mchtAccountDetail.getCashTotalAmount();
 						cashTotalAmount = cashTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 						mchtAccountDetail.setCashTotalAmount(cashTotalAmount);
+						//商户结算金额
+						BigDecimal settleTotalAmount = mchtAccountDetail.getSettleTotalAmount();
+						settleTotalAmount =settleTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
+						mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
 						//商户冻结金额
 						BigDecimal freezeTotalAmount = mchtAccountDetail.getFreezeTotalAmount();
 						freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 						mchtAccountDetail.setFreezeTotalAmount(freezeTotalAmount);
-						//商户可用余额,可用余额=总金额-冻结金额
-						BigDecimal settleTotalAmount = cashTotalAmount.subtract(freezeTotalAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
-						mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
+						//商户总金额
+						mchtAccountDetail.setTotalAmount(cashTotalAmount.add(settleTotalAmount));
+						//商户可用余额,可用余额=现金金额-冻结金额
+						BigDecimal availableBalance = cashTotalAmount.subtract(freezeTotalAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+						mchtAccountDetail.setAvailableBalance(availableBalance);
 					}
 				}
 			}
@@ -392,10 +402,17 @@ public class OrderController extends BaseController {
 			BigDecimal mchtTotalBalance = null;
 			BigDecimal mchtAvailTotalBalance = null;
 			BigDecimal mchtFreezeTotalAmountBalance = null;
+			BigDecimal mchtWaitTotalBalance =null;
 			if(!CollectionUtils.isEmpty(listMchtAccountDetail) && listMchtAccountDetail.size() > 1){
                 // 商户总金额合计（元）
                 mchtTotalBalance = this.statisticsMchtTotalBalance(selectMchtAccountDetail);
                 mchtTotalBalance = null!=mchtTotalBalance ? mchtTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+                //商户待结算金额
+				mchtWaitTotalBalance =this.statisticsMchtWaitTotalBalance(selectMchtAccountDetail);
+				mchtWaitTotalBalance =null!=mchtWaitTotalBalance ? mchtWaitTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+				//s商户总金额合计
+				mchtTotalBalance =mchtTotalBalance.add(mchtWaitTotalBalance);
+
                 // 商户可用余额合计（元）
                 mchtAvailTotalBalance = this.statisticsMchtAvailTotalBalance(selectMchtAccountDetail);
 				mchtAvailTotalBalance = null!=mchtAvailTotalBalance ? mchtAvailTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
@@ -406,11 +423,13 @@ public class OrderController extends BaseController {
 				MchtAccountDetail oneMchtAccountDetail = listMchtAccountDetail.get(0);
 				//单个商户的总金额汇总，可用总金额汇总
 				// 商户总金额合计（元）
-				mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount();
+				mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount().add(oneMchtAccountDetail.getSettleTotalAmount());
 				// 商户可用余额合计（元）
 				mchtAvailTotalBalance = oneMchtAccountDetail.getCashTotalAmount().subtract(oneMchtAccountDetail.getFreezeTotalAmount());
 				//商户冻结金额合计
 				mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+				//结算金额
+				mchtWaitTotalBalance =oneMchtAccountDetail.getSettleTotalAmount();
 			}
 			model.addAttribute("mchtInfoList", mchtInfoList);
 			model.addAttribute("mchtId", mchtId);
@@ -418,6 +437,7 @@ public class OrderController extends BaseController {
 			model.addAttribute("mchtTotalBalance", mchtTotalBalance);
 			model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalance);
 			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalance);
+			model.addAttribute("mchtWaitTotalBalance",mchtWaitTotalBalance);
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
@@ -465,7 +485,28 @@ public class OrderController extends BaseController {
 		return null;
     }
 
-    /**
+	//商户可用余额合计（元）
+	private BigDecimal statisticsMchtWaitTotalBalance(MchtAccountDetail selectMchtAccountDetail) {
+		String retData = "";
+		try {
+			String url = mchtWaitSettleTotalAmountUrl;
+			logger.info("汇总商户可用余额合计（元），请求地址："+url);
+			Map paramsMap = new HashMap();
+			paramsMap.put("params", URLEncoder.encode(JSONObject.toJSONString(selectMchtAccountDetail), "utf-8"));
+			logger.info("汇总商户可用余额合计（元），请求参数："+paramsMap);
+			retData = HttpUtil.postConnManager(url, paramsMap);
+			logger.info("汇总商户可用余额合计（元），接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return new BigDecimal(retData).setScale(4, BigDecimal.ROUND_HALF_UP);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+	/**
 	 *  查询所有商户账户详情信息的个数
 	 * @return
 	 */

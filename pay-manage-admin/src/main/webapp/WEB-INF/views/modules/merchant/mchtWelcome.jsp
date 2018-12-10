@@ -57,8 +57,8 @@
                     <label class="control-label"><h5>待结算金额(元)</h5></label>
                     <div class="controls">
                         <label id="settleTotalAmount">
-                            <c:if test="${empty settleTotalAmount}">-</c:if>
-                            <c:if test="${!empty settleTotalAmount}">${settleTotalAmount}</c:if>
+                            <c:if test="${empty mchtAccountDetailData.settleTotalAmount}">-</c:if>
+                            <c:if test="${!empty mchtAccountDetailData.settleTotalAmount}">${mchtAccountDetailData.settleTotalAmount}</c:if>
                         </label>
                     </div>
                 </div>
@@ -79,8 +79,8 @@
                     <label class="control-label"><h5>可提现金额(元)</h5></label>
                     <div class="controls">
                         <label id="settleMoney">
-                            <c:if test="${empty mchtAccountDetailData.settleTotalAmount}">-</c:if>
-                            <c:if test="${!empty mchtAccountDetailData.settleTotalAmount}">${mchtAccountDetailData.settleTotalAmount}</c:if>
+                            <c:if test="${empty mchtAccountDetailData.availableBalance}">-</c:if>
+                            <c:if test="${!empty mchtAccountDetailData.availableBalance}">${mchtAccountDetailData.availableBalance}</c:if>
                         </label>
                     </div>
                 </div>

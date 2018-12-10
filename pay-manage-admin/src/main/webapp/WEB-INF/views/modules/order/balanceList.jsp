@@ -98,23 +98,26 @@
 	</form>
 	<label>商户总金额合计：${mchtTotalBalance}元</label>&nbsp;&nbsp;|&nbsp;&nbsp;
 	<label>商户可用余额合计：${mchtAvailTotalBalance}元</label>&nbsp;&nbsp;|&nbsp;&nbsp;
+	<label>商户待结算金额合计：${mchtWaitTotalBalance}元</label>&nbsp;&nbsp;|&nbsp;&nbsp;
 	<label>商户冻结金额合计：${mchtFreezeTotalAmountBalance}元</label>&nbsp;&nbsp;|&nbsp;&nbsp;
 
 	<tags:message content="${message}"/>
 	<table id="contentTable" class="table table-striped table-bordered table-condensed table-hover">
 		<thead>
 			<tr >
-				<th width="25%">商户名称</th>
-				<th width="25%">总金额(元)</th>
-				<th width="25%">可用余额(元)</th>
-				<th width="25%">冻结金额(元)</th>
+				<th width="20%">商户名称</th>
+				<th width="20%">总金额(元)</th>
+				<th width="20%">可用余额(元)</th>
+				<th width="20%">待结算金额(元)</th>
+				<th width="20%">冻结金额(元)</th>
 			</tr>
 		</thead>
 		<tbody>
 			<c:forEach items="${page.list}" var="mchtAccountDetail" >
 				<tr>
 					<td>${mchtAccountDetail.mchtName}</td>
-					<td  <c:if test="${mchtAccountDetail.cashTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.cashTotalAmount}</td>
+					<td  <c:if test="${mchtAccountDetail.totalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.totalAmount}</td>
+					<td  <c:if test="${mchtAccountDetail.availableBalance < 0}">style="color: red"</c:if> >${mchtAccountDetail.availableBalance}</td>
 					<td  <c:if test="${mchtAccountDetail.settleTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.settleTotalAmount}</td>
 					<td  <c:if test="${mchtAccountDetail.freezeTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.freezeTotalAmount}</td>
 				</tr>
