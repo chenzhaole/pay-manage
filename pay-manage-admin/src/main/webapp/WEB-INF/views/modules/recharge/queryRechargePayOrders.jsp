@@ -75,7 +75,7 @@
 <body>
 <div class="breadcrumb">
     <label>
-        <th><a href="#">代付管理</a> > <a href="#"><b>充值订单查询</b></a></th>
+        <th><a href="#"><b>充值订单查询</b></a></th>
     </label>
 </div>
 <form id="searchForm" action="${ctx}/mchtRecharge/queryRechargePayOrders" method="post" class="breadcrumb form-search">
@@ -110,22 +110,6 @@
 
         </tr>
         <tr>
-            <td>
-                <div class="control-group">
-                    <label class="control-label">审核状态：</label>
-                    <div class="controls">
-                        <select id="auditStatus" name="auditStatus">
-                            <option value="">---请选择---</option>
-                            <option value="created" <c:if test="${paramMap.auditStatus eq 'created'}">selected</c:if> >未审核</option>
-                            <option value="customer_pass" <c:if test="${paramMap.auditStatus eq 'customer_pass'}">selected</c:if> >客服审核通过</option>
-                            <option value="operate_pass" <c:if test="${paramMap.auditStatus eq 'operate_pass'}">selected</c:if> >运营审核通过</option>
-                            <option value="customer_refuse" <c:if test="${paramMap.auditStatus eq 'customer_refuse'}">selected</c:if> >客服审核未通过</option>
-                            <option value="operate_refuse" <c:if test="${paramMap.auditStatus eq 'operate_refuse'}">selected</c:if> >运营审核未通过</option>
-                            <option value="no_need_audit" <c:if test="${paramMap.auditStatus eq 'no_need_audit'}">selected</c:if> >无需审核</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
             <td>
                 <div class="control-group">
                     <label class="control-label">订单时间：</label>
@@ -184,18 +168,12 @@
     <tr>
         <th>商户名称</th>
         <th>订单号</th>
-        <td>上游通道</td>
         <td>充值方式</td>
         <th>订单金额</th>
         <th>手续费金额</th>
         <th>订单时间</th>
         <th>订单完成时间</th>
-        <th>我司收款账户名</th>
-        <th>我司收款账号</th>
         <th>订单状态</th>
-        <td>审核状态</td>
-
-
         <th>&nbsp;操&nbsp;作&nbsp;&nbsp;</th>
     </tr>
     </thead>
@@ -204,7 +182,6 @@
         <tr>
             <td>${orderInfo.mchtCode}</td>
             <td>${orderInfo.platOrderId}</td>
-            <td>${orderInfo.chanName}</td>
             <td>
                ${orderInfo.payType}
             </td>
@@ -220,36 +197,8 @@
                 <fmt:formatDate value="${orderInfo.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
             <td>
-                    ${orderInfo.bankAccountName}
-            </td>
-            <td>
-                    ${orderInfo.bankCardNo}
-            </td>
-            <td>
                     ${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}
             </td>
-            <td>
-                <!--    创建未审核:created 客服审核通过:customer_pass 运营审核通过 operate_pass 客服审核拒绝: customer_refuse  运营审核拒绝 operate_refuse',-->
-                <c:if test="${orderInfo.auditStatus eq 'created'}">
-                    未审核
-                </c:if>
-                <c:if test="${orderInfo.auditStatus eq 'customer_pass'}">
-                    客服审核通过
-                </c:if>
-                <c:if test="${orderInfo.auditStatus eq'operate_pass'}">
-                    运营审核通过
-                </c:if>
-                <c:if test="${orderInfo.auditStatus eq 'customer_refuse'}">
-                    客服审核未通过
-                </c:if>
-                <c:if test="${orderInfo.auditStatus eq 'operate_refuse'}">
-                    运营审核未通过
-                </c:if>
-                <c:if test="${orderInfo.auditStatus eq 'no_need_audit'}">
-                    无需审核
-                </c:if>
-            </td>
-
             <td>
                 <!--    查询订单详情         -->
                 <a href="${ctx}/mchtRecharge/adjustRechargeOrder?platOrderId=${orderInfo.platOrderId}&queryFlag=true">查看详情</a>

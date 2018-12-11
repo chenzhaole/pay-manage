@@ -75,7 +75,7 @@
 <body>
 <div class="breadcrumb">
     <label>
-        <th><a href="#">代付管理</a> > <a href="#"><b>充值订单查询</b></a></th>
+        <th><a href="#"><b>充值订单查询</b></a></th>
     </label>
 </div>
 <form id="searchForm" action="${ctx}/mchtRecharge/queryOperateRechargePayOrders" method="post" class="breadcrumb form-search">
@@ -209,12 +209,11 @@
         <th>手续费金额</th>
         <th>订单时间</th>
         <th>订单完成时间</th>
-        <th>我司收款账户名</th>
-        <th>我司收款账号</th>
         <th>订单状态</th>
         <td>审核状态</td>
         <td>客服审批人</td>
         <td>运营审批人</td>
+        <td>客服留言</td>
         <th>&nbsp;操&nbsp;作&nbsp;&nbsp;</th>
     </tr>
     </thead>
@@ -237,12 +236,6 @@
                 <fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <fmt:formatDate value="${orderInfo.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
-            </td>
-            <td>
-                 ${orderInfo.bankAccountName}
-            </td>
-            <td>
-                 ${orderInfo.bankCardNo}
             </td>
             <td>
                     ${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}
@@ -273,6 +266,9 @@
             </td>
             <td>
                 ${orderInfo.operateAuditUserName}
+            </td>
+            <td style="width: 10%">
+                ${orderInfo.extend1}
             </td>
             <td>
                 <!--    查询订单详情         -->
