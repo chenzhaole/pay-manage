@@ -16,12 +16,13 @@
     <link rel="stylesheet" type="text/css" href="${ctxStatic}/css/cashierBank.css">
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
     <script type="text/javascript">
+        var isReSubmit =false;
         $(document).ready(function(){
-            var serverBankCodes ="${bankCodes}".split(",");
-            if(serverBankCodes.length ==0){
+            if("${bankCodes}" == ""){
                 $(".no_bank").css('display','');
                 return ;
             }
+            var serverBankCodes ="${bankCodes}".split(",");
             var localBankCodes =$("ul").find("input");
 
             for(var i=0;i<localBankCodes.length;i++){
@@ -39,15 +40,44 @@
         });
 
         function submit(bankCode){
-            $("#"+bankCode).attr('checked','true');
-            //form表单方式提交
-            $("form")[0].submit();
+            if(!isReSubmit){
+                isReSubmit =true;
+                $.ajax({
+                    type: "post",
+                    url: $("#bankSubmit").attr("action"),
+                    data: {"bankCode":bankCode},
+                    dataType:"json",
+                    async : false,
+                    success: function (jsonData) {//data为返回json数据
+                        if(jsonData.respCode == "0000"){
+                            var data =eval("("+jsonData.data+")");
+                            var clientPayWay =data.clientPayWay;
+                            var payInfo =data.payInfo;
+                            if(clientPayWay == "08"){
+                                location.href =payInfo;
+                            }else if(clientPayWay =="09"){
+                                $("#payInfoForm").html(payInfo);
+                                $("#payInfoForm form")[0].submit();
+                            }else {
+                                alert("返回参数有误");
+                                return;
+                            }
+
+                        }else{
+                            alert("错误码：["+jsonData.respCode+"],错误信息：["+jsonData.respMsg+"]");
+                        }
+                    }
+                });
+            }else {
+                alert("重复提交，请重新下单");
+            }
         };
 
     </script>
 </head>
 <body>
-    <form action ="${ctx}/gateway/cashier/platPcCall/${mchtId}/${mchtOrderId}/${payType}/${extraData}" method="post">
+    <div id ="payInfoForm"></div>
+    <form id ="bankSubmit" action ="${ctx}/gateway/cashier/platPcCall/${mchtId}/${mchtOrderId}/${payType}/${extraData}" method="post">
     <div class="order_info center">
         <h5 class="tips" >请及时付款，以便订单尽快处理！</h5>
         <div class="info_wrap">
