@@ -675,7 +675,7 @@ public class PlatformController extends BaseController {
 			}
 
 			if ("edit".equals(paramMap.get("op"))) {
-				MchtProductFormInfo mchtProductById = mchtProductAdminService.getMchtProductById(productFormInfo);
+				MchtProduct mchtProductById = mchtProductAdminService.getMchtProductByUpdateId(productFormInfo);
 				//定时
 				if(FixEnum.DELAY.getCode().equals(productFormInfo.getIsFixed())){
 					String merchantSettleCycle =StringUtils.isEmpty(mchtProductById.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():mchtProductById.getMerchantSettleCycle();
@@ -690,7 +690,7 @@ public class PlatformController extends BaseController {
 					}
 					//如果定时执行的未生效，但是时间不同或者结算类型不同，说明调整了生效时间或周期
 					else if(StatusEnum.TOBEVALID.getCode().equals(mchtProductById.getIsEffective())
-							&& (mchtProductById.getActiveTime()!=productFormInfo.getActiveTime()
+							&& (DateUtils.formatDate(mchtProductById.getActiveTime(),"yyyy-MM-dd HH:mm:ss")!=productFormInfo.getActiveTime()
 							|| !productFormInfo.getMerchantSettleCycle().equals(mchtProductById.getMerchantSettleCycle()))) {
 						productFormInfo.setIsEffective(mchtProductById.getIsEffective());
 						productFormInfo.setDoTaskType("DA");

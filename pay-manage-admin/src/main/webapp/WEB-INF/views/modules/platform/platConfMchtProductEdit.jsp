@@ -310,7 +310,7 @@
                            type="radio"
                            <c:if test="${productInfo.isFixed == 0}">checked</c:if> id="activeThan">
                     <input id="activeTime" name="activeTime" type="text" class="input-medium Wdate"
-                           value="${activeTime}"
+                           value="${productInfo.activeTime}"
                            onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true,readOnly:true,isShowOK:true,isShowToday:true, minDate:'%y-%M-%d'});"/>
 
                 </div>
