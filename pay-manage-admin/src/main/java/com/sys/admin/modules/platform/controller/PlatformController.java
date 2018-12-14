@@ -693,9 +693,11 @@ public class PlatformController extends BaseController {
 							&& (DateUtils.formatDate(mchtProductById.getActiveTime(),"yyyy-MM-dd HH:mm:ss")!=productFormInfo.getActiveTime()
 							|| !productFormInfo.getMerchantSettleCycle().equals(mchtProductById.getMerchantSettleCycle()))) {
 						productFormInfo.setIsEffective(mchtProductById.getIsEffective());
+						productFormInfo.setOldMerchantSettleCycle(mchtProductById.getOldMerchantSettleCycle());
 						productFormInfo.setDoTaskType("DA");
 					}else{
 						productFormInfo.setIsEffective(mchtProductById.getIsEffective());
+						productFormInfo.setOldMerchantSettleCycle(mchtProductById.getOldMerchantSettleCycle());
 					}
 					//立即
 				}else{
@@ -705,6 +707,7 @@ public class PlatformController extends BaseController {
 						productFormInfo.setDoTaskType("D");
 					}
 				}
+				productFormInfo.setOldActiveTime(mchtProductById.getActiveTime());
 				result = mchtProductAdminService.
 						updateMchtProduct(productFormInfo);
 			}

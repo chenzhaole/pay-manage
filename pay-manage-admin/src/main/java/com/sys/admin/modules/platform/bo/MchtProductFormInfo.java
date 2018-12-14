@@ -75,6 +75,8 @@ public class MchtProductFormInfo {
 
 	private String doTaskType="N";// A 新增  N 不需要  D 删除  DA 先删除旧的，在新增 默认N
 
+	private Date oldActiveTime;
+
 	//private SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
 	private static final long serialVersionUID = 1L;
@@ -296,6 +298,14 @@ public class MchtProductFormInfo {
 	}
 
 	public MchtProductFormInfo() {
+	}
+
+	public Date getOldActiveTime() {
+		return oldActiveTime;
+	}
+
+	public void setOldActiveTime(Date oldActiveTime) {
+		this.oldActiveTime = oldActiveTime;
 	}
 
 	public MchtProductFormInfo(Map<String, String> paramMap) {
