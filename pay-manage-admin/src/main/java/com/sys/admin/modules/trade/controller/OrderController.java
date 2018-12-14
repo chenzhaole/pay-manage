@@ -44,6 +44,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -1008,6 +1009,172 @@ public class OrderController extends BaseController {
 			}
 		}
 		return null;
+	}
+
+
+	/**
+	 * 批量补发异步通知  商户订单补单状态为空 订单状态为成功
+	 * 2018-12-11 14:36:40
+	 * @return
+	 */
+	@RequestMapping("/batchReissueMchtNotify")
+	public ModelAndView batchReissueMchtNotify(HttpServletRequest request, @RequestParam Map<String, String> paramMap){
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("modules/order/orderList");
+
+		MchtGatewayOrder order = new MchtGatewayOrder();
+		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+
+		//初始化页面开始时间
+		String beginDate = paramMap.get("beginDate");
+		if (StringUtils.isBlank(beginDate)) {
+			order.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+		} else {
+			order.setCreateTime(DateUtils.parseDate(beginDate));
+		}
+		String endDate = paramMap.get("endDate");
+		//初始化页面结束时间
+		if (StringUtils.isBlank(endDate)) {
+			order.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+		} else {
+			order.setUpdateTime(DateUtils.parseDate(endDate));
+		}
+
+		if(order.getCreateTime()!=null){
+			order.setSuffix(DateUtils.formatDate(order.getCreateTime(), "yyyyMM"));
+		}
+
+
+		List<MchtGatewayOrder> mchtGatewayOrders =  mchtGwOrderService.queryMchtGatewayOrdersNoPage(order, 1);
+		if(mchtGatewayOrders == null || mchtGatewayOrders.size() == 0){
+			return modelAndView;
+		}
+		for(MchtGatewayOrder gatewayOrder: mchtGatewayOrders){
+			String message  = null;
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String supplyUrl = gatewayUrl + "/gateway/renotify";
+			Map<String, String> data = new HashMap<>();
+			String suffix = "20" + gatewayOrder.getPlatOrderId().substring(1, 5);
+			data.put("orderId", gatewayOrder.getPlatOrderId());
+			data.put("suffix", suffix);
+			String respStr = null;
+			try {
+				respStr = HttpUtil.post(supplyUrl, data);
+				logger.info("gateway补发通知返回：" + respStr);
+				if ("SUCCESS".equalsIgnoreCase(respStr)) {
+					logger.info("订单号:"+ gatewayOrder.getPlatOrderId() + ",商户响应:"+ respStr);
+				} else {
+					logger.info("订单号:"+ gatewayOrder.getPlatOrderId() + ",商户响应:"+ respStr);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			modelAndView.addObject("message", message);
+			modelAndView.addObject("messageType", "success");
+		}
+		return modelAndView;
+	}
+
+
+	/**
+	 * 批量查询订单  订单状态为提交支付
+	 * 2018-12-11 17:37:09
+	 * @return
+	 */
+	@RequestMapping("/batchReissueMchtQuery")
+	public ModelAndView batchReissueMchtQuery(HttpServletRequest request, @RequestParam Map<String, String> paramMap) throws Exception {
+
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("modules/order/orderList");
+
+		MchtGatewayOrder queryOrder = new MchtGatewayOrder();
+		queryOrder.setStatus(PayStatusEnum.SUBMIT_SUCCESS.getCode());
+
+		//初始化页面开始时间
+		String beginDate = paramMap.get("beginDate");
+		if (StringUtils.isBlank(beginDate)) {
+			queryOrder.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+		} else {
+			queryOrder.setCreateTime(DateUtils.parseDate(beginDate));
+		}
+		String endDate = paramMap.get("endDate");
+		//初始化页面结束时间
+		if (StringUtils.isBlank(endDate)) {
+			queryOrder.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+		} else {
+			queryOrder.setUpdateTime(DateUtils.parseDate(endDate));
+		}
+
+		if(queryOrder.getCreateTime()!=null){
+			queryOrder.setSuffix(DateUtils.formatDate(queryOrder.getCreateTime(), "yyyyMM"));
+		}
+
+
+
+		List<MchtGatewayOrder> mchtGatewayOrders =  mchtGwOrderService.queryMchtGatewayOrdersNoPage(queryOrder, null);
+		if(mchtGatewayOrders == null || mchtGatewayOrders.size() == 0){
+			return modelAndView;
+		}
+
+		for(MchtGatewayOrder  gatewayOrder: mchtGatewayOrders){
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String queryUrl = gatewayUrl + "/gateway/queryOrder";
+			String suffix = "20" + gatewayOrder.getPlatOrderId().substring(1, 5);
+			MchtInfo mchtInfo = merchantService.queryByKey(gatewayOrder.getMchtCode());
+			if (mchtInfo == null) {
+				return modelAndView;
+			}
+			String key = mchtInfo.getMchtKey();
+
+			JSONObject data = new JSONObject();
+			JSONObject head = new JSONObject();
+			JSONObject body = new JSONObject();
+			head.put("mchtId", mchtInfo.getId());
+			head.put("version", "20");
+			head.put("biz", gatewayOrder.getPayType());
+			data.put("head", head);
+			body.put("tradeId", gatewayOrder.getId());
+			body.put("orderTime", new SimpleDateFormat("yyyyMMddHHmmss").format(gatewayOrder.getCreateTime()));
+			Map<String, String> params = JSONObject.parseObject(
+					JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
+					});
+			String log_moid = mchtInfo.getId()+"-->"+gatewayOrder.getId();
+			String sign = SignUtil.md5Sign(params, key, log_moid);
+			data.put("sign", sign);
+			data.put("body", body);
+			String respStr = HttpUtil.post(queryUrl, data.toJSONString());
+			logger.info("gateway查单返回：" + respStr);
+			JSONObject result = JSON.parseObject(respStr);
+			JSONObject resultHead = result.getJSONObject("head");
+			JSONObject resultBody = result.getJSONObject("body");
+			if (resultBody != null && ErrorCodeEnum.SUCCESS.getCode().equals(resultHead.getString("respCode"))) {
+				String resultStatus = resultBody.getString("status");
+				if (Result.STATUS_SUCCESS.equals(resultStatus)) {
+					//补发通知
+					String supplyUrl = gatewayUrl + "/renotify";
+					Map<String, String> redata = new HashMap<>();
+					redata.put("orderId", gatewayOrder.getId());
+					redata.put("suffix", suffix);
+					String reNoStr = HttpUtil.post(supplyUrl, redata);
+					logger.info("gateway补发通知返回：" + reNoStr);
+
+					if ("SUCCESS".equalsIgnoreCase(reNoStr)) {
+						gatewayOrder.setSupplyStatus("0");
+						logger.info("查询成功,订单号:"+ gatewayOrder.getPlatOrderId());
+					} else {
+						gatewayOrder.setSupplyStatus("1");
+						logger.info("查询成功,订单号:"+ gatewayOrder.getPlatOrderId());
+					}
+
+				} else if (Result.STATUS_FAIL.equals(resultStatus)) {
+					logger.info("查单成功, 支付状态为失败,订单号:"+ gatewayOrder.getPlatOrderId());
+				} else {
+					logger.info("查单成功, 支付状态未知,订单号:"+ gatewayOrder.getPlatOrderId());
+				}
+			}
+		}
+		return modelAndView;
+
 	}
 
 }

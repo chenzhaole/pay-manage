@@ -28,6 +28,19 @@
 				$("#searchForm").submit();
                 $("#searchForm").attr("action","${ctx}/order/list");
 			});
+
+            $("#batchNotify").click(function(){
+                $("#searchForm").attr("action","${ctx}/order/batchReissueMchtNotify");
+                $("#searchForm").submit();
+            });
+
+            $("#batchQuery").click(function(){
+                $("#searchForm").attr("action","${ctx}/order/batchReissueMchtQuery");
+                $("#searchForm").submit();
+            });
+
+
+
         });
 		function page(n,s){
 			$("#pageNo").val(n);
@@ -260,6 +273,14 @@
 					<div class="btn-group">
 					<input id="btnExport" class="btn btn-primary" type="button" value="导出"/>
 					</div>
+					<shiro:hasPermission name="order:list:op">
+						<div class="btn-group">
+							<input id="batchNotify" class="btn btn-primary" type="button" value="批量异步通知"/>
+						</div>
+						<div class="btn-group">
+							<input id="batchQuery" class="btn btn-primary" type="button" value="批量查询"/>
+						</div>
+					</shiro:hasPermission>
 
 	         	</td>
 	        </tr>
