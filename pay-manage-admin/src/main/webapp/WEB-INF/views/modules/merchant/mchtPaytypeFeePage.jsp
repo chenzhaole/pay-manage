@@ -56,6 +56,7 @@
             <th>收费类型</th>
             <th>费率(‰)</th>
             <th>手续费(分)</th>
+            <th>支付方式请求频次</th>
             <th>首页展示</th>
             <th>是否保存该条记录</th>
         </tr>
@@ -97,6 +98,17 @@
                         <input style="width: 100px;" name="feeAmount${mchtFee.paytypeCode}" value="${mchtFee.feeAmount}" placeholder="请填写手续费（分）" type="text" maxlength="8">
                     </div>
                 </td>
+                <td style="width: 150px;">
+                    <div class="controls">
+                        <span>
+                            <input id="request_second_id" style="width: 45px;" name="mchtFee.requestTime${mchtFee.paytypeCode}" value="${mchtFee.requestTime}" placeholder="" type="number" maxlength="6" /> 秒
+                        </span>
+                        <span>
+                            <input id="request_number_id" style="width: 45px;" name="mchtFee.requestNum${mchtFee.paytypeCode}" value="${mchtFee.requestNum}" placeholder="" type="number" maxlength="6" >  笔
+                        </span>
+                    </div>
+                </td>
+
                 <td style="width: 100px;" >
                     <div class="controls">
                         <input name="showMchtFeeRate${mchtFee.paytypeCode}" value="1"

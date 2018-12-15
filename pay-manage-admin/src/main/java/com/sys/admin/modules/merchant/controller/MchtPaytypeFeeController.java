@@ -92,6 +92,8 @@ public class MchtPaytypeFeeController extends BaseController {
 					}
 					merchantFee.setFeeRate(platFeerate.getFeeRate());
 					merchantFee.setFeeAmount(platFeerate.getFeeAmount());
+					merchantFee.setRequestNum(platFeerate.getRequestNum());
+					merchantFee.setRequestTime(platFeerate.getRequestTime());
 				}
 			}
 
@@ -157,6 +159,8 @@ public class MchtPaytypeFeeController extends BaseController {
 					merchantFee.setFeeType(StringUtils.isNotBlank(paramMap.get("feeType" + number)) ? paramMap.get("feeType" + number) : "0");
 					merchantFee.setFeeRate(new BigDecimal(StringUtils.isNotBlank(paramMap.get("feeRate" + number)) ? paramMap.get("feeRate" + number) : "0"));
 					merchantFee.setFeeAmount(new BigDecimal(StringUtils.isNotBlank(paramMap.get("feeAmount" + number)) ? paramMap.get("feeAmount" + number) : "0"));
+					merchantFee.setRequestTime(paramMap.get("mchtFee.requestTime" + number));
+					merchantFee.setRequestNum(paramMap.get("mchtFee.requestNum" + number));
 					merchantFees.add(merchantFee);
 				}
 
@@ -178,6 +182,8 @@ public class MchtPaytypeFeeController extends BaseController {
 				feerate.setFeeType(fee.getFeeType());
 				feerate.setFeeRate(fee.getFeeRate());
 				feerate.setFeeAmount(fee.getFeeAmount());
+				feerate.setRequestNum(fee.getRequestNum());
+				feerate.setRequestTime(fee.getRequestTime());
 				if (StringUtils.isBlank(activeTime) || StatusEnum.VALID.getCode().equals(feeStatus)) {
 					feerate.setActiveTime(new Date());
 				} else {
