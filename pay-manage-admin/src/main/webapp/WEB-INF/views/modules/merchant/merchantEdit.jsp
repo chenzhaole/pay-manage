@@ -67,8 +67,8 @@
             checkType();
             accountType();
 
-           /* $('#city').on('click', function () {
-                var json = ${areas};
+            /* $('#city').on('click', function () {
+                 var json = ${areas};
                 if(json!= null && json!= ''){
                     $.areaSelect(json);
                 }

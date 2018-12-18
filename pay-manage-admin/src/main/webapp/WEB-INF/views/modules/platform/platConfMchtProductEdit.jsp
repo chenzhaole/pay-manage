@@ -47,6 +47,15 @@
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
                 onkeyup: false,
                 submitHandler: function (form) {   //表单提交句柄,为一回调函数，带一个参数：form
+
+                    var isFix =$("input[name='isFixed']:checked").val();
+                    if(isFix=="0"){
+                        var activeTime =$("#activeTime").val();
+                        if(activeTime == "" || activeTime ==null){
+                            alert("结算生效为定时时，生效时间必填");
+                            return ;
+                        }
+                    }
                     var action ="${ctx}/platform/addPlatConfMchtProduct"
                     document.forms[0].action = action;
                     document.forms[0].submit();
@@ -80,7 +89,8 @@
                     },
                     productId:{
                         required:true
-                    }
+                    },
+                    merchantSettleCycle :{required:true}
                 },
                 messages: {
                     // feeRate: {
@@ -92,7 +102,9 @@
                     },
                     productId:{
                         required:'必填'
-                    }
+                    },
+                    merchantSettleCycle :{required:'必选'}
+
                 }
 
             });
@@ -260,6 +272,53 @@
         </tr>
     </table>
 
+    <div class="breadcrumb">
+        <label>结算标志</label>
+    </div>
+
+    <table class="table" id="payTypeTable">
+    <tr>
+        <td>
+            <div class="control-group">
+                <label class="control-label">商户实时结算标志<span style="color: red;">*</span></label>
+                <div class="controls">
+                    <select name="merchantSettleCycle" class="input-xlarge" id="merchantSettleCycle">
+                        <option value="">--请选择--</option>
+                        <option
+                                <c:if test="${productInfo.merchantSettleCycle == 'T0'}">selected</c:if>
+                                <c:if test="${empty productInfo.merchantSettleCycle && op !='add'}">selected</c:if> value="T0">实时结算
+                        </option>
+                        <option
+                                <c:if test="${productInfo.merchantSettleCycle == 'TN'}">selected</c:if> value="TN">非实时结算
+                        </option>
+                    </select>
+                </div>
+            </div>
+        </td>
+        <td>
+            <div class="control-group">
+                <label class="control-label">生效时间</label>
+                <div class="controls">
+                    <label class="control-label" for="activeNow">立即</label>
+                    <input name="isFixed" value="1" placeholder="" class="input-xlarge"
+                           type="radio"
+                           <c:if test="${productInfo.isFixed == 1}">checked</c:if>
+                           <c:if test="${op == 'add'}">checked</c:if>
+                           <c:if test="${empty productInfo.isFixed}">checked</c:if> id="activeNow">
+                    <label class="control-label" for="activeThan">定时</label>
+                    <input name="isFixed" value="0" placeholder="" class="input-xlarge"
+                           type="radio"
+                           <c:if test="${productInfo.isFixed == 0}">checked</c:if> id="activeThan">
+                    <input id="activeTime" name="activeTime" type="text" class="input-medium Wdate"
+                           value="${productInfo.activeTime}"
+                           onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true,readOnly:true,isShowOK:true,isShowToday:true, minDate:'%y-%M-%d'});"/>
+
+                </div>
+            </div>
+        </td>
+
+    </tr>
+    </table>
     <!-- ********************************************************************** -->
     <%--<div class="breadcrumb">
         <label>资金结算信息</label>

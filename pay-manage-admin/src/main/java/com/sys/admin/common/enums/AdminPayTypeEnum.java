@@ -64,12 +64,13 @@ public enum AdminPayTypeEnum {
 	QUICK_GROUP ("qj000", "银行卡组合支付类型"),
 	QUICK_PAY ("qj202", "快捷支付"),
 	//	QUICK_PAY ("qj202", "快捷支付(即银行卡支付)"),
-	QUICK_ONLINE_BANK ("qj301", "网银支付"),
+	QUICK_ONLINE_BANK ("qj301", "网关支付"),
 
 
 	SDK_GROUP("sdk000","sdk组合支付类型"),
 	ZHIFU_WG ( "zf001", "支付"),
 	HUIKUANG_WG ( "hk001", "汇款"),
+	LOCAL_BANK("nb001","网银支付")
 
 	;
 

@@ -25,6 +25,8 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -46,6 +48,9 @@ public class MchtPaytypeFeeController extends BaseController {
 
 	@Autowired
 	private MerchantService merchantService;
+
+	@Autowired
+	private JedisPool jedisPool;
 
 
 	/**
@@ -213,7 +218,20 @@ public class MchtPaytypeFeeController extends BaseController {
 					}else {
 						platFeerateService.createFirstTime(platFeerate);
 					}
-
+					if(FeeRateBizTypeEnum.MCHT_PAYTYPE_BIZTYPE.getCode().equals(platFeerate.getBizType()) && !StringUtils.isEmpty(platFeerate.getRequestNum()) && !StringUtils.isEmpty(platFeerate.getRequestNum())){
+						try{
+							if(StringUtils.isEmpty(platFeerate.getBizRefId())){
+								continue;
+							}
+							String [] payTypeArray = platFeerate.getBizRefId().split("&");
+							if(payTypeArray.length!= 2){
+								continue;
+							}
+							resetPayLimit(mchtId, payTypeArray[0]);
+						}catch (Exception e){
+							logger.error(e.getMessage(), e);
+						}
+					}
 				}
 			}
 
@@ -332,5 +350,30 @@ public class MchtPaytypeFeeController extends BaseController {
 			return sb.toString();
 		}
 		return null;
+	}
+
+
+	/**
+	 * 修改支付限频后重新计数
+	 * 2018-12-15 14:13:06
+	 * @param mchtId
+	 * @param payType
+	 * @return
+	 */
+	public boolean resetPayLimit(String mchtId, String payType){
+		Jedis jedis = null;
+		String key = "REQUEST_MCHT_PAYTYPE_CREATED_TIME:"+mchtId + "_" + payType;
+		try {
+			jedis = jedisPool.getResource();
+			jedis.del(key);
+			logger.info("设置校验商户支付方式请求频率,商户号:"+ mchtId +" ,支付方式:"+ payType );
+		} catch (Exception e) {
+			logger.error(key+" is redis exists error: {}", e.getMessage(),e);
+		} finally {
+			if (jedis != null) {
+				jedisPool.returnResource(jedis);
+			}
+		}
+		return true;
 	}
 }
