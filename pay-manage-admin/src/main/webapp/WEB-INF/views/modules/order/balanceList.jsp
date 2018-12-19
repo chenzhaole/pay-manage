@@ -83,7 +83,7 @@
 					<label>查询日期：</label>
 					&nbsp;
 			        <input id="queryDate" name="queryDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-			               value="${queryDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
+			               value="${queryDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
 				</div>
 		            <div class="pull-right" style="margin-right: 20%;" >
 		           	    <div class="btn-group">
@@ -111,12 +111,23 @@
 			</tr>
 		</thead>
 		<tbody>
-			<c:forEach items="${page.list}" var="mchtAccountDetail" >
+			<c:forEach items="${mchtAccountDetail}" var="account" >
 				<tr>
-					<td>${mchtAccountDetail.mchtName}</td>
-					<td  <c:if test="${mchtAccountDetail.cashTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.cashTotalAmount}</td>
-					<td  <c:if test="${mchtAccountDetail.settleTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.settleTotalAmount}</td>
-					<td  <c:if test="${mchtAccountDetail.freezeTotalAmount < 0}">style="color: red"</c:if> >${mchtAccountDetail.freezeTotalAmount}</td>
+					<td>${account.mchtName}</td>
+					<td
+							<c:if test="${account.cashTotalAmount < 0}">style="color: red"</c:if>
+					>
+							${account.cashTotalAmount}
+					</td>
+					<td
+							<c:if test="${account.settleTotalAmount < 0}">style="color: red"</c:if>
+					>
+							${account.settleTotalAmount}
+					</td>
+					<td  <c:if test="${account.freezeTotalAmount < 0}">style="color: red"</c:if>
+					>
+							${account.freezeTotalAmount}
+					</td>
 				</tr>
 			</c:forEach>
 		</tbody>

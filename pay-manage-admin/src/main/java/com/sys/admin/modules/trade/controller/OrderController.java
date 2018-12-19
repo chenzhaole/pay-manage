@@ -21,6 +21,7 @@ import com.sys.admin.modules.platform.service.ProductAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.admin.modules.trade.service.OrderAdminService;
+import com.sys.boss.api.service.order.MchtAccAmountService;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
@@ -119,6 +120,10 @@ public class OrderController extends BaseController {
 
 	@Autowired
 	private JedisPool jedisPool;
+
+	@Autowired
+	private MchtAccAmountService mchtAccAmountService;
+
 
 
 	@RequiresPermissions("process:question:view")
@@ -336,10 +341,55 @@ public class OrderController extends BaseController {
 		try {
 			//查出所有商户信息
 			List<MchtInfo> mchtInfoList = merchantService.list(new MchtInfo());
-
 			Map<String, String> mchtMap = Collections3.extractToMap(mchtInfoList, "id", "name");
 
-			MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
+			String mchtId = StringUtils.isNotBlank(request.getParameter("mchtId")) ? request.getParameter("mchtId") : "";
+			//截至到某个时间的余额
+			String queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd");
+
+			MchtAccountDetailAmount amount = new MchtAccountDetailAmount();
+			if(StringUtils.isNotEmpty(mchtId)){
+				amount.setMchtId(mchtId);
+			}
+			amount.setCreatedStartTime(queryDate + " 00:00:00");
+			amount.setCreatedEndTime(queryDate + " 23:59:59");
+			List<MchtAccountDetailAmount> amountList = mchtAccAmountService.queryCurrentDayAcctAmount(amount);
+
+			//商户总金额合计
+			BigDecimal mchtTotalBalanceTotal = new BigDecimal("0");
+			//商户可用余额合计	(现金 - 冻结)
+			BigDecimal mchtAvailTotalBalanceTotal = new BigDecimal("0");
+			//商户冻结金额合计
+			BigDecimal mchtFreezeTotalAmountBalanceTotal = new BigDecimal("0");
+			//商户待结算金额
+			BigDecimal settleTotalAmountTotal = new BigDecimal("0");
+
+			if(amountList!= null && amountList.size()>0){
+				for(MchtAccountDetailAmount amountBo :amountList){
+					mchtTotalBalanceTotal = mchtTotalBalanceTotal.add(amountBo.getCashTotalAmount());
+					mchtAvailTotalBalanceTotal = mchtFreezeTotalAmountBalanceTotal.add(amountBo.getCashTotalAmount().subtract(amountBo.getFreezeTotalAmount()));
+					mchtFreezeTotalAmountBalanceTotal = mchtFreezeTotalAmountBalanceTotal.add(amountBo.getFreezeTotalAmount());
+					settleTotalAmountTotal = settleTotalAmountTotal.add(amountBo.getSettleTotalAmount());
+					amountBo.setMchtName(mchtMap.get(amountBo.getMchtId()));
+
+				}
+			}
+
+			model.addAttribute("mchtInfoList", mchtInfoList);
+
+			model.addAttribute("mchtAccountDetail", amountList);
+			model.addAttribute("mchtId", mchtId);
+			model.addAttribute("queryDate", queryDate);
+			//商户总金额合计
+			model.addAttribute("mchtTotalBalance", mchtTotalBalanceTotal.toString());
+			//商户可用余额合计
+			model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalanceTotal.toString());
+			//商户冻结金额合计
+			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalanceTotal.toString());
+			//商户待结算金额
+			model.addAttribute("settleTotalAmount", settleTotalAmountTotal.toString());
+
+			/*MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
 			//获取当前第几页
 			String pageNoString = paramMap.get("pageNo");
 			int pageNo = 1;
@@ -417,7 +467,7 @@ public class OrderController extends BaseController {
 			model.addAttribute("queryDate", queryDate);
 			model.addAttribute("mchtTotalBalance", mchtTotalBalance);
 			model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalance);
-			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalance);
+			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalance);*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
