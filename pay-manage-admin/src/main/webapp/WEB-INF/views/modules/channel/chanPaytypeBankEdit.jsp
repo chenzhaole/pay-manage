@@ -4,12 +4,13 @@
 <head>
     <title>通道银行管理</title>
     <meta name="decorator" content="default"/>
-
+    <script src="${ctxStatic}/js/select2.js"></script>
+    <link href="${ctxStatic}/css/select2.css" rel="stylesheet" />
     <script type="text/javascript">
 
         //下拉搜索框初始化
         $(window).on('load', function () {
-            $('.selectpicker').selectpicker({
+            $('.selectpicker').select2({
             });
         });
 
