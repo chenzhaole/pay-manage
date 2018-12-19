@@ -49,6 +49,13 @@ public class GwCashierPlatController extends GwCashierBaseController {
         String midoid = "";
         try {
             midoid = "pc端收银台异步下单，商户号：" + mchtId +"，商户订单号：" + mchtOrderId + ",随机数extraData：" + extraData + "-->支付类型：" + paymentType + "-->";
+            String bankCode =request.getParameter("bankCode");
+            if(PayTypeEnum.LOCAL_BANK.getCode().equals(bankCode) && StringUtils.isEmpty(bankCode)){
+                logger.info(BIZ+midoid+"银行编码为空");
+                result.setRespCode(ErrorCodeEnum.E6110.getCode());
+                result.setRespMsg("操作失败");
+                return JSONObject.toJSONString(result);
+            }
             //通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
             logger.info(BIZ + midoid + "通过程序获取deviceType的值");
             //根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
@@ -61,7 +68,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 logger.info(BIZ + midoid + "通过程序获取的ip为：" + ip);
                 //调用handler处理业务
                 logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip);
-                result = iTradeCashierPlatHandler.process(mchtId, mchtOrderId, paymentType, extraData, deviceType, ip);
+                result = iTradeCashierPlatHandler.process(mchtId, mchtOrderId, paymentType, extraData, deviceType, ip,bankCode);
                 logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip +"，返回的数据为：" + JSONObject.toJSONString(result));
                 if (null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode()) && null != result.getData()) {
                     Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
@@ -142,6 +149,13 @@ public class GwCashierPlatController extends GwCashierBaseController {
         String mobile = "";
         try {
             midoid = "手机端收银台发起支付, 商户号：" + mchtId +"，商户订单号：" + mchtOrderId + ",随机数extraData：" + extraData + "-->支付类型：" + paymentType + "-->";
+            String bankCode =request.getParameter("bankCode");
+            if(PayTypeEnum.LOCAL_BANK.getCode().equals(bankCode) && StringUtils.isEmpty(bankCode)){
+                logger.info(BIZ+midoid+"银行编码为空");
+                result.setRespCode(ErrorCodeEnum.E6110.getCode());
+                result.setRespMsg("操作失败");
+                return JSONObject.toJSONString(result);
+            }
             //通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
             logger.info(BIZ + midoid + "通过程序获取deviceType的值");
             //根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
@@ -154,7 +168,7 @@ public class GwCashierPlatController extends GwCashierBaseController {
                 logger.info(BIZ + midoid + "通过程序获取的ip为：" + ip);
                 //调用handler处理业务
                 logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip);
-                result = iTradeCashierPlatHandler.process(mchtId, mchtOrderId, paymentType, extraData, deviceType, ip);
+                result = iTradeCashierPlatHandler.process(mchtId, mchtOrderId, paymentType, extraData, deviceType, ip,bankCode);
                 logger.info(BIZ + midoid + "调用ITradeCashierPlatHandler处理业务逻辑，传入的请求参数是mchtId=" + mchtId+", mchtOrderId="+mchtOrderId+", paymentType="+paymentType+", extraData="+extraData+", deviceType="+deviceType+", ip="+ip +"，返回的数据为：" + JSONObject.toJSONString(result));
                 if (null != result && ErrorCodeEnum.SUCCESS.getCode().equals(result.getRespCode()) && null != result.getData()) {
                     Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();

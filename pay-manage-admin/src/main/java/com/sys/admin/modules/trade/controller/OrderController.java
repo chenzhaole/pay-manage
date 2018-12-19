@@ -45,6 +45,7 @@ import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -114,6 +115,10 @@ public class OrderController extends BaseController {
 	//汇总商户可用余额接口地址
 	@Value("${mchtSettleTotalAmountUrl.url}")
 	private String mchtSettleTotalAmountUrl;
+
+	//汇总商待结算接口地址
+	@Value("${mchtWaitSettleTotalAmountUrl.url}")
+	private String mchtWaitSettleTotalAmountUrl;
 
 	@Value("${payOrderListExpireSecond}")
 	private String payOrderListExpireSecond;
@@ -422,17 +427,23 @@ public class OrderController extends BaseController {
 					for(MchtAccountDetail mchtAccountDetail : listMchtAccountDetail){
 						//商户名称
 						mchtAccountDetail.setMchtName(mchtMap.get(mchtAccountDetail.getMchtId()));
-						//商户总金额
+						//商户现金金额
 						BigDecimal cashTotalAmount = mchtAccountDetail.getCashTotalAmount();
 						cashTotalAmount = cashTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 						mchtAccountDetail.setCashTotalAmount(cashTotalAmount);
+						//商户结算金额
+						BigDecimal settleTotalAmount = mchtAccountDetail.getSettleTotalAmount();
+						settleTotalAmount =settleTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
+						mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
 						//商户冻结金额
 						BigDecimal freezeTotalAmount = mchtAccountDetail.getFreezeTotalAmount();
 						freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 						mchtAccountDetail.setFreezeTotalAmount(freezeTotalAmount);
-						//商户可用余额,可用余额=总金额-冻结金额
-						BigDecimal settleTotalAmount = cashTotalAmount.subtract(freezeTotalAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
-						mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
+						//商户总金额
+						mchtAccountDetail.setTotalAmount(cashTotalAmount.add(settleTotalAmount));
+						//商户可用余额,可用余额=现金金额-冻结金额
+						BigDecimal availableBalance = cashTotalAmount.subtract(freezeTotalAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+						mchtAccountDetail.setAvailableBalance(availableBalance);
 					}
 				}
 			}
@@ -442,10 +453,17 @@ public class OrderController extends BaseController {
 			BigDecimal mchtTotalBalance = null;
 			BigDecimal mchtAvailTotalBalance = null;
 			BigDecimal mchtFreezeTotalAmountBalance = null;
+			BigDecimal mchtWaitTotalBalance =null;
 			if(!CollectionUtils.isEmpty(listMchtAccountDetail) && listMchtAccountDetail.size() > 1){
                 // 商户总金额合计（元）
                 mchtTotalBalance = this.statisticsMchtTotalBalance(selectMchtAccountDetail);
                 mchtTotalBalance = null!=mchtTotalBalance ? mchtTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+                //商户待结算金额
+				mchtWaitTotalBalance =this.statisticsMchtWaitTotalBalance(selectMchtAccountDetail);
+				mchtWaitTotalBalance =null!=mchtWaitTotalBalance ? mchtWaitTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+				//s商户总金额合计
+				mchtTotalBalance =mchtTotalBalance.add(mchtWaitTotalBalance);
+
                 // 商户可用余额合计（元）
                 mchtAvailTotalBalance = this.statisticsMchtAvailTotalBalance(selectMchtAccountDetail);
 				mchtAvailTotalBalance = null!=mchtAvailTotalBalance ? mchtAvailTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
@@ -456,17 +474,20 @@ public class OrderController extends BaseController {
 				MchtAccountDetail oneMchtAccountDetail = listMchtAccountDetail.get(0);
 				//单个商户的总金额汇总，可用总金额汇总
 				// 商户总金额合计（元）
-				mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount();
+				mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount().add(oneMchtAccountDetail.getSettleTotalAmount());
 				// 商户可用余额合计（元）
 				mchtAvailTotalBalance = oneMchtAccountDetail.getCashTotalAmount().subtract(oneMchtAccountDetail.getFreezeTotalAmount());
 				//商户冻结金额合计
 				mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+				//结算金额
+				mchtWaitTotalBalance =oneMchtAccountDetail.getSettleTotalAmount();
 			}
 			model.addAttribute("mchtInfoList", mchtInfoList);
 			model.addAttribute("mchtId", mchtId);
 			model.addAttribute("queryDate", queryDate);
 			model.addAttribute("mchtTotalBalance", mchtTotalBalance);
 			model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalance);
+<<<<<<< HEAD
 			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalance);*/
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -515,7 +536,28 @@ public class OrderController extends BaseController {
 		return null;
     }
 
-    /**
+	//商户可用余额合计（元）
+	private BigDecimal statisticsMchtWaitTotalBalance(MchtAccountDetail selectMchtAccountDetail) {
+		String retData = "";
+		try {
+			String url = mchtWaitSettleTotalAmountUrl;
+			logger.info("汇总商户可用余额合计（元），请求地址："+url);
+			Map paramsMap = new HashMap();
+			paramsMap.put("params", URLEncoder.encode(JSONObject.toJSONString(selectMchtAccountDetail), "utf-8"));
+			logger.info("汇总商户可用余额合计（元），请求参数："+paramsMap);
+			retData = HttpUtil.postConnManager(url, paramsMap);
+			logger.info("汇总商户可用余额合计（元），接口返回的数据为："+JSONObject.toJSONString(retData));
+			if(StringUtils.isNotBlank(retData)){
+				return new BigDecimal(retData).setScale(4, BigDecimal.ROUND_HALF_UP);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return null;
+	}
+
+
+	/**
 	 *  查询所有商户账户详情信息的个数
 	 * @return
 	 */
@@ -1058,6 +1100,173 @@ public class OrderController extends BaseController {
 			}
 		}
 		return null;
+	}
+
+
+	/**
+	 * 批量补发异步通知  商户订单补单状态为空 订单状态为成功
+	 * 2018-12-11 14:36:40
+	 * @return
+	 */
+	@RequestMapping("/batchReissueMchtNotify")
+	public String batchReissueMchtNotify(HttpServletRequest request, @RequestParam Map<String, String> paramMap){
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("modules/order/orderList");
+
+		MchtGatewayOrder order = new MchtGatewayOrder();
+		assemblySearch(paramMap, order);
+		order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+
+		if(order.getCreateTime()!=null){
+			order.setSuffix(DateUtils.formatDate(order.getCreateTime(), "yyyyMM"));
+		}
+
+
+		//获取当前第几页
+		String pageNoString = paramMap.get("pageNo");
+		int pageNo = 1;
+		if (StringUtils.isNotBlank(pageNoString) && "1".equals(paramMap.get("paging"))) {
+			pageNo = Integer.parseInt(pageNoString);
+		}
+		PageInfo pageInfo = new PageInfo();
+		pageInfo.setPageNo(pageNo);
+		order.setPageInfo(pageInfo);
+
+		List<MchtGatewayOrder> mchtGatewayOrders =  mchtGwOrderService.queryMchtGatewayOrdersNoPage(order, 1);
+		if(mchtGatewayOrders == null || mchtGatewayOrders.size() == 0){
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		}
+		for(MchtGatewayOrder gatewayOrder: mchtGatewayOrders){
+			if(!PayStatusEnum.PAY_SUCCESS.getCode().equals(gatewayOrder.getStatus())){
+				continue;
+			}
+			String message  = null;
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String supplyUrl = gatewayUrl + "/gateway/renotify";
+			Map<String, String> data = new HashMap<>();
+			String suffix = "20" + gatewayOrder.getPlatOrderId().substring(1, 5);
+			data.put("orderId", gatewayOrder.getPlatOrderId());
+			data.put("suffix", suffix);
+			String respStr = null;
+			try {
+				respStr = HttpUtil.post(supplyUrl, data);
+				logger.info("gateway补发通知返回：" + respStr);
+				if ("SUCCESS".equalsIgnoreCase(respStr)) {
+					logger.info("订单号:"+ gatewayOrder.getPlatOrderId() + ",商户响应:"+ respStr);
+				} else {
+					logger.info("订单号:"+ gatewayOrder.getPlatOrderId() + ",商户响应:"+ respStr);
+				}
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+			modelAndView.addObject("message", message);
+			modelAndView.addObject("messageType", "success");
+		}
+		return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+	}
+
+
+	/**
+	 * 批量查询订单  订单状态为提交支付
+	 * 2018-12-11 17:37:09
+	 * @return
+	 */
+	@RequestMapping("/batchReissueMchtQuery")
+	public String batchReissueMchtQuery(HttpServletRequest request, @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws Exception {
+
+		ModelAndView modelAndView = new ModelAndView();
+		modelAndView.setViewName("modules/order/orderList");
+
+		MchtGatewayOrder queryOrder = new MchtGatewayOrder();
+		//初始化页面开始时间
+		assemblySearch(paramMap, queryOrder);
+		queryOrder.setStatus(PayStatusEnum.SUBMIT_SUCCESS.getCode());
+
+		if(queryOrder.getCreateTime()!=null){
+			queryOrder.setSuffix(DateUtils.formatDate(queryOrder.getCreateTime(), "yyyyMM"));
+		}
+
+		//获取当前第几页
+		String pageNoString = paramMap.get("pageNo");
+		int pageNo = 1;
+		if (StringUtils.isNotBlank(pageNoString) && "1".equals(paramMap.get("paging"))) {
+			pageNo = Integer.parseInt(pageNoString);
+		}
+		PageInfo pageInfo = new PageInfo();
+		pageInfo.setPageNo(pageNo);
+		queryOrder.setPageInfo(pageInfo);
+
+		List<MchtGatewayOrder> mchtGatewayOrders =  mchtGwOrderService.queryMchtGatewayOrdersNoPage(queryOrder, null);
+		if(mchtGatewayOrders == null || mchtGatewayOrders.size() == 0){
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		}
+
+		if(mchtGatewayOrders.size() >= 50){
+			redirectAttributes.addFlashAttribute("message", "批量异步通知不能大于50条");
+			redirectAttributes.addFlashAttribute("messageType", "error");
+			return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+		}
+
+
+		for(MchtGatewayOrder  gatewayOrder: mchtGatewayOrders){
+			String gatewayUrl = ConfigUtil.getValue("gateway.url");
+			String queryUrl = gatewayUrl + "/gateway/queryOrder";
+			String suffix = "20" + gatewayOrder.getPlatOrderId().substring(1, 5);
+			MchtInfo mchtInfo = merchantService.queryByKey(gatewayOrder.getMchtCode());
+			if (mchtInfo == null) {
+				return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+			}
+			String key = mchtInfo.getMchtKey();
+
+			JSONObject data = new JSONObject();
+			JSONObject head = new JSONObject();
+			JSONObject body = new JSONObject();
+			head.put("mchtId", mchtInfo.getId());
+			head.put("version", "20");
+			head.put("biz", gatewayOrder.getPayType());
+			data.put("head", head);
+			body.put("tradeId", gatewayOrder.getId());
+			body.put("orderTime", new SimpleDateFormat("yyyyMMddHHmmss").format(gatewayOrder.getCreateTime()));
+			Map<String, String> params = JSONObject.parseObject(
+					JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
+					});
+			String log_moid = mchtInfo.getId()+"-->"+gatewayOrder.getId();
+			String sign = SignUtil.md5Sign(params, key, log_moid);
+			data.put("sign", sign);
+			data.put("body", body);
+			String respStr = HttpUtil.post(queryUrl, data.toJSONString());
+			logger.info("gateway查单返回：" + respStr);
+			JSONObject result = JSON.parseObject(respStr);
+			JSONObject resultHead = result.getJSONObject("head");
+			JSONObject resultBody = result.getJSONObject("body");
+			if (resultBody != null && ErrorCodeEnum.SUCCESS.getCode().equals(resultHead.getString("respCode"))) {
+				String resultStatus = resultBody.getString("status");
+				if (Result.STATUS_SUCCESS.equals(resultStatus)) {
+					//补发通知
+					String supplyUrl = gatewayUrl + "/renotify";
+					Map<String, String> redata = new HashMap<>();
+					redata.put("orderId", gatewayOrder.getId());
+					redata.put("suffix", suffix);
+					String reNoStr = HttpUtil.post(supplyUrl, redata);
+					logger.info("gateway补发通知返回：" + reNoStr);
+
+					if ("SUCCESS".equalsIgnoreCase(reNoStr)) {
+						gatewayOrder.setSupplyStatus("0");
+						logger.info("查询成功,订单号:"+ gatewayOrder.getPlatOrderId());
+					} else {
+						gatewayOrder.setSupplyStatus("1");
+						logger.info("查询成功,订单号:"+ gatewayOrder.getPlatOrderId());
+					}
+
+				} else if (Result.STATUS_FAIL.equals(resultStatus)) {
+					logger.info("查单成功, 支付状态为失败,订单号:"+ gatewayOrder.getPlatOrderId());
+				} else {
+					logger.info("查单成功, 支付状态未知,订单号:"+ gatewayOrder.getPlatOrderId());
+				}
+			}
+		}
+		return "redirect:"+ GlobalConfig.getAdminPath()+"/order/list";
+
 	}
 
 }

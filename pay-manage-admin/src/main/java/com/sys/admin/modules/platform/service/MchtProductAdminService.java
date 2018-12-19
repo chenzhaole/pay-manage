@@ -67,5 +67,7 @@ public interface MchtProductAdminService {
 	 */
 	MchtProductFormInfo getMchtProductById(MchtProductFormInfo productFormInfo);
 
+	MchtProduct getMchtProductByUpdateId(MchtProductFormInfo productFormInfo);
+
 	int mchtProductCount(MchtProductFormInfo mchtProductFormInfo);
 }

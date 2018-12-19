@@ -26,6 +26,7 @@
                     var balance = $("#balance").val();
                     var adjustAmount = $("#adjustAmount").val();
                     var adjustType = $("#adjustType").val();
+                    var acctType =$("#accountType").val();
 
                     if (adjustType === "2"){
                         if(parseFloat(adjustAmount) > parseFloat(balance)){
@@ -33,6 +34,11 @@
                             $("#btnSubmit").attr("disable", false);
                             return;
                         }
+                    }
+                    if(acctType === "1" && (adjustType ==="3" || adjustType==="4" )){
+                        confirmx('账户类型为[结算账户],调账方向只能为增加或减少');
+                        $("#btnSubmit").attr("disable", false);
+                        return;
                     }
 
                     loading('正在提交，请稍等...');
@@ -51,6 +57,7 @@
 
             $("#balanceBtn").click(function () {
                 var mchtId = $("#mchtId").val();
+                var accountType =$("#accountType").val();
                 if (mchtId == '') {
                     alert("请选择商户");
                 } else {
@@ -59,7 +66,8 @@
                         type: 'POST', //GET
                         async: true,    //或false,是否异步
                         data: {
-                            'mchtId': mchtId
+                            'mchtId': mchtId,
+                            'accountType':accountType
                         },
                         timeout: 5000,    //超时时间
                         dataType: 'text',    //返回的数据格式：json/xml/html/script/jsonp/text
@@ -89,6 +97,10 @@
                 $("input[name='feeAmount']").removeClass("required");
                 $("input[name='feeRate']").addClass("required");
             }
+        }
+
+        function changeAmount() {
+            $("#balance").val("0");
         }
 
     </script>
@@ -140,10 +152,10 @@
                 <div class="control-group">
                     <label class="control-label">账户类型</label>
                     <div class="controls">
-                        <form:select path="accountType">
-                            <form:options items="${fns:getDictList('account_type')}" itemValue="value"
-                                          itemLabel="label"/>
-                        </form:select>
+                        <select name="accountType" class="input-xlarge" id="accountType" onchange="changeAmount();">
+                            <option value="2">现金账户</option>
+                            <option value="1">结算账户</option>
+                        </select>
                     </div>
                 </div>
             </td>
