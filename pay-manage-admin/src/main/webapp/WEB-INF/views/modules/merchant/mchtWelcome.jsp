@@ -33,7 +33,7 @@
     </div>
     <table class="table" id="payInfo">
         <tr>
-            <td width="25%">
+            <td width="20%">
                 <div class="control-group">
                     <label class="control-label"><h5>成功笔数</h5></label>
                     <div class="controls">
@@ -41,7 +41,7 @@
                     </div>
                 </div>
             </td>
-            <td width="25%">
+            <td width="20%">
                 <div class="control-group">
                     <label class="control-label"><h5>成功金额(元)</h5></label>
                     <div class="controls">
@@ -52,7 +52,18 @@
                     </div>
                 </div>
             </td>
-            <td width="25%">
+            <td width="20%">
+                <div class="control-group">
+                    <label class="control-label"><h5>待结算金额(元)</h5></label>
+                    <div class="controls">
+                        <label id="settleTotalAmount">
+                            <c:if test="${empty mchtAccountDetailData.settleTotalAmount}">-</c:if>
+                            <c:if test="${!empty mchtAccountDetailData.settleTotalAmount}">${mchtAccountDetailData.settleTotalAmount}</c:if>
+                        </label>
+                    </div>
+                </div>
+            </td>
+            <td width="20%">
                 <div class="control-group">
                     <label class="control-label"><h5>冻结金额(元)</h5></label>
                     <div class="controls">
@@ -63,13 +74,13 @@
                     </div>
                 </div>
             </td>
-            <td width="25%">
+            <td width="20%">
                 <div class="control-group">
                     <label class="control-label"><h5>可提现金额(元)</h5></label>
                     <div class="controls">
                         <label id="settleMoney">
-                            <c:if test="${empty mchtAccountDetailData.settleTotalAmount}">-</c:if>
-                            <c:if test="${!empty mchtAccountDetailData.settleTotalAmount}">${mchtAccountDetailData.settleTotalAmount}</c:if>
+                            <c:if test="${empty mchtAccountDetailData.availableBalance}">-</c:if>
+                            <c:if test="${!empty mchtAccountDetailData.availableBalance}">${mchtAccountDetailData.availableBalance}</c:if>
                         </label>
                     </div>
                 </div>

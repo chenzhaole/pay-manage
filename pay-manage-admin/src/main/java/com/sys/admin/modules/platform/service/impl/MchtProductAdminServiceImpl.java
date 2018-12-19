@@ -3,6 +3,7 @@ package com.sys.admin.modules.platform.service.impl;
 import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
 import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.DateUtils2;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.RandomNumberUtil;
@@ -131,7 +132,9 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 		MchtProduct mchtProduct = new MchtProduct();
 		BeanUtils.copyProperties(productFormInfo, mchtProduct);
         mchtProduct.setUpdateTime(new Date());
-
+		if(StringUtils.isNotEmpty(productFormInfo.getActiveTime())){
+			mchtProduct.setActiveTime(DateUtils.parseDate(productFormInfo.getActiveTime(),"yyyy-MM-dd HH:mm:ss"));
+		}
 		PlatFeerate platFeerate = new PlatFeerate();
 		productFormInfo.getFee(platFeerate);
 		//系统生成feeID，“F”+yyyyMMdd+四位随机数
@@ -162,6 +165,10 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 			return null;
 		}
 		BeanUtils.copyProperties(mchtProduct, productFormInfo);
+
+		if(mchtProduct.getActiveTime()!=null){
+			productFormInfo.setActiveTime(DateUtils.formatDate(mchtProduct.getActiveTime(),"yyyy-MM-dd HH:mm:ss"));
+		}
 
 		//商户信息
 		if (StringUtils.isNotBlank(productFormInfo.getMchtId())) {
@@ -215,5 +222,14 @@ public class MchtProductAdminServiceImpl implements MchtProductAdminService {
 		return result;
 	}
 
-
+	@Override
+	public MchtProduct getMchtProductByUpdateId(MchtProductFormInfo productFormInfo) {
+		MchtProductKey mchtProductKey = new MchtProduct();
+		BeanUtils.copyProperties(productFormInfo, mchtProductKey);
+		MchtProduct mchtProduct = mchtProductService.queryByKey(mchtProductKey);
+		if (mchtProduct == null) {
+			return null;
+		}
+		return mchtProduct;
+	}
 }

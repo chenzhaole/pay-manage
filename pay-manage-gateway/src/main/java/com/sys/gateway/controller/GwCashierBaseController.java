@@ -357,6 +357,27 @@ public class GwCashierBaseController {
     }
 
     /**
+     * 收银台页面需要的数据
+     * @param model
+     */
+    protected void addCashierBankModelInfo(Model model, CommonResult result, String goods, String amount, String mchtId, String midoid) {
+        model.addAttribute("goods", goods);
+        //将分转成元
+        amount = NumberUtils.changeF2Y(amount);
+        model.addAttribute("amount", amount);
+        model.addAttribute("mchtId", mchtId);
+        Map mapData = (Map) result.getData();
+        model.addAttribute("payType",PayTypeEnum.LOCAL_BANK.getCode());
+        model.addAttribute("bankCodes", mapData.get("bankCodes"));
+        model.addAttribute("mchtOrderId", mapData.get("mchtOrderId"));
+        model.addAttribute("extraData", mapData.get("extraData"));
+        Map<String, String> pageQQandMobile = (Map<String, String>) mapData.get("pageQQandMobile");
+        model.addAttribute("qq", pageQQandMobile.get("qq"));
+        model.addAttribute("mobile", pageQQandMobile.get("mobile"));
+        logger.info(midoid+"，收银台页面需要的数据："+JSONObject.toJSONString(model));
+    }
+
+    /**
      * 跳转上游收银台页面需要的数据
      * @param model
      */

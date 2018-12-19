@@ -12,8 +12,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * 
- * @ClassName: MerchantForm 
+ *
+ * @ClassName: MerchantForm
  * @Description: 商户信息表单实体类
  * @author: ALI
  * @date: 2017年10月10日 上午11:28:31
@@ -266,15 +266,15 @@ public class MerchantForm {
 		this.clientIp = requestMap.get("clientIp");
 		this.mchtKey = requestMap.get("mchtKey");
 
-        //是否展示支付结果页
-        this.isShowPayResultPage = requestMap.get("isShowPayResultPage");
-        //是否展示支付页
+		//是否展示支付结果页
+		this.isShowPayResultPage = requestMap.get("isShowPayResultPage");
+		//是否展示支付页
 		this.isShowPayPage =requestMap.get("isShowPayPage");
-        //商户标签
-        this.mchtPropertyTag = requestMap.get("mchtPropertyTag");
+		//商户标签
+		this.mchtPropertyTag = requestMap.get("mchtPropertyTag");
 
 
-        this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
+		this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
 
 		String[] signTypes = request.getParameterValues("signType");
 
@@ -1023,21 +1023,21 @@ public class MerchantForm {
 		this.extend3 = extend3;
 	}
 
-    public String getIsShowPayResultPage() {
-        return isShowPayResultPage;
-    }
+	public String getIsShowPayResultPage() {
+		return isShowPayResultPage;
+	}
 
-    public void setIsShowPayResultPage(String isShowPayResultPage) {
-        this.isShowPayResultPage = isShowPayResultPage;
-    }
+	public void setIsShowPayResultPage(String isShowPayResultPage) {
+		this.isShowPayResultPage = isShowPayResultPage;
+	}
 
-    public String getMchtPropertyTag() {
-        return mchtPropertyTag;
-    }
+	public String getMchtPropertyTag() {
+		return mchtPropertyTag;
+	}
 
-    public void setMchtPropertyTag(String mchtPropertyTag) {
-        this.mchtPropertyTag = mchtPropertyTag;
-    }
+	public void setMchtPropertyTag(String mchtPropertyTag) {
+		this.mchtPropertyTag = mchtPropertyTag;
+	}
 
 	public String getIsShowPayPage() {
 		return isShowPayPage;

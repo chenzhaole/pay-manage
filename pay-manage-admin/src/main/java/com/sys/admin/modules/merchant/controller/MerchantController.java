@@ -15,10 +15,7 @@ import com.sys.admin.modules.platform.service.MchtProductAdminService;
 import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.service.SysAreaService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.common.enums.CertTypeEnum;
-import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.enums.PayTypeEnum;
-import com.sys.common.enums.SignTypeEnum;
+import com.sys.common.enums.*;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
@@ -39,6 +36,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Controller
@@ -73,6 +71,8 @@ public class MerchantController extends BaseController {
 	@Value("${mchtFeerateInfoData.url}")
 	private String mchtFeerateInfoDataUrl;
 
+	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+
 	/**
 	 * 商户首页
 	 */
@@ -101,13 +101,16 @@ public class MerchantController extends BaseController {
 			//可提现金额 = 现金总金额 - 冻结总金额;
 			//现金总金额
 			BigDecimal cashTotalAmount = mchtAccountDetailData.getCashTotalAmount();
+			//待结算金额
+			BigDecimal settleTotalAmount =mchtAccountDetailData.getSettleTotalAmount().divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 			//可提现金额
 			BigDecimal presentedAmount = cashTotalAmount.subtract(freezeTotalAmount);
 			presentedAmount = presentedAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 			//冻结金额
 			freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
 			mchtAccountDetailData.setFreezeTotalAmount(freezeTotalAmount);
-			mchtAccountDetailData.setSettleTotalAmount(presentedAmount);
+			mchtAccountDetailData.setSettleTotalAmount(settleTotalAmount);
+			mchtAccountDetailData.setAvailableBalance(presentedAmount);
 		}
 
 		model.addAttribute("mchtAccountDetailData", mchtAccountDetailData);
@@ -351,7 +354,6 @@ public class MerchantController extends BaseController {
 
 			}
 
-
 			model.addAttribute("merchant", mchtInfo);
 			model.addAttribute("op", "edit");
 
@@ -452,7 +454,6 @@ public class MerchantController extends BaseController {
 					redirectAttributes.addFlashAttribute("messageType", "error");
 					return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 				}
-
 				//将 是否显示支付结果页、商户标签 的信息，封装成json格式的数据。存入extend2字段中
 				JSONObject extend2Json = new JSONObject();
 				extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());
