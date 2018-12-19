@@ -1,6 +1,9 @@
 package com.sys.admin.modules.channel.bo;
 
 import com.sys.common.enums.ErrorCodeEnum;
+import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Enumeration;
@@ -15,6 +18,7 @@ import java.util.Map;
  * @date: 2017年8月29日 上午11:40:14
  */
 public class ChannelFormInfo {
+	protected Logger logger = LoggerFactory.getLogger(getClass());
 	private String id;
 	private String chanCode;//渠道编号
 	private String name;//渠道名称
@@ -31,6 +35,8 @@ public class ChannelFormInfo {
 	private Long operatorId;
 	private String channelCooType;
 	private String remark; //备注
+	private Integer isSupplyQueryface;//是否支持面值库存查询
+	private Integer queryfaceFrequency;//面值库存查询频率
 
 	public String getId() {
 		return id;
@@ -91,6 +97,12 @@ public class ChannelFormInfo {
 			this.techPhone = requestMap.get("techPhone");
 			this.channelCooType = requestMap.get("channelCooType");
 			this.remark = requestMap.get("remark");
+			this.isSupplyQueryface = Integer.parseInt(requestMap.get("isSupplyQueryface"));
+			if(StringUtils.isNotBlank(requestMap.get("queryfaceFrequency"))){
+				this.queryfaceFrequency = Integer.parseInt(requestMap.get("queryfaceFrequency"));
+			}
+			logger.info("isSupplyQueryface="+isSupplyQueryface);
+			logger.info("queryfaceFrequency="+queryfaceFrequency);
 		}
 	}
 
@@ -168,6 +180,21 @@ public class ChannelFormInfo {
 	public void setCode(String code) {
 		this.code = code;
 	}
-	
-	
+
+	public Integer getIsSupplyQueryface() {
+		return isSupplyQueryface;
+	}
+
+	public void setIsSupplyQueryface(Integer isSupplyQueryface) {
+		this.isSupplyQueryface = isSupplyQueryface;
+	}
+
+	public Integer getQueryfaceFrequency() {
+		return queryfaceFrequency;
+	}
+
+	public void setQueryfaceFrequency(Integer queryfaceFrequency) {
+		this.queryfaceFrequency = queryfaceFrequency;
+	}
+
 }

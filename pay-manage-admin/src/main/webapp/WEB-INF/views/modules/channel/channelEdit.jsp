@@ -63,6 +63,11 @@
                      },
                      techMobile:{
                          maxlength:11
+                     },
+                     queryfaceFrequency:{
+		        	     digits:true,
+						 min:0,
+                         max:60
                      }
 		         },
 		         messages:{
@@ -163,7 +168,35 @@
 </tr>
 
 </table>
+<div class="breadcrumb">
+	<label><th>库存面值信息</th></label>
+</div>
+<table class="table">
+	<tr>
+		<td>
+			<div class="control-group">
+				<label class="control-label">面值库存查询</label>
+				<div class="controls">
+					<select name="isSupplyQueryface" class="input-small">
+						<option value="0">不支持</option>
+						<option
+								<c:if test="${channel.isSupplyQueryface == 1}">selected</c:if>
+								value="1">支持</option>
+					</select>
+				</div>
+			</div>
+		</td>
 
+		<td>
+			<div class="control-group">
+				<label class="control-label" >面值查询频次</label>
+				<div class="controls">
+					<input name="queryfaceFrequency" value="${channel.queryfaceFrequency }" placeholder="请输入数字" class="input-small" type="text" />次/分钟
+				</div>
+			</div>
+		</td>
+	</tr>
+</table>
 
 <!-- ********************************************************************** -->
 <div class="breadcrumb">

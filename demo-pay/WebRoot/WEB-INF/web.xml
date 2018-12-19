@@ -173,4 +173,12 @@
 		<url-pattern>/recNotice2</url-pattern>
 	</servlet-mapping>
 
+	<servlet>
+		<servlet-name>TestQueryFace</servlet-name>
+		<servlet-class>com.demo.action.TestQueryFaceServlet</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>TestQueryFace</servlet-name>
+		<url-pattern>/testQueryFace</url-pattern>
+	</servlet-mapping>
 </web-app>
