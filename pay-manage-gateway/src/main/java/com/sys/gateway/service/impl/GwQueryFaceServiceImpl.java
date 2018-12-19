@@ -81,11 +81,9 @@ public class GwQueryFaceServiceImpl implements GwQueryFaceService {
 			logger.info("调用boss-trade查询面值库存，返回值commonResult：" + JSON.toJSONString(commonResult));
 
 			if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
-                Map<String, String> retData = (Map<String, String>) commonResult.getData();
-                String data = retData.get("data");
 				queryFaceResponse.setCode(commonResult.getRespCode());
 				queryFaceResponse.setMsg(commonResult.getRespMsg());
-				queryFaceResponse.setData(data);
+				queryFaceResponse.setData(commonResult.getData().toString());
 			}else{
 				String respCode = StringUtils.isBlank(commonResult.getRespCode()) ? ErrorCodeEnum.FAILURE.getCode():commonResult.getRespCode();
 				String respMsg = StringUtils.isBlank(commonResult.getRespMsg()) ? ErrorCodeEnum.FAILURE.getDesc():commonResult.getRespMsg();
@@ -95,7 +93,7 @@ public class GwQueryFaceServiceImpl implements GwQueryFaceService {
 		} catch (Exception e) {
 			queryFaceResponse.setCode(ErrorCodeEnum.E8001.getCode());
 			queryFaceResponse.setMsg(ErrorCodeEnum.E8001.getDesc());
-			logger.error("面值库存查询异常 e=" + e.getMessage());
+			logger.error("面值库存查询异常",e);
 		}
 		logger.info("queryFaceResponse="+JSON.toJSONString(queryFaceResponse));
 		return queryFaceResponse;
