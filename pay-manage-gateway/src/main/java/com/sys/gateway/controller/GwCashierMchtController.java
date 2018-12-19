@@ -160,8 +160,14 @@ public class GwCashierMchtController extends GwCashierBaseController {
 						qq = pageQQandMobile.get("qq");
 						mobile = pageQQandMobile.get("mobile");
                     }else{
-						result.setRespCode(ErrorCodeEnum.E8001.getCode());
-						result.setRespMsg("操作失败");
+                    	if(result!= null && result.getRespCode().equals(ErrorCodeEnum.E8015.getCode())){
+							result.setRespCode(result.getRespCode());
+							result.setRespMsg(result.getRespMsg());
+						}else{
+							result.setRespCode(ErrorCodeEnum.E8001.getCode());
+							result.setRespMsg("操作失败");
+						}
+
 					}
 					logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
 				}
