@@ -265,4 +265,60 @@ public class GwRecNotifyController {
         return ret;
     }
 
+
+    /**
+     * 上游配置异步通知地址-接受统一异步通知结果
+     * data数据
+     */
+    @RequestMapping("/recNotify/data")
+    @ResponseBody
+    public String recNotify(@RequestBody String data,HttpServletRequest httpServletRequest) throws TransException {
+        String resp2chan = "FAILURE";
+        String platOrderNo =null;
+        String sign =httpServletRequest.getHeader("X-QF-SIGN");
+        try {
+            data = URLDecoder.decode(data, "utf-8");
+            //解析并校验签名上游通道异步通知的数据
+            CommonResult tradeResult = recNotifyService.reciveNotify(data,sign);
+            if (ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode()) || ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())) {
+                //解析通道数据成功,更新数据库订单状态成功
+                //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
+                resp2chan = tradeResult.getRespMsg();
+                //数据不为空，才会给商户通知
+                if (null != tradeResult.getData()) {
+                    //通知商户信息源
+                    CacheTrade redisOrderTrade = (CacheTrade) tradeResult.getData();
+                    String platOrderId=redisOrderTrade.getCacheOrder().getPlatOrderId();
+                    String payType =redisOrderTrade.getCacheOrder().getPayType();
+                    platOrderNo =platOrderId;
+                    logger.info(BIZ + platOrderId + "，bossTrade查询的缓存订单Trade对象:" + JSON.toJSONString(redisOrderTrade));
+                    if(PayStatusEnum.PAY_SUCCESS.getCode().equals(redisOrderTrade.getCacheOrder().getStatus())){
+                        CommonResult serviceResult = sendNotifyService.sendNotify(payType, redisOrderTrade);
+                        if (ErrorCodeEnum.SUCCESS.getCode().equals(serviceResult.getRespCode())) {
+                            logger.info(BIZ + platOrderId + "，通知商户成功");
+                        } else {
+                            logger.info(BIZ + platOrderId + "，通知商户失败");
+                            //开启线程，异步通知商户,补抛机制,为了便于排查多线程问题，这里给线程指定名称
+                            new Thread("Thread-name-"+platOrderId){
+                                @Override
+                                public void run() {
+                                    int count = 1;//开始补抛
+                                    logger.info(BIZ + platOrderId +"，异步通知商户失败，开始执行补抛,count="+count+",payType="+payType+"，CacheTrade="+JSONObject.toJSONString(redisOrderTrade));
+                                    throwMchtNotifyInfo(BIZ, platOrderId, payType, redisOrderTrade, count);
+                                }
+                            }.start();
+                        }
+                    }
+                }
+            } else {
+                logger.info(BIZ + platOrderNo + "，bossTrade处理上游通道异步通知请求失败." + JSON.toJSONString(tradeResult));
+            }
+        }catch (Exception e){
+            e.printStackTrace();
+            logger.error(BIZ+platOrderNo+"接收上游通道异步通知请求异常："+e.getMessage());
+        }
+        logger.info(BIZ+platOrderNo+"，接收上游通道异步通知接口data数据 [END],返回通道响应信息为: "+resp2chan);
+        return resp2chan;
+    }
+
 }
