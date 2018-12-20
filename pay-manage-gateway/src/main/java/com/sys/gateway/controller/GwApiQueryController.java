@@ -4,12 +4,15 @@ import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.trade.request.apipay.TradeApiQueryRequest;
+import com.sys.boss.api.entry.trade.request.apipay.TradeQueryFaceRequest;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderQueryResponse;
+import com.sys.boss.api.entry.trade.response.apipay.QueryFaceResponse;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwApiPayService;
 import com.sys.gateway.service.GwApiQueryService;
+import com.sys.gateway.service.GwQueryFaceService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,6 +37,9 @@ public class GwApiQueryController {
 
 	@Autowired
 	GwApiQueryService gwApiQueryService;
+
+	@Autowired
+	GwQueryFaceService gwQueryFaceService;
 	/**
 	 * api支付查询支付订单
      */
@@ -74,4 +80,39 @@ public class GwApiQueryController {
 		return JSON.toJSONString(apiPayResp);
 	}
 
+	/**
+	 *  面值库存查询
+	 */
+	@RequestMapping(value="/gateway/api/queryFace")
+	@ResponseBody
+	public String queryFace(@RequestBody String data, HttpServletRequest request, HttpServletResponse response,RedirectAttributes redirectAttributes)throws java.io.IOException {
+		QueryFaceResponse queryFaceResponse = new QueryFaceResponse();
+		queryFaceResponse.setCode(ErrorCodeEnum.SUCCESS.getCode());
+		try {
+			//请求ip
+			String ip = IpUtil.getRemoteHost(request);
+			logger.info("queryFace面值库存查询获取到客户端请求ip："+ip);
+			data = URLDecoder.decode(data, "utf-8");
+			logger.info("queryFace面值库存查询收到客户端请求参数后做url解码后的值为："+data);
+			//校验请求参数
+			CommonResponse checkResp = gwQueryFaceService.checkParam(data);
+			logger.info("queryFace面值库存查询校验请求参数的结果为："+JSONObject.toJSONString(checkResp));
+			if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
+				queryFaceResponse.setCode(checkResp.getRespCode());
+				queryFaceResponse.setMsg(checkResp.getRespMsg());
+			}else{
+				//queryFace面值库存接口
+				TradeQueryFaceRequest tradeRequest = (TradeQueryFaceRequest) checkResp.getData();
+				logger.info("调用queryFace面值库存查询接口，传入的TradeCommRequest信息："+JSONObject.toJSONString(tradeRequest));
+				queryFaceResponse = gwQueryFaceService.query(tradeRequest, ip);
+				logger.info("调用queryFace面值库存查询接口，返回的TradeQueryFaceRequest信息："+JSONObject.toJSONString(queryFaceResponse));
+			}
+		} catch (Exception e) {
+			logger.error("queryFace面值库存查询接口抛异常",e);
+			queryFaceResponse.setCode(ErrorCodeEnum.FAILURE.getCode());
+			queryFaceResponse.setMsg("面值库存查询错误："+e.getMessage());
+		}
+		logger.info("queryFace面值库存查询接口，返回下游商户值："+JSON.toJSONString(queryFaceResponse));
+		return JSON.toJSONString(queryFaceResponse);
+	}
 }

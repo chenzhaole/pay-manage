@@ -27,6 +27,10 @@ public class MerchantFee {
 
 	private String showMchtFeeRate;//1:显示，2：不显示
 
+	private String requestTime;
+
+	private String requestNum;
+
 	public String getMchtId() {
 		return mchtId;
 	}
@@ -89,5 +93,21 @@ public class MerchantFee {
 
 	public void setShowMchtFeeRate(String showMchtFeeRate) {
 		this.showMchtFeeRate = showMchtFeeRate;
+	}
+
+	public String getRequestTime() {
+		return requestTime;
+	}
+
+	public void setRequestTime(String requestTime) {
+		this.requestTime = requestTime;
+	}
+
+	public String getRequestNum() {
+		return requestNum;
+	}
+
+	public void setRequestNum(String requestNum) {
+		this.requestNum = requestNum;
 	}
 }

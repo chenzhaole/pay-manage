@@ -86,4 +86,6 @@
 	<dubbo:reference id="tradeDFBatchHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFBatchHandler" timeout="30000"/>
 	<dubbo:reference id="tradeDFSingleHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFSingleHandler" timeout="30000"/>
 
+	<!--面值库存-->
+	<dubbo:reference id="tradeQueryFaceHandler" interface="com.sys.boss.api.service.trade.handler.ITradeQueryFaceHandler" timeout="30000"/>
 </beans>
