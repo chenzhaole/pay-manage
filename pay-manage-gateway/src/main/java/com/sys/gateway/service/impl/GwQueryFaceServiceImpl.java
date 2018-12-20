@@ -83,7 +83,7 @@ public class GwQueryFaceServiceImpl implements GwQueryFaceService {
 			if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
 				queryFaceResponse.setCode(commonResult.getRespCode());
 				queryFaceResponse.setMsg(commonResult.getRespMsg());
-				queryFaceResponse.setData(commonResult.getData().toString());
+				queryFaceResponse.setData(JSON.toJSON(commonResult.getData()));
 			}else{
 				String respCode = StringUtils.isBlank(commonResult.getRespCode()) ? ErrorCodeEnum.FAILURE.getCode():commonResult.getRespCode();
 				String respMsg = StringUtils.isBlank(commonResult.getRespMsg()) ? ErrorCodeEnum.FAILURE.getDesc():commonResult.getRespMsg();

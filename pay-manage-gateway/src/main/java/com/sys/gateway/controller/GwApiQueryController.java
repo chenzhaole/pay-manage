@@ -104,7 +104,7 @@ public class GwApiQueryController {
 				//queryFace面值库存接口
 				TradeQueryFaceRequest tradeRequest = (TradeQueryFaceRequest) checkResp.getData();
 				logger.info("调用queryFace面值库存查询接口，传入的TradeCommRequest信息："+JSONObject.toJSONString(tradeRequest));
-				queryFaceResponse = (QueryFaceResponse) gwQueryFaceService.query(tradeRequest, ip);
+				queryFaceResponse = gwQueryFaceService.query(tradeRequest, ip);
 				logger.info("调用queryFace面值库存查询接口，返回的TradeQueryFaceRequest信息："+JSONObject.toJSONString(queryFaceResponse));
 			}
 		} catch (Exception e) {
