@@ -130,6 +130,7 @@
         <%--<th>冻结金额（元）</th>--%>
         <%--<th>现金余额（元）</th>--%>
         <th>可提现金额（元）</th>
+        <th>待结算金额（元）</th>
         <th>记账时间</th>
     </tr>
     </thead>
@@ -176,6 +177,9 @@
                                   maxFractionDigits="2"/></td>--%>
             <td><fmt:formatNumber type="number"
                                   value="${accountDetail.cashTotalAmount*0.01 - accountDetail.freezeTotalAmount*0.01}"
+                                  pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number"
+                                  value="${accountDetail.settleTotalAmount*0.01}"
                                   pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatDate value="${accountDetail.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
         </tr>
