@@ -16,5 +16,6 @@ public interface GwRecNotifyService {
 
 
 	CommonResult reciveNotify(String channelCode, String orderNo, String payType, String data);
+	CommonResult reciveNotify(String data,String sign);
 
 }
