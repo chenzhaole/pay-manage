@@ -344,151 +344,177 @@ public class OrderController extends BaseController {
 	public String balance(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 						  Model model, @RequestParam Map<String, String> paramMap) {
 		try {
+			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+			String sysDate = dateFormat.format(new Date());
+			//截至到某个时间的余额
+			String queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd");
+
 			//查出所有商户信息
 			List<MchtInfo> mchtInfoList = merchantService.list(new MchtInfo());
 			Map<String, String> mchtMap = Collections3.extractToMap(mchtInfoList, "id", "name");
 
-			String mchtId = StringUtils.isNotBlank(request.getParameter("mchtId")) ? request.getParameter("mchtId") : "";
-			//截至到某个时间的余额
-			String queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd");
 
-			MchtAccountDetailAmount amount = new MchtAccountDetailAmount();
-			if(StringUtils.isNotEmpty(mchtId)){
-				amount.setMchtId(mchtId);
-			}
-			amount.setCreatedStartTime(queryDate + " 00:00:00");
-			amount.setCreatedEndTime(queryDate + " 23:59:59");
-			List<MchtAccountDetailAmount> amountList = mchtAccAmountService.queryCurrentDayAcctAmount(amount);
+			MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
+			//查询当前实时余额
+			if(StringUtils.isNotEmpty(queryDate) && queryDate.contains(sysDate)){
 
-			//商户总金额合计
-			BigDecimal mchtTotalBalanceTotal = new BigDecimal("0");
-			//商户可用余额合计	(现金 - 冻结)
-			BigDecimal mchtAvailTotalBalanceTotal = new BigDecimal("0");
-			//商户冻结金额合计
-			BigDecimal mchtFreezeTotalAmountBalanceTotal = new BigDecimal("0");
-			//商户待结算金额
-			BigDecimal settleTotalAmountTotal = new BigDecimal("0");
-
-			if(amountList!= null && amountList.size()>0){
-				for(MchtAccountDetailAmount amountBo :amountList){
-					mchtTotalBalanceTotal = mchtTotalBalanceTotal.add(amountBo.getCashTotalAmount());
-					mchtAvailTotalBalanceTotal = mchtFreezeTotalAmountBalanceTotal.add(amountBo.getCashTotalAmount().subtract(amountBo.getFreezeTotalAmount()));
-					mchtFreezeTotalAmountBalanceTotal = mchtFreezeTotalAmountBalanceTotal.add(amountBo.getFreezeTotalAmount());
-					settleTotalAmountTotal = settleTotalAmountTotal.add(amountBo.getSettleTotalAmount());
-					amountBo.setMchtName(mchtMap.get(amountBo.getMchtId()));
-
+				//获取当前第几页
+				String pageNoString = paramMap.get("pageNo");
+				int pageNo = 1;
+				if (StringUtils.isNotBlank(pageNoString) && "1".equals(paramMap.get("paging"))) {
+					pageNo = Integer.parseInt(pageNoString);
 				}
-			}
-
-			model.addAttribute("mchtInfoList", mchtInfoList);
-
-			model.addAttribute("mchtAccountDetail", amountList);
-			model.addAttribute("mchtId", mchtId);
-			model.addAttribute("queryDate", queryDate);
-			//商户总金额合计
-			model.addAttribute("mchtTotalBalance", mchtTotalBalanceTotal.toString());
-			//商户可用余额合计
-			model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalanceTotal.toString());
-			//商户冻结金额合计
-			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalanceTotal.toString());
-			//商户待结算金额
-			model.addAttribute("settleTotalAmount", settleTotalAmountTotal.toString());
-
-			/*MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
-			//获取当前第几页
-			String pageNoString = paramMap.get("pageNo");
-			int pageNo = 1;
-			if (StringUtils.isNotBlank(pageNoString) && "1".equals(paramMap.get("paging"))) {
-				pageNo = Integer.parseInt(pageNoString);
-			}
-			PageInfo pageInfo = new PageInfo();
-			pageInfo.setPageNo(pageNo);
-			selectMchtAccountDetail.setPageInfo(pageInfo);
-			String mchtId = StringUtils.isNotBlank(request.getParameter("mchtId")) ? request.getParameter("mchtId") : "";
-			//截至到某个时间的余额
-			String queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd HH:mm:ss");
-            List<MchtAccountDetail> listMchtAccountDetail = new ArrayList<>();
-            //通过左侧菜单栏进入，不查数据
-            String isSelectInfo = request.getParameter("isSelectInfo");
-            long count = 0;
-            if(StringUtils.isNotBlank(isSelectInfo) && "0".equals(isSelectInfo)){
-				if(StringUtils.isNotBlank(mchtId)){
-					selectMchtAccountDetail.setMchtId(mchtId);
-					listMchtAccountDetail = queryMchtAccountDetailByHttp(selectMchtAccountDetail);
+				PageInfo pageInfo = new PageInfo();
+				pageInfo.setPageNo(pageNo);
+				selectMchtAccountDetail.setPageInfo(pageInfo);
+				String mchtId = StringUtils.isNotBlank(request.getParameter("mchtId")) ? request.getParameter("mchtId") : "";
+				//截至到某个时间的余额
+				queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd HH:mm:ss");
+				List<MchtAccountDetail> listMchtAccountDetail = new ArrayList<>();
+				//通过左侧菜单栏进入，不查数据
+				String isSelectInfo = request.getParameter("isSelectInfo");
+				long count = 0;
+				if(StringUtils.isNotBlank(isSelectInfo) && "0".equals(isSelectInfo)){
+					if(StringUtils.isNotBlank(mchtId)){
+						selectMchtAccountDetail.setMchtId(mchtId);
+						listMchtAccountDetail = queryMchtAccountDetailByHttp(selectMchtAccountDetail);
+						if(!CollectionUtils.isEmpty(listMchtAccountDetail)){
+							count = listMchtAccountDetail.size();
+						}
+					}else{
+						selectMchtAccountDetail.setCreateTime(DateUtils.parseDate(queryDate, "yyyy-MM-dd HH:mm:ss"));
+						listMchtAccountDetail = queryListLastOneMchtAccountDetailDataByHttp(selectMchtAccountDetail);
+						count = queryListLastOneMchtAccountDetailCount(selectMchtAccountDetail);
+					}
 					if(!CollectionUtils.isEmpty(listMchtAccountDetail)){
-						count = listMchtAccountDetail.size();
+						listMchtAccountDetail = setMchtAccountDetail(listMchtAccountDetail, mchtMap);
 					}
-				}else{
-					selectMchtAccountDetail.setCreateTime(DateUtils.parseDate(queryDate, "yyyy-MM-dd HH:mm:ss"));
-					listMchtAccountDetail = queryListLastOneMchtAccountDetailDataByHttp(selectMchtAccountDetail);
-					count = queryListLastOneMchtAccountDetailCount(selectMchtAccountDetail);
 				}
+
+				Page page = new Page(pageNo, pageInfo.getPageSize(), count, listMchtAccountDetail, true);
+				model.addAttribute("page", page);
+				BigDecimal mchtTotalBalance = null;
+				BigDecimal mchtAvailTotalBalance = null;
+				BigDecimal mchtFreezeTotalAmountBalance = null;
+				BigDecimal mchtWaitTotalBalance =null;
+				if(!CollectionUtils.isEmpty(listMchtAccountDetail) && listMchtAccountDetail.size() > 1){
+					// 商户总金额合计（元）
+					mchtTotalBalance = this.statisticsMchtTotalBalance(selectMchtAccountDetail);
+					mchtTotalBalance = null!=mchtTotalBalance ? mchtTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+					// 商户待结算金额
+					mchtWaitTotalBalance =this.statisticsMchtWaitTotalBalance(selectMchtAccountDetail);
+					mchtWaitTotalBalance =null!=mchtWaitTotalBalance ? mchtWaitTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+
+					// 商户可用余额合计（元）
+					mchtAvailTotalBalance = this.statisticsMchtAvailTotalBalance(selectMchtAccountDetail);
+					mchtAvailTotalBalance = null!=mchtAvailTotalBalance ? mchtAvailTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
+					// 商户冻结金额合计
+					// mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+					mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+					// 商户总金额合计 = 商户金额 + 结算金额  (需放到结算商户冻结金额后面)
+					mchtTotalBalance =mchtTotalBalance.add(mchtWaitTotalBalance);
+				}else if(!CollectionUtils.isEmpty(listMchtAccountDetail) && 1 == listMchtAccountDetail.size()){
+					MchtAccountDetail oneMchtAccountDetail = listMchtAccountDetail.get(0);
+					// 商户可用余额合计（元）
+					mchtAvailTotalBalance = oneMchtAccountDetail.getCashTotalAmount().subtract(oneMchtAccountDetail.getFreezeTotalAmount());
+					// 商户冻结金额合计
+					mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+					// 结算金额
+					mchtWaitTotalBalance =oneMchtAccountDetail.getSettleTotalAmount();
+					// 单个商户的总金额汇总，可用总金额汇总
+					// 商户总金额合计 = 商户金额 + 结算金额  (需放到结算商户冻结金额后面)
+					mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount().add(oneMchtAccountDetail.getSettleTotalAmount());
+				}
+				model.addAttribute("mchtInfoList", mchtInfoList);
+				model.addAttribute("mchtId", mchtId);
+				model.addAttribute("queryDate", queryDate);
+				model.addAttribute("mchtTotalBalance", mchtTotalBalance);
+				model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalance);
+				model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalance);
+				//商户待结算金额
+				model.addAttribute("mchtWaitTotalBalance", mchtWaitTotalBalance);
+			}else{	//查询历史
+
+				List<MchtAccountDetail> listMchtAccountDetail = new ArrayList<>();
+
+
+				Date changeQueryDate = dateFormat.parse(queryDate);
+				queryDate = dateFormat.format(changeQueryDate);
+
+				String mchtId = StringUtils.isNotBlank(request.getParameter("mchtId")) ? request.getParameter("mchtId") : "";
+
+				MchtAccountDetailAmount amount = new MchtAccountDetailAmount();
+				if(StringUtils.isNotEmpty(mchtId)){
+					amount.setMchtId(mchtId);
+				}
+				amount.setCreatedStartTime(queryDate + " 00:00:00");
+				amount.setCreatedEndTime(queryDate + " 23:59:59");
+				List<MchtAccountDetailAmount> amountList = mchtAccAmountService.queryCurrentDayAcctAmount(amount);
+
+				//商户总金额合计
+				BigDecimal mchtTotalBalanceTotal = new BigDecimal("0");
+				//商户可用余额合计	(现金 - 冻结)
+				BigDecimal mchtAvailTotalBalanceTotal = new BigDecimal("0");
+				//商户冻结金额合计
+				BigDecimal mchtFreezeTotalAmountBalanceTotal = new BigDecimal("0");
+				//商户待结算金额
+				BigDecimal settleTotalAmountTotal = new BigDecimal("0");
+
+
+
+				if(amountList!= null && amountList.size()>0){
+					for(MchtAccountDetailAmount amountBo :amountList){
+						//商户总金额合计
+						mchtTotalBalanceTotal = mchtTotalBalanceTotal.add(amountBo.getCashTotalAmount());
+						//商户冻结金额合计
+						mchtFreezeTotalAmountBalanceTotal = mchtFreezeTotalAmountBalanceTotal.add(amountBo.getFreezeTotalAmount());
+						//商户待结算金额
+						settleTotalAmountTotal = settleTotalAmountTotal.add(amountBo.getSettleTotalAmount());
+						///商户可用余额合计	(现金 - 冻结)
+						mchtAvailTotalBalanceTotal = mchtAvailTotalBalanceTotal.add(amountBo.getCashTotalAmount().subtract(amountBo.getFreezeTotalAmount()));
+
+						amountBo.setMchtName(mchtMap.get(amountBo.getMchtId()));
+
+						MchtAccountDetail mchtAccountDetail = new MchtAccountDetail();
+						mchtAccountDetail.setOriFreezeTotalAmount(amountBo.getOriFreezeTotalAmount());
+						mchtAccountDetail.setFreezeTotalAmount(amountBo.getFreezeTotalAmount());
+						mchtAccountDetail.setOriCashTotalAmount(amountBo.getOriCashTotalAmount());
+						mchtAccountDetail.setCashTotalAmount(amountBo.getCashTotalAmount());
+						mchtAccountDetail.setOriSettleTotalAmount(amountBo.getOriSettleTotalAmount());
+						mchtAccountDetail.setSettleTotalAmount(amountBo.getSettleTotalAmount());
+						mchtAccountDetail.setMchtId(amountBo.getMchtId());
+						listMchtAccountDetail.add(mchtAccountDetail);
+					}
+				}
+
+				// 商户总金额合计 = 商户金额 + 结算金额  (需放到结算商户冻结金额后面)
+				mchtTotalBalanceTotal = mchtTotalBalanceTotal.add(settleTotalAmountTotal);
 				if(!CollectionUtils.isEmpty(listMchtAccountDetail)){
-					for(MchtAccountDetail mchtAccountDetail : listMchtAccountDetail){
-						//商户名称
-						mchtAccountDetail.setMchtName(mchtMap.get(mchtAccountDetail.getMchtId()));
-						//商户现金金额
-						BigDecimal cashTotalAmount = mchtAccountDetail.getCashTotalAmount();
-						cashTotalAmount = cashTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
-						mchtAccountDetail.setCashTotalAmount(cashTotalAmount);
-						//商户结算金额
-						BigDecimal settleTotalAmount = mchtAccountDetail.getSettleTotalAmount();
-						settleTotalAmount =settleTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
-						mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
-						//商户冻结金额
-						BigDecimal freezeTotalAmount = mchtAccountDetail.getFreezeTotalAmount();
-						freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
-						mchtAccountDetail.setFreezeTotalAmount(freezeTotalAmount);
-						//商户总金额
-						mchtAccountDetail.setTotalAmount(cashTotalAmount.add(settleTotalAmount));
-						//商户可用余额,可用余额=现金金额-冻结金额
-						BigDecimal availableBalance = cashTotalAmount.subtract(freezeTotalAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
-						mchtAccountDetail.setAvailableBalance(availableBalance);
-					}
+					listMchtAccountDetail = setMchtAccountDetail(listMchtAccountDetail, mchtMap);
 				}
+
+				Page page = new Page(1, 1, listMchtAccountDetail.size(), listMchtAccountDetail, true);
+				model.addAttribute("page", page);
+
+				model.addAttribute("mchtInfoList", mchtInfoList);
+
+				model.addAttribute("mchtAccountDetail", amountList);
+				model.addAttribute("mchtId", mchtId);
+
+				queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd HH:mm:ss");
+				model.addAttribute("queryDate", queryDate);
+				//商户总金额合计
+				model.addAttribute("mchtTotalBalance", mchtTotalBalanceTotal.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
+				//商户可用余额合计
+				model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalanceTotal.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
+				//商户冻结金额合计
+				model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalanceTotal.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
+				//商户待结算金额
+				model.addAttribute("mchtWaitTotalBalance", settleTotalAmountTotal.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));
 			}
 
-			Page page = new Page(pageNo, pageInfo.getPageSize(), count, listMchtAccountDetail, true);
-			model.addAttribute("page", page);
-			BigDecimal mchtTotalBalance = null;
-			BigDecimal mchtAvailTotalBalance = null;
-			BigDecimal mchtFreezeTotalAmountBalance = null;
-			BigDecimal mchtWaitTotalBalance =null;
-			if(!CollectionUtils.isEmpty(listMchtAccountDetail) && listMchtAccountDetail.size() > 1){
-                // 商户总金额合计（元）
-                mchtTotalBalance = this.statisticsMchtTotalBalance(selectMchtAccountDetail);
-                mchtTotalBalance = null!=mchtTotalBalance ? mchtTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-                //商户待结算金额
-				mchtWaitTotalBalance =this.statisticsMchtWaitTotalBalance(selectMchtAccountDetail);
-				mchtWaitTotalBalance =null!=mchtWaitTotalBalance ? mchtWaitTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-				//s商户总金额合计
-				mchtTotalBalance =mchtTotalBalance.add(mchtWaitTotalBalance);
 
-                // 商户可用余额合计（元）
-                mchtAvailTotalBalance = this.statisticsMchtAvailTotalBalance(selectMchtAccountDetail);
-				mchtAvailTotalBalance = null!=mchtAvailTotalBalance ? mchtAvailTotalBalance.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP) : new BigDecimal(0);
-				//商户冻结金额合计
-				mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
 
-			}else if(!CollectionUtils.isEmpty(listMchtAccountDetail) && 1 == listMchtAccountDetail.size()){
-				MchtAccountDetail oneMchtAccountDetail = listMchtAccountDetail.get(0);
-				//单个商户的总金额汇总，可用总金额汇总
-				// 商户总金额合计（元）
-				mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount().add(oneMchtAccountDetail.getSettleTotalAmount());
-				// 商户可用余额合计（元）
-				mchtAvailTotalBalance = oneMchtAccountDetail.getCashTotalAmount().subtract(oneMchtAccountDetail.getFreezeTotalAmount());
-				//商户冻结金额合计
-				mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
-				//结算金额
-				mchtWaitTotalBalance =oneMchtAccountDetail.getSettleTotalAmount();
-			}
-			model.addAttribute("mchtInfoList", mchtInfoList);
-			model.addAttribute("mchtId", mchtId);
-			model.addAttribute("queryDate", queryDate);
-			model.addAttribute("mchtTotalBalance", mchtTotalBalance);
-			model.addAttribute("mchtAvailTotalBalance", mchtAvailTotalBalance);
-<<<<<<< HEAD
-			model.addAttribute("mchtFreezeTotalAmountBalance", mchtFreezeTotalAmountBalance);*/
 		} catch (Exception e) {
 			e.printStackTrace();
 			logger.error(e.getMessage(), e);
@@ -1269,4 +1295,29 @@ public class OrderController extends BaseController {
 
 	}
 
+
+	public List<MchtAccountDetail> setMchtAccountDetail(List<MchtAccountDetail> listMchtAccountDetail, Map<String, String> mchtMap){
+		for(MchtAccountDetail mchtAccountDetail : listMchtAccountDetail){
+			//商户名称
+			mchtAccountDetail.setMchtName(mchtMap.get(mchtAccountDetail.getMchtId()));
+			//商户现金金额
+			BigDecimal cashTotalAmount = mchtAccountDetail.getCashTotalAmount();
+			cashTotalAmount = cashTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
+			mchtAccountDetail.setCashTotalAmount(cashTotalAmount);
+			//商户结算金额
+			BigDecimal settleTotalAmount = mchtAccountDetail.getSettleTotalAmount();
+			settleTotalAmount =settleTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
+			mchtAccountDetail.setSettleTotalAmount(settleTotalAmount);
+			//商户冻结金额
+			BigDecimal freezeTotalAmount = mchtAccountDetail.getFreezeTotalAmount();
+			freezeTotalAmount = freezeTotalAmount.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP);
+			mchtAccountDetail.setFreezeTotalAmount(freezeTotalAmount);
+			//商户可用余额,可用余额=现金金额-冻结金额
+			BigDecimal availableBalance = cashTotalAmount.subtract(freezeTotalAmount).setScale(2, BigDecimal.ROUND_HALF_UP);
+			mchtAccountDetail.setAvailableBalance(availableBalance);
+			//商户总金额
+			mchtAccountDetail.setTotalAmount(cashTotalAmount.add(settleTotalAmount));
+		}
+		return listMchtAccountDetail;
+	}
 }

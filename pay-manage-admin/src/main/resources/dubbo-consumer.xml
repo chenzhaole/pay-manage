@@ -58,5 +58,7 @@
 	<dubbo:reference id ="dfProducerService" interface="com.sys.boss.api.service.trade.service.IDfProducerService" timeout="30000"/>
 	<!-- 余额查询			-->
 	<dubbo:reference id="mchtAccAmountService"  interface="com.sys.boss.api.service.order.MchtAccAmountService" retries="0" timeout="50000" />
+	<!--	定时任务	-->
+	<dubbo:reference id="taskLogService" interface="com.sys.core.service.TaskLogService" timeout="30000"/>
 
 </beans>
