@@ -114,17 +114,27 @@ public class DfReqTest {
 
         }*/
         try{
-            String url = "http://114.115.160.231:15080/accountAmount/taskInsertCurrentDayAcctAmount";
-            String startDate = "2018-11-30";
+            String url = "http://106.2.6.41:15680/accountAmount/taskInsertCurrentDayAcctAmount";
+            String startDate = "2018-06-05";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(simpleDateFormat.parse(startDate));
-            for(int i = 0 ; i< 26; i++){
+            //6  25
+            //7  31
+            //8  31
+            //9  30
+            //10 31
+            //11 30
+            //12 31
+
+            for(int i = 0 ; i< 205; i++){
                 calendar.add(Calendar.DAY_OF_YEAR, 1);
                 String execDate = simpleDateFormat.format(calendar.getTime());
-                System.out.println(execDate);
+                System.out.println("执行时间为:" + execDate);
 
-                post(url + "?day=" + execDate, "");
+                String resp = post(url + "?day=" + execDate, "");
+                System.out.println("执行响应为:" +resp);
+                Thread.sleep(1000);
             }
         }catch (Exception e){
 

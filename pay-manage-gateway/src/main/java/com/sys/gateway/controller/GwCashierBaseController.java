@@ -360,17 +360,18 @@ public class GwCashierBaseController {
      * 收银台页面需要的数据
      * @param model
      */
-    protected void addCashierBankModelInfo(Model model, CommonResult result, String goods, String amount, String mchtId, String midoid) {
+    protected void addCashierBankModelInfo(Model model, CommonResult result, String goods, String amount, String mchtId,String biz, String midoid) {
         model.addAttribute("goods", goods);
         //将分转成元
         amount = NumberUtils.changeF2Y(amount);
         model.addAttribute("amount", amount);
         model.addAttribute("mchtId", mchtId);
         Map mapData = (Map) result.getData();
-        model.addAttribute("payType",PayTypeEnum.LOCAL_BANK.getCode());
-        model.addAttribute("bankCodes", mapData.get("bankCodes"));
-        model.addAttribute("mchtOrderId", mapData.get("mchtOrderId"));
-        model.addAttribute("extraData", mapData.get("extraData"));
+        Map mapBankData =(Map)mapData.get("result");
+        model.addAttribute("payType",biz);
+        model.addAttribute("bankCodes", mapBankData.get("bankCodes"));
+        model.addAttribute("mchtOrderId", mapBankData.get("mchtOrderId"));
+        model.addAttribute("extraData", mapBankData.get("extraData"));
         Map<String, String> pageQQandMobile = (Map<String, String>) mapData.get("pageQQandMobile");
         model.addAttribute("qq", pageQQandMobile.get("qq"));
         model.addAttribute("mobile", pageQQandMobile.get("mobile"));
@@ -516,6 +517,12 @@ public class GwCashierBaseController {
      */
     protected boolean isUseChanCashierPage(Object result, String midoid) {
         Map<String, Object> retMapInfo = ( Map<String, Object>)result;
+        Object bankResult =retMapInfo.get("result");
+        if(bankResult !=null && bankResult instanceof Map
+                && PayTypeEnum.LOCAL_BANK.getCode().equals(((Map)bankResult).get("payType"))){
+            logger.info(midoid+"，payType："+((Map)bankResult).get("payType")+"，判断是否是本地网银收银台");
+            return false;
+        }
         Result resultInfo = (Result) retMapInfo.get("result");
         String clientPayWay  = resultInfo.getClientPayWay();
         logger.info(midoid+"，根据clientPayWay的值："+clientPayWay+"，判断是否需要使用上游收银台页面");
