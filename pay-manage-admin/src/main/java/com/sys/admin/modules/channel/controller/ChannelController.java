@@ -19,12 +19,14 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.Collections3;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
 import com.sys.trans.api.entry.ChanMchtPaytypeTO;
 import com.sys.trans.api.entry.Config;
@@ -72,6 +74,9 @@ public class ChannelController extends BaseController {
 
 	@Autowired
 	ProductAdminService productAdminService;
+
+	@Autowired
+	private MerchantService merchantService;
 
 	/**
 	 * 通道列表
@@ -256,7 +261,7 @@ public class ChannelController extends BaseController {
 	) {
 
 		ChanMchtFormInfo searchInfo = new ChanMchtFormInfo(request);
-
+		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
 		//分页
 		String pageNoString = paramMap.get("pageNo");
 		int pageNo = 1;
@@ -279,7 +284,7 @@ public class ChannelController extends BaseController {
 		model.addAttribute("paymentTypeInfos", prePayTypeList);
 //		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();
 //		model.addAttribute("paymentTypeInfos", paymentTypeInfos);
-
+		model.addAttribute("mchtList", mchtList);
 		model.addAttribute("paramMap", paramMap);
 		return "modules/channel/chanMchtPaytypeList";
 	}

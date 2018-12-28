@@ -116,7 +116,9 @@ public class MchtAccountDetailController extends BaseController {
 
         }
         Page page = new Page(pageInfo.getPageNo(), pageInfo.getPageSize(), count, true);
-
+        if(mchtAccountDetail!= null){
+            model.addAttribute("mchtId", mchtAccountDetail.getMchtId());
+        }
 
         model.addAttribute("mchtInfos", mchtInfos);
         model.addAttribute("list", list);
