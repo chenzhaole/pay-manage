@@ -31,6 +31,7 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
@@ -38,6 +39,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.io.File;
 
 @Controller
 @RequestMapping(value = "${adminPath}/merchant")
@@ -70,6 +72,14 @@ public class MerchantController extends BaseController {
 	//商户费率信息接口地址
 	@Value("${mchtFeerateInfoData.url}")
 	private String mchtFeerateInfoDataUrl;
+
+	//图片存放地址
+	@Value("picPath")
+	private String picPath;
+
+	//图片访问url
+	@Value("picUrl")
+	private String picUrl;
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -354,6 +364,7 @@ public class MerchantController extends BaseController {
 
 			}
 
+			model.addAttribute("picUrl",picUrl);
 			model.addAttribute("merchant", mchtInfo);
 			model.addAttribute("op", "edit");
 
@@ -431,8 +442,10 @@ public class MerchantController extends BaseController {
 	 * @return: String
 	 */
 	@RequestMapping(value = { "addMerchantSave", "" })
-	public String addMerchantSave(HttpServletRequest request, HttpServletResponse response, Model model, 
-			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes) {
+	public String addMerchantSave(HttpServletRequest request, HttpServletResponse response, Model model,
+								  @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes,
+								  MultipartFile blcFile, MultipartFile contractFile, MultipartFile boardPicFile, MultipartFile openingPermitFile,
+								  MultipartFile bankCardFrontFile, MultipartFile bankIdcardFile) {
 		try {
 			//系统生成8位MerchantNo
 			String mchtNo = IdUtil.createMchtId();
@@ -460,7 +473,19 @@ public class MerchantController extends BaseController {
 				extend2Json.put("mchtPropertyTag", this.geneMchtPropertyTagStr(merchantForm.getMchtPropertyTag()));
 				extend2Json.put("isShowPayPage",merchantForm.getIsShowPayPage());
 				merchantForm.setExtend2(extend2Json.toJSONString());
-        		String result = merchantAdminService.addMerchantService(merchantForm);
+				String blcPath       	 = uploadPicture(blcFile,request,mchtNo+"_blc");						//营业执照
+				String contractPath 	 = uploadPicture(contractFile,request,mchtNo+"_contract");			//商户协议
+				String boardPicPath 	 = uploadPicture(boardPicFile,request,mchtNo+"_boardPic");			//门牌照/其他
+				String openingPermitPath = uploadPicture(openingPermitFile,request,mchtNo+"_openingPermit");	//开户许可证
+				String bankCardFrontPath = uploadPicture(bankCardFrontFile,request,mchtNo+"_bankCardFront");	//银行卡正面照
+				String bankIdcardPath	 = uploadPicture(bankIdcardFile,request,mchtNo+"_bankIdcard");		//银行账户身份证正面照
+				merchantForm.setBlcPath(blcPath);
+				merchantForm.setContractFilePath(contractPath);
+				merchantForm.setBoardPicPath(boardPicPath);
+				merchantForm.setOpeningPermitPath(openingPermitPath);
+				merchantForm.setBankCardFrontPath(bankCardFrontPath);
+				merchantForm.setBankIdcardPath(bankIdcardPath);
+				String result = merchantAdminService.addMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "保存商户信息成功！");
         			redirectAttributes.addFlashAttribute("messageType", "success");
@@ -474,25 +499,29 @@ public class MerchantController extends BaseController {
 			
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("商户信息添加",e);
 		}
 		return "modules/merchant/merchantEdit";
 	}
 	
 	@RequestMapping(value = { "editMerchantSave", "" })
 	public String editSave(HttpServletRequest request, HttpServletResponse response, Model model, 
-			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes) {
+			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes,
+		    MultipartFile blcFile, MultipartFile contractFile, MultipartFile boardPicFile, MultipartFile openingPermitFile,
+		    MultipartFile bankCardFrontFile, MultipartFile bankIdcardFile
+			) {
 		try {
 			//创建者UserId
 			Long operatorId =  UserUtils.getUser().getId();
 			//将页面请求参数转换成商户实体bo
 			MerchantForm merchantForm = new MerchantForm(request);
+			MerchantForm mchtInfo = null;
         	if(ErrorCodeEnum.SUCCESS.getCode().equalsIgnoreCase(merchantForm.getCode())){
         		//转换成功,调用商户service执行更新商户操作
         		merchantForm.setOperatorId(operatorId);
         		//查出该商户中的extend2中已经存在的值
                 if(null != merchantForm){
-                    MerchantForm mchtInfo = merchantAdminService.getMerchantById(merchantForm.getId());
+                    mchtInfo = merchantAdminService.getMerchantById(merchantForm.getId());
                     if(null != mchtInfo){
 						JSONObject extend2Json = null;
 						if(StringUtils.isNotBlank(mchtInfo.getExtend2())) {
@@ -526,6 +555,20 @@ public class MerchantController extends BaseController {
 						merchantForm.setExtend2(extend2Json.toJSONString());
                     }
                 }
+
+				String mchtNo = mchtInfo.getMchtCode();
+				String blcPath       	 = uploadPicture(blcFile,request,mchtNo+"_blc");						//营业执照
+				String contractPath 	 = uploadPicture(contractFile,request,mchtNo+"_contract");			//商户协议
+				String boardPicPath 	 = uploadPicture(boardPicFile,request,mchtNo+"_boardPic");			//门牌照/其他
+				String openingPermitPath = uploadPicture(openingPermitFile,request,mchtNo+"_openingPermit");	//开户许可证
+				String bankCardFrontPath = uploadPicture(bankCardFrontFile,request,mchtNo+"_bankCardFront");	//银行卡正面照
+				String bankIdcardPath	 = uploadPicture(bankIdcardFile,request,mchtNo+"_bankIdcard");		//银行账户身份证正面照
+				merchantForm.setBlcPath(blcPath);
+				merchantForm.setContractFilePath(contractPath);
+				merchantForm.setBoardPicPath(boardPicPath);
+				merchantForm.setOpeningPermitPath(openingPermitPath);
+				merchantForm.setBankCardFrontPath(bankCardFrontPath);
+				merchantForm.setBankIdcardPath(bankIdcardPath);
         		String result = merchantAdminService.updateMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "更新商户信息成功！");
@@ -538,7 +581,7 @@ public class MerchantController extends BaseController {
         	}
 			
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.error("商户信息修改",e);
 		}
 		return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 	}
@@ -736,6 +779,24 @@ public class MerchantController extends BaseController {
 		redirectAttributes.addFlashAttribute("message", message);
 		response.setCharacterEncoding("UTF-8");
 		return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
+	}
+
+	private String uploadPicture(MultipartFile file, HttpServletRequest request,String filename) throws Exception {
+		// 上传文件路径
+		String path = picPath+"webupload/mchtpic/";
+		// 文件扩展名
+		String prefix = file.getOriginalFilename().substring(file.getOriginalFilename().lastIndexOf(".") + 1);
+		// 上传文件名
+		filename = filename + "." + prefix;
+		File filepath = new File(path, filename);
+		// 判断路径是否存在，如果不存在就创建一个
+		if (!filepath.getParentFile().exists()) {
+			filepath.getParentFile().mkdirs();
+		}
+		// 将上传文件保存到一个目标文件当中
+		file.transferTo(new File(path + filename));
+
+		return "/webupload/mchtpic/"+filename;
 	}
 
 }

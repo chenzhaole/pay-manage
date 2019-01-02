@@ -586,7 +586,7 @@
                         <c:if test="${op == 'edit'}">
                             <%--<c:if test="${merchant.blcPath != ''} && ${merchant.blcPath != null}">--%>
                             <label>原图：</label>
-                            <img src="${merchant.blcPath}" style="max-width: 100px;max-height: 100px">
+                            <img src="${picUrl}/${merchant.blcPath}" style="max-width: 100px;max-height: 100px">
                             <%--</c:if>--%>
                         </c:if>
 
@@ -647,7 +647,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${merchant.contractFilePath}" style="max-width: 100px;max-height: 100px">
+                            <img src="${picUrl}/${merchant.contractFilePath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-contractFilePath">
                             <input type="hidden" value="${merchant.contractFilePath}" id="contractFilePath"
@@ -668,7 +668,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${merchant.boardPicPath}" style="max-width: 100px;max-height: 100px">
+                            <img src="${picUrl}/${merchant.boardPicPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-boardPicPath">
                             <input type="hidden" value="${merchant.boardPicPath}" id="boardPicPath"
@@ -694,7 +694,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${merchant.openingPermitPath}" style="max-width: 100px;max-height: 100px">
+                            <img src="${picUrl}/${merchant.openingPermitPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-openingPermitPath">
                             <input type="hidden" value="${merchant.openingPermitPath}" id="openingPermitPath"
@@ -715,7 +715,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${merchant.bankCardFrontPath}" style="max-width: 100px;max-height: 100px">
+                            <img src="${picUrl}/${merchant.bankCardFrontPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-bankCardFrontPath">
                             <input type="hidden" value="${merchant.bankCardFrontPath}" id="bankCardFrontPath"
@@ -736,7 +736,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${merchant.bankIdcardPath}" style="max-width: 100px;max-height: 100px">
+                            <img src="${picUrl}/${merchant.bankIdcardPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-bankIdcardPath">
                             <input type="hidden" value="${merchant.bankIdcardPath}" id="bankIdcardPath"
