@@ -61,11 +61,17 @@
 
             </td>
             <td>
-                <label>商户名称：</label>
-                <form:select path="mchtId">
-                    <form:option value="">--全部--</form:option>
-                    <form:options items="${mchtInfos}" itemLabel="name" itemValue="id"/>
-                </form:select>
+                <div class="control-group">
+                    <label class="control-label">商户名称：</label>
+                    <div class="controls">
+                        <select name="mchtId" id="mchtId"  class="selectpicker bla bla bli" data-live-search="true">
+                            <option value="">---请选择---</option>
+                            <c:forEach var="mcht" items="${mchtInfos}">
+                                <option value="${mcht.id}" <c:if test="${mchtId eq mcht.id}">selected</c:if> >${mcht.name}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                </div>
             </td>
             <td>
                 <label>商户订单号：</label>
@@ -130,6 +136,7 @@
         <%--<th>冻结金额（元）</th>--%>
         <%--<th>现金余额（元）</th>--%>
         <th>可提现金额（元）</th>
+        <th>待结算金额（元）</th>
         <th>记账时间</th>
     </tr>
     </thead>
@@ -176,6 +183,9 @@
                                   maxFractionDigits="2"/></td>--%>
             <td><fmt:formatNumber type="number"
                                   value="${accountDetail.cashTotalAmount*0.01 - accountDetail.freezeTotalAmount*0.01}"
+                                  pattern="0.00" maxFractionDigits="2"/></td>
+            <td><fmt:formatNumber type="number"
+                                  value="${accountDetail.settleTotalAmount*0.01}"
                                   pattern="0.00" maxFractionDigits="2"/></td>
             <td><fmt:formatDate value="${accountDetail.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
         </tr>

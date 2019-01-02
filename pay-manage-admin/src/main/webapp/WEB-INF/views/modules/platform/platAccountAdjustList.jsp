@@ -134,7 +134,9 @@
             <td>${adjust.auditorName}</td>
             <td>${fns:getDictLabel(adjust.auditStatus,'account_adjust_status' ,'' )}</td>
             <td>
-                <div  title="${adjust.remark}" class="wrap">${fn:substring(adjust.remark,0,50)}</div>
+                <div class="wrap" style="width: 100px; word-break: break-all; word-wrap: break-word;">
+                        ${adjust.remark}
+                </div>
             </td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>

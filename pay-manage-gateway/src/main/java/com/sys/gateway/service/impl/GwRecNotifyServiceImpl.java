@@ -68,6 +68,17 @@ public class GwRecNotifyServiceImpl implements GwRecNotifyService {
 		return commonResult;
 	}
 
-
-
+	@Override
+	public CommonResult reciveNotify(String data,String sign) {
+		Trade trade = new Trade();
+		Order order = new Order();
+		order.setExtend(sign);
+		trade.setOrder(order);
+		trade.setData(data);
+		logger.info(BIZ+"封装通知参数trade="+ JSONObject.toJSONString(trade));
+		//调用boss-trade获取缓存中的orderTrade
+		CommonResult commonResult = tradePayNotifyHandler.processNotify(trade);
+		logger.info(BIZ+"处理业务逻辑后返回的CommonResult="+ JSONObject.toJSONString(commonResult));
+		return commonResult;
+	}
 }

@@ -69,6 +69,10 @@
             $(content).parent().next().next().next().html("<a href='${ctx}/process/question/form?orderId=" + orderId + "'>核实</a>");
             $(content).remove();
         }
+        //下拉搜索框初始化
+        $(window).on('load', function () {
+            $('.selectpicker').selectpicker({});
+        })
 
     </script>
 </head>
@@ -100,7 +104,7 @@
                     <div class="controls">
                         <select id="status" name="status">
                             <option value="">---请选择---</option>
-                            <c:forEach var="dict" items="${fns:getDictList('pay_status')}">
+                            <c:forEach var="dict" items="${fns:getDictList('recharge_status')}">
                                 <option value="${dict.value}" <c:if test="${paramMap.status eq dict.value}">selected</c:if>>${dict.label}</option>
                             </c:forEach>
                         </select>
