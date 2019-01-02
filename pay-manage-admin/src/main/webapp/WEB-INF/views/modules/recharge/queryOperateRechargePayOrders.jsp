@@ -13,9 +13,9 @@
             $("#exportButton").click(function () {
                 top.$.jBox.confirm("确认要导出订单问题反馈数据吗？", "系统提示", function (v, h, f) {
                     if (v == "ok") {
-                        $("#searchForm").attr("action", "${ctx}/process/question/export/");
+                        $("#searchForm").attr("action", "${ctx}/mchtRecharge/export");
                         $("#searchForm").submit();
-                        $("#searchForm").attr("action", "${ctx}/process/question/list/");
+                        //$("#searchForm").attr("action", "${ctx}/process/question/list/");
                     }
                 }, {buttonsFocus: 1});
                 top.$('.jbox-body .jbox-icon').css('top', '55px');
@@ -183,6 +183,11 @@
                 <div class="control-group">
                     <label class="control-label">
                         <input type="submit" value="查询"/>
+                    </label>
+                </div>
+                <div class="control-group">
+                    <label class="control-label">
+                        <input type="submit" value="导出"/>
                     </label>
                 </div>
             </td>

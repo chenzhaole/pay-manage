@@ -4,6 +4,8 @@
 <head>
     <title>商户产品管理</title>
     <meta name="decorator" content="default"/>
+    <script src="${ctxStatic}/js/select2.js"></script>
+    <link href="${ctxStatic}/css/select2.css" rel="stylesheet" />
     <style>
         .table th, .table td {
             border-top: none;
@@ -14,6 +16,12 @@
         }
     </style>
     <script type="text/javascript">
+
+        //下拉搜索框初始化
+        $(window).on('load', function () {
+            $('.selectpicker').select2({
+            });
+        });
 
         //商户信息级联
         function mchtChange() {
@@ -158,7 +166,7 @@
                 <div class="control-group">
                     <label class="control-label">商户名称</label>
                     <div class="controls">
-                        <select name="mchtId" class="input-xlarge" id="mchtId" onchange="mchtChange()"
+                        <select name="mchtId" class="selectpicker" id="mchtId" data-live-search="true" onchange="mchtChange()"
                                 <c:if test="${op == 'edit'}"> disabled="disabled" </c:if>>>
                             <option value="">--请选择--</option>
                             <c:forEach items="${mchtInfos}" var="mchtInfo">
@@ -227,7 +235,7 @@
                 <div class="control-group">
                     <label class="control-label">支付产品</label>
                     <div class="controls">
-                        <select name="productId" class="input-xlarge" id="productId" onchange="productChange()"
+                        <select name="productId" class="selectpicker" id="productId" data-live-search="true" onchange="productChange()"
                                 <c:if test="${op == 'edit'}"> disabled="disabled" </c:if>>
                             <option value="">--请选择--</option>
                             <c:forEach items="${productFormInfos}" var="productFormInfo">
