@@ -317,8 +317,26 @@ public class MchtRechargeController extends BaseController {
         rechargeOrder.setPlatOrderId(paramMap.get("platOrderId"));
         rechargeOrder.setStatus(paramMap.get("status"));
         rechargeOrder.setAuditStatus(paramMap.get("auditStatus"));
-        rechargeOrder.setCreateStartTime(paramMap.get("beginDate"));
-        rechargeOrder.setCreateEndTime(paramMap.get("endDate"));
+
+
+        //初始化页面开始时间
+        String beginDate = paramMap.get("beginDate");
+        if (StringUtils.isBlank(beginDate)) {
+            rechargeOrder.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+            paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
+        } else {
+            paramMap.put("beginDate", beginDate);
+            rechargeOrder.setCreateTime(DateUtils.parseDate(beginDate));
+        }
+        String endDate = paramMap.get("endDate");
+        //初始化页面结束时间
+        if (StringUtils.isBlank(endDate)) {
+            rechargeOrder.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+            paramMap.put("endDate", DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
+        } else {
+            paramMap.put("endDate", endDate);
+            rechargeOrder.setUpdateTime(DateUtils.parseDate(endDate));
+        }
         rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
         //获取当前第几页
         String pageNoString = paramMap.get("pageNo");
@@ -545,15 +563,38 @@ public class MchtRechargeController extends BaseController {
         rechargeOrder.setPlatOrderId(paramMap.get("platOrderId"));
         rechargeOrder.setStatus(paramMap.get("status"));
         rechargeOrder.setAuditStatus(paramMap.get("auditStatus"));
-        rechargeOrder.setCreateStartTime(paramMap.get("beginDate"));
-        rechargeOrder.setCreateEndTime(paramMap.get("endDate"));
         rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
+
+        //初始化页面开始时间
+        String beginDate = paramMap.get("beginDate");
+        if (StringUtils.isBlank(beginDate)) {
+            rechargeOrder.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+            paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
+        } else {
+            paramMap.put("beginDate", beginDate);
+            rechargeOrder.setCreateTime(DateUtils.parseDate(beginDate));
+        }
+        String endDate = paramMap.get("endDate");
+        //初始化页面结束时间
+        if (StringUtils.isBlank(endDate)) {
+            rechargeOrder.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+            paramMap.put("endDate", DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
+        } else {
+            paramMap.put("endDate", endDate);
+            rechargeOrder.setUpdateTime(DateUtils.parseDate(endDate));
+        }
+
+
         //获取当前第几页
         String pageNoString = paramMap.get("pageNo");
         int pageNo = 1;
         if (StringUtils.isNotBlank(pageNoString) && "1".equals(paramMap.get("paging"))) {
             pageNo = Integer.parseInt(pageNoString);
         }
+
+
+
+
         PageInfo pageInfo = new PageInfo();
         pageInfo.setPageNo(pageNo);
         rechargeOrder.setPageInfo(pageInfo);
@@ -633,7 +674,9 @@ public class MchtRechargeController extends BaseController {
                     rechargeOrder.setPayType(PayTypeEnum.ZHIFU_WG.getDesc());
                 }
             }
-            rechargeOrder.setMchtCode(mchtInfo.getName());
+            if(mchtInfo!= null){
+                rechargeOrder.setMchtCode(mchtInfo.getName());
+            }
             rechargeOrder.setRechargeConfig(rechargeConfig);
             ChanMchtPaytype chanMchtPaytype = chanMchtPaytypeService.queryByKey(rechargeOrder.getChanMchtPaytypeId());
             if(chanMchtPaytype == null || chanMchtPaytype.getChanCode() == null){

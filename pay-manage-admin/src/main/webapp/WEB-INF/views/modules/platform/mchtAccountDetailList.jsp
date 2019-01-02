@@ -61,11 +61,17 @@
 
             </td>
             <td>
-                <label>商户名称：</label>
-                <form:select path="mchtId">
-                    <form:option value="">--全部--</form:option>
-                    <form:options items="${mchtInfos}" itemLabel="name" itemValue="id"/>
-                </form:select>
+                <div class="control-group">
+                    <label class="control-label">商户名称：</label>
+                    <div class="controls">
+                        <select name="mchtId" id="mchtId"  class="selectpicker bla bla bli" data-live-search="true">
+                            <option value="">---请选择---</option>
+                            <c:forEach var="mcht" items="${mchtInfos}">
+                                <option value="${mcht.id}" <c:if test="${mchtId eq mcht.id}">selected</c:if> >${mcht.name}</option>
+                            </c:forEach>
+                        </select>
+                    </div>
+                </div>
             </td>
             <td>
                 <label>商户订单号：</label>
