@@ -13,12 +13,19 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.service.order.IRechargeService;
 import com.sys.boss.api.service.trade.handler.ITradeApiRechargePayHandler;
 import com.sys.common.enums.*;
+import com.sys.common.util.Collections3;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.HttpUtil;
+import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.hssf.usermodel.HSSFCell;
+import org.apache.poi.hssf.usermodel.HSSFRow;
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,13 +38,17 @@ import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import sun.misc.BASE64Decoder;
 
 import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URLEncoder;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -735,6 +746,151 @@ public class MchtRechargeController extends BaseController {
         }
         logger.info("，返回的PlatProduct信息为：" + JSONObject.toJSONString(product));
         return product;
+    }
+
+    @RequestMapping(value = "/export")
+    public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
+                         @RequestParam Map<String, String> paramMap) throws IOException {
+
+        this.logger.info("请求参数:"+JSONObject.toJSONString(paramMap));
+        MchtGatewayRechargeOrder rechargeOrder = new MchtGatewayRechargeOrder();
+        //获取参数
+        rechargeOrder.setMchtName(paramMap.get("mchtName"));
+        rechargeOrder.setPlatOrderId(paramMap.get("platOrderId"));
+        rechargeOrder.setStatus(paramMap.get("status"));
+        rechargeOrder.setAuditStatus(paramMap.get("auditStatus"));
+        rechargeOrder.setCreateStartTime(paramMap.get("beginDate"));
+        rechargeOrder.setCreateEndTime(paramMap.get("endDate"));
+        rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
+
+        //设置查询当前用户的
+        rechargeOrder.setMchtId(UserUtils.getUser().getLoginName());
+
+        //获得总条数
+        int orderCount = rechargeService.countMchtGatewayRechargeOrders(rechargeOrder);
+
+        //计算条数 上限五万条
+        if (orderCount <= 0) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:modules/recharge/queryOperateRechargePayOrders";
+        }
+        if (orderCount > 50000) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:modules/recharge/queryOperateRechargePayOrders";
+        }
+
+        //获得充值订单信息
+        List<MchtGatewayRechargeOrder> rechargeOrders  = rechargeService.queryMchtGatewayRechargeOrders(rechargeOrder);
+
+        if (rechargeOrders == null || rechargeOrders.size() ==0) {
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "导出条数为0条");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:modules/recharge/queryOperateRechargePayOrders";
+        }
+        //获取当前日期，为文件名
+        String fileName = DateUtils.formatDate(new Date()) + ".xls";
+
+        String[] headers = {"商户名称", "订单号","上游通道" , "充值方式",
+                "订单金额","手续费金额", "订单时间", "订单完成时间"
+                ,"订单状态","审核状态","客服审批人","运营审批人"};
+
+        response.reset();
+        response.setContentType("application/octet-stream; charset=utf-8");
+        response.setHeader("Content-Disposition", "attachment; filename=" + URLEncoder.encode(fileName, "UTF-8"));
+        OutputStream out = response.getOutputStream();
+
+        // 第一步，创建一个webbook，对应一个Excel文件
+        HSSFWorkbook wb = new HSSFWorkbook();
+        // 第二步，在webbook中添加一个sheet,对应Excel文件中的sheet
+        HSSFSheet sheet = wb.createSheet("充值订单流水表");
+        sheet.setColumnWidth(0, 20 * 1256);
+        // 第三步，在sheet中添加表头第0行,注意老版本poi对Excel的行数列数有限制short
+        HSSFRow row = sheet.createRow((int) 0);
+
+        int j = 0;
+        for (String header : headers) {
+            HSSFCell cell = row.createCell((short) j);
+            cell.setCellValue(header);
+            sheet.autoSizeColumn(j);
+            j++;
+        }
+        if (!Collections3.isEmpty(rechargeOrders)) {
+            int rowIndex = 1;//行号
+            for (MchtGatewayRechargeOrder orderTemp : rechargeOrders) {
+                int cellIndex = 0;
+                row = sheet.createRow(rowIndex);
+                HSSFCell cell = row.createCell(cellIndex);
+                cell.setCellValue(orderTemp.getMchtCode());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(orderTemp.getPlatOrderId());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(orderTemp.getChanName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(orderTemp.getPayType());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(NumberUtils.changeF2Y(String.valueOf(orderTemp.getAmount())));
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(NumberUtils.changeF2Y(String.valueOf(orderTemp.getMchtFeeAmount())));
+                cellIndex++;
+
+
+                cell = row.createCell(cellIndex);
+                if (orderTemp.getCreateTime() != null) {
+                    cell.setCellValue(DateUtils.formatDate(orderTemp.getCreateTime(), "yyyy-MM-dd HH:mm:ss"));
+                }
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                if (orderTemp.getUpdateTime() != null) {
+                    cell.setCellValue(DateUtils.formatDate(orderTemp.getUpdateTime(), "yyyy-MM-dd HH:mm:ss"));
+                }
+				cellIndex++;
+
+				cell =row.createCell(cellIndex);
+				cell.setCellValue(PayStatusEnum.toEnum(orderTemp.getStatus()).getDesc());
+				cellIndex++;
+
+				cell =row.createCell(cellIndex);
+				cell.setCellValue(RechargeAuditEnum.toEnum(orderTemp.getAuditStatus()).getDesc());
+				cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(orderTemp.getCustomerAuditUserName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(orderTemp.getOperateAuditUserName());
+                cellIndex++;
+
+                cell = row.createCell(cellIndex);
+                cell.setCellValue(orderTemp.getExtend1());
+                cellIndex++;
+
+            }
+        }
+        wb.write(out);
+        out.flush();
+        out.close();
+
+        redirectAttributes.addFlashAttribute("messageType", "success");
+        redirectAttributes.addFlashAttribute("message", "导出完毕");
+        response.setCharacterEncoding("UTF-8");
+        return "redirect:modules/recharge/queryOperateRechargePayOrders";
     }
 
 }
