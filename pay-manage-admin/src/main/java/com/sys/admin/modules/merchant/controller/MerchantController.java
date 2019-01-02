@@ -431,7 +431,7 @@ public class MerchantController extends BaseController {
 	 * @return: String
 	 */
 	@RequestMapping(value = { "addMerchantSave", "" })
-	public String addMerchantSave(HttpServletRequest request, HttpServletResponse response, Model model, 
+	public String addMerchantSave(HttpServletRequest request, HttpServletResponse response, Model model,
 			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes) {
 		try {
 			//系统生成8位MerchantNo
