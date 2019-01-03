@@ -316,7 +316,7 @@ public class MchtProductFormInfo {
 		this.productId = paramMap.get("productId");
 		this.productName = paramMap.get("productName");
 		this.productCode = paramMap.get("productCode");
-		this.isValid = Integer.parseInt(StringUtils.isNotBlank(paramMap.get("isValid")) ? paramMap.get("isValid") : "0");
+		this.isValid = Integer.parseInt(StringUtils.isNotBlank(paramMap.get("isValid")) ? paramMap.get("isValid") : "-1");
 		this.operatorId = paramMap.get("operatorId");
 		this.settleType = StringUtils.isNotBlank(paramMap.get("settleType")) ? paramMap.get("settleType") : "0";
 		this.settleMode = StringUtils.isNotBlank(paramMap.get("settleMode")) ? paramMap.get("settleMode") : "0";

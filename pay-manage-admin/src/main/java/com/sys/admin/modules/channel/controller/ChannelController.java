@@ -1,6 +1,7 @@
 package com.sys.admin.modules.channel.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.rocketmq.common.filter.impl.Op;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
@@ -355,6 +356,7 @@ public class ChannelController extends BaseController {
 		try {
 			ChanMchtFormInfo searchInfo = new ChanMchtFormInfo(request);
 
+			logger.info("通道支付方式更新,op="+paramMap.get("op")+",searchInfo="+JSON.toJSON(searchInfo) );
 			if ("add".equals(paramMap.get("op"))) {
 				//校验重复
 				ChanMchtFormInfo searchCMP = new ChanMchtFormInfo();

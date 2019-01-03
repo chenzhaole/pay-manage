@@ -1,5 +1,6 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
@@ -525,6 +526,7 @@ public class PlatformController extends BaseController {
 		List<ProductFormInfo> productFormInfos = productAdminService.getProductList(new ProductFormInfo());
 		Map<String, String> productPaytypeMap = Collections3.extractToMap(productFormInfos, "id", "payType");
 
+		logger.info("查询商户产品productFormInfo为"+ JSON.toJSON(productFormInfo));
 		List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(productFormInfo);
 		if(!CollectionUtils.isEmpty(mchtProductFormInfos)){
 			for (MchtProductFormInfo mchtProductFormInfo : mchtProductFormInfos) {

@@ -171,6 +171,8 @@ public class ChanMchtFormInfo {
 	//账务类型	0:默认保留，1:支付，2:代付，3:调账，4:退款，5:清分 6 充值
 	private String accType;
 
+	private BigDecimal dayMaxAmount;
+
 	private static final long serialVersionUID = 1L;
 
 	public String getTradeRangeMoney() {
@@ -784,6 +786,14 @@ public class ChanMchtFormInfo {
 
 	public void setAccType(String accType) {
 		this.accType = accType;
+	}
+
+	public BigDecimal getDayMaxAmount() {
+		return dayMaxAmount;
+	}
+
+	public void setDayMaxAmount(BigDecimal dayMaxAmount) {
+		this.dayMaxAmount = dayMaxAmount;
 	}
 
 	//空的构造方法
