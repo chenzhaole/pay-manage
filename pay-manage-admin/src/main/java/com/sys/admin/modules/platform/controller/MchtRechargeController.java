@@ -568,20 +568,20 @@ public class MchtRechargeController extends BaseController {
         //初始化页面开始时间
         String beginDate = paramMap.get("beginDate");
         if (StringUtils.isBlank(beginDate)) {
-            rechargeOrder.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+            rechargeOrder.setCreateStartTime(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
             paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
         } else {
             paramMap.put("beginDate", beginDate);
-            rechargeOrder.setCreateTime(DateUtils.parseDate(beginDate));
+            rechargeOrder.setCreateStartTime(beginDate);
         }
         String endDate = paramMap.get("endDate");
         //初始化页面结束时间
         if (StringUtils.isBlank(endDate)) {
-            rechargeOrder.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+            rechargeOrder.setCreateEndTime(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
             paramMap.put("endDate", DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
         } else {
             paramMap.put("endDate", endDate);
-            rechargeOrder.setUpdateTime(DateUtils.parseDate(endDate));
+            rechargeOrder.setCreateEndTime(endDate);
         }
 
 
@@ -802,27 +802,26 @@ public class MchtRechargeController extends BaseController {
         rechargeOrder.setPlatOrderId(paramMap.get("platOrderId"));
         rechargeOrder.setStatus(paramMap.get("status"));
         rechargeOrder.setAuditStatus(paramMap.get("auditStatus"));
-
+        rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
 
         //初始化页面开始时间
         String beginDate = paramMap.get("beginDate");
         if (StringUtils.isBlank(beginDate)) {
-            rechargeOrder.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+            rechargeOrder.setCreateStartTime(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
             paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
         } else {
             paramMap.put("beginDate", beginDate);
-            rechargeOrder.setCreateTime(DateUtils.parseDate(beginDate));
+            rechargeOrder.setCreateStartTime(beginDate);
         }
         String endDate = paramMap.get("endDate");
         //初始化页面结束时间
         if (StringUtils.isBlank(endDate)) {
-            rechargeOrder.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+            rechargeOrder.setCreateEndTime(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
             paramMap.put("endDate", DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
         } else {
             paramMap.put("endDate", endDate);
-            rechargeOrder.setUpdateTime(DateUtils.parseDate(endDate));
+            rechargeOrder.setCreateEndTime(endDate);
         }
-        rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
 
 
         //获得总条数
@@ -938,7 +937,7 @@ public class MchtRechargeController extends BaseController {
 
                 cell = row.createCell(cellIndex);
                 cell.setCellValue(orderTemp.getExtend1());
-                cellIndex++;
+                rowIndex++;
 
             }
         }
