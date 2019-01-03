@@ -1,11 +1,4 @@
-import com.alibaba.fastjson.JSON;
-import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.alibaba.fastjson.TypeReference;
-import com.sys.common.util.AESUtil;
-import com.sys.common.util.PostUtil;
-import com.sys.common.util.RSAUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpResponse;
 import org.apache.http.client.HttpClient;
@@ -15,13 +8,8 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.params.HttpParams;
 import org.apache.http.util.EntityUtils;
-
-import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.UUID;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 public class DfReqTest {
 
@@ -51,7 +39,7 @@ public class DfReqTest {
 
     public static void main(String[] args){
 
-        try{
+        /*try{
             //String payUrl = "/df/gateway/req/"; //
             String payUrl = "http://114.115.206.62:12080/df/gateway/req/";
             String key = "e201f962a16f4e7caeda91196c74092d";			//商户KEY
@@ -121,6 +109,32 @@ public class DfReqTest {
                 respStr = resJson.toString();
                 System.out.println(respStr);
 
+            }
+        }catch (Exception e){
+
+        }*/
+        try{
+            String url = "http://106.2.6.41:15680/accountAmount/taskInsertCurrentDayAcctAmount";
+            String startDate = "2018-06-05";
+            SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(simpleDateFormat.parse(startDate));
+            //6  25
+            //7  31
+            //8  31
+            //9  30
+            //10 31
+            //11 30
+            //12 31
+
+            for(int i = 0 ; i< 205; i++){
+                calendar.add(Calendar.DAY_OF_YEAR, 1);
+                String execDate = simpleDateFormat.format(calendar.getTime());
+                System.out.println("执行时间为:" + execDate);
+
+                String resp = post(url + "?day=" + execDate, "");
+                System.out.println("执行响应为:" +resp);
+                Thread.sleep(1000);
             }
         }catch (Exception e){
 

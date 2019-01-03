@@ -50,12 +50,6 @@ public class GwCashierPlatController extends GwCashierBaseController {
         try {
             midoid = "pc端收银台异步下单，商户号：" + mchtId +"，商户订单号：" + mchtOrderId + ",随机数extraData：" + extraData + "-->支付类型：" + paymentType + "-->";
             String bankCode =request.getParameter("bankCode");
-            if(PayTypeEnum.LOCAL_BANK.getCode().equals(bankCode) && StringUtils.isEmpty(bankCode)){
-                logger.info(BIZ+midoid+"银行编码为空");
-                result.setRespCode(ErrorCodeEnum.E6110.getCode());
-                result.setRespMsg("操作失败");
-                return JSONObject.toJSONString(result);
-            }
             //通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
             logger.info(BIZ + midoid + "通过程序获取deviceType的值");
             //根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)

@@ -40,6 +40,7 @@
                 ${adminPath}/timer/task/** = anon
                 ${adminPath}/logout = logout
                 ${adminPath}/** = user
+                ${adminPath}/accountAmount/** = anon
             </value>
         </property>
     </bean>

@@ -99,11 +99,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 						//设置收银台页面需要的值
 						this.addCashierModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), midoid );
 						logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用收银台页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
-					}else if(PayTypeEnum.LOCAL_BANK.getCode().equals(requestInfo.getHead().getBiz())){
-						page = "modules/cashier/bank/cashierBank";
-						this.addCashierBankModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(), midoid);
-						logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用网银页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
-					} else{
+					}else{
 						//先判断是否跳转上游收银台
 						if(isUseChanCashierPage(result.getData(), midoid)){
 							//跳转到上游收银台的中转页面
@@ -116,6 +112,17 @@ public class GwCashierMchtController extends GwCashierBaseController {
 							//使用我司页面
 							//非收银台页面跳转,支付类型从result返回值取具体支付类型，找对应中间页
 							Map<String, Object> retMapInfo = ( Map<String, Object>)result.getData();
+							Object bankResult =retMapInfo.get("result");
+							if(bankResult !=null && bankResult instanceof Map
+									&& PayTypeEnum.LOCAL_BANK.getCode().equals(((Map)bankResult).get("payType"))){
+								logger.info(midoid+"，payType："+((Map)bankResult).get("payType")+"，判断是否是本地网银收银台");
+								page = "modules/cashier/bank/cashierBank";
+								this.addCashierBankModelInfo(model, result, requestInfo.getBody().getGoods(), requestInfo.getBody().getAmount(), requestInfo.getHead().getMchtId(),requestInfo.getHead().getBiz(), midoid);
+								model.addAttribute("respCode",result.getRespCode());
+								model.addAttribute("respMsg",result.getRespMsg());
+								logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为成功，需要使用网银页面，返回的CommonResult="+JSONObject.toJSONString(result)+"跳转的页面为："+page);
+								return page;
+							}
 							Result resultInfo = (Result) retMapInfo.get("result");
 							page = this.chooseNotCashierPage(deviceType, resultInfo.getPaymentType(), midoid);
 							if(DeviceTypeEnum.PC.getCode().equals(deviceType)){

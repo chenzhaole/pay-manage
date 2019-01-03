@@ -70,7 +70,7 @@ public enum AdminPayTypeEnum {
 	SDK_GROUP("sdk000","sdk组合支付类型"),
 	ZHIFU_WG ( "zf001", "支付"),
 	HUIKUANG_WG ( "hk001", "汇款"),
-	LOCAL_BANK("nb001","网银支付")
+	LOCAL_BANK("qj601","网银支付")
 
 	;
 
