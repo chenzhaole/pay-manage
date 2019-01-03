@@ -802,12 +802,28 @@ public class MchtRechargeController extends BaseController {
         rechargeOrder.setPlatOrderId(paramMap.get("platOrderId"));
         rechargeOrder.setStatus(paramMap.get("status"));
         rechargeOrder.setAuditStatus(paramMap.get("auditStatus"));
-        rechargeOrder.setCreateStartTime(paramMap.get("beginDate"));
-        rechargeOrder.setCreateEndTime(paramMap.get("endDate"));
+
+
+        //初始化页面开始时间
+        String beginDate = paramMap.get("beginDate");
+        if (StringUtils.isBlank(beginDate)) {
+            rechargeOrder.setCreateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 00:00:00"));
+            paramMap.put("beginDate", DateUtils.getDate("yyyy-MM-dd") + " 00:00:00");
+        } else {
+            paramMap.put("beginDate", beginDate);
+            rechargeOrder.setCreateTime(DateUtils.parseDate(beginDate));
+        }
+        String endDate = paramMap.get("endDate");
+        //初始化页面结束时间
+        if (StringUtils.isBlank(endDate)) {
+            rechargeOrder.setUpdateTime(DateUtils.parseDate(DateUtils.getDate("yyyy-MM-dd") + " 23:59:59"));
+            paramMap.put("endDate", DateUtils.getDate("yyyy-MM-dd") + " 23:59:59");
+        } else {
+            paramMap.put("endDate", endDate);
+            rechargeOrder.setUpdateTime(DateUtils.parseDate(endDate));
+        }
         rechargeOrder.setRechargeType(paramMap.get("rechargeType"));
 
-        //设置查询当前用户的
-        rechargeOrder.setMchtId(UserUtils.getUser().getLoginName());
 
         //获得总条数
         int orderCount = rechargeService.countMchtGatewayRechargeOrders(rechargeOrder);
@@ -817,13 +833,13 @@ public class MchtRechargeController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "暂无可导出数据");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:modules/recharge/queryOperateRechargePayOrders";
+            return "redirect:"+GlobalConfig.getAdminPath()+"/mchtRecharge/queryOperateRechargePayOrders";
         }
         if (orderCount > 50000) {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数不可超过 50000 条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:modules/recharge/queryOperateRechargePayOrders";
+            return "redirect:"+GlobalConfig.getAdminPath()+"/mchtRecharge/queryOperateRechargePayOrders";
         }
 
         //获得充值订单信息
@@ -833,7 +849,7 @@ public class MchtRechargeController extends BaseController {
             redirectAttributes.addFlashAttribute("messageType", "fail");
             redirectAttributes.addFlashAttribute("message", "导出条数为0条");
             response.setCharacterEncoding("UTF-8");
-            return "redirect:modules/recharge/queryOperateRechargePayOrders";
+            return "redirect:"+GlobalConfig.getAdminPath()+"/mchtRecharge/queryOperateRechargePayOrders";
         }
         //获取当前日期，为文件名
         String fileName = DateUtils.formatDate(new Date()) + ".xls";
@@ -884,11 +900,11 @@ public class MchtRechargeController extends BaseController {
                 cellIndex++;
 
                 cell = row.createCell(cellIndex);
-                cell.setCellValue(NumberUtils.changeF2Y(String.valueOf(orderTemp.getAmount())));
+                cell.setCellValue(String.valueOf((orderTemp.getAmount()==null?0:orderTemp.getAmount())*0.01));
                 cellIndex++;
 
                 cell = row.createCell(cellIndex);
-                cell.setCellValue(NumberUtils.changeF2Y(String.valueOf(orderTemp.getMchtFeeAmount())));
+                cell.setCellValue(String.valueOf((orderTemp.getMchtFeeAmount()==null?BigDecimal.ZERO:orderTemp.getMchtFeeAmount()).divide(new BigDecimal("100")).setScale(2,BigDecimal.ROUND_HALF_UP)));
                 cellIndex++;
 
 
@@ -933,7 +949,8 @@ public class MchtRechargeController extends BaseController {
         redirectAttributes.addFlashAttribute("messageType", "success");
         redirectAttributes.addFlashAttribute("message", "导出完毕");
         response.setCharacterEncoding("UTF-8");
-        return "redirect:modules/recharge/queryOperateRechargePayOrders";
+        return "redirect:"+GlobalConfig.getAdminPath()+"/mchtRecharge/queryOperateRechargePayOrders";
+
     }
 
 }
