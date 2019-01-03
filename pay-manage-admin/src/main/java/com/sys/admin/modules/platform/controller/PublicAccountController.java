@@ -5,8 +5,11 @@ import com.sys.admin.common.utils.ExcelUtil;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.platform.service.PublicAccountAmountService;
 import com.sys.core.dao.dmo.AccountAmount;
+import com.sys.core.dao.dmo.PublicAccountInfo;
 import com.sys.core.service.AccountAmountService;
+import com.sys.core.service.PublicAccountInfoService;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -27,6 +30,8 @@ public class PublicAccountController extends BaseController {
 
 	@Autowired
 	private PublicAccountAmountService publicAccountAmountService;
+	@Autowired
+	private PublicAccountInfoService publicAccountInfoService;
 	@Autowired
 	private AccountAmountService accountAmountService;
 
@@ -80,9 +85,11 @@ public class PublicAccountController extends BaseController {
 	 * 跳转到提交公户账务数据页面
 	 */
 	@RequestMapping("toCommitPublicAccount")
+	@RequiresPermissions("publicaccount:commit")
 	public String toCommitPublicAccount(Model model) {
 		//加载所有公户
-		//model.addAttribute("balance", balance);
+		List<PublicAccountInfo> pais = publicAccountInfoService.list(new PublicAccountInfo());
+		model.addAttribute("pais", pais);
 		return "modules/publicaccount/add";
 	}
 
@@ -90,6 +97,7 @@ public class PublicAccountController extends BaseController {
 	 * 提交公户账务数据
 	 */
 	@RequestMapping("commitPublicAccount")
+	@RequiresPermissions("publicaccount:commit")
 	public String commitPublicAccount(MultipartFile file, Model model, RedirectAttributes redirectAttributes,@RequestParam Map<String, String> paramMap) {
 		String messageType = null;
 		String message = null;
@@ -99,8 +107,16 @@ public class PublicAccountController extends BaseController {
 			String fileName = file.getOriginalFilename();
 			InputStream is  = file.getInputStream();
 			List<String[]> data = ExcelUtil.readexcel(is,fileName);
+			//获取公户信息
+			PublicAccountInfo pai = new PublicAccountInfo();
+			pai.setPublicAccountCode(publicAccountCode);
+			List<PublicAccountInfo> pais = publicAccountInfoService.list(pai);
+			pai = new PublicAccountInfo();
+			if(pais==null&&pais.size()>0){
+				pai = pais.get(0);
+			}
 			//解析excel数据到标准模型
-			List<AccountAmount> aas = publicAccountAmountService.convertExcelDataToAccountAmount(publicAccountCode,modelName,data);
+			List<AccountAmount> aas = publicAccountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data);
 			//批量入库
 			publicAccountAmountService.batchAccountAmount(aas);
 		} catch (Exception e) {
@@ -110,10 +126,11 @@ public class PublicAccountController extends BaseController {
 		}
 		if (StringUtils.equals("error", messageType)) {
 			redirectAttributes.addFlashAttribute("messageType", messageType);
-			redirectAttributes.addFlashAttribute("message", message);
-			return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
+			redirectAttributes.addFlashAttribute("message", "提交失败");
+		}else{
+			redirectAttributes.addFlashAttribute("message", "提交成功");
 		}
-		return "modules/proxy/confirmCommitBatch";
+		return "redirect:" + GlobalConfig.getAdminPath() + "/publicaccount/toCommitPublicAccount";
 	}
 
 	/**

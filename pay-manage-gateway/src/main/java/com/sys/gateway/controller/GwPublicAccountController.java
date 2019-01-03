@@ -3,6 +3,7 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
+import com.sys.boss.api.entry.trade.request.apipay.TradeQueryFaceRequest;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwPublicAccountService;
@@ -16,6 +17,7 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -44,11 +46,15 @@ public class GwPublicAccountController {
 		try {
 			//请求ip
 			String ip = IpUtil.getRemoteHost(request);
-			logger.info(BIZ+"获取到客户端请求ip："+ip+",publicAccountCode="+request.getParameter("publicAccountCode")+",sign="+request.getParameter("sign"));
+			logger.info(BIZ+"获取到客户端请求ip："+ip);
+			data = URLDecoder.decode(data, "utf-8");
+			logger.info(BIZ+"收到客户端请求参数后做url解码后的值为："+data);
+			if(data.endsWith("=")){
+				data = data.substring(0,data.length()-1);
+			}
+			//解析请求参数
+			Map<String,String> params = JSON.parseObject(data, Map.class);
 			//校验请求参数
-			Map<String,String> params = new HashMap<>();
-			params.put("publicAccountCode",request.getParameter("publicAccountCode"));
-			params.put("sign",request.getParameter("sign"));
 			CommonResponse checkResp = gwPublicAccountService.checkParam(params);
 			logger.info(BIZ+"校验请求参数的结果为："+JSONObject.toJSONString(checkResp));
 			if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){

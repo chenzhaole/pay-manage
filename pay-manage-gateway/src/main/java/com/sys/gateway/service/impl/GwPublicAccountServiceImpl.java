@@ -54,7 +54,7 @@ public class GwPublicAccountServiceImpl implements GwPublicAccountService {
 				return checkResp;
 			}
 			//校验商户请求参数签名
-			Map<String,String> m = new HashMap<>();
+			TreeMap<String, String> m = new TreeMap<>();
 			m.put("publicAccountCode",map.get("publicAccountCode"));
 			if (!SignUtil.checkSign(m,map.get("sign"), signKey, BIZ)) {
 				checkResp.setRespCode(ErrorCodeEnum.E1009.getCode());

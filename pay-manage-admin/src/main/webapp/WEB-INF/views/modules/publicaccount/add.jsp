@@ -23,71 +23,18 @@
 		        	 error.appendTo(element.parent());
 		         },
 		         rules:{
-		        	 name:{
+                     publicAccountCode:{
 		                 required:true,
-                         maxlength:64
-		             },
-		             busiEmail:{
-                         maxlength:64
-		             },
-                     techEmail:{
-                         maxlength:64
-		             },
-                     chanCode:{
-                         alnum: true,
-                         required:true,
-                         maxlength:32
-                     },
-                     corpAddr:{
-                         maxlength:128
-                     },
-                     busiContacts:{
-                         maxlength:32
-                     },
-                     techContacts:{
-                         maxlength:32
-                     },
-                     busiPhone:{
-                         maxlength:20
-                     },
-                     techPhone:{
-                         maxlength:20
-                     },
-                     busiMobile:{
-                         maxlength:11
-                     },
-                     techMobile:{
-                         maxlength:11
-                     },
-                     queryfaceFrequency:{
-		        	     digits:true,
-						 min:0,
-                         max:60
-                     }
+		             }
 		         },
 		         messages:{
-		        	 name:{
+                     publicAccountCode:{
 		                 required:'必填'
-		             },
-		             busiEmail:{
-		            	 email:'email格式不正确'
-		             },
-		             techEmail:{
-		            	 email:'email格式不正确'
 		             }
 		         }
 	    	});  
 		});
-		
 
-        function del(id){
-        	if(confirm("是否确认删除ID为“"+id+"”的记录？")){
-        		document.forms[0].action="${ctx}/bowei/repaymentDel?id="+id;
-        		document.forms[0].submit();
-        	}
-        }
-        
-	   
 	</script>
 </head>
 <body>
@@ -98,7 +45,6 @@
 
 <form id="publicAccountForm" action="" method="post" enctype="multipart/form-data">
 <input type="hidden" id="op" name="op" value="${op }"/>
-<input type="hidden" name="id" value="${channel.id }"/>
 
 <div class="breadcrumb">
 	<tags:message content="${message}" type="${messageType}"/>
@@ -111,8 +57,9 @@
 		   <label class="control-label">选择公户</label>
 		   <div class="controls">
 			 <select name="publicAccountCode" class="input-small">
-			   <option value="1">test1</option>
-			   <option value="2">test2</option>
+				 <c:forEach items="${pais}" var="p">
+					 <option value="${p.publicAccountCode}">${p.publicAccountName}</option>
+				 </c:forEach>
 			 </select>
 		   </div>
 		 </div>
@@ -125,18 +72,6 @@
 			<label class="control-label" >上传账务文件</label>
 			<div class="controls">
 				<input type="file"  name="file" />
-			</div>
-		</div>
-	</td>
-</tr>
-
-<tr>
-	<td>
-		<div class="control-group">
-			<label class="control-label" >备注</label>
-			<div class="controls">
-                        <textarea name="remark" placeholder="" style="width:350px;" id="remark"
-								  rows="3">${channel.remark}</textarea>
 			</div>
 		</div>
 	</td>

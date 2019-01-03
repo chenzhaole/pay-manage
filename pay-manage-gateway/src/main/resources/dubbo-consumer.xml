@@ -88,4 +88,7 @@
 
 	<!--面值库存-->
 	<dubbo:reference id="tradeQueryFaceHandler" interface="com.sys.boss.api.service.trade.handler.ITradeQueryFaceHandler" timeout="30000"/>
+	<!--公户账务金额-->
+	<dubbo:reference id="accountAmountService" interface="com.sys.core.service.AccountAmountService" timeout="30000"/>
+
 </beans>
