@@ -1,5 +1,6 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.utils.ExcelUtil;
 import com.sys.admin.common.web.BaseController;
@@ -99,10 +100,10 @@ public class PublicAccountController extends BaseController {
 	@RequestMapping("commitPublicAccount")
 	@RequiresPermissions("publicaccount:commit")
 	public String commitPublicAccount(MultipartFile file, Model model, RedirectAttributes redirectAttributes,@RequestParam Map<String, String> paramMap) {
+		String tag = "提交公户账务数据";
 		String messageType = null;
 		String message = null;
 		try {
-			String modelName 		 = paramMap.get("modelName");			//模型名称
 			String publicAccountCode = paramMap.get("publicAccountCode");	//公户编号
 			String fileName = file.getOriginalFilename();
 			InputStream is  = file.getInputStream();
@@ -112,9 +113,10 @@ public class PublicAccountController extends BaseController {
 			pai.setPublicAccountCode(publicAccountCode);
 			List<PublicAccountInfo> pais = publicAccountInfoService.list(pai);
 			pai = new PublicAccountInfo();
-			if(pais==null&&pais.size()>0){
+			if(pais!=null&&pais.size()>0){
 				pai = pais.get(0);
 			}
+			logger.info(tag+",publicAccountCode="+publicAccountCode+",fileName="+fileName+",excel中数据的条数为"+(data==null?0:data.size())+",选择的公户信息为"+ JSON.toJSON(pai));
 			//解析excel数据到标准模型
 			List<AccountAmount> aas = publicAccountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data);
 			//批量入库
