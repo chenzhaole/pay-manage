@@ -2,9 +2,8 @@ package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
-import com.sys.admin.common.utils.ExcelUtil;
 import com.sys.admin.common.web.BaseController;
-import com.sys.admin.modules.platform.service.PublicAccountAmountService;
+import com.sys.common.util.ExcelUtil;
 import com.sys.core.dao.dmo.AccountAmount;
 import com.sys.core.dao.dmo.PublicAccountInfo;
 import com.sys.core.service.AccountAmountService;
@@ -29,8 +28,6 @@ import java.util.Map;
 @RequestMapping(value = "${adminPath}/publicaccount")
 public class PublicAccountController extends BaseController {
 
-	@Autowired
-	private PublicAccountAmountService publicAccountAmountService;
 	@Autowired
 	private PublicAccountInfoService publicAccountInfoService;
 	@Autowired
@@ -118,9 +115,9 @@ public class PublicAccountController extends BaseController {
 			}
 			logger.info(tag+",publicAccountCode="+publicAccountCode+",fileName="+fileName+",excel中数据的条数为"+(data==null?0:data.size())+",选择的公户信息为"+ JSON.toJSON(pai));
 			//解析excel数据到标准模型
-			List<AccountAmount> aas = publicAccountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data);
+			List<AccountAmount> aas = accountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data);
 			//批量入库
-			publicAccountAmountService.batchAccountAmount(aas);
+			accountAmountService.batchAccountAmount(aas);
 		} catch (Exception e) {
 			messageType = "error";
 			message = e.getMessage();
