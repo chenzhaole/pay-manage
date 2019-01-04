@@ -98,7 +98,6 @@ public class PublicAccountController extends BaseController {
 	public String commitPublicAccount(MultipartFile file, Model model, RedirectAttributes redirectAttributes,@RequestParam Map<String, String> paramMap) {
 		String tag = "提交公户账务数据";
 		String messageType = null;
-		String message = null;
 		try {
 			String publicAccountCode = paramMap.get("publicAccountCode");	//公户编号
 			String fileName = file.getOriginalFilename();
@@ -113,11 +112,13 @@ public class PublicAccountController extends BaseController {
 				pai = pais.get(0);
 			}
 			logger.info(tag+",publicAccountCode="+publicAccountCode+",fileName="+fileName+",excel中数据的条数为"+(data==null?0:data.size())+",选择的公户信息为"+ JSON.toJSON(pai));
-			StringBuffer errMsg = new StringBuffer();
 			//解析excel数据到标准模型
-			List<Map> aas = accountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data,errMsg);
+			Map resultMap = accountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data);
+			String errMsg = resultMap.get("errMsg")+"";
+			List<Map> aas = (List<Map>)resultMap.get("accountAmounts");
 			//批量入库
-			accountAmountService.batchAccountAmount(aas,errMsg);
+			resultMap = accountAmountService.batchAccountAmount(aas);
+			errMsg = errMsg+resultMap.get("errMsg");
 			redirectAttributes.addFlashAttribute("message", "提交成功"+(errMsg.length()==0?"":",错误信息为"+errMsg.toString()));
 		} catch (Exception e) {
 			messageType = "error";
