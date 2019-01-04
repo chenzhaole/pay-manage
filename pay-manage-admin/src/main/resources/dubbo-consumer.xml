@@ -61,4 +61,8 @@
 	<!--	定时任务	-->
 	<dubbo:reference id="taskLogService" interface="com.sys.core.service.TaskLogService" timeout="30000"/>
 
+	<!--公户账务金额-->
+	<dubbo:reference id="accountAmountService" interface="com.sys.core.service.AccountAmountService" timeout="30000"/>
+	<!--公户信息-->
+	<dubbo:reference id="publicAccountInfoService" interface="com.sys.core.service.PublicAccountInfoService" timeout="30000"/>
 </beans>
