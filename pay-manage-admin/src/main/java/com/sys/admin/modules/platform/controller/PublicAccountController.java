@@ -4,7 +4,6 @@ import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.web.BaseController;
 import com.sys.common.util.ExcelUtil;
-import com.sys.core.dao.dmo.AccountAmount;
 import com.sys.core.dao.dmo.PublicAccountInfo;
 import com.sys.core.service.AccountAmountService;
 import com.sys.core.service.PublicAccountInfoService;
@@ -114,20 +113,17 @@ public class PublicAccountController extends BaseController {
 				pai = pais.get(0);
 			}
 			logger.info(tag+",publicAccountCode="+publicAccountCode+",fileName="+fileName+",excel中数据的条数为"+(data==null?0:data.size())+",选择的公户信息为"+ JSON.toJSON(pai));
+			StringBuffer errMsg = new StringBuffer();
 			//解析excel数据到标准模型
-			List<AccountAmount> aas = accountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data);
+			List<Map> aas = accountAmountService.convertExcelDataToAccountAmount(publicAccountCode,pai.getModelName(),data,errMsg);
 			//批量入库
-			accountAmountService.batchAccountAmount(aas);
+			accountAmountService.batchAccountAmount(aas,errMsg);
+			redirectAttributes.addFlashAttribute("message", "提交成功"+(errMsg.length()==0?"":",错误信息为"+errMsg.toString()));
 		} catch (Exception e) {
 			messageType = "error";
-			message = e.getMessage();
 			logger.error("提交公户账务数据异常",e);
-		}
-		if (StringUtils.equals("error", messageType)) {
 			redirectAttributes.addFlashAttribute("messageType", messageType);
 			redirectAttributes.addFlashAttribute("message", "提交失败");
-		}else{
-			redirectAttributes.addFlashAttribute("message", "提交成功");
 		}
 		return "redirect:" + GlobalConfig.getAdminPath() + "/publicaccount/toCommitPublicAccount";
 	}

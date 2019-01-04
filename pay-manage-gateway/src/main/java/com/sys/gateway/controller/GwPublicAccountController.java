@@ -122,12 +122,14 @@ public class GwPublicAccountController {
 					pai = pais.get(0);
 				}
 				logger.info(tag + ",publicAccountCode=" + publicAccountCode + ",fileName=" + fileName + ",excel中数据的条数为" + (data == null ? 0 : data.size()) + ",选择的公户信息为" + JSON.toJSON(pai));
+				StringBuffer errMsg = new StringBuffer();
 				//解析excel数据到标准模型
-				List<AccountAmount> aas = accountAmountService.convertExcelDataToAccountAmount(publicAccountCode, pai.getModelName(), data);
+				List<Map> aas = accountAmountService.convertExcelDataToAccountAmount(publicAccountCode, pai.getModelName(), data,errMsg);
 				//批量入库
-				accountAmountService.batchAccountAmount(aas);
+				accountAmountService.batchAccountAmount(aas,errMsg);
 				resultMap.put("code", ErrorCodeEnum.SUCCESS.getCode());
-				resultMap.put("msg", "提交成功");
+				logger.info("错误信息为"+errMsg);
+				resultMap.put("msg", "提交成功"+(errMsg.length()==0?"":",错误信息为"+errMsg.toString()));
 			}
 		} catch (Exception e) {
 			resultMap.put("code","1");
