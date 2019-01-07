@@ -681,9 +681,9 @@
                 <div class="control-group">
                     <label class="control-label" for="feeAmount">当日限额(分)</label>
                     <div class="controls">
-                        <input name="perdayPayMaxAmount" value="${chanMchPaytye.perdayPayMaxAmount }" placeholder=""
+                        <input name="dayMaxAmount" value="${chanMchPaytye.dayMaxAmount }" placeholder=""
                                class="input-xlarge"
-                               type="text" id="perdayPayMaxAmount">
+                               type="text" id="dayMaxAmount">
                     </div>
                 </div>
             </td>

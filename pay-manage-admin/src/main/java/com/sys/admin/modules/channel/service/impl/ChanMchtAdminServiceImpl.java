@@ -1,5 +1,6 @@
 package com.sys.admin.modules.channel.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.service.BaseService;
 import com.sys.admin.modules.channel.bo.ChanMchtFormInfo;
 import com.sys.admin.modules.channel.service.ChanMchtAdminService;
@@ -179,7 +180,7 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		ChanMchtPaytype chanMchtPaytype = new ChanMchtPaytype();
 		BeanUtils.copyProperties(chanMchtFormInfo, chanMchtPaytype);
 		chanMchtPaytype.setUpdateDate(new Date());
-		
+		logger.info("修改后的chanMchtPaytype为"+ JSON.toJSON(chanMchtPaytype));
 		PlatFeerate platFeerate = new PlatFeerate();
 		chanMchtFormInfo.getFee(platFeerate);
 		//系统生成feeID，“F”+yyyyMMdd+四位随机数

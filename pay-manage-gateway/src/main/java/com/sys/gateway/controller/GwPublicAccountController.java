@@ -95,11 +95,14 @@ public class GwPublicAccountController {
 	 */
 	@RequestMapping("/publicaccount/commitPublicAccount")
 	@ResponseBody
-	public String commitPublicAccount(MultipartFile file, Model model, RedirectAttributes redirectAttributes, @RequestParam Map<String, String> paramMap) {
+	public String commitPublicAccount(MultipartFile file, HttpServletRequest request,Model model, RedirectAttributes redirectAttributes, @RequestParam Map<String, String> paramMap) {
 		String tag = "api提交公户账务数据";
 		Map<String,String> resultMap = new HashMap<>();
 		try {
 			String publicAccountCode = paramMap.get("publicAccountCode");	//公户编号
+			//请求ip
+			String ip = IpUtil.getRemoteHost(request);
+			logger.info(BIZ+"获取到客户端请求ip："+ip);
 			//校验请求参数
 			CommonResponse checkResp = gwPublicAccountService.checkParam(paramMap);
 			logger.info(BIZ+"校验请求参数的结果为："+JSONObject.toJSONString(checkResp));

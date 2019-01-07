@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
+import com.sys.admin.common.utils.PictureUtils;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.channel.bo.ChanMchtFormInfo;
 import com.sys.admin.modules.channel.service.ChanMchtAdminService;
@@ -72,14 +73,6 @@ public class MerchantController extends BaseController {
 	//商户费率信息接口地址
 	@Value("${mchtFeerateInfoData.url}")
 	private String mchtFeerateInfoDataUrl;
-
-	//图片存放地址
-	@Value("picPath")
-	private String picPath;
-
-	//图片访问url
-	@Value("picUrl")
-	private String picUrl;
 
 	private static final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
 
@@ -364,7 +357,8 @@ public class MerchantController extends BaseController {
 
 			}
 
-			model.addAttribute("picUrl",picUrl);
+			logger.info("编辑商户信息,picDomain="+ PictureUtils.PIC_DOMAIN);
+			model.addAttribute("picDomain",PictureUtils.PIC_DOMAIN);
 			model.addAttribute("merchant", mchtInfo);
 			model.addAttribute("op", "edit");
 
@@ -443,9 +437,9 @@ public class MerchantController extends BaseController {
 	 */
 	@RequestMapping(value = { "addMerchantSave", "" })
 	public String addMerchantSave(HttpServletRequest request, HttpServletResponse response, Model model,
-								  @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes,
-								  MultipartFile blcFile, MultipartFile contractFile, MultipartFile boardPicFile, MultipartFile openingPermitFile,
-								  MultipartFile bankCardFrontFile, MultipartFile bankIdcardFile) {
+								  @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes
+								 /* MultipartFile blcFile, MultipartFile contractFile, MultipartFile boardPicFile, MultipartFile openingPermitFile,
+								  MultipartFile bankCardFrontFile, MultipartFile bankIdcardFile*/) {
 		try {
 			//系统生成8位MerchantNo
 			String mchtNo = IdUtil.createMchtId();
@@ -473,18 +467,7 @@ public class MerchantController extends BaseController {
 				extend2Json.put("mchtPropertyTag", this.geneMchtPropertyTagStr(merchantForm.getMchtPropertyTag()));
 				extend2Json.put("isShowPayPage",merchantForm.getIsShowPayPage());
 				merchantForm.setExtend2(extend2Json.toJSONString());
-				String blcPath       	 = uploadPicture(blcFile,request,mchtNo+"_blc");						//营业执照
-				String contractPath 	 = uploadPicture(contractFile,request,mchtNo+"_contract");			//商户协议
-				String boardPicPath 	 = uploadPicture(boardPicFile,request,mchtNo+"_boardPic");			//门牌照/其他
-				String openingPermitPath = uploadPicture(openingPermitFile,request,mchtNo+"_openingPermit");	//开户许可证
-				String bankCardFrontPath = uploadPicture(bankCardFrontFile,request,mchtNo+"_bankCardFront");	//银行卡正面照
-				String bankIdcardPath	 = uploadPicture(bankIdcardFile,request,mchtNo+"_bankIdcard");		//银行账户身份证正面照
-				merchantForm.setBlcPath(blcPath);
-				merchantForm.setContractFilePath(contractPath);
-				merchantForm.setBoardPicPath(boardPicPath);
-				merchantForm.setOpeningPermitPath(openingPermitPath);
-				merchantForm.setBankCardFrontPath(bankCardFrontPath);
-				merchantForm.setBankIdcardPath(bankIdcardPath);
+
 				String result = merchantAdminService.addMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "保存商户信息成功！");
@@ -506,9 +489,9 @@ public class MerchantController extends BaseController {
 	
 	@RequestMapping(value = { "editMerchantSave", "" })
 	public String editSave(HttpServletRequest request, HttpServletResponse response, Model model, 
-			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes,
-		    MultipartFile blcFile, MultipartFile contractFile, MultipartFile boardPicFile, MultipartFile openingPermitFile,
-		    MultipartFile bankCardFrontFile, MultipartFile bankIdcardFile
+			@RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes
+		    /*MultipartFile blcFile, MultipartFile contractFile, MultipartFile boardPicFile, MultipartFile openingPermitFile,
+		    MultipartFile bankCardFrontFile, MultipartFile bankIdcardFile*/
 			) {
 		try {
 			//创建者UserId
@@ -556,19 +539,6 @@ public class MerchantController extends BaseController {
                     }
                 }
 
-				String mchtNo = mchtInfo.getMchtCode();
-				String blcPath       	 = uploadPicture(blcFile,request,mchtNo+"_blc");						//营业执照
-				String contractPath 	 = uploadPicture(contractFile,request,mchtNo+"_contract");			//商户协议
-				String boardPicPath 	 = uploadPicture(boardPicFile,request,mchtNo+"_boardPic");			//门牌照/其他
-				String openingPermitPath = uploadPicture(openingPermitFile,request,mchtNo+"_openingPermit");	//开户许可证
-				String bankCardFrontPath = uploadPicture(bankCardFrontFile,request,mchtNo+"_bankCardFront");	//银行卡正面照
-				String bankIdcardPath	 = uploadPicture(bankIdcardFile,request,mchtNo+"_bankIdcard");		//银行账户身份证正面照
-				merchantForm.setBlcPath(blcPath);
-				merchantForm.setContractFilePath(contractPath);
-				merchantForm.setBoardPicPath(boardPicPath);
-				merchantForm.setOpeningPermitPath(openingPermitPath);
-				merchantForm.setBankCardFrontPath(bankCardFrontPath);
-				merchantForm.setBankIdcardPath(bankIdcardPath);
         		String result = merchantAdminService.updateMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "更新商户信息成功！");
@@ -781,7 +751,7 @@ public class MerchantController extends BaseController {
 		return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
 	}
 
-	private String uploadPicture(MultipartFile file, HttpServletRequest request,String filename) throws Exception {
+	/*private String uploadPicture(MultipartFile file, HttpServletRequest request,String filename) throws Exception {
 		// 上传文件路径
 		String path = picPath+"webupload/mchtpic/";
 		// 文件扩展名
@@ -797,6 +767,6 @@ public class MerchantController extends BaseController {
 		file.transferTo(new File(path + filename));
 
 		return "/webupload/mchtpic/"+filename;
-	}
+	}*/
 
 }

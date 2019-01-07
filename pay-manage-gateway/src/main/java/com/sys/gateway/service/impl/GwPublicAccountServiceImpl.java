@@ -49,7 +49,7 @@ public class GwPublicAccountServiceImpl implements GwPublicAccountService {
 			//解析请求参数
 			if (map==null||StringUtils.isBlank(map.get("publicAccountCode"))||StringUtils.isBlank(map.get("sign"))) {
 				checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
-				checkResp.setRespCode("[publicAccountCode],[sign]请求参数值不能为空");
+				checkResp.setRespMsg("[publicAccountCode],[sign]请求参数值不能为空");
 				logger.error("[publicAccountCode],[sign]请求参数值不能为空，即："+ (map!=null?JSON.toJSON(map):"为空"));
 				return checkResp;
 			}

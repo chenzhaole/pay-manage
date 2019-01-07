@@ -52,12 +52,14 @@ public class PictureController extends BaseController {
 		//图片全路径，去除domain
 		String fullPathWithoutDomain = pictureLocation + PictureUtils.SPRIT + digest + extension;
 		String pictureSavePath = webappRootPath + fullPathWithoutDomain;
+
+		logger.info("图片保存位置:"+pictureLocation+",图片在数据库保存的url地址:"+picDBUrl+",图片全路径(去除domain):"+fullPathWithoutDomain+",pictureSavePath:"+pictureSavePath);
 		File file = new File(pictureSavePath);
 		//如果图片存在，无需再次保存
 		boolean exists = file.exists();
 		if(exists){
 			//返回
-			result.put("picURL", PictureUtils.PIC_DOMAIN + fullPathWithoutDomain);
+			result.put("picURL", fullPathWithoutDomain);//PictureUtils.PIC_DOMAIN +
 			return result;
 		}
 
@@ -70,7 +72,7 @@ public class PictureController extends BaseController {
 			fileUpload.transferTo(file);
 		}
 		//返回
-		result.put("picURL", PictureUtils.PIC_DOMAIN + fullPathWithoutDomain);
+		result.put("picURL",  fullPathWithoutDomain);//PictureUtils.PIC_DOMAIN +
 		return result;
 	}
 
