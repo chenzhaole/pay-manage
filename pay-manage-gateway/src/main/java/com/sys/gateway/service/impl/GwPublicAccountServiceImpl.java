@@ -100,7 +100,7 @@ public class GwPublicAccountServiceImpl implements GwPublicAccountService {
 			}else{
 				resultMap.put("code",ErrorCodeEnum.SUCCESS.getCode());
 				resultMap.put("msg",ErrorCodeEnum.SUCCESS.getDesc());
-				resultMap.put("balance",accountAmount.getBalance().toString());
+				resultMap.put("balance",accountAmount.getBalance().toString());//TODO:余额元转分
 			}
 		} catch (Exception e) {
 			resultMap.put("code","2");

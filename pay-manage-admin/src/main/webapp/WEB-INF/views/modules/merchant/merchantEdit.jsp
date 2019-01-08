@@ -19,6 +19,9 @@
 
     <script type="text/javascript" src="${ctxStatic }/webuploader/mywbuploader.js"></script>
 
+    <link href="${ctxStatic}/js/zoomify.css" type="text/css" rel="stylesheet" />
+    <script src="${ctxStatic}/js/zoomify.js" type="text/javascript"></script>
+
     <script type="text/javascript">
 
         function getUploadId(id) {
@@ -61,8 +64,14 @@
             }
         }
 
-        $(function () {
 
+        $(function () {
+            $('#blcPathImg').zoomify();
+            $('#contractFilePathImg').zoomify();
+            $('#boardPicPathImg').zoomify();
+            $('#openingPermitPathImg').zoomify();
+            $('#bankCardFrontPathImg').zoomify();
+            $('#bankIdcardPathImg').zoomify();
             //初始化某些输入框
             checkType();
             accountType();
@@ -581,14 +590,14 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">营业执照<span style="color: red;"><span style="color: red;"></span></span></label>
-                    <div class="controls">
+                    <div class="controls" >
 
                         <c:if test="${op == 'edit'}">
                             <%--<c:if test="${merchant.blcPath != ''} && ${merchant.blcPath != null}">--%>
                             <label>原图：</label>
-                            <img src="${picDomain}/${merchant.blcPath}" style="max-width: 100px;max-height: 100px">
+                            <img id="blcPathImg" src="${picDomain}/${merchant.blcPath}" style="max-width: 100px;max-height: 100px">
                             <%--</c:if>--%>
-                        </c:if>
+                        </c:if>s
 
                         <div id="uploader-blcPath">
                             <input type="hidden" value="${merchant.blcPath}" id="blcPath" name="blcPath"/>
@@ -647,7 +656,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${picDomain}/${merchant.contractFilePath}" style="max-width: 100px;max-height: 100px">
+                            <img id="contractFilePathImg" src="${picDomain}/${merchant.contractFilePath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-contractFilePath">
                             <input type="hidden" value="${merchant.contractFilePath}" id="contractFilePath"

@@ -10,6 +10,7 @@ import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
+import com.sys.boss.api.service.trade.handler.ITradeDFBatchHandler;
 import com.sys.common.db.JedisConnPool;
 import com.sys.common.enums.AuditEnum;
 import com.sys.common.enums.MchtAccountTypeEnum;
@@ -67,6 +68,12 @@ public class ProxyChangeStatusController extends BaseController {
 
 	@Autowired
 	private AccountAdminService accountAdminService;
+
+	@Autowired
+	private ITradeDFBatchHandler tradeDFBatchHandler;
+
+	@Autowired
+	private ChanMchtPaytypeService chanMchtPaytypeService;
 
 
 	@Value("${sms_send}")
@@ -342,6 +349,14 @@ public class ProxyChangeStatusController extends BaseController {
 					proxyDetail.setPayStatus(proxyDetailAudit.getNewPayStatus());
 					proxyDetail.setUpdateDate(new Date());
 					result = proxyDetailService.saveByKey(proxyDetail);
+					if(ProxyPayDetailStatusEnum.DF_SUCCESS.getCode().equals(proxyDetailAudit.getNewPayStatus())){
+						//如果修改状态为代付成功，则累积交易金额
+						ChanMchtPaytype chanMchtPaytype = null;
+						if(proxyDetail.getChanMchtPaytypeId()!=null){
+							chanMchtPaytype = chanMchtPaytypeService.queryByKey(proxyDetail.getChanMchtPaytypeId());
+						}
+						tradeDFBatchHandler.accumulateCMPDayTradeAmount(proxyDetail.getAmount()+"",chanMchtPaytype,proxyDetail.getId(),"代付状态修改审批保存");
+					}
 
 					//修改批次订单状态
 					if (result == 1) {
