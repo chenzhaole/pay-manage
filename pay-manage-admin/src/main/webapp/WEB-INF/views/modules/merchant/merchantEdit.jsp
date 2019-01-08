@@ -597,7 +597,7 @@
                             <label>原图：</label>
                             <img id="blcPathImg" src="${picDomain}/${merchant.blcPath}" style="max-width: 100px;max-height: 100px">
                             <%--</c:if>--%>
-                        </c:if>s
+                        </c:if>
 
                         <div id="uploader-blcPath">
                             <input type="hidden" value="${merchant.blcPath}" id="blcPath" name="blcPath"/>
@@ -677,7 +677,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${picDomain}/${merchant.boardPicPath}" style="max-width: 100px;max-height: 100px">
+                            <img id="boardPicPathImg" src="${picDomain}/${merchant.boardPicPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-boardPicPath">
                             <input type="hidden" value="${merchant.boardPicPath}" id="boardPicPath"
@@ -703,7 +703,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${picDomain}/${merchant.openingPermitPath}" style="max-width: 100px;max-height: 100px">
+                            <img id="openingPermitPathImg" src="${picDomain}/${merchant.openingPermitPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-openingPermitPath">
                             <input type="hidden" value="${merchant.openingPermitPath}" id="openingPermitPath"
@@ -724,7 +724,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${picDomain}/${merchant.bankCardFrontPath}" style="max-width: 100px;max-height: 100px">
+                            <img id="bankCardFrontPathImg" src="${picDomain}/${merchant.bankCardFrontPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-bankCardFrontPath">
                             <input type="hidden" value="${merchant.bankCardFrontPath}" id="bankCardFrontPath"
@@ -745,7 +745,7 @@
                     <div class="controls">
                         <c:if test="${op == 'edit'}">
                             <label>原图：</label>
-                            <img src="${picDomain}/${merchant.bankIdcardPath}" style="max-width: 100px;max-height: 100px">
+                            <img id="bankIdcardPathImg" src="${picDomain}/${merchant.bankIdcardPath}" style="max-width: 100px;max-height: 100px">
                         </c:if>
                         <div id="uploader-bankIdcardPath">
                             <input type="hidden" value="${merchant.bankIdcardPath}" id="bankIdcardPath"
