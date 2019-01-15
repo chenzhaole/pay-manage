@@ -61,10 +61,12 @@ public class AccountAmountController {
             calendar.setTime(currentData);
             calendar.add(Calendar.DATE, -1);// 日期减1
 
+            String currentTime = simpleDateFormat.format(calendar.getTime());
+
             MchtAccountDetail mchtAccountDetail = new MchtAccountDetail();
             mchtAccountDetail.setCreateTime(calendar.getTime());
             mchtAccountDetail.setCreateTimeStr(simpleDateFormat.format(calendar.getTime()) + " 23:59:59");
-            mchtAccountDetail.setSuffix(day.replace("-", "").substring(0, 6));
+            mchtAccountDetail.setSuffix(currentTime.replace("-", "").substring(0, 6));
 
 
             List<MchtAccountDetail> accountDetails = mchtAccAmountService.taskInsertCurrentDayAcctAmount(mchtAccountDetail);
