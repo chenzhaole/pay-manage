@@ -45,7 +45,7 @@
         </select>
 
 
-        <label class="control-label">支付方式</label>
+        <label class="control-label">支付通道</label>
         <select name="payType" class="input-xlarge" id="payType">
             <option value="">--请选择--</option>
             <c:forEach items="${paymentTypeInfos}" var="paymentTypeInfo">
@@ -64,7 +64,7 @@
 		<thead>
 			<tr>
 				<th>报表日期</th>
-				<th>渠道名称</th>
+				<th>支付通道</th>
 				<th>支付方式</th>
 				<th>请求数</th>
 				<th>请求金额(元)</th>
