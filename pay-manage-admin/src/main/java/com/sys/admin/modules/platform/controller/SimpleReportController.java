@@ -1,13 +1,14 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.channel.service.ChannelAdminService;
 import com.sys.boss.api.service.order.SimpleReportService;
 import com.sys.common.enums.PayTypeEnum;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.MchtOrderStatisticsMinutes;
-import com.sys.core.dao.dmo.MchtPaytypeOrderStatisticsMinutes;
-import com.sys.core.dao.dmo.MchtPlatOrderStatisticsMinutes;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +28,21 @@ import java.util.Map;
 public class SimpleReportController extends BaseController {
     @Autowired
     private SimpleReportService simpleReportService;
+    @Autowired
+    private MerchantService merchantService;
+    @Autowired
+    private ChannelAdminService channelAdminService;
 
     @RequestMapping(value = "/mchtOrderStatistice")
     public String mchtOrderQuery(@RequestParam Map<String, String> paramMap, Model model){
         MchtOrderStatisticsMinutes mchtOrderStatisticsMinutes = new MchtOrderStatisticsMinutes();
         mchtOrderStatisticsMinutes.setStatisticeTime(paramMap.get("statisticeTime"));
+        mchtOrderStatisticsMinutes.setMchtCode(paramMap.get("mchtCode"));
+
+        List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+        model.addAttribute("mchtList", mchtList);
+
+        model.addAttribute("paramMap",paramMap);
 
         //获取当前第几页
         String pageNoString = paramMap.get("pageNo");
@@ -62,7 +73,6 @@ public class SimpleReportController extends BaseController {
         }
         Page page = new Page(pageNo, pageInfo.getPageSize(), count, mchtOrderStatisticsMinutesList, true);
         model.addAttribute("page", page);
-        model.addAttribute("paramMap",paramMap);
         model.addAttribute("list",mchtOrderStatisticsMinutesList1);
         return "modules/platform/mchtOrderStatistice";
 
@@ -72,6 +82,17 @@ public class SimpleReportController extends BaseController {
     public String mchtPayTypeOrderQuery(@RequestParam Map<String, String> paramMap, Model model){
         MchtPaytypeOrderStatisticsMinutes mchtPaytypeOrderStatisticsMinutes = new MchtPaytypeOrderStatisticsMinutes();
         mchtPaytypeOrderStatisticsMinutes.setStatisticeTime(paramMap.get("statisticeTime"));
+        mchtPaytypeOrderStatisticsMinutes.setPayType(paramMap.get("payType"));
+        mchtPaytypeOrderStatisticsMinutes.setChanCode(paramMap.get("chanCode"));
+
+        List<ChanInfo> chanInfos = channelAdminService.getChannelList(new ChanInfo());
+        model.addAttribute("chanInfos", chanInfos);
+
+        //支付方式
+        AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
+        model.addAttribute("paymentTypeInfos", payTypeList);
+
+        model.addAttribute("paramMap",paramMap);
 
         //获取当前第几页
         String pageNoString = paramMap.get("pageNo");
@@ -103,7 +124,6 @@ public class SimpleReportController extends BaseController {
         }
         Page page = new Page(pageNo, pageInfo.getPageSize(), count, mchtOrderStatisticsMinutesList, true);
         model.addAttribute("page", page);
-        model.addAttribute("paramMap",paramMap);
         model.addAttribute("list",mchtPaytypeOrderStatisticsMinutess);
         return "modules/platform/mchtPayTypeOrderStatistice";
 
