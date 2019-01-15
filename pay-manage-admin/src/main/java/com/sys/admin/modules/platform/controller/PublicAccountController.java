@@ -101,8 +101,10 @@ public class PublicAccountController extends BaseController {
 		try {
 			String publicAccountCode = paramMap.get("publicAccountCode");	//公户编号
 			String fileName = file.getOriginalFilename();
-			InputStream is  = file.getInputStream();
-			List<String[]> data = ExcelUtil.readexcel(is,fileName);
+			java.io.File f =java.io.File.createTempFile("tmp", null);
+			file.transferTo(f);
+			List<String[]> data = ExcelUtil.readexcel(f, fileName);
+			f.deleteOnExit();
 			//获取公户信息
 			PublicAccountInfo pai = new PublicAccountInfo();
 			pai.setPublicAccountCode(publicAccountCode);
