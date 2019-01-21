@@ -4,6 +4,7 @@ import com.sys.admin.common.service.BaseService;
 import com.sys.admin.modules.merchant.bo.MerchantForm;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.common.util.Collections3;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.MchtRechargeConfig;
@@ -18,6 +19,7 @@ import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -63,10 +65,15 @@ public class MerchantAdminServiceImpl extends BaseService implements MerchantAdm
 	@Override
 	public List<MerchantForm> getMchtInfoList(MchtInfo mchtInfo ){
 		List<MchtInfo> mchtInfos = merchantService.list(mchtInfo);
+		//查询商户列表
+		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
 		List<MerchantForm> merchantForms = new ArrayList<>();
 		for (MchtInfo info : mchtInfos) {
 			MerchantForm merchantForm = new MerchantForm();
 			BeanUtils.copyProperties(info, merchantForm);
+			//上级代理商户名称
+			merchantForm.setParentMchtName(mchtMap.get(info.getId()));
 			merchantForm.setOperatorName(UserUtils.getUserName(info.getOperatorId()));
 			merchantForms.add(merchantForm);
 		}
