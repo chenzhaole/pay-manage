@@ -114,8 +114,8 @@ public class DfReqTest {
 
         }*/
         try{
-            String url = "http://106.2.6.41:15680/accountAmount/taskInsertCurrentDayAcctAmount";
-            String startDate = "2018-06-05";
+            String url = "http://open.ihengyuan.cn:13080/accountAmount/taskInsertCurrentDayAcctAmount";
+            String startDate = "2018-12-27";
             SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd");
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(simpleDateFormat.parse(startDate));
@@ -134,7 +134,7 @@ public class DfReqTest {
 
                 String resp = post(url + "?day=" + execDate, "");
                 System.out.println("执行响应为:" +resp);
-                Thread.sleep(1000);
+                Thread.sleep(2000);
             }
         }catch (Exception e){
 
