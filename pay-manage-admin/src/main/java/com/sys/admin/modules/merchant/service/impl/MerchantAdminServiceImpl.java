@@ -73,7 +73,7 @@ public class MerchantAdminServiceImpl extends BaseService implements MerchantAdm
 			MerchantForm merchantForm = new MerchantForm();
 			BeanUtils.copyProperties(info, merchantForm);
 			//上级代理商户名称
-			merchantForm.setParentMchtName(mchtMap.get(info.getId()));
+			merchantForm.setParentMchtName(mchtMap.get(info.getParentId()));
 			merchantForm.setOperatorName(UserUtils.getUserName(info.getOperatorId()));
 			merchantForms.add(merchantForm);
 		}
