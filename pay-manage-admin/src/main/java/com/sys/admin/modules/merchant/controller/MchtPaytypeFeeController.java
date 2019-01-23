@@ -17,6 +17,7 @@ import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatFeerate;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,6 +49,9 @@ public class MchtPaytypeFeeController extends BaseController {
 
 	@Autowired
 	private MerchantService merchantService;
+
+	@Autowired
+	private ProductService productService;
 
 	@Autowired
 	private JedisPool jedisPool;
@@ -213,11 +217,25 @@ public class MchtPaytypeFeeController extends BaseController {
 							}
 						}
 					}
+
+					//获取商户和支付方式对应的通道商户支付方式
+					String[] mchtIdAndPaytype = platFeerate.getBizRefId().split("&");
+					List<String> cmpids = productService.getCMPIdsByMchtIdAndPaytype(mchtIdAndPaytype[0],mchtIdAndPaytype[1]);
+					if(cmpids!=null){
+						for(String cmpId:cmpids){
+							String errMsg = platFeerateService.checkChanAndMchtFee(cmpId,mchtId,mchtIdAndPaytype[1]);
+							if(StringUtils.isNotBlank(errMsg)){
+								throw new Exception(errMsg);
+							}
+						}
+					}
+
 					if (save){
 						platFeerateService.saveByKey(platFeerate);
 					}else {
 						platFeerateService.createFirstTime(platFeerate);
 					}
+
 					if(FeeRateBizTypeEnum.MCHT_PAYTYPE_BIZTYPE.getCode().equals(platFeerate.getBizType()) && !StringUtils.isEmpty(platFeerate.getRequestNum()) && !StringUtils.isEmpty(platFeerate.getRequestNum())){
 						try{
 							if(StringUtils.isEmpty(platFeerate.getBizRefId())){
@@ -294,7 +312,7 @@ public class MchtPaytypeFeeController extends BaseController {
 			messageType = "success";
 		} catch (Exception e) {
 			e.printStackTrace();
-			message = "操作失败";
+			message = "操作失败"+e.getMessage();
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);

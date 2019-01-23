@@ -13,6 +13,7 @@ import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.MchtChanFormInfo;
 import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.bo.ProductFormInfo;
+import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
 import com.sys.admin.modules.platform.bo.SubProduct;
 import com.sys.admin.modules.platform.service.MchtChanAdminService;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
@@ -26,9 +27,14 @@ import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanMchtPaytype;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatProduct;
+import com.sys.core.dao.dmo.PlatProductRela;
 import com.sys.core.dao.dmo.PlatSdkConfig;
 import com.sys.core.service.ChanMchtPaytypeService;
+import com.sys.core.service.PlatFeerateService;
 import com.sys.core.service.PlatSDKService;
+import com.sys.core.service.ProductRelaService;
+import com.sys.core.service.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,8 +47,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //import com.sys.core.service.ConfigSysService;
 
@@ -82,6 +90,15 @@ public class PlatformController extends BaseController {
 
 	@Autowired
 	ChanMchtPaytypeService chanMchtPaytypeService;
+
+	@Autowired
+	ProductService productService;
+
+	@Autowired
+	PlatFeerateService platFeerateService;
+
+	@Autowired
+	ProductRelaService productRelaService;
 
 	/**
 	 * @param request
@@ -287,8 +304,8 @@ public class PlatformController extends BaseController {
 
 		int result = 0;
 
-		String message;
-		String messageType;
+		String message = "";
+		String messageType = "";
 		try {
 			ProductFormInfo productFormInfo = new ProductFormInfo(paramMap);
 			if (!CollectionUtils.isEmpty(productFormInfo.getProductRelas()) ||
@@ -303,26 +320,77 @@ public class PlatformController extends BaseController {
 				}
 
 				if ("edit".equals(paramMap.get("op"))) {
-					result = productAdminService.updatePlatProduct(productFormInfo);
 
-					//刷新商户通道
-					MchtProductFormInfo mchtProductFormInfo = new MchtProductFormInfo();
-					mchtProductFormInfo.setProductId(productFormInfo.getId());
-					List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(mchtProductFormInfo);
-
-					if (!CollectionUtils.isEmpty(mchtProductFormInfos)) {
-
-						List<String> mchtIds = new ArrayList<>();
-						for (MchtProductFormInfo formInfo : mchtProductFormInfos) {
-							mchtIds.add(formInfo.getMchtId());
+					//校验上游通道费率与商户费率
+					PlatProduct platProduct = productService.queryByKey(productFormInfo.getId());
+					//普通产品的通道商户支付方式
+					List<ProductRelaFormInfo> prfis = productFormInfo.getProductRelas();
+					Set<String> chanMchtPaytypeIds = new HashSet<>();
+					if(prfis!=null) {
+						for(ProductRelaFormInfo prfi:prfis){
+							chanMchtPaytypeIds.add(prfi.getChanMchtPaytypeId());
 						}
-						mchtChanAdminService.refresh(mchtIds);
 					}
+					//组合产品的通道商户支付方式
+					List<SubProduct>  subProducts = productFormInfo.getSubProducts();
+					if(subProducts!=null){
+						for(SubProduct sp:subProducts){
+							PlatProductRela platProductRela = new PlatProductRela();
+							platProductRela.setProductId(sp.getSubProductId());
+							platProductRela.setIsValid(1);// 是否生效： 1-有效；0-失效
+							platProductRela.setIsDelete(0);// 删除标识：1-删除；0-有效
+							List<PlatProductRela> relaList = productRelaService.list(platProductRela);
+							if(relaList!=null){
+								for(PlatProductRela ppr:relaList){
+									chanMchtPaytypeIds.add(ppr.getChanMchtPaytypeId());
+								}
+							}
+						}
+
+					}
+
+					if(chanMchtPaytypeIds!=null){
+						for(String cmpid:chanMchtPaytypeIds){
+							//关联该商户通道商户支付方式对应的商户
+							List<String> mchtIds =  productService.getMchtsByChanMchtPaytype(cmpid);
+							if(mchtIds!=null){
+								for(String mchtId:mchtIds){
+									String errMsg = platFeerateService.checkChanAndMchtFee(cmpid,mchtId,platProduct.getPayType());
+									if(StringUtils.isNotBlank(errMsg)){
+										result = 98;
+										message = errMsg;
+										break;
+									}
+								}
+							}
+						}
+					}
+
+					if(result!=98){
+						result = productAdminService.updatePlatProduct(productFormInfo);
+
+						//刷新商户通道
+						MchtProductFormInfo mchtProductFormInfo = new MchtProductFormInfo();
+						mchtProductFormInfo.setProductId(productFormInfo.getId());
+						List<MchtProductFormInfo> mchtProductFormInfos = mchtProductAdminService.getProductList(mchtProductFormInfo);
+
+						if (!CollectionUtils.isEmpty(mchtProductFormInfos)) {
+
+							List<String> mchtIds = new ArrayList<>();
+							for (MchtProductFormInfo formInfo : mchtProductFormInfos) {
+								mchtIds.add(formInfo.getMchtId());
+							}
+							mchtChanAdminService.refresh(mchtIds);
+						}
+					}
+
 				}
 			}
 			if (result == 1) {
 				message = "保存成功";
 				messageType = "success";
+			}else if (result == 98) {
+				messageType = "error";
 			} else {
 				message = "保存失败";
 				messageType = "error";
@@ -673,6 +741,10 @@ public class PlatformController extends BaseController {
 							productFormInfo.getMerchantSettleCycle())?SettleTypeEnum.FIX_SETTLE.getCode():productFormInfo.getMerchantSettleCycle()
 					);
 				}
+				String errMsg = checkChanAndMchtFee(productFormInfo.getMchtId(),productFormInfo.getProductId());
+				if(StringUtils.isNotBlank(errMsg)){
+					throw new Exception(errMsg);
+				}
 				result = mchtProductAdminService.addMchtProduct(productFormInfo);
 			}
 
@@ -710,6 +782,10 @@ public class PlatformController extends BaseController {
 					}
 				}
 				productFormInfo.setOldActiveTime(mchtProductById.getActiveTime());
+				String errMsg = checkChanAndMchtFee(productFormInfo.getMchtId(),productFormInfo.getProductId());
+				if(StringUtils.isNotBlank(errMsg)){
+					throw new Exception(errMsg);
+				}
 				result = mchtProductAdminService.
 						updateMchtProduct(productFormInfo);
 			}
@@ -728,7 +804,7 @@ public class PlatformController extends BaseController {
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
-			message = "保存失败";
+			message = "保存失败"+e.getMessage();
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
@@ -1051,5 +1127,21 @@ public class PlatformController extends BaseController {
 		model.addAttribute("op", "edit");
 		chanMchtPaytypeService.list(null);
 		return "modules/platform/platConfProxyBatchSplitEdit";
+	}
+
+	private String checkChanAndMchtFee(String mchtId,String productId){
+		//平台支付产品
+		PlatProduct platProduct = productService.queryByKey(productId);
+		//支付产品关联的通道商户支付方式
+		List<String> chanMchtPaytypeIds = productService.getChanMchtPaytypeIdsByProductId(productId);
+		if(chanMchtPaytypeIds!=null){
+			for(String cmpid:chanMchtPaytypeIds){
+				String errMsg = platFeerateService.checkChanAndMchtFee(cmpid,mchtId,platProduct.getPayType());
+				if(StringUtils.isNotBlank(errMsg)){
+					return errMsg;
+				}
+			}
+		}
+		return null;
 	}
 }

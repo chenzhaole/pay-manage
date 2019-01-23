@@ -27,8 +27,14 @@ import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatProduct;
+import com.sys.core.dao.dmo.PlatProductRela;
+import com.sys.core.service.MchtProductService;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductRelaService;
+import com.sys.core.service.ProductService;
 import com.sys.trans.api.entry.ChanMchtPaytypeTO;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.SingleDF;
@@ -49,8 +55,10 @@ import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //import com.sys.core.service.ConfigSysService;
 
@@ -78,6 +86,16 @@ public class ChannelController extends BaseController {
 
 	@Autowired
 	private MerchantService merchantService;
+
+	@Autowired
+	ProductRelaService productRelaService;
+
+	@Autowired
+	ProductService	   productService;
+
+	@Autowired
+	MchtProductService mchtProductService;
+
 
 	/**
 	 * 通道列表
@@ -353,6 +371,7 @@ public class ChannelController extends BaseController {
 
 		int result = 0;
 		String message, messageType;
+		String errMsg = "";
 		try {
 			ChanMchtFormInfo searchInfo = new ChanMchtFormInfo(request);
 
@@ -373,12 +392,27 @@ public class ChannelController extends BaseController {
 				}
 
 			} else if ("edit".equals(paramMap.get("op"))) {
-				result = chanMchtAdminService.updateChanMchtPaytype(searchInfo);
+				//获取该通道商户支付方式对应的商户
+				List<String> mchtIds = productService.getMchtsByChanMchtPaytype(searchInfo.getId());
+
+				//校验上游通道费率与商户费率
+				for(String mchtId:mchtIds){
+					errMsg = platFeerateService.checkChanAndMchtFee(searchInfo.getId(),mchtId,searchInfo.getPayType());
+					if(StringUtils.isNotBlank(errMsg)){
+						result = 98;
+						break;
+					}else{
+						result = chanMchtAdminService.updateChanMchtPaytype(searchInfo);
+					}
+				}
 			}
 
 			if (result == 1) {
 				message = "保存成功";
 				messageType = "success";
+			}else if (result == 98) {
+				message = errMsg;
+				messageType = "error";
 			} else if (result == 99) {
 				message = "该通道商户支付方式已存在";
 				messageType = "error";
