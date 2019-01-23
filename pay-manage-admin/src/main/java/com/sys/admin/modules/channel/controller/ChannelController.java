@@ -28,6 +28,7 @@ import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatFeerate;
 import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.core.dao.dmo.PlatProductRela;
 import com.sys.core.service.MchtProductService;
@@ -52,6 +53,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -392,28 +394,27 @@ public class ChannelController extends BaseController {
 				}
 
 			} else if ("edit".equals(paramMap.get("op"))) {
+				ChanMchtFormInfo cmfi = chanMchtAdminService.getChanMchtPaytypeById(searchInfo.getId());
 				//获取该通道商户支付方式对应的商户
 				List<String> mchtIds = productService.getMchtsByChanMchtPaytype(searchInfo.getId());
 
+				PlatFeerate chanFee = new PlatFeerate();
+				chanFee.setFeeRate(new BigDecimal(searchInfo.getFeeRate()));
+				chanFee.setFeeAmount(new BigDecimal(searchInfo.getFeeAmount()));
 				//校验上游通道费率与商户费率
 				for(String mchtId:mchtIds){
-					errMsg = platFeerateService.checkChanAndMchtFee(searchInfo.getId(),mchtId,searchInfo.getPayType());
+					errMsg = platFeerateService.checkChanAndMchtFee(searchInfo.getId(),mchtId,cmfi.getPayType(),null,chanFee);
 					if(StringUtils.isNotBlank(errMsg)){
-						result = 98;
-						break;
-					}else{
-						result = chanMchtAdminService.updateChanMchtPaytype(searchInfo);
+						throw new Exception(errMsg);
 					}
 				}
+				result = chanMchtAdminService.updateChanMchtPaytype(searchInfo);
 			}
 
 			if (result == 1) {
 				message = "保存成功";
 				messageType = "success";
-			}else if (result == 98) {
-				message = errMsg;
-				messageType = "error";
-			} else if (result == 99) {
+			}else if (result == 99) {
 				message = "该通道商户支付方式已存在";
 				messageType = "error";
 			} else {
@@ -421,8 +422,8 @@ public class ChannelController extends BaseController {
 				messageType = "error";
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
-			message = "保存失败";
+			logger.info("通道商户支付方式保存失败",e);
+			message = "保存失败"+e.getMessage();
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);

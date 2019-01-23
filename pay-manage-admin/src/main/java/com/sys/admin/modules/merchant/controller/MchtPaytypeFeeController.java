@@ -219,11 +219,11 @@ public class MchtPaytypeFeeController extends BaseController {
 					}
 
 					//获取商户和支付方式对应的通道商户支付方式
-					String[] mchtIdAndPaytype = platFeerate.getBizRefId().split("&");
-					List<String> cmpids = productService.getCMPIdsByMchtIdAndPaytype(mchtIdAndPaytype[0],mchtIdAndPaytype[1]);
+					String payType = platFeerate.getBizRefId().split("&")[1];
+					List<String> cmpids = productService.getCMPIdsByMchtIdAndPaytype(mchtId,payType);
 					if(cmpids!=null){
 						for(String cmpId:cmpids){
-							String errMsg = platFeerateService.checkChanAndMchtFee(cmpId,mchtId,mchtIdAndPaytype[1]);
+							String errMsg = platFeerateService.checkChanAndMchtFee(cmpId,mchtId,payType,platFeerate,null);
 							if(StringUtils.isNotBlank(errMsg)){
 								throw new Exception(errMsg);
 							}

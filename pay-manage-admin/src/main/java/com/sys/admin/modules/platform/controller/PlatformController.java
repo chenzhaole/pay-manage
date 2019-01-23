@@ -31,6 +31,7 @@ import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.core.dao.dmo.PlatProductRela;
 import com.sys.core.dao.dmo.PlatSdkConfig;
 import com.sys.core.service.ChanMchtPaytypeService;
+import com.sys.core.service.MchtProductService;
 import com.sys.core.service.PlatFeerateService;
 import com.sys.core.service.PlatSDKService;
 import com.sys.core.service.ProductRelaService;
@@ -99,6 +100,9 @@ public class PlatformController extends BaseController {
 
 	@Autowired
 	ProductRelaService productRelaService;
+
+	@Autowired
+	MchtProductService mchtProductService;
 
 	/**
 	 * @param request
@@ -349,12 +353,24 @@ public class PlatformController extends BaseController {
 
 					}
 
+					logger.info("修改支付产品,名称"+productFormInfo.getName()+"("+productFormInfo.getId()+"),chanMchtPaytypeIds为"+ StringUtils.join(chanMchtPaytypeIds.toArray(),","));
+
+					//获取该关联该支付产品的商户
+					MchtProduct mchtProduct = new MchtProduct();
+					mchtProduct.setProductId(productFormInfo.getId());
+					mchtProduct.setIsValid(1); // 是否生效： 1-有效；0-失效
+					List<MchtProduct> mchtProducts = mchtProductService.list(mchtProduct);
+					List<String> mchtIds1 =  new ArrayList<>();
+					if(mchtProducts!=null){
+						for(MchtProduct mp:mchtProducts){
+							mchtIds1.add(mp.getMchtId());
+						}
+					}
 					if(chanMchtPaytypeIds!=null){
 						for(String cmpid:chanMchtPaytypeIds){
 							//关联该商户通道商户支付方式对应的商户
-							List<String> mchtIds =  productService.getMchtsByChanMchtPaytype(cmpid);
-							if(mchtIds!=null){
-								for(String mchtId:mchtIds){
+							if(mchtIds1!=null){
+								for(String mchtId:mchtIds1){
 									String errMsg = platFeerateService.checkChanAndMchtFee(cmpid,mchtId,platProduct.getPayType());
 									if(StringUtils.isNotBlank(errMsg)){
 										result = 98;
