@@ -23,7 +23,9 @@ import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatFeerate;
+import com.sys.core.service.PlatFeerateService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -57,6 +59,9 @@ public class MerchantController extends BaseController {
 
 	@Autowired
 	private MchtProductAdminService mchtProductAdminService;
+
+	@Autowired
+	private PlatFeerateService platFeerateService;
 
 	//商户基本信息接口地址
 	@Value("${mchtInfoData.url}")
@@ -539,7 +544,16 @@ public class MerchantController extends BaseController {
                     }
                 }
 
-        		String result = merchantAdminService.updateMerchantService(merchantForm);
+				MchtInfo mi = new MchtInfo();
+				BeanUtils.copyProperties(merchantForm, mi);
+				logger.info("校验商户与代理商费率,商户"+JSON.toJSON(mi));
+				String errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,null,null);
+        		if(StringUtils.isNotBlank(errMsg)){
+					redirectAttributes.addFlashAttribute("message", "更新失败"+errMsg);
+					redirectAttributes.addFlashAttribute("messageType", "error");
+					return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
+				}
+				String result = merchantAdminService.updateMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "更新商户信息成功！");
         			redirectAttributes.addFlashAttribute("messageType", "success");

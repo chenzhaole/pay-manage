@@ -18,6 +18,7 @@ import com.sys.core.dao.dmo.PlatFeerate;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
 import com.sys.core.service.ProductService;
+import org.apache.avro.generic.GenericData;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -208,6 +209,8 @@ public class MchtPaytypeFeeController extends BaseController {
 			boolean save;
 			if (!CollectionUtils.isEmpty(feerates)){
 				List<PlatFeerate> platFeerates = platFeerateService.getMchtFee(mchtId);
+				MchtInfo mi = merchantService.queryByKey(mchtId);
+				String errMsg = null;
 				for (PlatFeerate platFeerate : feerates) {
 					save = false;
 					if (!CollectionUtils.isEmpty(platFeerates)){
@@ -223,13 +226,26 @@ public class MchtPaytypeFeeController extends BaseController {
 					List<String> cmpids = productService.getCMPIdsByMchtIdAndPaytype(mchtId,payType);
 					if(cmpids!=null){
 						for(String cmpId:cmpids){
-							String errMsg = platFeerateService.checkChanAndMchtFee(cmpId,mchtId,payType,platFeerate,null);
+							errMsg = platFeerateService.checkChanAndMchtFee(cmpId,mchtId,payType,platFeerate,null);
 							if(StringUtils.isNotBlank(errMsg)){
 								throw new Exception(errMsg);
 							}
 						}
 					}
 
+					//校验商户与代理商费率
+					List<PlatFeerate> pfs = new ArrayList<>();
+					pfs.add(platFeerate);
+					if("4".equals(mi.getSignType())){
+						//代理商
+						errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,pfs,"single");
+					}else{
+						//普通商户
+						errMsg = platFeerateService.checkMchtAndAgentFee(mi,pfs,null,"single");
+					}
+					if(StringUtils.isNotBlank(errMsg)){
+						throw new Exception(errMsg);
+					}
 					if (save){
 						platFeerateService.saveByKey(platFeerate);
 					}else {
