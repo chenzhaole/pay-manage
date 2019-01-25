@@ -356,7 +356,8 @@ public class OrderController extends BaseController {
 
 			MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
 			//查询当前实时余额
-			if(StringUtils.isNotEmpty(queryDate) && queryDate.contains(sysDate)){
+			if(StringUtils.isNotEmpty(queryDate) && (DateUtils.parseDate(queryDate,"yyyy-MM-dd HH:mm:ss").getTime()>=
+					DateUtils.parseDate(sysDate,"yyyy-MM-dd").getTime())){
 
 				//获取当前第几页
 				String pageNoString = paramMap.get("pageNo");
