@@ -2,8 +2,12 @@ package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.ExcelUtil;
+import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.AccountAmount;
 import com.sys.core.dao.dmo.PublicAccountInfo;
 import com.sys.core.service.AccountAmountService;
 import com.sys.core.service.PublicAccountInfoService;
@@ -16,7 +20,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +43,37 @@ public class PublicAccountController extends BaseController {
 	/**
 	 * 公户账务数据列表
 	 */
-	/*@RequestMapping(value = {"publicAccountList", ""})
+	@RequestMapping(value = {"publicAccountList", ""})
 	public String publicAccountList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 		AccountAmount accountAmount = new AccountAmount();
+		accountAmount.setPublicAccountCode(paramMap.get("publicAccountCode"));
+		accountAmount
+		String beginTime =paramMap.get("beginTime");
+		String endTime =paramMap.get("endTime");
+		if(StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)){
+			accountAmount.setTradeTime(DateUtils.parseDate(beginTime+" 00:00:00","yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setCreateTime(DateUtils.parseDate(endTime+" 23:59:59","yyyy-MM-dd HH:mm:ss"));
+		}else{
+			Date date = new Date();
+			String dateString =DateUtils.formatDate(date,"yyyy-MM-dd");
+			beginTime =dateString+"00:00:00";
+			endTime =dateString+" 23:59:59";
+			accountAmount.setTradeTime(DateUtils.parseDate(beginTime,"yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setCreateTime(DateUtils.parseDate(endTime,"yyyy-MM-dd HH:mm:ss"));
+			paramMap.put("beginTime",beginTime);
+			paramMap.put("endTime",endTime);
 
+		}
+		model.addAttribute("paramMap",paramMap);
+
+		List<PublicAccountInfo> pais = publicAccountInfoService.list(new PublicAccountInfo());
+		model.addAttribute("pais", pais);
+
+		int count =accountAmountService.accountAmountCount(accountAmount);
+
+		if(count ==0){
+			return "modules/publicaccount/list";
+		}
 		//分页
 		String pageNoString = paramMap.get("pageNo");
 		int pageNo = 1;
@@ -49,34 +84,14 @@ public class PublicAccountController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		accountAmount.setPageInfo(pageInfo);
 
-		//查询商户列表
-		List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
+		List<AccountAmount> accountAmounts =accountAmountService.list(accountAmount);
 
-
-		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
-		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
-		Map<String, String> productMap = Collections3.extractToMap(platProducts, "id", "name");
-
-		if (proxyBatch != null) {
-			proxyBatch.setChanId(channelMap.get(proxyBatch.getChanId()));
-			proxyBatch.setProductId(productMap.get(proxyBatch.getProductId()));
-			proxyBatch.setExtend3(mchtMap.get(proxyBatch.getMchtId()));
-			model.addAttribute("proxyBatch", proxyBatch);
-		}
-		model.addAttribute("chanInfos", chanInfoList);
-		model.addAttribute("mchtInfos", mchtInfos);
-//		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
-
-		int proxyCount = proxyDetailService.count(proxyDetail);
-
-		List<AccountAmount> proxyInfoList = accountAmountService.list(proxyDetail);
-
-
-		Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, newList, true);
+		Page page = new Page(pageNo, pageInfo.getPageSize(), count, accountAmounts, true);
 		model.addAttribute("page", page);
-		model.addAttribute("paramMap", paramMap);
-		return "modules/proxy/proxyDetailList";
-	}*/
+		model.addAttribute("list",accountAmounts);
+
+		return "modules/publicaccount/list";
+	}
 
 	/**
 	 * 跳转到提交公户账务数据页面
