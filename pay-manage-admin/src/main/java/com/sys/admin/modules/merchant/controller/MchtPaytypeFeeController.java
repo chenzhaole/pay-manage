@@ -17,6 +17,8 @@ import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatFeerate;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductService;
+import org.apache.avro.generic.GenericData;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -48,6 +50,9 @@ public class MchtPaytypeFeeController extends BaseController {
 
 	@Autowired
 	private MerchantService merchantService;
+
+	@Autowired
+	private ProductService productService;
 
 	@Autowired
 	private JedisPool jedisPool;
@@ -204,6 +209,8 @@ public class MchtPaytypeFeeController extends BaseController {
 			boolean save;
 			if (!CollectionUtils.isEmpty(feerates)){
 				List<PlatFeerate> platFeerates = platFeerateService.getMchtFee(mchtId);
+				MchtInfo mi = merchantService.queryByKey(mchtId);
+				String errMsg = null;
 				for (PlatFeerate platFeerate : feerates) {
 					save = false;
 					if (!CollectionUtils.isEmpty(platFeerates)){
@@ -213,11 +220,38 @@ public class MchtPaytypeFeeController extends BaseController {
 							}
 						}
 					}
+
+					//获取商户和支付方式对应的通道商户支付方式
+					String payType = platFeerate.getBizRefId().split("&")[1];
+					List<String> cmpids = productService.getCMPIdsByMchtIdAndPaytype(mchtId,payType);
+					if(cmpids!=null){
+						for(String cmpId:cmpids){
+							errMsg = platFeerateService.checkChanAndMchtFee(cmpId,mchtId,payType,platFeerate,null);
+							if(StringUtils.isNotBlank(errMsg)){
+								throw new Exception(errMsg);
+							}
+						}
+					}
+
+					//校验商户与代理商费率
+					List<PlatFeerate> pfs = new ArrayList<>();
+					pfs.add(platFeerate);
+					if("4".equals(mi.getSignType())){
+						//代理商
+						errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,platFeerate);
+					}else{
+						//普通商户
+						errMsg = platFeerateService.checkMchtAndAgentFee(mi,platFeerate,null);
+					}
+					if(StringUtils.isNotBlank(errMsg)){
+						continue;
+					}
 					if (save){
 						platFeerateService.saveByKey(platFeerate);
 					}else {
 						platFeerateService.createFirstTime(platFeerate);
 					}
+
 					if(FeeRateBizTypeEnum.MCHT_PAYTYPE_BIZTYPE.getCode().equals(platFeerate.getBizType()) && !StringUtils.isEmpty(platFeerate.getRequestNum()) && !StringUtils.isEmpty(platFeerate.getRequestNum())){
 						try{
 							if(StringUtils.isEmpty(platFeerate.getBizRefId())){
@@ -232,6 +266,10 @@ public class MchtPaytypeFeeController extends BaseController {
 							logger.error(e.getMessage(), e);
 						}
 					}
+				}
+				errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,null);
+				if(StringUtils.isNotBlank(errMsg)){
+					throw new Exception(errMsg);
 				}
 			}
 
@@ -294,7 +332,7 @@ public class MchtPaytypeFeeController extends BaseController {
 			messageType = "success";
 		} catch (Exception e) {
 			e.printStackTrace();
-			message = "操作失败";
+			message = "操作失败"+e.getMessage();
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
