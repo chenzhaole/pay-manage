@@ -139,12 +139,12 @@
 								100.00%
 							</c:when>
 							<c:otherwise>
-								<fmt:formatNumber value="${(report.chanCommitNum-report.chanCommitBackTimeoutNum)/report.chanCommitNum}" type="percent" maxFractionDigits="2"/>
+								<fmt:formatNumber value="${(report.chanCommitSuccNum-report.chanCommitBackTimeoutNum)/report.chanCommitSuccNum}" type="percent" maxFractionDigits="2"/>
 							</c:otherwise>
 							</c:choose>
 						</td>
-						<td><fmt:formatNumber value="${report.chanCommitSuccNum/report.chanCommitNum}" type="percent" maxFractionDigits="2"/></td>
-						<td><fmt:formatNumber value="${report.paySuccNum/report.chanCommitNum}" type="percent" maxFractionDigits="2"/></td>
+						<td><fmt:formatNumber value="${report.chan_commit_back_succ_num/report.chanCommitSuccNum}" type="percent" maxFractionDigits="2"/></td>
+						<td><fmt:formatNumber value="${report.paySuccNum/report.chanCommitSuccNum}" type="percent" maxFractionDigits="2"/></td>
 						<td><fmt:formatNumber value="${report.paySuccNum/report.mchtReqNum}" type="percent" maxFractionDigits="2"/></td>
 						<td>${report.beginTime}</td>
 						<td>${report.endTime}</td>
