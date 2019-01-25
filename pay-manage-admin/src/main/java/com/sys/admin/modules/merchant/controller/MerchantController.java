@@ -547,7 +547,7 @@ public class MerchantController extends BaseController {
 				MchtInfo mi = new MchtInfo();
 				BeanUtils.copyProperties(merchantForm, mi);
 				logger.info("校验商户与代理商费率,商户"+JSON.toJSON(mi));
-				String errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,null,null);
+				String errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,null);
         		if(StringUtils.isNotBlank(errMsg)){
 					redirectAttributes.addFlashAttribute("message", "更新失败"+errMsg);
 					redirectAttributes.addFlashAttribute("messageType", "error");

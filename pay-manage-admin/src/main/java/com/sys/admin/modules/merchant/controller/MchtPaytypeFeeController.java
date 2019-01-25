@@ -238,13 +238,13 @@ public class MchtPaytypeFeeController extends BaseController {
 					pfs.add(platFeerate);
 					if("4".equals(mi.getSignType())){
 						//代理商
-						errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,pfs,"single");
+						errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,platFeerate);
 					}else{
 						//普通商户
-						errMsg = platFeerateService.checkMchtAndAgentFee(mi,pfs,null,"single");
+						errMsg = platFeerateService.checkMchtAndAgentFee(mi,platFeerate,null);
 					}
 					if(StringUtils.isNotBlank(errMsg)){
-						throw new Exception(errMsg);
+						continue;
 					}
 					if (save){
 						platFeerateService.saveByKey(platFeerate);
@@ -266,6 +266,10 @@ public class MchtPaytypeFeeController extends BaseController {
 							logger.error(e.getMessage(), e);
 						}
 					}
+				}
+				errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,null);
+				if(StringUtils.isNotBlank(errMsg)){
+					throw new Exception(errMsg);
 				}
 			}
 
