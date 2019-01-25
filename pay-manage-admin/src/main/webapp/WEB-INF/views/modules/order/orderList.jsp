@@ -262,6 +262,19 @@
 						</div>
 
 	               	</div>
+
+
+					<div class="control-group">
+						<label class="control-label">支付时间：</label>
+						<div class="controls">
+							<input id="beginPayDate" name="beginPayDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+								   value="${paramMap.beginPayDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 00:00:00',isShowClear:true,readOnly:true,maxDate:$dp.$('endDate').value,isShowOK:false,isShowToday:false});"/>至
+
+							<input id="endPayDate" name="endPayDate" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+								   value="${paramMap.endPayDate}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd 23:59:59',isShowClear:true,readOnly:true,minDate:$dp.$('beginPayDate').value,isShowOK:false,isShowToday:false});"/>
+						</div>
+
+					</div>
 	         	</td>
 	         	<td colspan="2" align="right">
 	         		<div class="btn-group">
