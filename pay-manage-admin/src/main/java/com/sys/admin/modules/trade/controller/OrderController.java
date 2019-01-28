@@ -1014,19 +1014,6 @@ public class OrderController extends BaseController {
 		}
 
 
-		//初始化页面支付时间
-		String beginPayDate = paramMap.get("beginPayDate");
-		if (StringUtils.isNotBlank(beginPayDate)) {
-			paramMap.put("beginPayDate", beginPayDate);
-			order.setBeginPayTime(DateUtils.parseDate(beginPayDate));
-		}
-		String endPayDate = paramMap.get("endPayDate");
-		//初始化页面结束时间
-		if (StringUtils.isNotBlank(endPayDate)) {
-			paramMap.put("endPayDate", endPayDate);
-			order.setEndPayTime(DateUtils.parseDate(endPayDate));
-		}
-
 		//初始化商户ID
 		if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
 			order.setMchtId(paramMap.get("mchtId"));
