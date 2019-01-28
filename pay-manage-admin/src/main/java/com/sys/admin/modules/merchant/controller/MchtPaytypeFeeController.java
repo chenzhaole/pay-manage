@@ -62,8 +62,7 @@ public class MchtPaytypeFeeController extends BaseController {
 	 * 商户支付方式费率列表
 	 */
 	@RequestMapping(value = {"mchtPaytypeFeePage", ""})
-	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap
-	) {
+	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 
 		String mchtId = paramMap.get("mchtId");
 		//根据商户查费率
