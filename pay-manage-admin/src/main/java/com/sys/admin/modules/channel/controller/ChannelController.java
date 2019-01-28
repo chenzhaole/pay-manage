@@ -1,7 +1,6 @@
 package com.sys.admin.modules.channel.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.rocketmq.common.filter.impl.Op;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
@@ -20,22 +19,14 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
-import com.sys.common.util.Collections3;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
 import com.sys.core.dao.dmo.MchtInfo;
-import com.sys.core.dao.dmo.MchtProduct;
-import com.sys.core.dao.dmo.PlatFeerate;
-import com.sys.core.dao.dmo.PlatProduct;
-import com.sys.core.dao.dmo.PlatProductRela;
-import com.sys.core.service.MchtProductService;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
-import com.sys.core.service.ProductRelaService;
-import com.sys.core.service.ProductService;
 import com.sys.trans.api.entry.ChanMchtPaytypeTO;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.SingleDF;
@@ -53,14 +44,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
-import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 
 //import com.sys.core.service.ConfigSysService;
 
@@ -88,16 +76,6 @@ public class ChannelController extends BaseController {
 
 	@Autowired
 	private MerchantService merchantService;
-
-	@Autowired
-	ProductRelaService productRelaService;
-
-	@Autowired
-	ProductService	   productService;
-
-	@Autowired
-	MchtProductService mchtProductService;
-
 
 	/**
 	 * 通道列表
@@ -394,20 +372,6 @@ public class ChannelController extends BaseController {
 				}
 
 			} else if ("edit".equals(paramMap.get("op"))) {
-				ChanMchtFormInfo cmfi = chanMchtAdminService.getChanMchtPaytypeById(searchInfo.getId());
-				//获取该通道商户支付方式对应的商户
-				List<String> mchtIds = productService.getMchtsByChanMchtPaytype(searchInfo.getId());
-
-				PlatFeerate chanFee = new PlatFeerate();
-				chanFee.setFeeRate(new BigDecimal(searchInfo.getFeeRate()));
-				chanFee.setFeeAmount(new BigDecimal(searchInfo.getFeeAmount()));
-				//校验上游通道费率与商户费率
-				for(String mchtId:mchtIds){
-					errMsg = platFeerateService.checkChanAndMchtFee(searchInfo.getId(),mchtId,cmfi.getPayType(),null,chanFee);
-					if(StringUtils.isNotBlank(errMsg)){
-						throw new Exception(errMsg);
-					}
-				}
 				result = chanMchtAdminService.updateChanMchtPaytype(searchInfo);
 			}
 
@@ -422,8 +386,8 @@ public class ChannelController extends BaseController {
 				messageType = "error";
 			}
 		} catch (Exception e) {
-			logger.info("通道商户支付方式保存失败",e);
-			message = "保存失败"+e.getMessage();
+			e.printStackTrace();
+			message = "保存失败";
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
