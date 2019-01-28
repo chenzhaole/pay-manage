@@ -55,11 +55,11 @@ public class PublicAccountController extends BaseController {
 		}
 		if(StringUtils.isNotBlank(paramMap.get("reductAmount"))){
 			//借方发生额
-			accountAmount.setAddAmount(new BigDecimal(paramMap.get("reductAmount")));
+			accountAmount.setReduceAmount(new BigDecimal(paramMap.get("reductAmount")));
 		}
 		if(StringUtils.isNotBlank(paramMap.get("accountName"))){
 			//对方账户名
-			accountAmount.setAddAmount(new BigDecimal(paramMap.get("accountName")));
+			accountAmount.setAccountName(paramMap.get("accountName"));
 		}
 
 		String beginTime =paramMap.get("beginTime");
