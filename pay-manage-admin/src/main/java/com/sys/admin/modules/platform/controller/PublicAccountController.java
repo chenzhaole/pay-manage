@@ -24,6 +24,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -46,8 +47,21 @@ public class PublicAccountController extends BaseController {
 	@RequestMapping(value = {"publicAccountList", ""})
 	public String publicAccountList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 		AccountAmount accountAmount = new AccountAmount();
+		//公户号
 		accountAmount.setPublicAccountCode(paramMap.get("publicAccountCode"));
-		accountAmount
+		if(StringUtils.isNotBlank(paramMap.get("addAmount"))){
+			//贷方发生额
+			accountAmount.setAddAmount(new BigDecimal(paramMap.get("addAmount")));
+		}
+		if(StringUtils.isNotBlank(paramMap.get("reductAmount"))){
+			//借方发生额
+			accountAmount.setAddAmount(new BigDecimal(paramMap.get("reductAmount")));
+		}
+		if(StringUtils.isNotBlank(paramMap.get("accountName"))){
+			//对方账户名
+			accountAmount.setAddAmount(new BigDecimal(paramMap.get("accountName")));
+		}
+
 		String beginTime =paramMap.get("beginTime");
 		String endTime =paramMap.get("endTime");
 		if(StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)){

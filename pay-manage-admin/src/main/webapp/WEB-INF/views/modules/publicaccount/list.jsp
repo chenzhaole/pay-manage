@@ -44,13 +44,20 @@
 			</c:forEach>
 		</select>
 
-		<label class="control-label">借方：</label>
-		<select name="publicAccountCode" id="mchtCode"  class="selectpicker bla bla bli" data-live-search="true">
-			<option value="">---请选择---</option>
-			<c:forEach var="item" items="${pais}">
-				<option value="${item.publicAccountCode}" <c:if test="${paramMap.publicAccountCode eq item.publicAccountCode}">selected</c:if> >${item.publicAccountName}</option>
-			</c:forEach>
-		</select>
+		<label class="control-label">借方发生额：</label>
+		<div class="controls">
+			<input value="${paramMap.reductAmount}" id="reductAmount" name="reductAmount" type="text" maxlength="64" class="input-large"/>
+		</div>
+
+		<label class="control-label">贷方发生额：</label>
+		<div class="controls">
+			<input value="${paramMap.addAmount}" id="addAmount" name="addAmount" type="text" maxlength="64" class="input-large"/>
+		</div>
+
+		<label class="control-label">对方账户名：</label>
+		<div class="controls">
+			<input value="${paramMap.accountName}" id="accountName" name="addAmount" type="text" maxlength="64" class="input-large"/>
+		</div>
 
         <input id="btnSubmit" class="btn btn-primary" type="button" value="查询"/>
 
