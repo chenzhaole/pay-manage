@@ -28,6 +28,7 @@ import java.io.InputStream;
 import java.math.BigDecimal;
 import java.net.URLDecoder;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -63,27 +64,38 @@ public class PublicAccountController extends BaseController {
 			//对方账户名
 			accountAmount.setAccountName(paramMap.get("accountName"));
 		}
+		if(StringUtils.isNotBlank(paramMap.get("summary"))){
+			//备注
+			accountAmount.setSummary(paramMap.get("summary"));
+		}
 
 		String beginTime =paramMap.get("beginTime");
 		String endTime =paramMap.get("endTime");
 		if(StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)){
-			accountAmount.setTradeTime(DateUtils.parseDate(beginTime+" 00:00:00","yyyy-MM-dd HH:mm:ss"));
-			accountAmount.setCreateTime(DateUtils.parseDate(endTime+" 23:59:59","yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setTradeBeginTime(DateUtils.parseDate(beginTime,"yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setTradeEndTime(DateUtils.parseDate(endTime,"yyyy-MM-dd HH:mm:ss"));
 		}else{
 			Date date = new Date();
 			String dateString =DateUtils.formatDate(date,"yyyy-MM-dd");
-			beginTime =dateString+"00:00:00";
+			beginTime =dateString+" 00:00:00";
 			endTime =dateString+" 23:59:59";
-			accountAmount.setTradeTime(DateUtils.parseDate(beginTime,"yyyy-MM-dd HH:mm:ss"));
-			accountAmount.setCreateTime(DateUtils.parseDate(endTime,"yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setTradeBeginTime(DateUtils.parseDate(beginTime,"yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setTradeEndTime(DateUtils.parseDate(endTime,"yyyy-MM-dd HH:mm:ss"));
 			paramMap.put("beginTime",beginTime);
 			paramMap.put("endTime",endTime);
-
 		}
+		logger.info("公户账务数据列表,查询条件"+JSON.toJSON(accountAmount));
 		model.addAttribute("paramMap",paramMap);
 
 		List<PublicAccountInfo> pais = publicAccountInfoService.list(new PublicAccountInfo());
+		Map<String,PublicAccountInfo> paisMap = new HashMap<>();
+		if(pais!=null){
+			for(PublicAccountInfo pai:pais){
+				paisMap.put(pai.getPublicAccountCode(),pai);
+			}
+		}
 		model.addAttribute("pais", pais);
+		model.addAttribute("paisMap", paisMap);
 
 		int count =accountAmountService.accountAmountCount(accountAmount);
 
