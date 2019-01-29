@@ -75,27 +75,27 @@
     <table id="contentTable" class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>
-				<th>交易日期</th>
+				<th>公户号</th>
+				<th>交易时间</th>
 				<th>借方发生额</th>
 				<th>贷方发生额</th>
 				<th>账户余额</th>
 				<th>对方账号</th>
 				<th>对方账号名</th>
 				<th>对方开户行</th>
-				<th>交易时间</th>
 			</tr>
 		</thead>
 		<tbody>
 				<c:forEach items="${list}" var="report">
 					<tr>
-						<td><fmt:formatDate value="${report.tradeTime}" pattern="yyyy-MM-dd"/></td>
+						<td>${report.publicAccountCode}</td>
+						<td><fmt:formatDate value="${report.tradeTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 						<td>${report.reduceAmount }</td>
 						<td>${report.addAmount }</td>
 						<td>${report.balance }</td>
 						<td>${report.accountNo}</td>
 						<td>${report.accountName }</td>
 						<td>${report.openAccountBankName}</td>
-						<td><fmt:formatDate value="${report.tradeTime}" pattern="HH:mm:ss"/></td>
 					</tr>
 				</c:forEach>
 

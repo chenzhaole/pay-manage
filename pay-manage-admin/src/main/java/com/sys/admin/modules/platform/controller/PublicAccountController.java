@@ -18,6 +18,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -25,6 +26,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -191,7 +193,6 @@ public class PublicAccountController extends BaseController {
 	/**
 	 * 查询指定商户的平台余额
 	 *
-	 * @param mchtId
 	 * @return
 	 *//*
 
@@ -219,5 +220,28 @@ public class PublicAccountController extends BaseController {
 	}
 	*/
 
-
+	@ResponseBody
+	@RequestMapping(value = {"savePublicAccountInfo", ""})
+	public String savePublicAccountInfo(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {
+		PublicAccountInfo accountInfo = new PublicAccountInfo();
+		try{
+			String publicAccountCode = paramMap.get("publicAccountCode");
+			String publicAccountName = URLDecoder.decode(paramMap.get("publicAccountName"),"utf-8");
+			String modelName		 = paramMap.get("modelName");
+			String op = paramMap.get("op");
+			logger.info("公户信息保存,publicAccountCode="+publicAccountCode+",publicAccountName="+publicAccountName+",modelName="+modelName+",op="+op);
+			accountInfo.setPublicAccountCode(publicAccountCode);
+			accountInfo.setPublicAccountName(publicAccountName);
+			accountInfo.setModelName(modelName);
+			if("add".equals(op)){
+				publicAccountInfoService.create(accountInfo);
+			}else{
+				PublicAccountInfo oldAccountInfo = publicAccountInfoService.queryByKey(publicAccountCode);
+				publicAccountInfoService.updateBySelective(accountInfo,oldAccountInfo);
+			}
+		}catch (Exception e){
+			logger.error("公户数据保存异常",e);
+		}
+		return JSON.toJSON(accountInfo).toString();
+	}
 }
