@@ -68,9 +68,9 @@ public class PublicAccountController extends BaseController {
 			//摘要
 			accountAmount.setSummary(paramMap.get("summary"));
 		}
-		if(StringUtils.isNotBlank(paramMap.get("desc"))){
+		if(StringUtils.isNotBlank(paramMap.get("description"))){
 			//描述
-			accountAmount.setSummary(paramMap.get("desc"));
+			accountAmount.setDescription(paramMap.get("description"));
 		}
 
 		String beginTime =paramMap.get("beginTime");
@@ -150,12 +150,12 @@ public class PublicAccountController extends BaseController {
 	public String edit(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes) {
 		logger.info("公户账务编辑,paramMap为"+paramMap);
 		String id   = paramMap.get("id");
-		String desc = paramMap.get("desc");
+		String desc = paramMap.get("description");
 		String message = "保存成功";
 		String messageType = "success";
 		AccountAmount accountAmount = accountAmountService.queryByKey(id);
 		if(StringUtils.isNotBlank(desc)){
-			accountAmount.setDesc(desc);
+			accountAmount.setDescription(desc);
 			try{
 				accountAmountService.saveByKey(accountAmount);
 			}catch (Exception e){

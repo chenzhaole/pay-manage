@@ -124,8 +124,8 @@
                 <div class="control-group">
                     <label class="control-label">描述</label>
                     <div class="controls">
-                        <textarea name="desc" placeholder="" style="width:350px;" id="desc"
-                                  rows="3">${accountAmount.desc}</textarea>
+                        <textarea name="description" placeholder="" style="width:350px;" id="description"
+                                  rows="3">${accountAmount.description}</textarea>
                     </div>
                 </div>
             </td>

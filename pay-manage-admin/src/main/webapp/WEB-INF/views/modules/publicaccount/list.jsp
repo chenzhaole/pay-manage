@@ -103,7 +103,7 @@
 				<td>
 					<label class="control-label">描述：</label>
 					<label class="controls">
-						<input value="${paramMap.desc}" id="desc" name="desc" type="text" maxlength="255" class="input-large"/>
+						<input value="${paramMap.description}" id="description" name="description" type="text" maxlength="255" class="input-large"/>
 					</label>
 				</td>
 			</tr>
@@ -162,7 +162,7 @@
 						<td>${report.accountName }</td>
 						<td>${report.openAccountBankName}</td>
 						<td>${report.summary}</td>
-						<td>${report.desc}</td>
+						<td>${report.description}</td>
 						<td><a href="${ctx}/publicaccount/toEdit?id=${report.id}">修改</a></td>
 					</tr>
 				</c:forEach>
