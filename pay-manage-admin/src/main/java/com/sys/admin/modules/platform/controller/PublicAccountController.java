@@ -65,8 +65,12 @@ public class PublicAccountController extends BaseController {
 			accountAmount.setAccountName(paramMap.get("accountName"));
 		}
 		if(StringUtils.isNotBlank(paramMap.get("summary"))){
-			//备注
+			//摘要
 			accountAmount.setSummary(paramMap.get("summary"));
+		}
+		if(StringUtils.isNotBlank(paramMap.get("description"))){
+			//描述
+			accountAmount.setDescription(paramMap.get("description"));
 		}
 
 		String beginTime =paramMap.get("beginTime");
@@ -119,6 +123,50 @@ public class PublicAccountController extends BaseController {
 		model.addAttribute("list",accountAmounts);
 
 		return "modules/publicaccount/list";
+	}
+
+	/**
+	 * 跳转到公户账务编辑页面
+	 */
+	@RequestMapping(value = {"toEdit", ""})
+	public String toEdit(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
+		String id = paramMap.get("id");
+		logger.info("跳转到公户账务编辑页面,id="+id);
+		List<PublicAccountInfo> pais = publicAccountInfoService.list(new PublicAccountInfo());
+		Map<String,PublicAccountInfo> paisMap = new HashMap<>();
+		if(pais!=null){
+			for(PublicAccountInfo pai:pais){
+				paisMap.put(pai.getPublicAccountCode(),pai);
+			}
+		}
+		AccountAmount accountAmount = accountAmountService.queryByKey(id);
+		model.addAttribute("pais", pais);
+		model.addAttribute("paisMap", paisMap);
+		model.addAttribute("accountAmount",accountAmount);
+		return "modules/publicaccount/edit";
+	}
+
+	@RequestMapping(value = {"edit", ""})
+	public String edit(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap,RedirectAttributes redirectAttributes) {
+		logger.info("公户账务编辑,paramMap为"+paramMap);
+		String id   = paramMap.get("id");
+		String desc = paramMap.get("description");
+		String message = "保存成功";
+		String messageType = "success";
+		AccountAmount accountAmount = accountAmountService.queryByKey(id);
+		if(StringUtils.isNotBlank(desc)){
+			accountAmount.setDescription(desc);
+			try{
+				accountAmountService.saveByKey(accountAmount);
+			}catch (Exception e){
+				logger.error("公户账务编辑异常",e);
+				message = "保存失败";
+				messageType = "error";
+			}
+		}
+		redirectAttributes.addFlashAttribute("messageType", messageType);
+		redirectAttributes.addFlashAttribute("message", message);
+		return "redirect:"+ GlobalConfig.getAdminPath()+"/publicaccount/publicAccountList";
 	}
 
 	/**
@@ -255,5 +303,27 @@ public class PublicAccountController extends BaseController {
 			logger.error("公户数据保存异常",e);
 		}
 		return JSON.toJSON(accountInfo).toString();
+	}
+
+	/**
+	 * 公户账务数据删除
+	 */
+	@RequestMapping(value = {"deleteAccountAmount", ""})
+	public String deleteAccountAmount(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {
+		PublicAccountInfo accountInfo = new PublicAccountInfo();
+		try{
+			String idstr  = paramMap.get("ids");
+			logger.info("公户账务数据删除,ids="+idstr);
+			if(StringUtils.isNotBlank(idstr)){
+				String[] ids = idstr.split(",");
+				for(String id:ids){
+                    accountAmountService.deleteByKey(id);
+                }
+			}
+            model.addAttribute("paramMap",paramMap);
+		}catch (Exception e){
+			logger.error("公户数据删除异常",e);
+		}
+        return "redirect:"+ GlobalConfig.getAdminPath()+"/publicaccount/publicAccountList";
 	}
 }

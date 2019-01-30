@@ -23,12 +23,46 @@
         $("#searchForm").submit();
         return false;
     }
+    //是否全选
+    function selectAll() {
+        if($('#isSelected').is(':checked')){
+			//选中
+            $('input[name="selected"]').attr("checked",'true');//全选
+        }else{
+            //未选中
+            $('input[name="selected"]').removeAttr("checked");//取消全选
+		}
+    }
+    //批量删除
+    function batchDelete(){
+        var str = "";
+        var i = 0;
+        $("input[name='selected']:checked").each(function(){
+            if(i>0) str+=",";
+            str+=$(this).val();
+            i++;
+        });
+		if(str!=""){
+            if (confirm("是否确认删除选中的记录？")) {
+                document.forms[0].action = "${ctx}/publicaccount/deleteAccountAmount?ids=" + str;
+                document.forms[0].submit();
+            }
+		}else{
+		    alert("请选择要删除的记录");
+		}
+	}
+
+	//数据导入
+	function dataImport(){
+		window.location.href="${ctx}/publicaccount/toCommitPublicAccount";
+	}
 	</script>
 </head>
 <body>
 <div class="breadcrumb">
-	<label><a href="#">平台管理> </a><a href="#"><b>公户账户查询</b></a></label>
+	<label><a href="#">平台管理> </a><a href="#">公户账务管理> </a><a href="#"><b>公户账务查询</b></a></label>
 </div>
+<tags:message content="${message}" type="${messageType}"/>
  	<form:form id="searchForm" action="${ctx}/publicaccount/publicAccountList"  method="post" class="breadcrumb form-search">
 		<table>
 			<tr>
@@ -48,7 +82,7 @@
 					</label>
 				</td>
 				<td>
-					<label class="control-label">备注：</label>
+					<label class="control-label">摘要：</label>
 					<label class="controls">
 						<input value="${paramMap.summary}" id="summary" name="summary" type="text" maxlength="64" class="input-large"/>
 					</label>
@@ -60,10 +94,16 @@
 					<input value="${paramMap.reductAmount}" id="reductAmount" name="reductAmount" type="number" maxlength="64" class="input-large"/>
 				</td>
 
-				<td colspan="2">
+				<td >
 					<label class="control-label">贷方发生额：</label>
 					<label class="controls">
 						<input value="${paramMap.addAmount}" id="addAmount" name="addAmount" type="number" maxlength="64" class="input-large"/>
+					</label>
+				</td>
+				<td>
+					<label class="control-label">描述：</label>
+					<label class="controls">
+						<input value="${paramMap.description}" id="description" name="description" type="text" maxlength="255" class="input-large"/>
 					</label>
 				</td>
 			</tr>
@@ -78,6 +118,12 @@
 			</td>
 			<td colspan="2" align="right">
 				<input id="btnSubmit" class="btn btn-primary" type="button" value="查询"/>
+				<shiro:hasPermission name="publicaccount:commit">
+					<input  class="btn btn-primary" type="button" value="数据导入" onclick="dataImport()"/>
+				</shiro:hasPermission>
+				<shiro:hasPermission name="publicaccount:batchDelete">
+					<input  class="btn btn-primary" type="button" value="批量删除" onclick="batchDelete()"/>
+				</shiro:hasPermission>
 			</td>
 		</tr>
 
@@ -89,6 +135,7 @@
     <table id="contentTable" class="table table-striped table-bordered table-condensed">
 		<thead>
 			<tr>
+				<th><input type="checkbox" id="isSelected" onchange="selectAll()"/></th>
 				<th>公户名称</th>
 				<th>交易时间</th>
 				<th>借方发生额</th>
@@ -97,12 +144,15 @@
 				<th>对方账号</th>
 				<th>对方账号名</th>
 				<th>对方开户行</th>
-				<th>备注</th>
+				<th>摘要</th>
+				<th>描述</th>
+				<th>操作</th>
 			</tr>
 		</thead>
 		<tbody>
 				<c:forEach items="${list}" var="report">
 					<tr>
+						<td><input type="checkbox" name="selected" value="${report.id}"/></td>
 						<td>${paisMap[report.publicAccountCode].publicAccountName}</td>
 						<td><fmt:formatDate value="${report.tradeTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
 						<td>${report.reduceAmount }</td>
@@ -112,6 +162,8 @@
 						<td>${report.accountName }</td>
 						<td>${report.openAccountBankName}</td>
 						<td>${report.summary}</td>
+						<td>${report.description}</td>
+						<td><a href="${ctx}/publicaccount/toEdit?id=${report.id}">修改</a></td>
 					</tr>
 				</c:forEach>
 
