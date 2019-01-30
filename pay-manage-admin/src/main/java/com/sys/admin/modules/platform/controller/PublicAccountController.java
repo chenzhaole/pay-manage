@@ -2,8 +2,12 @@ package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.ExcelUtil;
+import com.sys.core.dao.common.PageInfo;
+import com.sys.core.dao.dmo.AccountAmount;
 import com.sys.core.dao.dmo.PublicAccountInfo;
 import com.sys.core.service.AccountAmountService;
 import com.sys.core.service.PublicAccountInfoService;
@@ -14,9 +18,17 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import java.io.InputStream;
+import java.math.BigDecimal;
+import java.net.URLDecoder;
+import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -35,10 +47,61 @@ public class PublicAccountController extends BaseController {
 	/**
 	 * 公户账务数据列表
 	 */
-	/*@RequestMapping(value = {"publicAccountList", ""})
+	@RequestMapping(value = {"publicAccountList", ""})
 	public String publicAccountList(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 		AccountAmount accountAmount = new AccountAmount();
+		//公户号
+		accountAmount.setPublicAccountCode(paramMap.get("publicAccountCode"));
+		if(StringUtils.isNotBlank(paramMap.get("addAmount"))){
+			//贷方发生额
+			accountAmount.setAddAmount(new BigDecimal(paramMap.get("addAmount")));
+		}
+		if(StringUtils.isNotBlank(paramMap.get("reductAmount"))){
+			//借方发生额
+			accountAmount.setReduceAmount(new BigDecimal(paramMap.get("reductAmount")));
+		}
+		if(StringUtils.isNotBlank(paramMap.get("accountName"))){
+			//对方账户名
+			accountAmount.setAccountName(paramMap.get("accountName"));
+		}
+		if(StringUtils.isNotBlank(paramMap.get("summary"))){
+			//备注
+			accountAmount.setSummary(paramMap.get("summary"));
+		}
 
+		String beginTime =paramMap.get("beginTime");
+		String endTime =paramMap.get("endTime");
+		if(StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)){
+			accountAmount.setTradeBeginTime(DateUtils.parseDate(beginTime,"yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setTradeEndTime(DateUtils.parseDate(endTime,"yyyy-MM-dd HH:mm:ss"));
+		}else{
+			Date date = new Date();
+			String dateString =DateUtils.formatDate(date,"yyyy-MM-dd");
+			beginTime =dateString+" 00:00:00";
+			endTime =dateString+" 23:59:59";
+			accountAmount.setTradeBeginTime(DateUtils.parseDate(beginTime,"yyyy-MM-dd HH:mm:ss"));
+			accountAmount.setTradeEndTime(DateUtils.parseDate(endTime,"yyyy-MM-dd HH:mm:ss"));
+			paramMap.put("beginTime",beginTime);
+			paramMap.put("endTime",endTime);
+		}
+		logger.info("公户账务数据列表,查询条件"+JSON.toJSON(accountAmount));
+		model.addAttribute("paramMap",paramMap);
+
+		List<PublicAccountInfo> pais = publicAccountInfoService.list(new PublicAccountInfo());
+		Map<String,PublicAccountInfo> paisMap = new HashMap<>();
+		if(pais!=null){
+			for(PublicAccountInfo pai:pais){
+				paisMap.put(pai.getPublicAccountCode(),pai);
+			}
+		}
+		model.addAttribute("pais", pais);
+		model.addAttribute("paisMap", paisMap);
+
+		int count =accountAmountService.accountAmountCount(accountAmount);
+
+		if(count ==0){
+			return "modules/publicaccount/list";
+		}
 		//分页
 		String pageNoString = paramMap.get("pageNo");
 		int pageNo = 1;
@@ -49,34 +112,14 @@ public class PublicAccountController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		accountAmount.setPageInfo(pageInfo);
 
-		//查询商户列表
-		List<MchtInfo> mchtInfos = merchantService.list(new MchtInfo());
+		List<AccountAmount> accountAmounts =accountAmountService.list(accountAmount);
 
-
-		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
-		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
-		Map<String, String> productMap = Collections3.extractToMap(platProducts, "id", "name");
-
-		if (proxyBatch != null) {
-			proxyBatch.setChanId(channelMap.get(proxyBatch.getChanId()));
-			proxyBatch.setProductId(productMap.get(proxyBatch.getProductId()));
-			proxyBatch.setExtend3(mchtMap.get(proxyBatch.getMchtId()));
-			model.addAttribute("proxyBatch", proxyBatch);
-		}
-		model.addAttribute("chanInfos", chanInfoList);
-		model.addAttribute("mchtInfos", mchtInfos);
-//		model.addAttribute("chanMchtPaytypes", chanMchtPaytypeList);
-
-		int proxyCount = proxyDetailService.count(proxyDetail);
-
-		List<AccountAmount> proxyInfoList = accountAmountService.list(proxyDetail);
-
-
-		Page page = new Page(pageNo, pageInfo.getPageSize(), proxyCount, newList, true);
+		Page page = new Page(pageNo, pageInfo.getPageSize(), count, accountAmounts, true);
 		model.addAttribute("page", page);
-		model.addAttribute("paramMap", paramMap);
-		return "modules/proxy/proxyDetailList";
-	}*/
+		model.addAttribute("list",accountAmounts);
+
+		return "modules/publicaccount/list";
+	}
 
 	/**
 	 * 跳转到提交公户账务数据页面
@@ -101,8 +144,10 @@ public class PublicAccountController extends BaseController {
 		try {
 			String publicAccountCode = paramMap.get("publicAccountCode");	//公户编号
 			String fileName = file.getOriginalFilename();
-			InputStream is  = file.getInputStream();
-			List<String[]> data = ExcelUtil.readexcel(is,fileName);
+			java.io.File f =java.io.File.createTempFile("tmp", null);
+			file.transferTo(f);
+			List<String[]> data = ExcelUtil.readexcel(f, fileName);
+			f.deleteOnExit();
 			//获取公户信息
 			PublicAccountInfo pai = new PublicAccountInfo();
 			pai.setPublicAccountCode(publicAccountCode);
@@ -160,7 +205,6 @@ public class PublicAccountController extends BaseController {
 	/**
 	 * 查询指定商户的平台余额
 	 *
-	 * @param mchtId
 	 * @return
 	 *//*
 
@@ -188,5 +232,28 @@ public class PublicAccountController extends BaseController {
 	}
 	*/
 
-
+	@ResponseBody
+	@RequestMapping(value = {"savePublicAccountInfo", ""})
+	public String savePublicAccountInfo(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {
+		PublicAccountInfo accountInfo = new PublicAccountInfo();
+		try{
+			String publicAccountCode = paramMap.get("publicAccountCode");
+			String publicAccountName = URLDecoder.decode(paramMap.get("publicAccountName"),"utf-8");
+			String modelName		 = paramMap.get("modelName");
+			String op = paramMap.get("op");
+			logger.info("公户信息保存,publicAccountCode="+publicAccountCode+",publicAccountName="+publicAccountName+",modelName="+modelName+",op="+op);
+			accountInfo.setPublicAccountCode(publicAccountCode);
+			accountInfo.setPublicAccountName(publicAccountName);
+			accountInfo.setModelName(modelName);
+			if("add".equals(op)){
+				publicAccountInfoService.create(accountInfo);
+			}else{
+				PublicAccountInfo oldAccountInfo = publicAccountInfoService.queryByKey(publicAccountCode);
+				publicAccountInfoService.updateBySelective(accountInfo,oldAccountInfo);
+			}
+		}catch (Exception e){
+			logger.error("公户数据保存异常",e);
+		}
+		return JSON.toJSON(accountInfo).toString();
+	}
 }

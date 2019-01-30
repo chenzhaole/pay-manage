@@ -262,6 +262,8 @@
 						</div>
 
 	               	</div>
+
+
 	         	</td>
 	         	<td colspan="2" align="right">
 	         		<div class="btn-group">

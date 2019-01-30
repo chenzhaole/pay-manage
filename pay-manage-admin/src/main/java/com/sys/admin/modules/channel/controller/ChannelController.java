@@ -1,7 +1,6 @@
 package com.sys.admin.modules.channel.controller;
 
 import com.alibaba.fastjson.JSON;
-import com.alibaba.rocketmq.common.filter.impl.Op;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
@@ -20,7 +19,6 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
-import com.sys.common.util.Collections3;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.NumberUtils;
@@ -353,6 +351,7 @@ public class ChannelController extends BaseController {
 
 		int result = 0;
 		String message, messageType;
+		String errMsg = "";
 		try {
 			ChanMchtFormInfo searchInfo = new ChanMchtFormInfo(request);
 
@@ -379,7 +378,7 @@ public class ChannelController extends BaseController {
 			if (result == 1) {
 				message = "保存成功";
 				messageType = "success";
-			} else if (result == 99) {
+			}else if (result == 99) {
 				message = "该通道商户支付方式已存在";
 				messageType = "error";
 			} else {

@@ -13,6 +13,7 @@ import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.bo.MchtChanFormInfo;
 import com.sys.admin.modules.platform.bo.MchtProductFormInfo;
 import com.sys.admin.modules.platform.bo.ProductFormInfo;
+import com.sys.admin.modules.platform.bo.ProductRelaFormInfo;
 import com.sys.admin.modules.platform.bo.SubProduct;
 import com.sys.admin.modules.platform.service.MchtChanAdminService;
 import com.sys.admin.modules.platform.service.MchtProductAdminService;
@@ -26,9 +27,15 @@ import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanMchtPaytype;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.MchtProduct;
+import com.sys.core.dao.dmo.PlatProduct;
+import com.sys.core.dao.dmo.PlatProductRela;
 import com.sys.core.dao.dmo.PlatSdkConfig;
 import com.sys.core.service.ChanMchtPaytypeService;
+import com.sys.core.service.MchtProductService;
+import com.sys.core.service.PlatFeerateService;
 import com.sys.core.service.PlatSDKService;
+import com.sys.core.service.ProductRelaService;
+import com.sys.core.service.ProductService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -41,8 +48,10 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 //import com.sys.core.service.ConfigSysService;
 
@@ -82,6 +91,18 @@ public class PlatformController extends BaseController {
 
 	@Autowired
 	ChanMchtPaytypeService chanMchtPaytypeService;
+
+	@Autowired
+	ProductService productService;
+
+	@Autowired
+	PlatFeerateService platFeerateService;
+
+	@Autowired
+	ProductRelaService productRelaService;
+
+	@Autowired
+	MchtProductService mchtProductService;
 
 	/**
 	 * @param request
@@ -1052,4 +1073,6 @@ public class PlatformController extends BaseController {
 		chanMchtPaytypeService.list(null);
 		return "modules/platform/platConfProxyBatchSplitEdit";
 	}
+
+	
 }
