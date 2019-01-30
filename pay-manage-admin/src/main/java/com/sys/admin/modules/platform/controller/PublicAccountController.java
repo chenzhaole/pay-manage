@@ -72,7 +72,12 @@ public class PublicAccountController extends BaseController {
 			//描述
 			accountAmount.setDescription(paramMap.get("description"));
 		}
-
+		//借方发生额运算符0等于1大于
+		accountAmount.setReduceAmountOperator(paramMap.get("reduceAmountOperator"));
+		//贷方发生额运算符0等于1大于
+		accountAmount.setAddAmountOperator(paramMap.get("addAmountOperator"));
+		//描述查询方式0模糊1精确
+		accountAmount.setDescriptionModel(paramMap.get("descriptionModel"));
 		String beginTime =paramMap.get("beginTime");
 		String endTime =paramMap.get("endTime");
 		if(StringUtils.isNotBlank(beginTime) && StringUtils.isNotBlank(endTime)){

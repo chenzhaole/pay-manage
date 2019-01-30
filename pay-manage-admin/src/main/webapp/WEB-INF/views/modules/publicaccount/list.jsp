@@ -56,6 +56,12 @@
 	function dataImport(){
 		window.location.href="${ctx}/publicaccount/toCommitPublicAccount";
 	}
+
+    $(function () {
+		$("#reduceAmountOperator").val("${paramMap.reduceAmountOperator}");
+        $("#addAmountOperator").val("${paramMap.addAmountOperator}");
+        $("#descriptionModel").val("${paramMap.descriptionModel}");
+    });
 	</script>
 </head>
 <body>
@@ -76,10 +82,12 @@
 					</select>
 				</td>
 				<td>
-					<label class="control-label">对方账户名：</label>
-					<label class="controls">
-						<input value="${paramMap.accountName}" id="accountName" name="accountName" type="text" maxlength="64" class="input-large"/>
-					</label>
+					<label class="control-label" >借方发生额：</label>
+					<select id="reduceAmountOperator" name="reduceAmountOperator" style="width:60px;">
+						<option value="0">等于</option>
+						<option value="1">大于</option>
+					</select>
+					<input value="${paramMap.reductAmount}" id="reductAmount" name="reductAmount" type="number" maxlength="64" class="input-large"/>
 				</td>
 				<td>
 					<label class="control-label">摘要：</label>
@@ -90,19 +98,25 @@
 			</tr>
 			<tr>
 				<td>
-					<label class="control-label" >借方发生额：</label>
-					<input value="${paramMap.reductAmount}" id="reductAmount" name="reductAmount" type="number" maxlength="64" class="input-large"/>
+					<label class="control-label">对方账户名：</label>
+					<input value="${paramMap.accountName}" id="accountName" name="accountName" type="text" maxlength="64" class="input-large"/>
 				</td>
 
 				<td >
 					<label class="control-label">贷方发生额：</label>
-					<label class="controls">
-						<input value="${paramMap.addAmount}" id="addAmount" name="addAmount" type="number" maxlength="64" class="input-large"/>
-					</label>
+					<select id="addAmountOperator" name="addAmountOperator" style="width:60px;">
+						<option value="0">等于</option>
+						<option value="1">大于</option>
+					</select>
+					<input value="${paramMap.addAmount}" id="addAmount" name="addAmount" type="number" maxlength="64" class="input-large"/>
 				</td>
 				<td>
 					<label class="control-label">描述：</label>
 					<label class="controls">
+						<select id="descriptionModel" name="descriptionModel" style="width:60px;">
+							<option value="0">模糊</option>
+							<option value="1">精确</option>
+						</select>
 						<input value="${paramMap.description}" id="description" name="description" type="text" maxlength="255" class="input-large"/>
 					</label>
 				</td>
