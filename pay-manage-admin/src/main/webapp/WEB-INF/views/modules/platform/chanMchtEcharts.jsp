@@ -11,8 +11,14 @@
 			align:center
 		}
 	</style>
+	<script src="${ctxStatic}/js/select2.js"></script>
+	<link href="${ctxStatic}/css/select2.css" rel="stylesheet" />
 	<script type="text/javascript">
 	$(document).ready(function() {
+
+        $('.selectpicker').select2({
+        });
+
 		$("#btnSubmit").click(function(){
 			$("#searchForm").submit();
 		});
@@ -152,7 +158,7 @@
 			<tr>
 				<td>
 					<label class="control-label">折线图类型：</label>
-					<select name="echartsType" id="echartsType"  value="${paramMap.echartsType}" class="selectpicker bla bla bli" data-live-search="true" onchange="onChange()">
+					<select name="echartsType" id="echartsType"  value="${paramMap.echartsType}" class="bla bla bli" data-live-search="true" onchange="onChange()">
 						<option value="" <c:if test="${paramMap.echartsType ==''}">selected</c:if>>请选择</option>
 						<option value="0,商户交易量折线图" <c:if test="${paramMap.echartsType =='0,商户交易量折线图'}">selected</c:if>>商户交易量折线图</option>
 						<option value="1,商户交易成功率折线图" <c:if test="${paramMap.echartsType =='1,商户交易成功率折线图'}">selected</c:if>>商户交易成功率折线图</option>
@@ -161,7 +167,7 @@
 				</td>
 				<td id="td_0_1" style="display: none">
 					<label class="control-label">商户名称：</label>
-					<select name="mchtCode" id="mchtCode"  class="selectpicker bla bla bli" data-live-search="true">
+					<select name="mchtCode" id="mchtCode"  class="selectpicker" data-live-search="true">
 						<option value="">---全部---</option>
 						<c:forEach var="mcht" items="${mchtList}">
 							<option value="${mcht.mchtCode}" <c:if test="${paramMap.mchtCode eq mcht.mchtCode}">selected</c:if> >${mcht.name}</option>
@@ -181,16 +187,16 @@
 
 				<td id="td_2" style="display: none">
 					<label class="control-label">通道商户支付方式</label>
-					<select name="chanMchtPayTypeId" class="selectpicker bla bla bli" data-live-search="true" >
+					<select name="chanMchtPayTypeId" class="selectpicker" data-live-search="true" >
 						<option value="">--全部--</option>
-						<c:forEach items="${chanInfoList}" var="chanInfo">
-							<option <c:if test="${paramMap.chanMchtPaytypeId == chanInfo.id}">selected</c:if>
-									value="${chanInfo.id}">${chanInfo.name}</option>
+						<c:forEach items="${chanInfoList}" var="chan">
+							<option <c:if test="${paramMap.chanMchtPaytypeId == chan.id}">selected</c:if>
+									value="${chan.id}">${chan.name}</option>
 						</c:forEach>
 					</select>
 
 					<label class="control-label">通道名称</label>
-					<select name="chanCode" class="input-xlarge" id="chanCode">
+					<select name="chanCode" class="selectpicker" id="chanCode">
 						<option value="">--全部--</option>
 						<c:forEach items="${chanInfos}" var="chanInfo">
 							<option data-chanCode="${chanInfo.chanCode }"
@@ -204,7 +210,7 @@
 			<tr id="tr_2" style="display: none">
 				<td>
 					<label class="control-label">支付方式</label>
-					<select name="payType" class="input-xlarge" id="payType">
+					<select name="payType" class="selectpicker" id="payType">
 						<option value="">--全部--</option>
 						<c:forEach items="${paymentTypeInfos}" var="paymentTypeInfo">
 							<option

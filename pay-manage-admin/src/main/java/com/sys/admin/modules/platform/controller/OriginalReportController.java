@@ -1,5 +1,6 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.enums.AdminPayTypeEnum;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
@@ -14,6 +15,8 @@ import com.sys.core.dao.dmo.ChanMchtReportStatistics;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.service.MerchantService;
 import org.apache.commons.lang3.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -37,8 +40,12 @@ public class OriginalReportController extends BaseController {
     @Autowired
     ChanMchtAdminService chanMchtAdminService;
 
+    private static final Logger logger =LoggerFactory.getLogger(OriginalReportController.class);
+
     @RequestMapping(value = "/chanMchtStatistice")
     public String mchtPayTypeOrderQuery(@RequestParam Map<String, String> paramMap, Model model){
+
+        logger.info("paramMap===="+JSON.toJSONString(paramMap));
 
         //通道
         List<ChanInfo> chanInfos = channelAdminService.getChannelList(new ChanInfo());
@@ -100,6 +107,11 @@ public class OriginalReportController extends BaseController {
     }
     @RequestMapping(value = "/chanMchtEcharts")
     public String mchtEchartQuery(@RequestParam Map<String, String> paramMap, Model model) {
+        logger.info("paramMap===="+JSON.toJSONString(paramMap));
+        String paramTime=null;
+        String precent = null;
+        BigDecimal chanCommitNum=null;
+        BigDecimal chanCommitSuccNum=null;
         String beginDate =paramMap.get("beginDate");
         String endDate =paramMap.get("endDate");
         String beginTime =paramMap.get("beginTime");
@@ -126,6 +138,14 @@ public class OriginalReportController extends BaseController {
         if(StringUtils.isBlank(echartsType)){
             return "modules/platform/chanMchtEcharts";
         }
+        Calendar beginTimeCalendar =DateUtils.toCalendar(DateUtils.parseDate(beginTime,"HHmmss"));
+        Calendar endTimeCalendar =DateUtils.toCalendar(DateUtils.parseDate(endTime,"HHmmss"));
+        List<String> xAxis =new ArrayList<>();
+        while(beginTimeCalendar.getTime().getTime()<=endTimeCalendar.getTime().getTime()){
+            paramTime =DateUtils.formatDate(beginTimeCalendar.getTime(),"HHmm");
+            xAxis.add(paramTime);
+            beginTimeCalendar.add(Calendar.MINUTE,15);
+        }
 
         String[] echartsTypeArray =echartsType.split(",");
         echartsType =echartsTypeArray[0];
@@ -137,44 +157,60 @@ public class OriginalReportController extends BaseController {
         chanMchtReportStatistics.setMchtId(paramMap.get("mchtCode"));
         chanMchtReportStatistics.setPayType(StringUtils.isBlank(paramMap.get("payType"))?"":paramMap.get("payType").split(",")[0]);
         chanMchtReportStatistics.setChanMchtPayTypeId(paramMap.get("chanMchtPayTypeId"));
-        String paramTime=null;
-        String precent = null;
         List<ChanMchtReportStatistics> chanMchtReportStatisticsList=null;
         List<List<String>> series = new ArrayList<>();
         List<String> data =new ArrayList<>();
         while(beginDateCalendar.getTime().getTime()<=endDateCalendar.getTime().getTime()){
             paramTime =DateUtils.formatDate(beginDateCalendar.getTime(),"yyyyMMdd");
-            data.add(paramTime);
             chanMchtReportStatistics.setBeginTime(paramTime+beginTime);
             chanMchtReportStatistics.setEndTime(paramTime+endTime);
             chanMchtReportStatisticsList=reportService.list(chanMchtReportStatistics);
+            if(chanMchtReportStatisticsList!=null && chanMchtReportStatisticsList.size()>0){
+                data.add(paramTime);
+            }else{
+                beginDateCalendar.add(Calendar.DAY_OF_MONTH,1);
+                continue;
+            }
             List<String> seriesData =new ArrayList<>();
-            for(ChanMchtReportStatistics chanMchtReportStatistics1:chanMchtReportStatisticsList){
-                if("0".equals(echartsType)){
-                    seriesData.add(String.valueOf(chanMchtReportStatistics1.getMchtReqNum()));
-                }else if("1".equals(echartsType)){
-                    precent =String.valueOf(chanMchtReportStatistics1.getPaySuccNum().divide(chanMchtReportStatistics1.getChanCommitNum()).setScale(2,BigDecimal.ROUND_HALF_UP)
-                            .multiply(new BigDecimal("100")));
-                    seriesData.add(precent);
-                }else if("2".equals(echartsType)){
-                    precent =String.valueOf(chanMchtReportStatistics1.getPaySuccNum().divide(chanMchtReportStatistics1.getChanCommitSuccNum()).setScale(2,BigDecimal.ROUND_HALF_UP)
-                            .multiply(new BigDecimal("100")));
-                    seriesData.add(precent);
+            int j =0;//纵坐标数据点
+            ChanMchtReportStatistics chanMchtReportStatistics1=null;
+            for(String x:xAxis){
+                try {
+                    chanMchtReportStatistics1 =chanMchtReportStatisticsList.get(j);
+                }catch (Exception e){
+                    seriesData.add("0");
+                    continue;
                 }
-
+                if(x.equals(chanMchtReportStatistics1.getStatisticsTime().substring(8,12))){
+                    j++;
+                    if("0".equals(echartsType)){
+                        seriesData.add(String.valueOf(chanMchtReportStatistics1.getMchtReqNum()));
+                    }else if("1".equals(echartsType)){
+                        chanCommitNum =chanMchtReportStatistics1.getMchtReqNum();
+                        if(chanCommitNum.compareTo(BigDecimal.ZERO)==0){
+                            seriesData.add("0");
+                            continue;
+                        }
+                        precent =String.valueOf(chanMchtReportStatistics1.getPaySuccNum().divide(chanMchtReportStatistics1.getMchtReqNum(),2).setScale(2,BigDecimal.ROUND_HALF_UP)
+                                .multiply(new BigDecimal("100")));
+                        seriesData.add(precent);
+                    }else if("2".equals(echartsType)){
+                        chanCommitSuccNum =chanMchtReportStatistics1.getChanCommitSuccNum();
+                        if(chanCommitSuccNum.compareTo(BigDecimal.ZERO)==0){
+                            seriesData.add("0");
+                            continue;
+                        }
+                        precent =String.valueOf(chanMchtReportStatistics1.getPaySuccNum().divide(chanMchtReportStatistics1.getChanCommitSuccNum(),2).setScale(2,BigDecimal.ROUND_HALF_UP)
+                                .multiply(new BigDecimal("100")));
+                        seriesData.add(precent);
+                    }
+                }else{
+                    seriesData.add("0");
+                }
             }
             series.add(seriesData);
             beginDateCalendar.add(Calendar.DAY_OF_MONTH,1);
         };
-
-        Calendar beginTimeCalendar =DateUtils.toCalendar(DateUtils.parseDate(beginTime,"HHmmss"));
-        Calendar endTimeCalendar =DateUtils.toCalendar(DateUtils.parseDate(endTime,"HHmmss"));
-        List<String> xAxis =new ArrayList<>();
-        while(beginTimeCalendar.getTime().getTime()<=endTimeCalendar.getTime().getTime()){
-            paramTime =DateUtils.formatDate(beginTimeCalendar.getTime(),"HH:mm");
-            xAxis.add(paramTime);
-            beginTimeCalendar.add(Calendar.MINUTE,15);
-        }
         model.addAttribute("echartsType",echartsType);
         model.addAttribute("echartsDesc",echartsDesc);
         model.addAttribute("xAxis",xAxis.toArray());
