@@ -40,7 +40,7 @@
 <body>
 
 <div class="breadcrumb">
-	<label><th><a href="#">公户账务管理</a> > <a href="#"><b>公户账务编辑</b></a></th></label>
+	<label><th><a href="#">平台管理</a> ><a href="#">公户账务管理</a> > <a href="#"><b>公户账务编辑</b></a></th></label>
 </div>
 
 <form id="publicAccountForm" action="" method="post" enctype="multipart/form-data">
