@@ -139,7 +139,28 @@ public class OriginalReportController extends BaseController {
             return "modules/platform/chanMchtEcharts";
         }
         Calendar beginTimeCalendar =DateUtils.toCalendar(DateUtils.parseDate(beginTime,"HHmmss"));
+        int m =beginTimeCalendar.get(Calendar.MINUTE);
+        if(m>0 && m<15){
+            beginTimeCalendar.set(Calendar.MINUTE,15);
+        }else if(m>15 && m<30){
+            beginTimeCalendar.set(Calendar.MINUTE,30);
+        }else if(m>30 && m<45){
+            beginTimeCalendar.set(Calendar.MINUTE,45);
+        }else if(m>45){
+            beginTimeCalendar.add(Calendar.DAY_OF_MONTH,1);
+            beginTimeCalendar.set(Calendar.MINUTE,00);
+        }
         Calendar endTimeCalendar =DateUtils.toCalendar(DateUtils.parseDate(endTime,"HHmmss"));
+        m =endTimeCalendar.get(Calendar.MINUTE);
+        if(m>0 && m<15){
+            endTimeCalendar.set(Calendar.MINUTE,00);
+        }else if(m>15 && m<30){
+            endTimeCalendar.set(Calendar.MINUTE,15);
+        }else if(m>30 && m<45){
+            endTimeCalendar.set(Calendar.MINUTE,30);
+        }else if(m>45){
+            endTimeCalendar.set(Calendar.MINUTE,45);
+        }
         List<String> xAxis =new ArrayList<>();
         while(beginTimeCalendar.getTime().getTime()<=endTimeCalendar.getTime().getTime()){
             paramTime =DateUtils.formatDate(beginTimeCalendar.getTime(),"HHmm");

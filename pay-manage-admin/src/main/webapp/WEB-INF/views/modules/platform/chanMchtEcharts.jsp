@@ -175,7 +175,7 @@
 					</select>
 
 					<label class="control-label">支付方式</label>
-					<select name="payType" class="input-xlarge" id="payType">
+					<select name="payType" class="selectpicker" id="payType">
 						<option value="">--全部--</option>
 						<c:forEach items="${paymentTypeInfos}" var="paymentTypeInfo">
 							<option
@@ -190,7 +190,7 @@
 					<select name="chanMchtPayTypeId" class="selectpicker" data-live-search="true" >
 						<option value="">--全部--</option>
 						<c:forEach items="${chanInfoList}" var="chan">
-							<option <c:if test="${paramMap.chanMchtPaytypeId == chan.id}">selected</c:if>
+							<option <c:if test="${paramMap.chanMchtPayTypeId eq chan.id}">selected</c:if>
 									value="${chan.id}">${chan.name}</option>
 						</c:forEach>
 					</select>

@@ -53,7 +53,7 @@
 						<option value="">--全部--</option>
 						<c:forEach items="${chanInfoList}" var="chan">
 							<option
-									<c:if test="${paramMap.chanMchtPaytypeId eq chan.id}">selected</c:if>
+									<c:if test="${paramMap.chanMchtPayTypeId eq chan.id}">selected</c:if>
 									value="${chan.id}">${chan.name}</option>
 						</c:forEach>
 					</select>
