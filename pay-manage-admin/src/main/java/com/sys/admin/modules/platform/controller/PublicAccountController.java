@@ -118,6 +118,9 @@ public class PublicAccountController extends BaseController {
 			pageNo = Integer.parseInt(pageNoString);
 		}
 		PageInfo pageInfo = new PageInfo();
+		if(count<=20&&pageNo!=1){
+			pageNo = 1;
+		}
 		pageInfo.setPageNo(pageNo);
 		pageInfo.setPageSize(20);
 		accountAmount.setPageInfo(pageInfo);
