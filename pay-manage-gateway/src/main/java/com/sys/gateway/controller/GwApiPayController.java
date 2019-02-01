@@ -5,6 +5,7 @@ import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
+import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 
 import com.sys.gateway.common.IpUtil;
@@ -37,6 +38,8 @@ public class GwApiPayController {
 
 	@Autowired
 	GwApiPayService gwApiPayService;
+	@Autowired
+	ITradeApiPayHandler iTradeApiPayHandler;
 
 	/**支付**/
     @RequestMapping(value="/gateway/api/commPay")
@@ -54,6 +57,13 @@ public class GwApiPayController {
         	CommonResponse checkResp = gwApiPayService.checkParam(data);
     		logger.info("comm支付校验请求参数的结果为："+JSONObject.toJSONString(checkResp));
         	if( !ErrorCodeEnum.SUCCESS.getCode().equals(checkResp.getRespCode())){
+        		if(!ErrorCodeEnum.E1012.getCode().equals(checkResp.getRespCode())){
+					TradeApiPayRequest tradeRequest = (TradeApiPayRequest) checkResp.getData();
+					if(tradeRequest.getHead()!=null){
+						iTradeApiPayHandler.insertRedisRequestData(tradeRequest.getHead().getMchtId(),
+								tradeRequest.getBody()==null?"0":tradeRequest.getBody().getAmount(),2);
+					}
+				}
         		head.setRespCode(checkResp.getRespCode());
         		head.setRespMsg(checkResp.getRespMsg());
         		apiPayResp.setHead(head);

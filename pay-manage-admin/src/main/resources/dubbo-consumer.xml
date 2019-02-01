@@ -69,4 +69,7 @@
 
 	<!--	简易报表		-->
 	<dubbo:reference id="simpleReportService" interface="com.sys.boss.api.service.order.SimpleReportService" timeout="30000"/>
+
+	<!--	报表		-->
+	<dubbo:reference id="reportService" interface="com.sys.boss.api.service.order.ReportService" timeout="30000"/>
 </beans>

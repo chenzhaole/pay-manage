@@ -63,7 +63,7 @@ public class GwSdkPayServiceImpl implements GwSdkPayService {
             String goods = map.containsKey("goods") ? (String) map.get("goods") : "";
             String notifyUrl = map.containsKey("notifyUrl") ? (String) map.get("notifyUrl") : "";
             String sign = map.containsKey("sign") ? (String) map.get("sign") : "";
-
+            tradeApiPayHandler.insertRedisRequestData(mchtId,amount,1);
             if (StringUtils.isBlank(mchtId)
                     || StringUtils.isBlank(payType)
                     || StringUtils.isBlank(orderId)
@@ -76,6 +76,7 @@ public class GwSdkPayServiceImpl implements GwSdkPayService {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
                 checkResp.setRespCode("必填参数值不能为空");
                 logger.info(BIZ_NAME + "必填请求参数值不能为空，即客户端请求参数：" + JSON.toJSONString(map));
+                tradeApiPayHandler.insertRedisRequestData(mchtId,amount,2);
                 return checkResp;
             }
 
