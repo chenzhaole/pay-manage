@@ -119,6 +119,7 @@ public class PublicAccountController extends BaseController {
 		}
 		PageInfo pageInfo = new PageInfo();
 		pageInfo.setPageNo(pageNo);
+		pageInfo.setPageSize(20);
 		accountAmount.setPageInfo(pageInfo);
 
 		List<AccountAmount> accountAmounts =accountAmountService.list(accountAmount);
