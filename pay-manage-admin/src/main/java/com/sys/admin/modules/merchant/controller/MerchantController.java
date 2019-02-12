@@ -23,7 +23,9 @@ import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatFeerate;
+import com.sys.core.service.PlatFeerateService;
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
@@ -57,6 +59,9 @@ public class MerchantController extends BaseController {
 
 	@Autowired
 	private MchtProductAdminService mchtProductAdminService;
+
+	@Autowired
+	private PlatFeerateService platFeerateService;
 
 	//商户基本信息接口地址
 	@Value("${mchtInfoData.url}")
@@ -539,7 +544,7 @@ public class MerchantController extends BaseController {
                     }
                 }
 
-        		String result = merchantAdminService.updateMerchantService(merchantForm);
+				String result = merchantAdminService.updateMerchantService(merchantForm);
         		if("success".equals(result)){
         			redirectAttributes.addFlashAttribute("message", "更新商户信息成功！");
         			redirectAttributes.addFlashAttribute("messageType", "success");

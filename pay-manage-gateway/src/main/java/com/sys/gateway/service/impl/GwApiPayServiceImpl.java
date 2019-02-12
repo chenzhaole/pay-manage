@@ -51,10 +51,27 @@ public class GwApiPayServiceImpl implements GwApiPayService {
 			}
 			//解析请求参数
 			TradeApiPayRequest tradeRequest = JSON.parseObject(paramStr, TradeApiPayRequest.class);
-			if (tradeRequest.getHead() == null || tradeRequest.getBody() == null || tradeRequest.getSign() == null) {
+			checkResp.setData(tradeRequest);
+
+			if (tradeRequest.getHead() == null) {
 				checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
-				checkResp.setRespCode("[head],[body],[sign]请求参数值不能为空");
-				logger.error("[head],[body],[sign]请求参数值不能为空，即TradeCommRequest=："+ JSONObject.toJSONString(tradeRequest));
+				checkResp.setRespCode("[head]请求参数值不能为空");
+				logger.error("[head]请求参数值不能为空，即TradeCommRequest=："+ JSONObject.toJSONString(tradeRequest));
+				return checkResp;
+			}
+			tradeApiPayHandler.insertRedisRequestData(tradeRequest.getHead().getMchtId(),tradeRequest.getBody()==null?"0":tradeRequest.getBody().getAmount(),1);
+
+			if(tradeRequest.getBody() == null){
+				checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
+				checkResp.setRespCode("[body]请求参数值不能为空");
+				logger.error("[body]请求参数值不能为空，即TradeCommRequest=："+ JSONObject.toJSONString(tradeRequest));
+				return checkResp;
+			}
+
+			if(tradeRequest.getSign() == null){
+				checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
+				checkResp.setRespCode("[sign]请求参数值不能为空");
+				logger.error("[sign]请求参数值不能为空，即TradeCommRequest=："+ JSONObject.toJSONString(tradeRequest));
 				return checkResp;
 			}
 

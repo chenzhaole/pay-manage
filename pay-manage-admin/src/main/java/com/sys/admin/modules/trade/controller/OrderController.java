@@ -1012,6 +1012,8 @@ public class OrderController extends BaseController {
 			paramMap.put("endDate", endDate);
 			order.setUpdateTime(DateUtils.parseDate(endDate));
 		}
+
+
 		//初始化商户ID
 		if (StringUtils.isNotBlank(paramMap.get("mchtId"))) {
 			order.setMchtId(paramMap.get("mchtId"));

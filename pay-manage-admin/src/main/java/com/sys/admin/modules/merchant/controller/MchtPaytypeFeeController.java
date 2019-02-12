@@ -17,6 +17,8 @@ import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatFeerate;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
+import com.sys.core.service.ProductService;
+import org.apache.avro.generic.GenericData;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -50,6 +52,9 @@ public class MchtPaytypeFeeController extends BaseController {
 	private MerchantService merchantService;
 
 	@Autowired
+	private ProductService productService;
+
+	@Autowired
 	private JedisPool jedisPool;
 
 
@@ -57,8 +62,7 @@ public class MchtPaytypeFeeController extends BaseController {
 	 * 商户支付方式费率列表
 	 */
 	@RequestMapping(value = {"mchtPaytypeFeePage", ""})
-	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap
-	) {
+	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 
 		String mchtId = paramMap.get("mchtId");
 		//根据商户查费率
@@ -213,11 +217,14 @@ public class MchtPaytypeFeeController extends BaseController {
 							}
 						}
 					}
+
+
 					if (save){
 						platFeerateService.saveByKey(platFeerate);
 					}else {
 						platFeerateService.createFirstTime(platFeerate);
 					}
+
 					if(FeeRateBizTypeEnum.MCHT_PAYTYPE_BIZTYPE.getCode().equals(platFeerate.getBizType()) && !StringUtils.isEmpty(platFeerate.getRequestNum()) && !StringUtils.isEmpty(platFeerate.getRequestNum())){
 						try{
 							if(StringUtils.isEmpty(platFeerate.getBizRefId())){
@@ -294,7 +301,7 @@ public class MchtPaytypeFeeController extends BaseController {
 			messageType = "success";
 		} catch (Exception e) {
 			e.printStackTrace();
-			message = "操作失败";
+			message = "操作失败"+e.getMessage();
 			messageType = "error";
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
