@@ -8,6 +8,8 @@ import com.sys.boss.api.entry.trade.request.apipay.TradeQueryFaceRequest;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderQueryResponse;
 import com.sys.boss.api.entry.trade.response.apipay.QueryFaceResponse;
+import com.sys.boss.api.service.trade.handler.ITradeApiQueryHandler;
+import com.sys.boss.api.service.trade.handler.ITradeQueryFaceHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwApiPayService;
@@ -40,6 +42,11 @@ public class GwApiQueryController {
 
 	@Autowired
 	GwQueryFaceService gwQueryFaceService;
+
+
+	@Autowired
+	private ITradeQueryFaceHandler tradeQueryFaceHandler;
+
 	/**
 	 * api支付查询支付订单
      */
@@ -114,5 +121,22 @@ public class GwApiQueryController {
 		}
 		logger.info("queryFace面值库存查询接口，返回下游商户值："+JSON.toJSONString(queryFaceResponse));
 		return JSON.toJSONString(queryFaceResponse);
+	}
+
+	/**
+	 * 检查库存信息
+	 * 2019-01-30 12:00:01
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/gateway/api/checkStockAndFace")
+	@ResponseBody
+	public String checkStockAndFace(HttpServletRequest request){
+		boolean checkFalg = tradeQueryFaceHandler.checkStockAndFace();
+		if(checkFalg){
+			return "库存请求数正常";
+		}else{
+			return "库存请求数不正常";
+		}
 	}
 }
