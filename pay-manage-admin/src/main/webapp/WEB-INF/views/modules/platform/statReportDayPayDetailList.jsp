@@ -41,7 +41,8 @@
 </div>
 <tags:message content="${message}"/>
 <form id="searchFormPay" action="${ctx}/platform/statReportDayPayDetail/list" method="post" class="breadcrumb form-search">
-    <input  name="tradeDate" type="hidden" value="${tradeDate}"/>
+    <input  name="startDate" type="hidden" value="${startDate}"/>
+    <input  name="endDate" type="hidden" value="${endDate}"/>
     <input  name="bizType" type="hidden" value="${1}"/>
     <table>
         <tr>
@@ -96,7 +97,8 @@
 </table>
 
 <form id="searchFormProxy" action="${ctx}/platform/statReportDayPayDetail/list" method="post" class="breadcrumb form-search">
-    <input  name="tradeDate" type="hidden" value="${tradeDate}"/>
+    <input  name="startDate" type="hidden" value="${startDate}"/>
+    <input  name="endDate" type="hidden" value="${endDate}"/>
     <input  name="bizType" type="hidden" value="${2}"/>
     <table>
         <tr>
@@ -133,7 +135,8 @@
 </table>
 
 <form id="searchFormChongzhi" action="${ctx}/platform/statReportDayPayDetail/list" method="post" class="breadcrumb form-search">
-    <input  name="tradeDate" type="hidden" value="${tradeDate}"/>
+    <input  name="startDate" type="hidden" value="${startDate}"/>
+    <input  name="endDate" type="hidden" value="${endDate}"/>
     <input  name="bizType" type="hidden" value="${6}"/>
     <table>
         <tr>
