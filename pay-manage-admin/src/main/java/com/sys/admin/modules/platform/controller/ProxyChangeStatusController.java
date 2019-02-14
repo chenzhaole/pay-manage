@@ -355,7 +355,9 @@ public class ProxyChangeStatusController extends BaseController {
 						if(proxyDetail.getChanMchtPaytypeId()!=null){
 							chanMchtPaytype = chanMchtPaytypeService.queryByKey(proxyDetail.getChanMchtPaytypeId());
 						}
+/*
 						tradeDFBatchHandler.accumulateCMPDayTradeAmount(proxyDetail.getAmount()+"",chanMchtPaytype,proxyDetail.getId(),"代付状态修改审批保存");
+*/
 					}
 
 					//修改批次订单状态
