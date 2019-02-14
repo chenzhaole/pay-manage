@@ -397,7 +397,7 @@ public class GwDFController {
                     if(chanInfo!= null){
                         chanName = chanInfo.getName();
                     }
-                    String content = "时间:" + DateUtils.getDateTime() + ",通道名称:" + chanName + ",通道余额为:" + balance;
+                    String content = "时间:" + DateUtils.getDateTime() + ",通道名称:" + chanMchtPaytype.getName() + ",通道余额为:" + balance;
                     if(new BigDecimal(balance).compareTo(new BigDecimal(200000))  >= 0 ){
                         logger.info("告警内容为:" + content);
                         Map<String, String> contentMap = new HashMap<>();
