@@ -114,8 +114,10 @@ public class GwPublicAccountController {
 				resultMap.put("code","2");
 				resultMap.put("msg","未上传文件");
 			}else {
-				InputStream is = file.getInputStream();
-				List<String[]> data = ExcelUtil.readexcel(is, fileName);
+				java.io.File f =java.io.File.createTempFile("tmp", null);
+				file.transferTo(f);
+				List<String[]> data = ExcelUtil.readexcel(f, fileName);
+				f.deleteOnExit();
 				//获取公户信息
 				PublicAccountInfo pai = new PublicAccountInfo();
 				pai.setPublicAccountCode(publicAccountCode);

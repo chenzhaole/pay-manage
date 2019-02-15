@@ -62,6 +62,9 @@ public class GwCashierMchtController extends GwCashierBaseController {
         String mobile = "";
 		try {
 			midoid = "商户号："+request.getParameter("mchtId")+"-->支付类型："+request.getParameter("biz")+"-->商户订单号："+request.getParameter("orderId")+"-->";
+			String amount =request.getParameter("amount");
+			String mchtId =request.getParameter("mchtId");
+			iTradeCashierMchtHandler.insertRedisRequestData(mchtId,amount,1);
 			//设备类型由我们自己来通过程序判断，由于不同的设备类型对应页面不一样，且掉支付的方式也不一样，所以会根据设备类型来做判断
 			//根据userAgent判断设备类型：pc、手机端、微信内(针对公众号支付)
 			String userAgent = this.getUserAgentInfoByRequest(request, midoid);
@@ -179,6 +182,7 @@ public class GwCashierMchtController extends GwCashierBaseController {
 					logger.info(BIZ+midoid+"调用TradeCashierMchtHandler处理业务逻辑，处理结果为失败，返回的CommonResult="+JSONObject.toJSONString(result));
 				}
 			}else{
+				iTradeCashierMchtHandler.insertRedisRequestData(mchtId,amount,2);
 				page = this.getPageByDeviceType(deviceType, PageTypeEnum.ERROR.getCode(), midoid);
 				logger.info(BIZ+midoid+"解析并校验商户请求参数失败："+ JSONObject.toJSONString(result) );
 			}

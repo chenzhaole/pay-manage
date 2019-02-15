@@ -62,8 +62,7 @@ public class MchtPaytypeFeeController extends BaseController {
 	 * 商户支付方式费率列表
 	 */
 	@RequestMapping(value = {"mchtPaytypeFeePage", ""})
-	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap
-	) {
+	public String mchPaytypelist(HttpServletRequest request, HttpServletResponse response, Model model, @RequestParam Map<String, String> paramMap) {
 
 		String mchtId = paramMap.get("mchtId");
 		//根据商户查费率
@@ -209,8 +208,6 @@ public class MchtPaytypeFeeController extends BaseController {
 			boolean save;
 			if (!CollectionUtils.isEmpty(feerates)){
 				List<PlatFeerate> platFeerates = platFeerateService.getMchtFee(mchtId);
-				MchtInfo mi = merchantService.queryByKey(mchtId);
-				String errMsg = null;
 				for (PlatFeerate platFeerate : feerates) {
 					save = false;
 					if (!CollectionUtils.isEmpty(platFeerates)){
@@ -221,31 +218,7 @@ public class MchtPaytypeFeeController extends BaseController {
 						}
 					}
 
-					//获取商户和支付方式对应的通道商户支付方式
-					String payType = platFeerate.getBizRefId().split("&")[1];
-					List<String> cmpids = productService.getCMPIdsByMchtIdAndPaytype(mchtId,payType);
-					if(cmpids!=null){
-						for(String cmpId:cmpids){
-							errMsg = platFeerateService.checkChanAndMchtFee(cmpId,mchtId,payType,platFeerate,null);
-							if(StringUtils.isNotBlank(errMsg)){
-								throw new Exception(errMsg);
-							}
-						}
-					}
 
-					//校验商户与代理商费率
-					List<PlatFeerate> pfs = new ArrayList<>();
-					pfs.add(platFeerate);
-					if("4".equals(mi.getSignType())){
-						//代理商
-						errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,platFeerate);
-					}else{
-						//普通商户
-						errMsg = platFeerateService.checkMchtAndAgentFee(mi,platFeerate,null);
-					}
-					if(StringUtils.isNotBlank(errMsg)){
-						continue;
-					}
 					if (save){
 						platFeerateService.saveByKey(platFeerate);
 					}else {
@@ -266,10 +239,6 @@ public class MchtPaytypeFeeController extends BaseController {
 							logger.error(e.getMessage(), e);
 						}
 					}
-				}
-				errMsg = platFeerateService.checkMchtAndAgentFee(mi,null,null);
-				if(StringUtils.isNotBlank(errMsg)){
-					throw new Exception(errMsg);
 				}
 			}
 
