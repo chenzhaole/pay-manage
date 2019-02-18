@@ -348,6 +348,9 @@ public class OrderController extends BaseController {
 			String sysDate = dateFormat.format(new Date());
 			//截至到某个时间的余额
 			String queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd");
+			if(queryDate.length()>10){
+				queryDate = queryDate.substring(0,10);
+			}
 
 			//查出所有商户信息
 			List<MchtInfo> mchtInfoList = merchantService.list(new MchtInfo());
@@ -356,7 +359,7 @@ public class OrderController extends BaseController {
 
 			MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
 			//查询当前实时余额
-			if(StringUtils.isNotEmpty(queryDate) && (DateUtils.parseDate(queryDate,"yyyy-MM-dd HH:mm:ss").getTime()>=
+			if(StringUtils.isNotEmpty(queryDate) && (DateUtils.parseDate(queryDate,"yyyy-MM-dd").getTime()>=
 					DateUtils.parseDate(sysDate,"yyyy-MM-dd").getTime())){
 
 				//获取当前第几页
