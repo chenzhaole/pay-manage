@@ -7,6 +7,8 @@
 	<style type="text/css">
 
 	</style>
+	<script src="${ctxStatic}/jquery/jquery-ui.min.js"></script>
+	<link href="${ctxStatic}/jquery/jquery-ui.min.css" rel="stylesheet" />
 	<script type="text/javascript">
 	    $(document).ready(function() {
             //导出数据提示
@@ -39,9 +41,107 @@
                 $("#searchForm").submit();
             });
 
+            $("#batchNotifyNew").click(function(){
+                $('#ul_orderIds').children('li').remove();
+                addFrist();
+                $('#orderIds').dialog({
+                    buttons:{
+                        "提交":function(){
+                            var length=$('#ul_orderIds').children('li').length;
+                            if(length>100){
+                                alert('订单总笔数最大为100');
+                                return;
+                            }
+                            var inputobjarr =$('input[name=\"platOrderNo\"]');
+                            var data="";
+                            for(var i=0;i<length;i++){
+                                if(i==0){
+                                    data =data+'?platOrderNo='+inputobjarr[i].value;
+                                }else{
+                                    data =data +'&platOrderNo'+inputobjarr[i].value;
+                                }
+                            }
+                            $.ajax({
+								url:'${ctx}/order/batchReissueMchtNotifyByOrderId'+data,
+								success:function (data) {
+									alert(data);
+                                    $('#orderIds').dialog('close');
+                                }
+							})
+						},
+                        "取消":function(){$(this).dialog('close');}
+                    },
+					title:"请输入平台订单号",
+                    width : 600,   //弹出框宽度
+                    height : 500,
+                    position : { using:function(pos){
+                            var topOffset = $(this).css(pos).offset().top;
+                            if (topOffset = 0||topOffset>0) {
+                                $(this).css('top', ($(window).height()-510)/2);
+                            }
+                        }},
+                })
+            });
 
-
+            $("#batchQueryNew").click(function(){
+                $('#ul_orderIds').children('li').remove();
+                addFrist();
+                $('#orderIds').dialog({
+                    buttons:{
+                        "提交":function(){
+                            var length=$('#ul_orderIds').children('li').length;
+                            if(length>100){
+                                alert('订单总笔数最大为100');
+                                return;
+							}
+							var inputobjarr =$('input[name=\"platOrderNo\"]');
+                            var data="";
+							for(var i=0;i<length;i++){
+								if(i==0){
+								    data =data+'?platOrderNo='+inputobjarr[i].value;
+								}else{
+								    data =data +'&platOrderNo'+inputobjarr[i].value;
+								}
+							}
+                            $.ajax({
+                                url:'${ctx}/order/batchReissueMchtQueryByOrderId'+data,
+                                success:function (data) {
+                                    alert(data);
+                                    $('#orderIds').dialog('close');
+                                }
+                            })
+                        },
+                        "取消":function(){$(this).dialog('close');}
+                    },
+                    title:"请输入平台订单号",
+                    width : 600,   //弹出框宽度
+                    height : 500,
+                    position : { using:function(pos){
+                            var topOffset = $(this).css(pos).offset().top;
+                            if (topOffset = 0||topOffset>0) {
+                                $(this).css('top', ($(window).height()-510)/2);
+                            }
+                        }},
+                })
+            });
         });
+
+        function addInput(input){
+            var nextInputValue =$(input).parent().next().children('input').val();
+			if(typeof (nextInputValue) =='undefined'){
+                $('#ul_orderIds').append('<li><input type=\"text\" name=\"platOrderNo\" oninput=\"addInput(this);\"  ondblclick=\"delInput(this);\"></li>');
+			}
+
+		}
+
+		function addFrist(){
+            $('#ul_orderIds').append('<li><input type=\"text\" name=\"platOrderNo\" oninput=\"addInput(this);\"  ondblclick=\"delInput(this);\"></li>');
+		}
+
+		function delInput( input){
+          $(input).parent().remove();
+		}
+
 		function page(n,s){
 			$("#pageNo").val(n);
 			$("#pageSize").val(s);
@@ -282,11 +382,26 @@
 						<div class="btn-group">
 							<input id="batchQuery" class="btn btn-primary" type="button" value="批量查询"/>
 						</div>
+
+						<div class="btn-group">
+							<input id="batchNotifyNew" class="btn btn-primary" type="button" value="新批量异步通知"/>
+						</div>
+						<div class="btn-group">
+							<input id="batchQueryNew" class="btn btn-primary" type="button" value="新批量查询"/>
+						</div>
 					</shiro:hasPermission>
 
 	         	</td>
 	        </tr>
 		</table>
+		<form id="batch">
+		<div id="orderIds" hidden="hidden">
+
+			<ul id="ul_orderIds" style="display: inline-block">
+
+			</ul>
+		</div>
+		</form>
 	</form>
 	<label>| 总笔数：${orderCount} | </label>
 	<label>总金额：${amount} 元| </label>

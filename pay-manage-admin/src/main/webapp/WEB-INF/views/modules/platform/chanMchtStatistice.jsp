@@ -122,6 +122,95 @@
 			</tr>
 		</thead>
 		<tbody>
+				<tr title="汇总" style="color: red">
+					<td>${sumObject.mchtName}</td>
+					<td>${sumObject.chanMchtPayTypeDesc}</td>
+					<td>${sumObject.chanName}</td>
+					<td>
+						<c:choose>
+							<c:when test="${paramMap.payType==null || ''.equals(paramMap.payType)}">
+								${sumObject.payType}
+							</c:when>
+							<c:otherwise>
+								${paramMap.payType.split(',')[1]}
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.mchtReqNum}" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.compInterceptNum }" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.chanCommitNum }" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.chanCommitSuccNum }" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.chanCommitBackSuccNum }" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.chanCommitBackFailNum }" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.chanCommitFailNum }" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+					</td>
+					<td>
+						<fmt:formatNumber value="${sumObject.paySuccNum}" type="NUMBER" maxFractionDigits="0"></fmt:formatNumber>
+
+					<td>
+						<c:choose>
+							<c:when test="${sumObject.chanCommitSuccNum.unscaledValue() == 0}">
+								0%
+							</c:when>
+							<c:otherwise>
+								<fmt:formatNumber value="${sumObject.chanCommitFailNum/sumObject.chanCommitNum}" type="percent" maxFractionDigits="2"/>
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td>
+						<c:choose>
+							<c:when test="${sumObject.chanCommitSuccNum.unscaledValue()==0}">
+								0%
+							</c:when>
+							<c:otherwise>
+								<fmt:formatNumber value="${sumObject.chanCommitBackSuccNum/sumObject.chanCommitSuccNum}" type="percent" maxFractionDigits="2"/>
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td>
+						<c:choose>
+							<c:when test="${sumObject.chanCommitSuccNum.unscaledValue()==0}">
+								0%
+							</c:when>
+							<c:otherwise>
+								<fmt:formatNumber value="${sumObject.paySuccNum/sumObject.chanCommitSuccNum}" type="percent" maxFractionDigits="2"/>
+							</c:otherwise>
+						</c:choose>
+
+					</td>
+					<td>
+						<c:choose>
+							<c:when test="${sumObject.mchtReqNum.unscaledValue()==0}">
+								0%
+							</c:when>
+							<c:otherwise>
+								<fmt:formatNumber value="${sumObject.paySuccNum/sumObject.mchtReqNum}" type="percent" maxFractionDigits="2"/>
+							</c:otherwise>
+						</c:choose>
+					</td>
+					<td>${sumObject.beginTime}</td>
+					<td>${sumObject.endTime}</td>
+					<td>${sumObject.statisticsTime}</td>
+				</tr>
+
 				<c:forEach items="${list}" var="report">
 					<tr>
 						<td>${report.mchtName}</td>
@@ -172,7 +261,7 @@
 								0%
 							</c:when>
 							<c:otherwise>
-								<fmt:formatNumber value="${report.chanCommitBackTimeoutNum/report.chanCommitNum}" type="percent" maxFractionDigits="2"/>
+								<fmt:formatNumber value="${report.chanCommitFailNum/report.chanCommitNum}" type="percent" maxFractionDigits="2"/>
 							</c:otherwise>
 							</c:choose>
 						</td>
