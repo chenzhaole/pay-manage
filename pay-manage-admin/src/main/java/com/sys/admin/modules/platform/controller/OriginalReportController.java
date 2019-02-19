@@ -98,7 +98,9 @@ public class OriginalReportController extends BaseController {
         if (CollectionUtils.isEmpty(chanMchtReportStatisticsList)) {
             return "modules/platform/chanMchtStatistice";
         }
-
+        //查询所有符合条件的数据
+        List<ChanMchtReportStatistics> sumChanMchtReportStatisticsList =reportService.listSum(chanMchtReportStatistics);
+        model.addAttribute("sumObject",sumChanMchtReportStatisticsList.get(0));
         Page page = new Page(pageNo, pageInfo.getPageSize(), count, chanMchtReportStatisticsList, true);
         model.addAttribute("page", page);
         model.addAttribute("list",chanMchtReportStatisticsList);
