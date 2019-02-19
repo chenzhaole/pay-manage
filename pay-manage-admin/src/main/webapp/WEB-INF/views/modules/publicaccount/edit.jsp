@@ -119,8 +119,23 @@
 
         </tr>
         <tr>
-
-            <td colspan="3">
+            <td>
+                <div class="control-group">
+                    <label class="control-label">提账到账时间</label>
+                    <div class="controls">
+                        <fmt:formatDate value="${accountAmount.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">操作人</label>
+                    <div class="controls">
+                        ${accountAmount.operatorName}
+                    </div>
+                </div>
+            </td>
+            <td>
                 <div class="control-group">
                     <label class="control-label">描述</label>
                     <div class="controls">
