@@ -348,6 +348,9 @@ public class OrderController extends BaseController {
 			String sysDate = dateFormat.format(new Date());
 			//截至到某个时间的余额
 			String queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd");
+			if(queryDate.length()>10){
+				queryDate = queryDate.substring(0,10);
+			}
 
 			//查出所有商户信息
 			List<MchtInfo> mchtInfoList = merchantService.list(new MchtInfo());
@@ -356,7 +359,8 @@ public class OrderController extends BaseController {
 
 			MchtAccountDetail selectMchtAccountDetail = new MchtAccountDetail();
 			//查询当前实时余额
-			if(StringUtils.isNotEmpty(queryDate) && queryDate.contains(sysDate)){
+			if(StringUtils.isNotEmpty(queryDate) && (DateUtils.parseDate(queryDate,"yyyy-MM-dd").getTime()>=
+					DateUtils.parseDate(sysDate,"yyyy-MM-dd").getTime())){
 
 				//获取当前第几页
 				String pageNoString = paramMap.get("pageNo");
@@ -418,13 +422,14 @@ public class OrderController extends BaseController {
 					// 商户可用余额合计（元）
 					mchtAvailTotalBalance = oneMchtAccountDetail.getCashTotalAmount().subtract(oneMchtAccountDetail.getFreezeTotalAmount());
 					// 商户冻结金额合计
-					mchtFreezeTotalAmountBalance = mchtTotalBalance.subtract(mchtAvailTotalBalance);
+					mchtFreezeTotalAmountBalance = oneMchtAccountDetail.getFreezeTotalAmount();//mchtTotalBalance.subtract(mchtAvailTotalBalance);
 					// 结算金额
 					mchtWaitTotalBalance =oneMchtAccountDetail.getSettleTotalAmount();
 					// 单个商户的总金额汇总，可用总金额汇总
 					// 商户总金额合计 = 商户金额 + 结算金额  (需放到结算商户冻结金额后面)
 					mchtTotalBalance = oneMchtAccountDetail.getCashTotalAmount().add(oneMchtAccountDetail.getSettleTotalAmount());
 				}
+				logger.info("查询实时余额,商户id="+mchtId+",queryDate="+queryDate+",mchtTotalBalance="+mchtTotalBalance+",mchtAvailTotalBalance="+mchtAvailTotalBalance+",mchtFreezeTotalAmountBalance="+mchtFreezeTotalAmountBalance+",mchtWaitTotalBalance="+mchtWaitTotalBalance);
 				model.addAttribute("mchtInfoList", mchtInfoList);
 				model.addAttribute("mchtId", mchtId);
 				model.addAttribute("queryDate", queryDate);
@@ -502,6 +507,7 @@ public class OrderController extends BaseController {
 				model.addAttribute("mchtId", mchtId);
 
 				queryDate = StringUtils.isNotBlank(request.getParameter("queryDate")) ? request.getParameter("queryDate") : DateUtils.getDate("yyyy-MM-dd HH:mm:ss");
+				logger.info("查询历史余额,商户id="+mchtId+",queryDate="+queryDate+",mchtTotalBalance="+mchtTotalBalanceTotal+",mchtAvailTotalBalance="+mchtAvailTotalBalanceTotal+",mchtFreezeTotalAmountBalance="+mchtFreezeTotalAmountBalanceTotal+",mchtWaitTotalBalance="+settleTotalAmountTotal);
 				model.addAttribute("queryDate", queryDate);
 				//商户总金额合计
 				model.addAttribute("mchtTotalBalance", mchtTotalBalanceTotal.divide(new BigDecimal(100)).setScale(2,BigDecimal.ROUND_HALF_UP));

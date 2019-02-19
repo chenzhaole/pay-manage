@@ -1,5 +1,6 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.web.BaseController;
 import com.sys.common.enums.PayTypeEnum;
@@ -39,14 +40,15 @@ public class StatReportDayPayDetailController extends BaseController {
 
     @RequiresPermissions("platform:statReportDayPayDetail:list")
     @RequestMapping("list")
-    public String list(String tradeDate, HttpServletRequest request, Model model) {
-        if (StringUtils.isBlank(tradeDate)) {
+    public String list(String startDate,String endDate, HttpServletRequest request, Model model) {
+        if (StringUtils.isBlank(startDate)||StringUtils.isBlank(endDate)) {
             return "modules/platform/statReportDayPayDetailList";
         }
 
         StatReportDayPayDetail info = new StatReportDayPayDetail();
         info.setBizType(StatReportDayPayDetailBizTypeEnum.BUSINESS_PAY.getCode());
-        info.setTradeDate(tradeDate);
+        info.setTradeBeginDate(startDate);
+        info.setTradeEndDate(endDate);
         List<StatReportDayPayDetail> payList = reportDayPayDetailService.list(info);
 
         info.setBizType(StatReportDayPayDetailBizTypeEnum.BUSINESS_PROXY.getCode());
@@ -54,7 +56,6 @@ public class StatReportDayPayDetailController extends BaseController {
 
         info.setBizType(StatReportDayPayDetailBizTypeEnum.CHONG_ZHI.getCode());
         List<StatReportDayPayDetail> chongzhiList = reportDayPayDetailService.list(info);
-
 
         if (payList != null) {
             for (StatReportDayPayDetail detail : payList) {
@@ -72,7 +73,8 @@ public class StatReportDayPayDetailController extends BaseController {
             }
         }
 
-        model.addAttribute("tradeDate", tradeDate);
+        model.addAttribute("startDate", startDate);
+        model.addAttribute("endDate", endDate);
         model.addAttribute("payList", payList);
         model.addAttribute("proxyList", proxyList);
         model.addAttribute("chongzhiList",chongzhiList);
@@ -83,9 +85,16 @@ public class StatReportDayPayDetailController extends BaseController {
     public String export(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
                          @RequestParam Map<String, String> paramMap) throws IOException {
 
+        if(StringUtils.isBlank(paramMap.get("startDate")) || StringUtils.isBlank(paramMap.get("endDate"))){
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "请选择统计日期");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+        }
         //创建查询实体
         StatReportDayPayDetail info = new StatReportDayPayDetail();
         assemblySearch(paramMap, info);
+        logger.info("导出支付运营日报详情"+ JSON.toJSON(paramMap));
 
         //计算条数 上限五万条
         int orderCount = reportDayPayDetailService.ordeCount(info);
@@ -114,13 +123,19 @@ public class StatReportDayPayDetailController extends BaseController {
 
         if (list != null) {
             for (StatReportDayPayDetail detail : list) {
-                detail.setPayType(PayTypeEnum.toEnum(detail.getPayType()).getDesc());
+                String payType = detail.getPayType();
+                PayTypeEnum pt = PayTypeEnum.toEnum(payType);
+                detail.setPayType(pt!=null?pt.getDesc():"未知");
+                if(pt==null){
+                    logger.error("运营日报支付详情导出:"+payType+"的支付方式不存在");
+                }
             }
         }
 
-        String date = paramMap.get("tradeDate").replaceAll("-", "").substring(4);
+        String startDate = paramMap.get("startDate").replaceAll("-", "").substring(4);
+        String endDate = paramMap.get("endDate").replaceAll("-", "").substring(4);
         //获取当前日期，为文件名
-        String fileName = "REPORT-ZF" + date + ".xls";
+        String fileName = "REPORT-ZF" + startDate+"-"+ endDate+ ".xls";
 
         String[] headers = {"日期", "代理商名称", "商户名称", "支付方式",
                 "通道名称", "交易金额(元)", "通道费率(‰)", "商户费率(‰)", "代理商费率(‰)", "代理商分润(元)", "利润(元)", "成功笔数", "交易笔数", "成功率"};
@@ -257,10 +272,16 @@ public class StatReportDayPayDetailController extends BaseController {
     public String exportProxy(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
                               @RequestParam Map<String, String> paramMap) throws IOException {
 
-
+        if(StringUtils.isBlank(paramMap.get("startDate")) || StringUtils.isBlank(paramMap.get("endDate"))){
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "请选择统计日期");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+        }
         //创建查询实体
         StatReportDayPayDetail info = new StatReportDayPayDetail();
         assemblySearch(paramMap, info);
+        logger.info("导出代付运营日报详情"+ JSON.toJSON(paramMap));
 
         //计算条数 上限五万条
         int orderCount = reportDayPayDetailService.ordeCount(info);
@@ -287,9 +308,10 @@ public class StatReportDayPayDetailController extends BaseController {
             return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
         }
 
-        String date = paramMap.get("tradeDate").replaceAll("-", "").substring(4);
+        String startDate = paramMap.get("startDate").replaceAll("-", "").substring(4);
+        String endDate = paramMap.get("endDate").replaceAll("-", "").substring(4);
         //获取当前日期，为文件名
-        String fileName = "REPORT-DF" + date + ".xls";
+        String fileName = "REPORT-DF" +startDate+"-"+endDate + ".xls";
 
         String[] headers = {"日期", "商户名称", "交易金额(元)", "入账金额(元)", "利润(元)"};
 
@@ -368,10 +390,16 @@ public class StatReportDayPayDetailController extends BaseController {
     @RequestMapping(value = "/exportChongzhi")
     public String exportChongzhi(HttpServletResponse response, HttpServletRequest request, RedirectAttributes redirectAttributes,
                          @RequestParam Map<String, String> paramMap) throws IOException {
-
+        if(StringUtils.isBlank(paramMap.get("startDate")) || StringUtils.isBlank(paramMap.get("endDate"))){
+            redirectAttributes.addFlashAttribute("messageType", "fail");
+            redirectAttributes.addFlashAttribute("message", "请选择统计日期");
+            response.setCharacterEncoding("UTF-8");
+            return "redirect:" + GlobalConfig.getAdminPath() + "/platform/statReportDayPay/list";
+        }
         //创建查询实体
         StatReportDayPayDetail info = new StatReportDayPayDetail();
         assemblySearch(paramMap, info);
+        logger.info("导出充值运营日报详情"+ JSON.toJSON(paramMap));
 
         //计算条数 上限五万条
         int orderCount = reportDayPayDetailService.ordeCount(info);
@@ -400,13 +428,19 @@ public class StatReportDayPayDetailController extends BaseController {
 
         if (list != null) {
             for (StatReportDayPayDetail detail : list) {
-                detail.setPayType(PayTypeEnum.toEnum(detail.getPayType()).getDesc());
+                String payType = detail.getPayType();
+                PayTypeEnum pt = PayTypeEnum.toEnum(payType);
+                detail.setPayType(pt!=null?pt.getDesc():"未知");
+                if(pt==null){
+                    logger.error("运营日报充值详情导出:"+payType+"的支付方式不存在");
+                }
             }
         }
 
-        String date = paramMap.get("tradeDate").replaceAll("-", "").substring(4);
+        String startDate = paramMap.get("startDate").replaceAll("-", "").substring(4);
+        String endDate = paramMap.get("endDate").replaceAll("-", "").substring(4);
         //获取当前日期，为文件名
-        String fileName = "REPORT-CZ" + date + ".xls";
+        String fileName = "REPORT-CZ" +startDate+"-"+endDate+ ".xls";
 
         String[] headers = {"日期", "代理商名称", "商户名称", "支付方式",
                 "通道名称", "交易金额(元)", "通道费率(‰)", "商户费率(‰)", "代理商费率(‰)", "代理商分润(元)", "利润(元)", "成功笔数", "交易笔数", "成功率"};
@@ -541,8 +575,11 @@ public class StatReportDayPayDetailController extends BaseController {
 
 
     private void assemblySearch(Map<String, String> paramMap, StatReportDayPayDetail info) {
-        if (StringUtils.isNotBlank(paramMap.get("tradeDate"))) {
-            info.setTradeDate(paramMap.get("tradeDate"));
+        if (StringUtils.isNotBlank(paramMap.get("startDate"))) {
+            info.setTradeBeginDate(paramMap.get("startDate"));
+        }
+        if (StringUtils.isNotBlank(paramMap.get("endDate"))) {
+            info.setTradeEndDate(paramMap.get("endDate"));
         }
         if (StringUtils.isNotBlank(paramMap.get("bizType"))) {
             info.setBizType(paramMap.get("bizType"));

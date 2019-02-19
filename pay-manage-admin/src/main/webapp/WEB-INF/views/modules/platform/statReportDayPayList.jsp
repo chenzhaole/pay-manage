@@ -11,10 +11,37 @@
     <script type="text/javascript">
 
         $(document).ready(function () {
+            //查询
+            $("#btnSubmit").click(function () {
+                $("#searchForm").submit();
+            });
+            //导出
             $("#btnExport").click(function () {
                 $("#searchForm").attr("action", "${ctx}/platform/statReportDayPay/export");
                 $("#searchForm").submit();
                 $("#searchForm").attr("action", "${ctx}/platform/statReportDayPay/list");
+            });
+
+            //批量导出详情
+            $("#btnBatchExportDetail").click(function () {
+                var bizType = $("#bizType").val();
+                if(bizType=="1"){
+                    //支付
+                    $("#searchForm").attr("action", "${ctx}/platform/statReportDayPayDetail/exportPay");
+                    $("#searchForm").submit();
+                    $("#searchForm").attr("action", "${ctx}/platform/statReportDayPay/list");
+                }else if(bizType=="2"){
+                    //代付
+                    $("#searchForm").attr("action", "${ctx}/platform/statReportDayPayDetail/exportProxy");
+                    $("#searchForm").submit();
+                    $("#searchForm").attr("action", "${ctx}/platform/statReportDayPay/list");
+                }else if(bizType=="6"){
+                    //充值
+                    $("#searchForm").attr("action", "${ctx}/platform/statReportDayPayDetail/exportChongzhi");
+                    $("#searchForm").submit();
+                    $("#searchForm").attr("action", "${ctx}/platform/statReportDayPay/list");
+                }
+
             });
         });
 
@@ -32,31 +59,33 @@
     <input id="paging" name="paging" type="hidden" value="0"/>
     <table>
         <tr>
-            <td colspan="2">
-                <div class="control-group">
+            <td>
                     <label class="control-label">统计日期</label>
+                    <input id="startDate" name="startDate" type="text" readonly="readonly" maxlength="20"
+                           class="input-medium Wdate"
+                           value="${startDate}"
+                           onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,maxDate:$dp.$('endDate').value,isShowOK:false,isShowToday:false});"/>至
 
-                    <div class="controls">
-                        <input id="startDate" name="startDate" type="text" readonly="readonly" maxlength="20"
-                               class="input-medium Wdate"
-                               value="${startDate}"
-                               onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,maxDate:$dp.$('endDate').value,isShowOK:false,isShowToday:false});"/>至
-
-                        <input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20"
-                               class="input-medium Wdate"
-                               value="${endDate}"
-                               onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,minDate:$dp.$('startDate').value,isShowOK:false,isShowToday:false});"/>
-                    </div>
-                </div>
+                    <input id="endDate" name="endDate" type="text" readonly="readonly" maxlength="20"
+                           class="input-medium Wdate"
+                           value="${endDate}"
+                           onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:false,readOnly:true,minDate:$dp.$('startDate').value,isShowOK:false,isShowToday:false});"/>
             </td>
-            <td colspan="2" align="right">
+            <td  align="right">
                 <div class="btn-group">
-                    <input id="btnSubmit" class="btn btn-primary pull-right" type="submit" value="查询">
+                    <input id="btnSubmit" class="btn btn-primary pull-right" type="button" value="查询">
                 </div>
                 <div class="btn-group">
                     <input id="btnExport" class="btn btn-primary" type="button" value="导出"/>
                 </div>
-
+            </td>
+            <td align="right">
+                <select id="bizType" name="bizType" style="width:60px;">
+                    <option value="1">支付</option>
+                    <option value="2">代付</option>
+                    <option value="6">充值</option>
+                </select>
+                <input id="btnBatchExportDetail" class="btn btn-primary" type="button" value="批量导出详情"/>
             </td>
         </tr>
     </table>
@@ -94,7 +123,7 @@
             <td><fmt:formatNumber type="number" value="${info.totalProfitAmount*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
 
             <td>
-                <a href="${ctx}/platform/statReportDayPayDetail/list?tradeDate=${info.tradeDate}" >详情</a> |
+                <a href="${ctx}/platform/statReportDayPayDetail/list?startDate=${info.tradeDate}&endDate=${info.tradeDate}" >详情</a> |
                 <a href="${ctx}/platform/statReportDayPay/reStat?tradeDate=${info.tradeDate}" onclick="return confirmx('是否重新统计数据？', this.href)">重新统计</a>
             </td>
 
