@@ -273,8 +273,22 @@ public class GwRecNotifyController {
      */
     @RequestMapping("/recNotify/data")
     @ResponseBody
-    public String recNotify(@RequestBody String data,HttpServletRequest httpServletRequest) throws TransException {
+    public String recNotify(HttpServletRequest httpServletRequest) throws TransException {
+        String data = null;
         String resp2chan = "FAILURE";
+
+
+        Map<String, String[]> paramMap = httpServletRequest.getParameterMap();
+        if(paramMap == null || paramMap.size() == 0){
+            logger.info("接收到固定异步通知链接信息,参数为空.");
+            return resp2chan;
+        }
+        for(Map.Entry<String, String[]> map: paramMap.entrySet()){
+            data = map.getKey();
+            logger.info("接收到固定异步通知链接信息,参数为data:"+ data);
+            break;
+        }
+
         String platOrderNo =null;
         String sign =httpServletRequest.getHeader("X-QF-SIGN");
         try {
