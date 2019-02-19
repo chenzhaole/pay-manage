@@ -66,126 +66,52 @@
                 }
             });
         });
-
-            //新增 一行支付方式
-            function addPayType() {
-            	//定义一个map用来保存通道支付方式，同时来验证是否有重复
-            	var map = {};
-            	$(".payTypeSelect").each(function(){
-            		if($(this).val() != ''){
-	            		//如果map
-	           		    if(map.hasOwnProperty($(this).val())){
-	           		        console.log('key is ' + prop +' and value is' + map[prop]);
-	           		        alert("通道支付方式有重复!");
-	           		        return;
-	           		    }else{
-	           		    	map[$(this).val()] = $(this).val();
-	           		    }
-            		}
-        		});
-            	var rateVal = 0;
-            	 $('input[type="hidden"][name="isRate"]').each(function(){
-                   	 if($(this).attr("checked") != true){
-                   		rateVal += parseInt($(this).next().val());
-                   	 }
-                   }); 
-            	if(rateVal > 100){
-            		alert("占比总和不能超过100%");
-            		return;
-            	}
-                var payTypeNum = $("#payTypeTable tr").length;
-                if (payTypeNum > 9) {
-                    alert("最多添加10条！");
-                    return;
-                }
-                $("#payTypeTable").append('<tr>' +
-                    '<input type="hidden" value="' + (payTypeNum + 1) + '" name="sort" />' +
-                    '<td>' +
-                    '<div class="control-group">' +
-                    ' <label class="control-label"></label>' +
-                    '<div class="controls" style="padding-top:10px;">' +
-                    '<span>顺序 ' + (payTypeNum + 1) + '</span>' +
-                    '</div>' +
-                    '</div>' +
-                    '</td>' +
-                    '<td>' +
-                    '<div class="control-group">' +
-                    ' <label class="control-label">通道商户支付方式</label>' +
-                    '<div class="controls">' +
-                    '<select name="payType" class="input-xxlarge payTypeSelect" id="payType' + payTypeNum + '">' +
-                    '<option value="">--请选择--</option>'+
-                    <c:forEach items="${chanInfoList}" var="chanInfo">
-                     '<option value="${chanInfo.id}">${chanInfo.name}</option>' +
-                    </c:forEach>
-                    '</select>&nbsp;&nbsp;&nbsp;' +
-                    '<input name="isRate" type="hidden"/>' +
-                    '<a style="cursor: pointer;font-size:15px;text-decoration: none;" onclick="deletePayType(this);" >删除</a>&nbsp;&nbsp;&nbsp;' +
-                    '<a style="cursor: pointer;font-size:15px;text-decoration: none; " onclick="upTr(this);" >上移</a>&nbsp;&nbsp;&nbsp;' +
-                    '<a style="cursor: pointer;font-size:15px;text-decoration: none; " onclick="downTr(this);" >下移</a>' +
-                    '</div>' +
-                    '</div>' +
-                    '</td>' +
-                    '</tr>');
-            }
-
-        //新增 一行子产品
-        function addProduct() {
-            //定义一个map用来保存子产品，同时来验证是否有重复
-            var map = {};
-            $(".productSelect").each(function(){
-                if($(this).val() != ''){
-                    //如果map
-                    if(map.hasOwnProperty($(this).val())){
-                        console.log('key is ' + prop +' and value is' + map[prop]);
-                        alert("子产品有重复!");
-                        return;
-                    }else{
-                        map[$(this).val()] = $(this).val();
-                    }
-                }
-            });
-            var rateVal = 0;
-            $('input[type="hidden"][name="isRate"]').each(function(){
-                if($(this).attr("checked") != true){
-                    rateVal += parseInt($(this).next().val());
-                }
-            });
-            if(rateVal > 100){
-                alert("占比总和不能超过100%");
+        var map = {};
+        function selectBank(){
+            if(map.hasOwnProperty($(this).val())){
+                console.log('key is ' + prop +' and value is' + map[prop]);
+                alert("支持银行重复选择!");
+                $(this).val("");
                 return;
+            }else{
+                map[$(this).val()] = $(this).val();
+                $(this).next().val($(this).text());
             }
-            var productNum = $("#productTable tr").length;
-            if (productNum > 9) {
-                alert("最多添加10条！");
-                return;
-            }
-            $("#productTable").append('<tr>' +
-                '<input type="hidden" value="' + (productNum + 1) + '" name="sort" />' +
+        }
+        //新增 银行
+        function addBank() {
+            $("#bankInfo").append('<tr>' +
                 '<td>' +
                 '<div class="control-group">' +
-                ' <label class="control-label"></label>' +
-                '<div class="controls" style="padding-top:10px;">' +
-                '<span>顺序 ' + (productNum + 1) + '</span>' +
-                '</div>' +
-                '</div>' +
-                '</td>' +
-                '<td>' +
-                '<div class="control-group">' +
-                ' <label class="control-label">子产品</label>' +
+                ' <label class="control-label">银行名称</label>' +
                 '<div class="controls">' +
-                '<select name="subProductId" class="input-xxlarge productSelect" id="subProductId' + productNum + '">' +
+                '<select name="caBankElectronicAccountBankList.bankCode" class="input-xxlarge payTypeSelect">' +
                 '<option value="">--请选择--</option>'+
-                <c:forEach items="${subProductLists}" var="subProductItem">
-                '<option value="${subProductItem.id}">${subProductItem.name}</option>' +
+                <c:forEach items="${platBanks}" var="platBank">
+                '<option value="${platBank.bankCode}">${platBank.bankName}</option>' +
                 </c:forEach>
-                '</select>&nbsp;&nbsp;&nbsp;' +
-                '<input name="isRate" type="hidden"/>' +
-                '<a style="cursor: pointer;font-size:15px;text-decoration: none;" onclick="deleteProduct(this);" >删除</a>&nbsp;&nbsp;&nbsp;' +
-                '<a style="cursor: pointer;font-size:15px;text-decoration: none; " onclick="upTrProduct(this);" >上移</a>&nbsp;&nbsp;&nbsp;' +
-                '<a style="cursor: pointer;font-size:15px;text-decoration: none; " onclick="downTrProduct(this);" >下移</a>' +
+                '<input name="caBankElectronicAccountBankList.bankName" type="hidden" value="">' +
                 '</div>' +
                 '</div>' +
+                '</td>'  +
+                '<td>'+
+                '<div class="control-group">' +
+                '<label class="control-label">银行别名:</label></span>' +
+                '<input name="caBankElectronicAccountBankList.bankAlias" placeholder="" class="input-xlarge" type="text" maxlength="64">' +
+                '</div>'+
                 '</td>' +
+                '<td>'  +
+                '<div class="control-group">' +
+                '<label class="control-label">状态:</label>' +
+                '<div class="controls">'+
+                '<select name="caBankElectronicAccount.status" class="input-medium" >'+
+                '<option value="1">启用</option>' +
+                '<option value="2">停用</option>'+
+                '</select>'+
+                '</div>'+
+                '</div>'+
+                '<img src="">'+
+                '</td>'+
                 '</tr>');
         }
             
@@ -285,21 +211,21 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">收款银行:</label></span>
-                    <input name="caBankElectronicAccount.receivingBank" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
+                    <input name="caBankElectronicAccount.receivingBank" placeholder="" class="input-xlarge" type="text"
                            maxlength="64">
                 </div>
             </td>
             <td>
                 <div class="control-group">
                     <label class="control-label">清算行号:</label></span>
-                    <input name="caBankElectronicAccount.liquidationBankNo" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
+                    <input name="caBankElectronicAccount.liquidationBankNo" placeholder="" class="input-xlarge" type="text"
                            maxlength="64">
                 </div>
             </td>
             <td>
                 <div class="control-group">
                     <label class="control-label">开户网点:</label></span>
-                    <input name="caBankElectronicAccount.openingAccountBank" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
+                    <input name="caBankElectronicAccount.openingAccountBank" placeholder="" class="input-xlarge" type="text"
                            maxlength="64">
                 </div>
 
@@ -309,7 +235,7 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">开户地:</label></span>
-                    <input name="caBankElectronicAccount.openingAccountLocation" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
+                    <input name="caBankElectronicAccount.openingAccountLocation" placeholder="" class="input-xlarge" type="text"
                            maxlength="64">
                 </div>
 
@@ -317,7 +243,7 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">联行号:</label></span>
-                    <input name="caBankElectronicAccount.lineNumber" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
+                    <input name="caBankElectronicAccount.lineNumber" placeholder="" class="input-xlarge" type="text"
                            maxlength="64">
                 </div>
             </td>
@@ -325,7 +251,7 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">银行账号:</label></span>
-                    <input name="caBankElectronicAccount.accountNo" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
+                    <input name="caBankElectronicAccount.accountNo" placeholder="" class="input-xlarge" type="text"
                            maxlength="64">
                 </div>
 
@@ -336,7 +262,7 @@
                 <div class="control-group">
                     <label class="control-label">状态:</label>
                     <div class="controls">
-                        <select name="caBankElectronicAccount.status" class="input-medium" id="status">
+                        <select name="caBankElectronicAccount.status" class="input-medium" >
                             <option value="1">启用</option>
                             <option value="2">停用</option>
                         </select>
@@ -349,38 +275,40 @@
     <div class="breadcrumb">
         <label>支持银行信息</label>
     </div>
-    <table class="table">
+    <table class="table" id ="bankInfo">
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">银行名称<span style="color: red;">*</span></label>
+                    <label class="control-label">银行名称</label>
                     <div class="controls">
-                        <select name="platBankCode" class="selectpicker bla bla bli" data-live-search="true"
-                                <c:if test="${op == 'edit'}">disabled="disabled"</c:if>>
+                        <select name="caBankElectronicAccountBankList.bankCode" class="selectpicker bla bla bli" data-live-search="true" onchange="">
                             <option value="">--请选择--</option>
                             <c:forEach items="${platBanks}" var="platBank">
-                                <option data-platBankCode="${platBank.bankCode }"
-                                        <c:if test="${chanBank.platBankCode == platBank.bankCode}">selected</c:if>
-                                        value="${platBank.bankCode}">${platBank.bankName}-${platBank.bankCode}</option>
+                                <option value="${platBank.bankCode}">${platBank.bankName}</option>
                             </c:forEach>
                         </select>
                     </div>
                 </div>
+                <input name="caBankElectronicAccountBankList.bankName" type="hidden" value="">
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">清算行号:</label></span>
-                    <input name="caBankElectronicAccount.liquidationBankNo" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
+                    <label class="control-label">银行别名:</label></span>
+                    <input name="caBankElectronicAccountBankList.bankAlias" placeholder="" class="input-xlarge" type="text"
                            maxlength="64">
                 </div>
             </td>
             <td>
                 <div class="control-group">
-                    <label class="control-label">开户网点:</label></span>
-                    <input name="caBankElectronicAccount.openingAccountBank" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
-                           maxlength="64">
+                    <label class="control-label">状态:</label>
+                    <div class="controls">
+                        <select name="caBankElectronicAccount.status" class="input-medium" >
+                            <option value="1">启用</option>
+                            <option value="2">停用</option>
+                        </select>
+                    </div>
                 </div>
-
+                <img src="">
             </td>
         </tr>
     </table>
