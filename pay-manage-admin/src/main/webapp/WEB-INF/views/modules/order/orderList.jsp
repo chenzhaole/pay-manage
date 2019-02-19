@@ -53,12 +53,12 @@
                                 return;
                             }
                             var inputobjarr =$('input[name=\"platOrderNo\"]');
-                            var data="";
+                            var data;
                             for(var i=0;i<length;i++){
                                 if(i==0){
-                                    data =data+'?platOrderNo='+inputobjarr[i].value;
+                                    data ='?platOrderNo='+inputobjarr[i].value;
                                 }else{
-                                    data =data +'&platOrderNo'+inputobjarr[i].value;
+                                    data =data +'&platOrderNo='+inputobjarr[i].value;
                                 }
                             }
                             $.ajax({
@@ -95,12 +95,12 @@
                                 return;
 							}
 							var inputobjarr =$('input[name=\"platOrderNo\"]');
-                            var data="";
+                            var data;
 							for(var i=0;i<length;i++){
 								if(i==0){
-								    data =data+'?platOrderNo='+inputobjarr[i].value;
+								    data ='?platOrderNo='+inputobjarr[i].value;
 								}else{
-								    data =data +'&platOrderNo'+inputobjarr[i].value;
+								    data =data +'&platOrderNo='+inputobjarr[i].value;
 								}
 							}
                             $.ajax({
@@ -129,13 +129,13 @@
         function addInput(input){
             var nextInputValue =$(input).parent().next().children('input').val();
 			if(typeof (nextInputValue) =='undefined'){
-                $('#ul_orderIds').append('<li><input type=\"text\" name=\"platOrderNo\" oninput=\"addInput(this);\"  ondblclick=\"delInput(this);\"></li>');
+                $('#ul_orderIds').append('<li><input type=\"text\" name=\"platOrderNo\" oninput=\"addInput(this);\"><img src=\"${ctxStatic}/images/timg.jpeg\" onclick=\"delInput(this);\" width=\"20\" height=\"20\"></li>');
 			}
 
 		}
 
 		function addFrist(){
-            $('#ul_orderIds').append('<li><input type=\"text\" name=\"platOrderNo\" oninput=\"addInput(this);\"  ondblclick=\"delInput(this);\"></li>');
+            $('#ul_orderIds').append('<li><input type=\"text\" name=\"platOrderNo\" oninput=\"addInput(this);\"></li>');
 		}
 
 		function delInput( input){
