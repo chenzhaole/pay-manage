@@ -9,6 +9,11 @@
 			white-space: normal;
 			align:center
 		}
+		.control-label{
+			display: inline-block;
+			width:100px;
+			text-align: right;
+		}
 	</style>
 	<script type="text/javascript">
 	$(document).ready(function() {
@@ -74,7 +79,7 @@
 			<tr>
 				<td>
 					<label class="control-label">&nbsp;&nbsp;&nbsp;选择公户：</label>
-					<select name="publicAccountCode" id="mchtCode"  class="selectpicker bla bla bli" data-live-search="true">
+					<select name="publicAccountCode" id="mchtCode" >
 						<option value="">---请选择---</option>
 						<c:forEach var="item" items="${pais}">
 							<option value="${item.publicAccountCode}" <c:if test="${paramMap.publicAccountCode eq item.publicAccountCode}">selected</c:if> >${item.publicAccountName}</option>
@@ -90,10 +95,8 @@
 					<input value="${paramMap.reductAmount}" id="reductAmount" name="reductAmount" type="number" maxlength="64" class="input-large"/>
 				</td>
 				<td>
-					<label class="control-label">摘要：</label>
-					<label class="controls">
-						<input value="${paramMap.summary}" id="summary" name="summary" type="text" maxlength="64" class="input-large"/>
-					</label>
+					<label class="control-label">对方账号：</label>
+					<input value="${paramMap.accountNo}" id="accountNo" name="accountNo" type="text" maxlength="64" class="input-large"/>
 				</td>
 			</tr>
 			<tr>
@@ -112,17 +115,18 @@
 				</td>
 				<td>
 					<label class="control-label">描述：</label>
-					<label class="controls">
-						<select id="descriptionModel" name="descriptionModel" style="width:60px;">
-							<option value="0">模糊</option>
-							<option value="1">精确</option>
-						</select>
-						<input value="${paramMap.description}" id="description" name="description" type="text" maxlength="255" class="input-large"/>
-					</label>
+					<select id="descriptionModel" name="descriptionModel" style="width:60px;">
+						<option value="0">模糊</option>
+						<option value="1">精确</option>
+					</select>
+					<input value="${paramMap.description}" id="description" name="description" type="text" maxlength="255" class="input-large"/>
 				</td>
 			</tr>
 		<tr>
-
+			<td>
+				<label class="control-label">摘要：</label>
+				<input value="${paramMap.summary}" id="summary" name="summary" type="text" maxlength="64" class="input-large"/>
+			</td>
 			<td>
 				<label class="control-label">&nbsp;&nbsp;&nbsp;交易日期：</label>
 				<input type="text" class="input-medium Wdate" name ="beginTime" value="${paramMap.beginTime}"
@@ -130,7 +134,7 @@
 				<input type="text" class="input-medium Wdate" name ="endTime" value="${paramMap.endTime}"
 					   onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true,readOnly:true,isShowOK:false,isShowToday:true});"/>
 			</td>
-			<td colspan="2" align="right">
+			<td align="right">
 				<input id="btnSubmit" class="btn btn-primary" type="button" value="查询"/>
 				<shiro:hasPermission name="publicaccount:commit">
 					<input  class="btn btn-primary" type="button" value="数据导入" onclick="dataImport()"/>
@@ -160,6 +164,8 @@
 				<th>对方开户行</th>
 				<th>摘要</th>
 				<th>描述</th>
+				<th>提到账时间</th>
+				<th>操作人</th>
 				<th>操作</th>
 			</tr>
 		</thead>
@@ -177,6 +183,8 @@
 						<td>${report.openAccountBankName}</td>
 						<td>${report.summary}</td>
 						<td>${report.description}</td>
+						<td><fmt:formatDate value="${report.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+						<td>${report.operatorName}</td>
 						<td><a href="${ctx}/publicaccount/toEdit?id=${report.id}">修改</a></td>
 					</tr>
 				</c:forEach>

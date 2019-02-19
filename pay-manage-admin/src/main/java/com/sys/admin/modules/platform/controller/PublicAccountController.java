@@ -4,6 +4,7 @@ import com.alibaba.fastjson.JSON;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.ExcelUtil;
 import com.sys.core.dao.common.PageInfo;
@@ -59,6 +60,10 @@ public class PublicAccountController extends BaseController {
 		if(StringUtils.isNotBlank(paramMap.get("reductAmount"))){
 			//借方发生额
 			accountAmount.setReduceAmount(new BigDecimal(paramMap.get("reductAmount")));
+		}
+		if(StringUtils.isNotBlank(paramMap.get("accountNo"))){
+			//对方账号
+			accountAmount.setAccountNo(paramMap.get("accountNo"));
 		}
 		if(StringUtils.isNotBlank(paramMap.get("accountName"))){
 			//对方账户名
@@ -126,7 +131,12 @@ public class PublicAccountController extends BaseController {
 		accountAmount.setPageInfo(pageInfo);
 
 		List<AccountAmount> accountAmounts =accountAmountService.list(accountAmount);
-
+		if(accountAmounts!=null){
+			for(AccountAmount aa:accountAmounts){
+				//操作人名称
+				aa.setOperatorName(UserUtils.getUserName(aa.getOperatorId()));
+			}
+		}
 		Page page = new Page(pageNo, pageInfo.getPageSize(), count, accountAmounts, true);
 		model.addAttribute("page", page);
 		model.addAttribute("list",accountAmounts);
@@ -149,6 +159,8 @@ public class PublicAccountController extends BaseController {
 			}
 		}
 		AccountAmount accountAmount = accountAmountService.queryByKey(id);
+		//操作人名称
+		accountAmount.setOperatorName(UserUtils.getUserName(accountAmount.getOperatorId()));
 		model.addAttribute("pais", pais);
 		model.addAttribute("paisMap", paisMap);
 		model.addAttribute("accountAmount",accountAmount);
@@ -165,6 +177,8 @@ public class PublicAccountController extends BaseController {
 		AccountAmount accountAmount = accountAmountService.queryByKey(id);
 		if(StringUtils.isNotBlank(desc)){
 			accountAmount.setDescription(desc);
+			accountAmount.setUpdateTime(new Date());
+			accountAmount.setOperatorId(UserUtils.getUser().getId());
 			try{
 				accountAmountService.saveByKey(accountAmount);
 			}catch (Exception e){

@@ -74,6 +74,7 @@
         <th>名称</th>
         <th>商户编号</th>
         <th>商户类别</th>
+        <th>上级代理商</th>
         <th>联系人名称</th>
         <th>联系人手机</th>
         <th>创建时间</th>
@@ -108,6 +109,7 @@
                 <c:if test="${fn:contains(mcht.signType, '4')}">代理商</c:if>
             </c:otherwise></c:choose>
             </td>
+            <td>${mcht.parentMchtName}</td>
             <td>${mcht.contactName}</td>
             <td>${mcht.serviceMobile}</td>
             <td><fmt:formatDate value="${mcht.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
