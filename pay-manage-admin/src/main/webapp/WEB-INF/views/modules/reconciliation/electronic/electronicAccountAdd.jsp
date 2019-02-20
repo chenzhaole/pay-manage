@@ -13,42 +13,17 @@
             border-bottom: none;
         }
     </style>
-    <script src="${ctxStatic}/js/module/platform/platProductEdit.js" type="text/javascript"></script>
 
     <script type="text/javascript">
 
         $(function(){
 
-            $("#platProductForm").validate({
+            $("#electronicAccountForm").validate({
                 debug: true, //调试模式取消submit的默认提交功能
                 //errorClass: "label.error", //默认为错误的样式类为：error
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
                 onkeyup: false,
                 submitHandler: function(form){   //表单提交句柄,为一回调函数，带一个参数：form
-                    //重新分配name
-                    var payTypeNo = $("#payTypeTable tr").length;
-                    for (var i=0; i<payTypeNo; i++){
-                        if ($("#payTypeTable tr:eq("+i+") [name='payType']").val() == 0){
-                            alert("请选择通道商户支付方式");
-                            return ;
-                        }
-                        $("#payTypeTable tr:eq("+i+") [name='sort']").attr("name", "sort" + i);
-                        $("#payTypeTable tr:eq("+i+") [name='payType']").attr("name", "payType" + i);
-                        $("#payTypeTable tr:eq("+i+") [name='isValid']").attr("name", "isValid" + i);
-                    }
-
-                    //重新分配子产品name
-                    var productNo = $("#productTable tr").length;
-                    for (var i=0; i<productNo; i++){
-                        if ($("#productTable tr:eq("+i+") [name='subProductId']").val() == 0){
-                            alert("请选择子产品");
-                            return ;
-                        }
-                        $("#productTable tr:eq("+i+") [name='sort']").attr("name", "sort" + i);
-                        $("#productTable tr:eq("+i+") [name='subProductId']").attr("name", "subProductId" + i);
-                    }
-
-
                     form.submit();   //提交表单
                 },
 
@@ -85,7 +60,7 @@
                 '<div class="control-group">' +
                 ' <label class="control-label">银行名称</label>' +
                 '<div class="controls">' +
-                '<select name="caBankElectronicAccountBankList.bankCode" class="input-xxlarge payTypeSelect">' +
+                '<select name="caBankElectronicAccountBankList.bankCode" class="input-xxlarge payTypeSelect" onchange="selectBank();">' +
                 '<option value="">--请选择--</option>'+
                 <c:forEach items="${platBanks}" var="platBank">
                 '<option value="${platBank.bankCode}">${platBank.bankName}</option>' +
@@ -110,9 +85,15 @@
                 '</select>'+
                 '</div>'+
                 '</div>'+
-                '<img src="">'+
+                '</td>' +
+                '<td>'+
+                '<img src="${ctxStatic}/images/timg.jpeg" onclick="delBank();">'+
                 '</td>'+
                 '</tr>');
+        }
+
+        function delBank(){
+           $(this).parent().parent().remove();
         }
             
     </script>
@@ -124,7 +105,7 @@
     <label><a href="#">电子账户管理</a> > <a href="#"><b>电子账户新增</b></a></label>
 </div>
 
-<form id="platProductForm" action="${ctx}/platform/addPlatProduct" method="post">
+<form id="electronicAccountForm" action="${ctx}/electronic/addAccount" method="post">
     <!-- ********************************************************************** -->
     <div class="breadcrumb">
         <label>平台电子账户</label>
@@ -281,7 +262,7 @@
                 <div class="control-group">
                     <label class="control-label">银行名称</label>
                     <div class="controls">
-                        <select name="caBankElectronicAccountBankList.bankCode" class="selectpicker bla bla bli" data-live-search="true" onchange="">
+                        <select name="caBankElectronicAccountBankList.bankCode" class="selectpicker bla bla bli" data-live-search="true" onchange="selectBank();">
                             <option value="">--请选择--</option>
                             <c:forEach items="${platBanks}" var="platBank">
                                 <option value="${platBank.bankCode}">${platBank.bankName}</option>
@@ -308,7 +289,9 @@
                         </select>
                     </div>
                 </div>
-                <img src="">
+            </td>
+            <td>
+                <img src="${ctxStatic}/images/timg_add.jpeg" onclick="addBank();">
             </td>
         </tr>
     </table>

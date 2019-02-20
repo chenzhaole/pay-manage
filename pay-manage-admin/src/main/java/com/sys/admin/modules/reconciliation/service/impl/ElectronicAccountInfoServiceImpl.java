@@ -2,12 +2,15 @@ package com.sys.admin.modules.reconciliation.service.impl;
 
 import com.sys.admin.modules.reconciliation.service.ElectronicAccountInfoService;
 import com.sys.core.vo.ElectronicAccountVo;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
 public class ElectronicAccountInfoServiceImpl implements ElectronicAccountInfoService {
+    @Autowired
+    private com.sys.core.service.ElectronicAccountInfoService electronicAccountInfoService;
     @Override
     public List<ElectronicAccountVo> list(ElectronicAccountVo electronicAccountVo) {
         return null;
@@ -15,6 +18,7 @@ public class ElectronicAccountInfoServiceImpl implements ElectronicAccountInfoSe
 
     @Override
     public boolean add(ElectronicAccountVo electronicAccountVo) {
+
         return false;
     }
 
