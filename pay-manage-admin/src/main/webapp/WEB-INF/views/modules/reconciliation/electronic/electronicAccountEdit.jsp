@@ -15,6 +15,7 @@
     </style>
 
     <script type="text/javascript">
+        var map = new Map();
 
         $(function(){
 
@@ -39,8 +40,11 @@
                     }
                 }
             });
+            <c:forEach items="${electronicAccountVo.caBankElectronicAccountBankList}" var="item">
+                map.set('${item.bankCode}','${item.bankCode}');
+
+            </c:forEach>
         });
-        var map = new Map();
         function selectBank(select){
             var value =$(select).val();
             if(value ==''){
@@ -68,7 +72,7 @@
             $('#electronicAccountName').val($('#input_2').val() +"-"+$('#input_1').val());
             $('#electronicAccountNameCopy').val($('#input_2').val() +"-"+$('#input_1').val());
         }
-        var i=0;
+        var i='${electronicAccountVo.caBankElectronicAccountBankList==null?0:electronicAccountVo.caBankElectronicAccountBankList.size()}';
         //新增 银行
         function addBank() {
             i++;
@@ -121,10 +125,12 @@
 <body>
 
 <div class="breadcrumb">
-    <label><a href="#">电子账户管理</a> > <a href="#"><b>电子账户新增</b></a></label>
+    <label><a href="#">电子账户管理</a> > <a href="#"><b>电子账户修改</b></a></label>
 </div>
 
 <form id="electronicAccountForm" action="${ctx}/electronic/doAddAccount" method="post">
+    <input type="hidden" name="caElectronicAccount.id" value="${electronicAccountVo.caElectronicAccount.id}">
+    <input type="hidden" name="caBankElectronicAccount.id" value="${electronicAccountVo.caBankElectronicAccount.id}">
     <!-- ********************************************************************** -->
     <div class="breadcrumb">
         <label>平台电子账户</label>
@@ -136,7 +142,7 @@
                     <label class="control-label">电子账户名称:</label>
                     <div class="controls">
                     <input name="caElectronicAccount.electronicAccountName" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
-                           maxlength="64" disabled="disabled">
+                           maxlength="64" disabled="disabled" value="${electronicAccountVo.caElectronicAccount.electronicAccountName}">
                     <input name="caElectronicAccount.electronicAccountName" placeholder="" class="input-xlarge" type="hidden" id="electronicAccountNameCopy"
                            maxlength="64">
                     </div>
@@ -146,10 +152,10 @@
                 <div class="control-group">
                     <label class="control-label">商户名称:</label><span style="color: red;"><span style="color: red;">*</span></span>
                     <div class="controls">
-                        <select name="caElectronicAccount.mchtCode" id="mchtCode"  class="selectpicker" data-live-search="true" onchange="selectMcht(this);">
+                        <select name="caElectronicAccount.mchtCode" id="mchtCode"  class="selectpicker" data-live-search="true" onchange="selectMcht(this);" disabled="disabled">
                             <option value="">--请选择--</option>
                             <c:forEach var="mcht" items="${mchtList}">
-                                <option value="${mcht.mchtCode}" <c:if test="${paramMap.mchtCode eq mcht.mchtCode}">selected</c:if> >${mcht.name}</option>
+                                <option value="${mcht.mchtCode}" <c:if test="${electronicAccountVo.caElectronicAccount.mchtCode eq mcht.mchtCode}">selected</c:if> >${mcht.name}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -160,11 +166,11 @@
                 <div class="control-group">
                     <label class="control-label">通道名称:</label><span style="color: red;"><span style="color: red;">*</span></span>
                     <div class="controls">
-                        <select name="caElectronicAccount.chanCode" class="selectpicker" id="chanCode" onchange="selectChan(this)">
+                        <select name="caElectronicAccount.chanCode" class="selectpicker" id="chanCode" onchange="selectChan(this)" disabled="disabled">
                             <option value="">--请选择--</option>
                             <c:forEach items="${chanInfos}" var="chanInfo">
                                 <option data-chanCode="${chanInfo.chanCode }"
-                                        <c:if test="${paramMap.chanCode eq chanInfo.chanCode}">selected</c:if>
+                                        <c:if test="${electronicAccountVo.caElectronicAccount.chanCode eq chanInfo.chanCode}">selected</c:if>
                                         value="${chanInfo.chanCode}">${chanInfo.name}</option>
                             </c:forEach>
                         </select>
@@ -179,8 +185,8 @@
                     <label class="control-label">状态:</label>
                     <div class="controls">
                         <select name="caElectronicAccount.status" class="input-medium" id="status">
-                            <option value="1">启用</option>
-                            <option value="2">停用</option>
+                            <option <c:if test="${electronicAccountVo.caElectronicAccount.status eq '1'}"> selected</c:if> value="1">启用</option>
+                            <option <c:if test="${electronicAccountVo.caElectronicAccount.status eq '2'}"> selected</c:if>value="2">停用</option>
                         </select>
                     </div>
                 </div>
@@ -190,8 +196,8 @@
                     <label class="control-label">电子账户类型:</label>
                     <div class="controls">
                         <select name="caElectronicAccount.accountType" class="input-medium" id="routeType">
-                            <option value="0">支付电子账户</option>
-                            <option value="1">充值电子账户</option>
+                            <option <c:if test="${electronicAccountVo.caElectronicAccount.accountType eq '0'}"> selected</c:if> value="0">支付电子账户</option>
+                            <option <c:if test="${electronicAccountVo.caElectronicAccount.accountType eq '1'}"> selected</c:if> value="1">充值电子账户</option>
                         </select>
                     </div>
                 </div>
@@ -201,7 +207,7 @@
                 <div class="control-group">
                     <label class="control-label">绑定手机号:</label>
                     <div class="controls">
-                        <textarea name="caElectronicAccount.bindPhones" placeholder="" style="width:500px;" id="bindPhones" rows="3"></textarea>
+                        <textarea name="caElectronicAccount.bindPhones" placeholder="" style="width:500px;" id="bindPhones" rows="3" value="${electronicAccountVo.caElectronicAccount.bindPhones}"></textarea>
                     </div>
                 </div>
             </td>
@@ -219,7 +225,7 @@
                     <label class="control-label">收款银行:</label>
                     <div class="controls">
                     <input name="caBankElectronicAccount.receivingBank" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caBankElectronicAccount.receivingBank}">
                     </div>
                 </div>
             </td>
@@ -228,7 +234,7 @@
                     <label class="control-label">清算行号:</label>
                     <div class="controls">
                     <input name="caBankElectronicAccount.liquidationBankNo" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caBankElectronicAccount.liquidationBankNo}">
                     </div>
                 </div>
             </td>
@@ -237,7 +243,7 @@
                     <label class="control-label">开户网点:</label>
                     <div class="controls">
                     <input name="caBankElectronicAccount.openingAccountBank" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caBankElectronicAccount.openingAccountBank}">
                     </div>
                 </div>
 
@@ -249,7 +255,7 @@
                     <label class="control-label">开户地:</label>
                     <div class="controls">
                     <input name="caBankElectronicAccount.openingAccountLocation" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caBankElectronicAccount.openingAccountLocation}">
                     </div>
                 </div>
 
@@ -259,7 +265,7 @@
                     <label class="control-label">联行号:</label>
                     <div class="controls">
                     <input name="caBankElectronicAccount.lineNumber" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caBankElectronicAccount.lineNumber}">
                     </div>
                 </div>
             </td>
@@ -269,7 +275,7 @@
                     <label class="control-label">银行账号:</label>
                     <div class="controls">
                     <input name="caBankElectronicAccount.accountNo" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caBankElectronicAccount.accountNo}">
                     </div>
                 </div>
 
@@ -281,7 +287,7 @@
                     <label class="control-label">上游商户号:</label>
                     <div class="controls">
                     <input name="caBankElectronicAccount.mchtCode" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caBankElectronicAccount.mchtCode}">
                     </div>
                 </div>
 
@@ -291,8 +297,8 @@
                     <label class="control-label">状态:</label>
                     <div class="controls">
                         <select name="caBankElectronicAccount.status" class="input-medium" >
-                            <option value="1">启用</option>
-                            <option value="2">停用</option>
+                            <option <c:if test="${electronicAccountVo.caBankElectronicAccount.status eq '1'}"> selected</c:if> value="1">启用</option>
+                            <option <c:if test="${electronicAccountVo.caBankElectronicAccount.status eq '2'}"> selected</c:if>value="2">停用</option>
                         </select>
                     </div>
                 </div>
@@ -304,18 +310,19 @@
         <label>支持银行信息</label>
     </div>
     <table class="table" id ="bankInfo">
+        <c:forEach items="${electronicAccountVo.caBankElectronicAccountBankList}" var="item" varStatus="status">
         <tr>
             <td>
                 <div class="control-group">
                     <label class="control-label">银行名称</label>
                     <div class="controls">
-                        <select name="caBankElectronicAccountBankList[0].bankCode" class="selectpicker bla bla bli" data-live-search="true" onchange="selectBank(this);">
+                        <select name="caBankElectronicAccountBankList[${status.index}].bankCode" class="selectpicker bla bla bli" data-live-search="true" onchange="selectBank(this);">
                             <option value="">--请选择--</option>
                             <c:forEach items="${platBanks}" var="platBank">
-                                <option value="${platBank.bankCode}">${platBank.bankName}</option>
+                                <option <c:if test="${item.bankCode eq platBank.bankCode}">selected</c:if> value="${platBank.bankCode}">${platBank.bankName}</option>
                             </c:forEach>
                         </select>
-                        <input name="caBankElectronicAccountBankList[0].bankName" type="hidden" value="">
+                        <input name="caBankElectronicAccountBankList[${status.index}].bankName" type="hidden" value="${item.bankName}">
                     </div>
                 </div>
             </td>
@@ -323,8 +330,8 @@
                 <div class="control-group">
                     <label class="control-label">银行别名:</label>
                     <div class="controls">
-                    <input name="caBankElectronicAccountBankList[0].bankAlias" placeholder="" class="input-xlarge" type="text"
-                           maxlength="64">
+                    <input name="caBankElectronicAccountBankList[${status.index}].bankAlias" placeholder="" class="input-xlarge" type="text"
+                           maxlength="64" value="${item.bankAlias}">
                     </div>
                 </div>
             </td>
@@ -332,9 +339,9 @@
                 <div class="control-group">
                     <label class="control-label">状态:</label>
                     <div class="controls">
-                        <select name="caBankElectronicAccountBankList[0].status" class="input-medium" >
-                            <option value="1">启用</option>
-                            <option value="2">停用</option>
+                        <select name="caBankElectronicAccountBankList[${status.index}].status" class="input-medium" >
+                            <option <c:if test="${item.status eq '1'}"> selected</c:if> value="1">启用</option>
+                            <option <c:if test="${item.status eq '2'}"> selected</c:if>value="2">停用</option>
                         </select>
                     </div>
                 </div>
@@ -343,6 +350,7 @@
                 <img src="${ctxStatic}/images/timg-add.jpeg" onclick="addBank();" width="20" height="20">
             </td>
         </tr>
+        </c:forEach>
     </table>
     <div class="breadcrumb">
         <input name="btnCancel" class="btn" type="button" value="返 回" onclick="window.history.go(-1);"/>
