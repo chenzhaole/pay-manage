@@ -194,6 +194,8 @@ public class MerchantForm {
 	private String compReceiptAcctName;
 	//公司汇款尾数
 	private String mchtRemittanceAmountSuffix;
+	//上级代理商户名称
+	private String parentMchtName;
 
 
 
@@ -1101,5 +1103,13 @@ public class MerchantForm {
 
 	public void setExemptReviewEndTime(String exemptReviewEndTime) {
 		this.exemptReviewEndTime = exemptReviewEndTime;
+	}
+
+	public String getParentMchtName() {
+		return parentMchtName;
+	}
+
+	public void setParentMchtName(String parentMchtName) {
+		this.parentMchtName = parentMchtName;
 	}
 }

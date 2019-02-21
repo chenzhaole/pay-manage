@@ -427,17 +427,6 @@ public class ProxyOrderController extends BaseController {
 					if (batch == null) {
 						batch = JSON.parseObject(JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + platBatchId), PlatProxyBatch.class);
 						List<PlatProxyDetail> details = JSON.parseArray(JedisUtil.get(IdUtil.REDIS_PROXYPAY_DETAILS + platBatchId), PlatProxyDetail.class);
-						for (PlatProxyDetail detail : details) {
-							// 账户缓存数据
-							CacheMcht cacheMcht = accountAdminService.queryCacheMcht(mchtId);
-							CacheMchtAccount cacheMchtAccount = new CacheMchtAccount();
-							cacheMchtAccount.setType(Integer.valueOf(MchtAccountTypeEnum.PROXYPAY_ACCOUNT.getCode()));
-							cacheMchtAccount.setCacheMcht(cacheMcht);
-							cacheMchtAccount.setPlatProxyDetail(detail);
-							logger.info("代付的入账功能（插入CacheMchtAccount）信息为：" + JSONObject.toJSONString(cacheMchtAccount));
-							int rs = accountAdminService.insert2redisAccTask(cacheMchtAccount);
-							logger.info("代付的入账功能返回结果 rs=" + rs);
-						}
 						int rs = proxyBatchService.saveBatchAndDetails(batch, details);
 						logger.info("代付批次和代付明细入库返回结果 rs=" + rs);
 
@@ -450,6 +439,8 @@ public class ProxyOrderController extends BaseController {
 						for (PlatProxyDetail detail : details) {
 							//代付下单后将代付明细id存入redis
 							boolean flag = insertProxyDetail2Redis(detail.getId());
+							int rs2 = insertDFCacheMchtAcc2redis(detail);
+							logger.info("detailId="+detail.getId()+"代付明细入账户队列,redis操作结果rs2:" + rs2);
 							if(flag) {
 								logger.info("代付详情开始入MQ ," + JSONObject.toJSONString(detail));
 								dfProducerService.sendInfo(detail.getId(), QueueUtil.DF_CREATE_QUEUE);
@@ -478,6 +469,22 @@ public class ProxyOrderController extends BaseController {
 		response.setContentType(contentType);
 		response.setCharacterEncoding("utf-8");
 		response.getWriter().print(respMsg);
+	}
+
+	/**
+	 * 代付数据如账户缓存队列
+	 */
+	public int insertDFCacheMchtAcc2redis(PlatProxyDetail detail) {
+		// 账户缓存数据
+		CacheMcht cacheMcht = accountAdminService.queryCacheMcht(UserUtils.getUser().getLoginName());
+		CacheMchtAccount cacheMchtAccount = new CacheMchtAccount();
+		cacheMchtAccount.setType(Integer.valueOf(MchtAccountTypeEnum.PROXYPAY_ACCOUNT.getCode()));
+		cacheMchtAccount.setCacheMcht(cacheMcht);
+		cacheMchtAccount.setPlatProxyDetail(detail);
+		logger.info("代付的入账功能（插入CacheMchtAccount）信息为：" + JSONObject.toJSONString(cacheMchtAccount));
+		int rs = accountAdminService.insert2redisAccTask(cacheMchtAccount);
+		logger.info("代付的入账功能返回结果 rs=" + rs);
+		return rs;
 	}
 
 	/**
@@ -1095,7 +1102,7 @@ public class ProxyOrderController extends BaseController {
 			String key = "TRADE:PROXY:DETAIL:ACCOUNTFREEZE:"+proxyDetailId;
 			String value = jedis.set(key,proxyDetailId);
 			if (StringUtils.isNotBlank(value)) {
-				logger.info("代付下单后将代付明细id存入redis,key为"+key);
+				logger.info("代付下单后将代付明细id存入redis,key为"+key+",value="+value);
 				return true;
 			}else{
 				return false;
