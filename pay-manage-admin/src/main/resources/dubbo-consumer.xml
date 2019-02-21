@@ -72,4 +72,7 @@
 
 	<!--	报表		-->
 	<dubbo:reference id="reportService" interface="com.sys.boss.api.service.order.ReportService" timeout="30000"/>
+
+	<!--	电子账户		-->
+	<dubbo:reference id="electronicAccountInfoService" interface="com.sys.core.service.ElectronicAccountInfoService" timeout="30000"/>
 </beans>
