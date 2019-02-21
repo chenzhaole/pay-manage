@@ -46,7 +46,6 @@ public class ElectronicAccountInfoController {
     public String addElectronicAccount(ElectronicAccountVo electronicAccountVo,Model model){
         boolean flag=electronicAdminAccountInfoService.add(electronicAccountVo);
         logger.info("响应参数:"+flag);
-        
         return "redirect:" + GlobalConfig.getAdminPath()+"/electronic/list";
     }
     @RequestMapping("toAddAccount")
@@ -95,6 +94,7 @@ public class ElectronicAccountInfoController {
 
     @RequestMapping("toEditAccount")
     public String toEditElectronicAccount(ElectronicAccountVo electronicAccountVo,Model model){
+        logger.info("请求参数："+JSON.toJSONString(electronicAccountVo));
         //所有银行
         List<PlatBank> platBanks = platBankService.list(new PlatBank());
         model.addAttribute("platBanks", platBanks);
@@ -113,32 +113,14 @@ public class ElectronicAccountInfoController {
 
     @RequestMapping("doEditAccount")
     public String doEditElectronicAccount(ElectronicAccountVo electronicAccountVo,Model model){
+        logger.info("请求参数："+JSON.toJSONString(electronicAccountVo));
         boolean flag=electronicAdminAccountInfoService.update(electronicAccountVo);
-        //所有银行
-        List<PlatBank> platBanks = platBankService.list(new PlatBank());
-        model.addAttribute("platBanks", platBanks);
-        //通道
-        List<ChanInfo> chanInfos = channelAdminService.getChannelList(new ChanInfo());
-        model.addAttribute("chanInfos", chanInfos);
-        //商户
-        MchtInfo mchtInfo = new MchtInfo();
-        mchtInfo.setMchtType(SignTypeEnum.SIGN_MCHT.getCode());
-        List<MchtInfo> mchtList = merchantService.list(mchtInfo);
-        model.addAttribute("mchtList", mchtList);
-        ElectronicAccountVo vo = new ElectronicAccountVo();
-        model.addAttribute("electronicAccountVo",vo);
-        int count =electronicAdminAccountInfoService.count(vo);
-        if(count==0){
-            return "/modules/reconciliation/electronic/electronicAccountList";
-        }
-        if(electronicAccountVo.getPage()==null){
-            PageInfo page = new PageInfo();
-            electronicAccountVo.setPage(page);
-        }
-        //查询
-        List<CaElectronicAccount> caElectronicAccountList =electronicAdminAccountInfoService.list(vo);
-        Page page =new Page(electronicAccountVo.getPage().getPageNo(), electronicAccountVo.getPage().getPageSize(), count, caElectronicAccountList, true);
-        model.addAttribute("page",page);
-        return "/modules/reconciliation/electronic/electronicAccountList";
+        return "redirect:" + GlobalConfig.getAdminPath()+"/electronic/list";
+    }
+    @RequestMapping("doDeleteAccount")
+    public String doDeleteElectronicAccount(ElectronicAccountVo electronicAccountVo){
+        logger.info("请求参数："+JSON.toJSONString(electronicAccountVo));
+        boolean flag=electronicAdminAccountInfoService.delete(electronicAccountVo);
+        return "redirect:" + GlobalConfig.getAdminPath()+"/electronic/list";
     }
 }

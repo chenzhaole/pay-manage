@@ -128,7 +128,7 @@
     <label><a href="#">电子账户管理</a> > <a href="#"><b>电子账户修改</b></a></label>
 </div>
 
-<form id="electronicAccountForm" action="${ctx}/electronic/doAddAccount" method="post">
+<form id="electronicAccountForm" action="${ctx}/electronic/doEditAccount" method="post">
     <input type="hidden" name="caElectronicAccount.id" value="${electronicAccountVo.caElectronicAccount.id}">
     <input type="hidden" name="caBankElectronicAccount.id" value="${electronicAccountVo.caBankElectronicAccount.id}">
     <!-- ********************************************************************** -->
@@ -144,7 +144,7 @@
                     <input name="caElectronicAccount.electronicAccountName" placeholder="" class="input-xlarge" type="text" id="electronicAccountName"
                            maxlength="64" disabled="disabled" value="${electronicAccountVo.caElectronicAccount.electronicAccountName}">
                     <input name="caElectronicAccount.electronicAccountName" placeholder="" class="input-xlarge" type="hidden" id="electronicAccountNameCopy"
-                           maxlength="64">
+                           maxlength="64" value="${electronicAccountVo.caElectronicAccount.electronicAccountName}">
                     </div>
                 </div>
             </td>

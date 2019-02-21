@@ -98,7 +98,8 @@ public class ElectronicAdminAccountInfoServiceImpl implements ElectronicAdminAcc
 
     @Override
     public boolean delete(ElectronicAccountVo electronicAccountVo) {
-        return false;
+
+        return electronicAccountInfoService.delete(electronicAccountVo);
     }
 
     @Override
