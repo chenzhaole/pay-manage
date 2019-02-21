@@ -679,6 +679,24 @@
         <tr>
             <td>
                 <div class="control-group">
+                    <label class="control-label" for="realFeeRate">真实收费比率(‰)</label>
+                    <div class="controls">
+                        <input name="realFeeRate" value="${chanMchPaytye.realFeeRate }" placeholder=""
+                               class="input-xlarge" type="text" id="realFeeRate">
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label" for="realFeeAmount">真实收费金额(/笔(分))</label>
+                    <div class="controls">
+                        <input name="feeAmount" value="${chanMchPaytye.realFeeAmount }" placeholder="" class="input-xlarge"
+                               type="text" id="realFeeAmount">
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
                     <label class="control-label" for="feeAmount">当日限额(分)</label>
                     <div class="controls">
                         <input name="dayMaxAmount" value="${chanMchPaytye.dayMaxAmount }" placeholder=""
@@ -687,8 +705,9 @@
                     </div>
                 </div>
             </td>
-
-            <td>
+        </tr>
+        <tr>
+            <td colspan="3">
                 <div class="control-group">
                     <label class="control-label">生效时间</label>
                     <div class="controls">

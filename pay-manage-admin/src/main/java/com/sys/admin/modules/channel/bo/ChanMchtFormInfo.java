@@ -66,6 +66,10 @@ public class ChanMchtFormInfo {
 
 	private Double feeAmount;
 
+	private Double realFeeRate;
+
+	private Double realFeeAmount;
+
 	private Double lowestFee;
 
 	private Double highestFee;
@@ -796,6 +800,22 @@ public class ChanMchtFormInfo {
 		this.dayMaxAmount = dayMaxAmount;
 	}
 
+	public Double getRealFeeRate() {
+		return realFeeRate;
+	}
+
+	public void setRealFeeRate(Double realFeeRate) {
+		this.realFeeRate = realFeeRate;
+	}
+
+	public Double getRealFeeAmount() {
+		return realFeeAmount;
+	}
+
+	public void setRealFeeAmount(Double realFeeAmount) {
+		this.realFeeAmount = realFeeAmount;
+	}
+
 	//空的构造方法
 	public ChanMchtFormInfo() {
 
@@ -836,6 +856,8 @@ public class ChanMchtFormInfo {
 			this.feeType = requestMap.get("feeType");
 			this.feeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeRate")) ? "0" : requestMap.get("feeRate"));
 			this.feeAmount = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeAmount")) ? "0" : requestMap.get("feeAmount"));
+			this.realFeeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("realFeeRate")) ? "0" : requestMap.get("realFeeRate"));
+			this.realFeeAmount = Double.parseDouble(StringUtils.isBlank(requestMap.get("realFeeAmount")) ? "0" : requestMap.get("realFeeAmount"));
 			this.activeTime = requestMap.get("activeTime");
 			this.lowestFee = Double.parseDouble(StringUtils.isBlank(requestMap.get("lowestFee")) ? "0" : requestMap.get("lowestFee"));
 			this.highestFee = Double.parseDouble(StringUtils.isBlank(requestMap.get("highestFee")) ? "0" : requestMap.get("highestFee"));
@@ -908,6 +930,8 @@ public class ChanMchtFormInfo {
 		platFeerate.setFeeType(this.feeType);
 		platFeerate.setFeeRate(new BigDecimal(this.feeRate != null ? this.feeRate : 0));
 		platFeerate.setFeeAmount(new BigDecimal(this.feeAmount != null ? this.feeAmount : 0));
+		platFeerate.setRealFeeRate(new BigDecimal(this.realFeeRate != null ? this.realFeeRate : 0));
+		platFeerate.setRealFeeAmount(new BigDecimal(this.realFeeAmount != null ? this.realFeeAmount : 0));
 		platFeerate.setSettleType(this.settleCategory != null ? this.settleCategory + "" : "");
 		platFeerate.setSettleMode(this.settleMode != null ? this.settleMode + "" : "");
 		platFeerate.setSettleCycle(this.settleCycle);
@@ -931,6 +955,8 @@ public class ChanMchtFormInfo {
 		this.feeType = platFeerate.getFeeType() != null ? platFeerate.getFeeType() : "";
 		this.feeRate = platFeerate.getFeeRate() != null ? platFeerate.getFeeRate().doubleValue() : null;
 		this.feeAmount = platFeerate.getFeeAmount() != null ? platFeerate.getFeeAmount().doubleValue() : null;
+		this.realFeeRate = platFeerate.getRealFeeRate() != null ? platFeerate.getRealFeeRate().doubleValue() : null;
+		this.realFeeAmount = platFeerate.getRealFeeAmount() != null ? platFeerate.getRealFeeAmount().doubleValue() : null;
 		this.settleCategory = Integer.parseInt(platFeerate.getSettleType() != null ? platFeerate.getSettleType() : "0");
 		this.settleMode = Integer.parseInt(platFeerate.getSettleMode()  != null ? platFeerate.getSettleMode() : "0");
 		this.settleCycle = platFeerate.getSettleCycle();
