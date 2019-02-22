@@ -894,6 +894,37 @@
                     <p class="help-block"></p>
                 </div>
             </td>
+            <td>
+                <label class="control-label">是否支持网页代付</label>
+                <div class="controls">
+                    <div class="input-prepend">
+                        <select style="width:50px;" name="supportPageProxy">
+                            <option value="1" <c:if test="${merchant.supportPageProxy == '1' || merchant.supportPageProxy==null}">selected</c:if>>是
+                            </option>
+                            <option value="0" <c:if test="${merchant.supportPageProxy == '0'}">selected</c:if>>否
+                            </option>
+                        </select>
+                    </div>
+                    <p class="help-block"></p>
+                </div>
+            </td>
+            <td>
+                <label class="control-label">是否支持API代付</label>
+                <div class="controls">
+                    <div class="input-prepend">
+                        <select style="width:50px;" name="supportApiProxy">
+                            <option value="1" <c:if test="${merchant.supportApiProxy == '1' || merchant.supportApiProxy==null}">selected</c:if>>是
+                            </option>
+                            <option value="0" <c:if test="${merchant.supportApiProxy == '0'}">selected</c:if>>否
+                            </option>
+                        </select>
+                    </div>
+                    <p class="help-block"></p>
+                </div>
+
+            </td>
+        </tr>
+        <tr>
             <td colspan="3">
                 <div class="control-group">
                     <label class="control-label" for="mchtPropertyTag">商户标签（半角逗号分隔）</label>

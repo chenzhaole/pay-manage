@@ -197,6 +197,12 @@ public class MerchantForm {
 	//上级代理商户名称
 	private String parentMchtName;
 
+	//是否支持网页代付
+	private String supportPageProxy;
+
+	//是否支持api代付
+	private String supportApiProxy;
+
 
 
 	public MerchantForm() {
@@ -297,6 +303,8 @@ public class MerchantForm {
 		this.compReceiptAcctNo = requestMap.get("compReceiptAcctNo");
 		this.compReceiptAcctName = requestMap.get("compReceiptAcctName");
 		this.mchtRemittanceAmountSuffix = requestMap.get("mchtRemittanceAmountSuffix");
+		this.supportPageProxy =requestMap.get("supportPageProxy");
+		this.supportApiProxy =requestMap.get("supportApiProxy");
 	}
 
 	public String getCertPath1() {
@@ -1111,5 +1119,21 @@ public class MerchantForm {
 
 	public void setParentMchtName(String parentMchtName) {
 		this.parentMchtName = parentMchtName;
+	}
+
+	public String getSupportPageProxy() {
+		return supportPageProxy;
+	}
+
+	public void setSupportPageProxy(String supportPageProxy) {
+		this.supportPageProxy = supportPageProxy;
+	}
+
+	public String getSupportApiProxy() {
+		return supportApiProxy;
+	}
+
+	public void setSupportApiProxy(String supportApiProxy) {
+		this.supportApiProxy = supportApiProxy;
 	}
 }
