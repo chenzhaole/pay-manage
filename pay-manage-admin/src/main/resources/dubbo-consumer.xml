@@ -72,4 +72,8 @@
 
 	<!--	报表		-->
 	<dubbo:reference id="reportService" interface="com.sys.boss.api.service.order.ReportService" timeout="30000"/>
+
+	<!--	上游对账审批	-->
+	<dubbo:reference id="caAccountAuditService" interface="com.sys.core.service.CaAccountAuditService" timeout="60000"/>
+
 </beans>
