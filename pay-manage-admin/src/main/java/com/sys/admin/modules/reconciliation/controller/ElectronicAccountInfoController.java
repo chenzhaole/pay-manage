@@ -1,4 +1,3 @@
-/*
 package com.sys.admin.modules.reconciliation.controller;
 
 import com.alibaba.fastjson.JSON;
@@ -21,18 +20,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
-<<<<<<< HEAD
-*/
-=======
 
 import java.util.List;
 
->>>>>>> 9bcf8182c74dabbd9fc2c9567d77b1ddc1a2aa91
 /**
  * @author fengzhenzhong
  * @desc  电子账户基本信息维护
- *//*
-
+ */
 @Controller
 @RequestMapping("${adminPath}/electronic")
 public class ElectronicAccountInfoController {
@@ -130,4 +124,3 @@ public class ElectronicAccountInfoController {
         return "redirect:" + GlobalConfig.getAdminPath()+"/electronic/list";
     }
 }
-*/
