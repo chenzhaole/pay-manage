@@ -37,7 +37,34 @@
                     },
                     'caBankElectronicAccount.mchtCode':{
                         required:true
+                    },
+                    'platFeerate.feeRate':{
+                        required:function(){
+                            var value =$('#feeType').val();
+                            var flag =false;
+                            if(value =='1'){
+                                flag= true;
+                            }
+                            if(value =='3'){
+                                flag= true;
+                            }
+                            return flag;
+                        }
+                    },
+                    'platFeerate.feeAmount':{
+                        required:function() {
+                            var value =$('#feeType').val();
+                            var flag =false;
+                            if(value =='2'){
+                                flag= true;
+                            }
+                            if(value =='3'){
+                                flag= true;
+                            }
+                            return flag;
+                        }
                     }
+
                 }
             });
             <c:forEach items="${electronicAccountVo.caBankElectronicAccountBankList}" var="item">
@@ -213,7 +240,48 @@
             </td>
         </tr>
     </table>
+    <div class="breadcrumb">
+        <label>汇款费率信息</label>
+    </div>
 
+    <table class="table">
+        <tr>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">收费类型</label>
+                    <div class="controls">
+                        <select name="platFeerate.feeType" class="input-xlarge" id="feeType">
+                            <option value="">--请选择--</option>
+                            <option <c:if test="${electronicAccountVo.platFeerate.feeType eq '1'}">selected</c:if> value="1">按笔收费
+                            </option>
+                            <option <c:if test="${electronicAccountVo.platFeerate.feeType eq '2'}">selected</c:if> value="2">按比例收费
+                            </option>
+                            <option <c:if test="${electronicAccountVo.platFeerate.feeType eq '3'}">selected</c:if> value="3">混合
+                            </option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label" for="feeRate">收费比率(‰)</label>
+                    <div class="controls">
+                        <input name="platFeerate.feeRate"  placeholder=""
+                               class="input-xlarge" type="text" id="feeRate" value="${electronicAccountVo.platFeerate.feeRate}">
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label" for="feeAmount">收费金额(/笔(分))</label>
+                    <div class="controls">
+                        <input name="platFeerate.feeAmount"  placeholder="" class="input-xlarge"
+                               type="text" id="feeAmount" value="${electronicAccountVo.platFeerate.feeAmount}">
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
 
     <div class="breadcrumb">
         <label>通道账户信息</label>

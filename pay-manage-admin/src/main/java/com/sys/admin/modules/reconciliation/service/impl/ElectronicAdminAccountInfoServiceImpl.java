@@ -4,12 +4,20 @@ import com.alibaba.fastjson.JSON;
 import com.sys.admin.modules.reconciliation.controller.ElectronicAccountInfoController;
 import com.sys.admin.modules.reconciliation.service.ElectronicAdminAccountInfoService;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.common.enums.FeeRateBizTypeEnum;
+import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.DateUtils2;
 import com.sys.common.util.IdUtil;
+import com.sys.common.util.RandomNumberUtil;
 import com.sys.core.dao.dmo.CaBankElectronicAccount;
 import com.sys.core.dao.dmo.CaBankElectronicAccountBank;
 import com.sys.core.dao.dmo.CaElectronicAccount;
+import com.sys.core.dao.dmo.PlatFeerate;
 import com.sys.core.service.ElectronicAccountInfoService;
+import com.sys.core.service.PlatFeerateService;
 import com.sys.core.vo.ElectronicAccountVo;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.poi.util.StringUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -65,6 +73,16 @@ public class ElectronicAdminAccountInfoServiceImpl implements ElectronicAdminAcc
             caBankElectronicAccountBank.setCreateOperatorId(userId);
 
         }
+        if(electronicAccountVo.getPlatFeerate()!=null){
+            PlatFeerate platFeerate =electronicAccountVo.getPlatFeerate();
+            String feeID = "F"+ DateUtils2.getNowTimeStr("yyyyMMddHHmmssSSS")+ RandomNumberUtil.getRandNumber(4);
+            platFeerate.setId(feeID);
+            platFeerate.setBizName(FeeRateBizTypeEnum.CHAN_MCHT_PAYTYPE_BIZTYPE.getdesc());
+            platFeerate.setBizType(FeeRateBizTypeEnum.CHAN_MCHT_PAYTYPE_BIZTYPE.getCode());
+            platFeerate.setBizRefId(caElectronicAccountId);
+            platFeerate.setCreateTime(new Date());
+            platFeerate.setStatus(StatusEnum.VALID.getCode());
+        }
         logger.info("获取请求参数:"+JSON.toJSONString(electronicAccountVo));
         //数据入库操作
         boolean flag=electronicAccountInfoService.add(electronicAccountVo);
@@ -90,8 +108,18 @@ public class ElectronicAdminAccountInfoServiceImpl implements ElectronicAdminAcc
             caBankElectronicAccountBank.setId(caBankElectronicAccountBankId);
             caBankElectronicAccountBank.setBankElectronicAccountId(caBankElectronicAccount.getId());
             caBankElectronicAccountBank.setCreateOperatorId(userId);
-
         }
+
+            if(StringUtils.isNotBlank(electronicAccountVo.getPlatFeerate().getFeeType())){
+                PlatFeerate platFeerate =electronicAccountVo.getPlatFeerate();
+                String feeID = "F"+ DateUtils2.getNowTimeStr("yyyyMMddHHmmssSSS")+ RandomNumberUtil.getRandNumber(4);
+                platFeerate.setId(feeID);
+                platFeerate.setBizName(FeeRateBizTypeEnum.CHAN_MCHT_PAYTYPE_BIZTYPE.getdesc());
+                platFeerate.setBizType(FeeRateBizTypeEnum.CHAN_MCHT_PAYTYPE_BIZTYPE.getCode());
+                platFeerate.setBizRefId(electronicAccountVo.getCaElectronicAccount().getId());
+                platFeerate.setCreateTime(new Date());
+                platFeerate.setStatus(StatusEnum.VALID.getCode());
+            }
 
         return electronicAccountInfoService.update(electronicAccountVo);
     }
