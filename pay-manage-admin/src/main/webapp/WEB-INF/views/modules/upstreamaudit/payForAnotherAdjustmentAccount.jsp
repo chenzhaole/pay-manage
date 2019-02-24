@@ -39,9 +39,7 @@
 <shiro:hasPermission name="platform:adjust:apply">
     <ul class="nav nav-tabs">
         <li class="active"><a href="${ctx}/platform/adjust">调账列表</a></li>
-        <c:if test="${logo == 'apply'}">
-            <li><a href="${ctx}/platform/adjust/form">调账添加</a></li>
-        </c:if>
+        <li><a href="${ctx}/caAccountAudit/toPayForAnotherAdjustment">调账添加</a></li>
     </ul>
 </shiro:hasPermission>
 
@@ -53,13 +51,13 @@
     <table>
         <tr>
             <td>
-                <label>商户名称：</label>
+                <label>电子账户：</label>
                 <select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
                     <option value="">--请选择--</option>
-                    <c:forEach items="${mchtInfos}" var="mchtInfo">
-                        <option value="${mchtInfo.id}"
-                                <c:if test="${adjustInfo.mchtId == mchtInfo.id}">selected</c:if>
-                        >${mchtInfo.name}</option>
+                    <c:forEach items="${electronicAccounts}" var="account">
+                        <option value="${account.id}"
+                                <c:if test="${account.id == account.id}">selected</c:if>
+                        >${account.electronicAccountName}</option>
                     </c:forEach>
                 </select>
             </td>
@@ -115,12 +113,12 @@
     </tr>
     </thead>
     <tbody>
-    <c:forEach items="${list}" var="adjust">
+    <c:forEach items="${caAccountAudits}" var="adjust">
         <tr>
             </td>
             <td>${adjust.id}</td>
             <td>${adjust.accountId}</td>
-            <td>${adjust.chanNameAndMchtName}</td>
+            <td>${adjust.electronicAccount.electronicAccountName}</td>
             <td>
                 <c:if test="${adjust.accountType=='1'}">电子账户</c:if>
                 <c:if test="${adjust.accountType=='2'}">公户账户</c:if>
@@ -149,7 +147,7 @@
             </td>
             <td>
                 <div class="wrap" style="width: 100px; word-break: break-all; word-wrap: break-word;">
-                        ${adjust.remark}
+                        ${adjust.customerMsg}
                 </div>
             </td>
             <shiro:hasPermission name="platform:adjust:audit">

@@ -1,9 +1,11 @@
 package com.sys.admin.modules.platform.controller;
 
 import com.alibaba.fastjson.JSONObject;
+import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.web.BaseController;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.CaAccountAudit;
+import com.sys.core.dao.dmo.CaElectronicAccount;
 import com.sys.core.service.CaAccountAuditService;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -14,6 +16,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
 
+import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -32,10 +35,10 @@ public class CaAccountAuditController extends BaseController {
      * 2019-02-21 11:01:51
      * @return
      */
-    @RequestMapping("/findCaAuditEnum")
+    @RequestMapping("/findCaAccountAuditDetail")
     public ModelAndView findCaAccountAuditDetail(String keyId){
         ModelAndView andView = new ModelAndView();
-        andView.setViewName("");
+        andView.setViewName("modules/upstreamaudit/auditOperateDzOrder");
 
         CaAccountAudit accountAudit = null;
         logger.info("查询上游对账审批详情, 请求参数keyId为:" + keyId);
@@ -84,6 +87,8 @@ public class CaAccountAuditController extends BaseController {
         caAccountAudit.setCustomerStartAuditTime(paramMap.get("customerEndAuditTime"));
 
         caAccountAudits =  caAccountAuditService.queryCaAccountAudit(caAccountAudit);
+
+
         andView.addObject("caAccountAudits", caAccountAudits);
         return andView;
     }
@@ -95,24 +100,28 @@ public class CaAccountAuditController extends BaseController {
      * @return
      */
     @RequestMapping("/insertCaAccountAudit")
-    public ModelAndView insertCaAccountAudit(Map<String, String> paramMap){
+    public String insertCaAccountAudit(HttpServletRequest request,  @RequestParam Map<String, String> paramMap){
         ModelAndView andView = new ModelAndView();
         andView.setViewName("");
 
         if(StringUtils.isEmpty(paramMap.get("type"))){
             logger.info("添加审批信息类型为空,参数为:" + JSONObject.toJSONString(paramMap));
-            return andView;
+            return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
         }
         CaAccountAudit caAccountAudit  = new CaAccountAudit();
+        caAccountAudit.setAccountId(paramMap.get("accountId"));
         caAccountAudit.setType(paramMap.get("type"));
+        caAccountAudit.setAdjustType(paramMap.get("adjustType"));
         caAccountAudit.setSourceDataId(paramMap.get("sourceDataId"));
         caAccountAudit.setNewDataId(paramMap.get("newDataId"));
-        caAccountAudit.setSourceChanDataId(paramMap.get("sourceChanDataId("));
+        caAccountAudit.setSourceChanDataId(paramMap.get("sourceChanDataId"));
         caAccountAudit.setSourceChanRepeatDataId(paramMap.get("sourceChanRepeatDataId"));
         caAccountAudit.setAmount(new BigDecimal(paramMap.get("amount")));
+        caAccountAudit.setCustomerMsg(paramMap.get("customerMsg"));
+        caAccountAudit.setAccountType(paramMap.get("accountType"));
         boolean backFlag = caAccountAuditService.insertAccountAudit(caAccountAudit);
 
-        return andView;
+        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
     }
 
 
@@ -121,6 +130,7 @@ public class CaAccountAuditController extends BaseController {
      * 2019-02-21 11:44:08
      * @return
      */
+    @RequestMapping("/updateCaAccountAuditById")
     public ModelAndView updateCaAccountAuditById(Map<String, String> paramMap){
         ModelAndView andView = new ModelAndView();
         andView.setViewName("");
@@ -135,6 +145,23 @@ public class CaAccountAuditController extends BaseController {
         caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
 
         boolean backFlag = caAccountAuditService.updateAccountAudit(caAccountAudit);
+        return andView;
+    }
+
+
+    /**
+     * 跳转代付调账页面
+     * 2019-02-22 17:10:25
+     * @return
+     */
+    @RequestMapping("/toPayForAnotherAdjustment")
+    public ModelAndView toAddAccountAudit(){
+        ModelAndView andView = new ModelAndView();
+
+        List<CaElectronicAccount>  electronicAccounts = caAccountAuditService.queryCaElectronicAccountByExample(new CaElectronicAccount());
+        andView.addObject("electronicAccounts", electronicAccounts);
+
+        andView.setViewName("modules/upstreamaudit/toPayForAnotherAdjustment");
         return andView;
     }
 
