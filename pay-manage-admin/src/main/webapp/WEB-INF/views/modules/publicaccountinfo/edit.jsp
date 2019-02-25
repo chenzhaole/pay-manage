@@ -15,13 +15,6 @@
 		         focusInvalid: false, //当为false时，验证无效时，没有焦点响应  
 		         onkeyup: false,   
 		         submitHandler: function(form){   //表单提交句柄,为一回调函数，带一个参数：form   
-		        	var op = $("#op").val();
-		         	if(op == 'add'){
-			         	url = "${ctx}/publicaccountinfo/addSave";
-		         	}else if(op == 'edit'){
-		         		url = "${ctx}/publicaccountinfo/editSave";
-		         	}
-		         	document.forms[0].action=url;
 		         	document.forms[0].submit();
 		         },
 		         errorPlacement:function(error,element) {
@@ -55,7 +48,7 @@
 	<label><a href="#">平台管理> </a><a href="#">公户信息管理> </a><a href="#"><b>公户信息编辑</b></a></label>
 </div>
 
-<form id="publicAccountInfoForm" action="" method="post" >
+<form id="publicAccountInfoForm" action="${ctx}/publicaccountinfo/edit" method="post" >
 <input type="hidden" name="publicAccountCode" value="${publicAccountInfo.publicAccountCode }"/>
 
 <div class="breadcrumb">
@@ -90,17 +83,6 @@
 			<input name="publicOpenAccountBankName" value="${publicAccountInfo.publicOpenAccountBankName }" placeholder="" class="input-xxlarge" type="text">
 		</div>
 	</div>
-</td>
-
-<td>
-	<div class="control-group">
-       <label class="control-label">选择模板</label>
-       <div class="controls">
-         <select name="modelName" class="input-small">
-	       <option value="m1">民生银行</option>
-	     </select>
-       </div>
-     </div>
 </td>
 
 </tr>

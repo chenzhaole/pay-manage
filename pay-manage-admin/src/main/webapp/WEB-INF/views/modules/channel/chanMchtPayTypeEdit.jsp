@@ -690,7 +690,7 @@
                 <div class="control-group">
                     <label class="control-label" for="realFeeAmount">真实收费金额(/笔(分))</label>
                     <div class="controls">
-                        <input name="feeAmount" value="${chanMchPaytye.realFeeAmount }" placeholder="" class="input-xlarge"
+                        <input name="realFeeAmount" value="${chanMchPaytye.realFeeAmount }" placeholder="" class="input-xlarge"
                                type="text" id="realFeeAmount">
                     </div>
                 </div>

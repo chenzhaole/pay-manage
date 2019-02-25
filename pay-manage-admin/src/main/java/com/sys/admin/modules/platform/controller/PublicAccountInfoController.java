@@ -64,6 +64,7 @@ public class PublicAccountInfoController extends BaseController {
 		}
 		logger.info("公户信息数据列表,查询条件"+JSON.toJSON(publicAccountInfo));
 		model.addAttribute("paramMap",paramMap);
+		publicAccountInfo.setStatus("1,2");
 
 		int count =publicAccountInfoService.publicAccountInfoCount(publicAccountInfo);
 
@@ -82,11 +83,10 @@ public class PublicAccountInfoController extends BaseController {
 		}
 		pageInfo.setPageNo(pageNo);
 		publicAccountInfo.setPageInfo(pageInfo);
-
 		List<PublicAccountInfo> publicAccountInfos =publicAccountInfoService.list(publicAccountInfo);
 		if(publicAccountInfos!=null){
 			for(PublicAccountInfo pai:publicAccountInfos){
-				pai.setCreateOperatorName(UserUtils.getUserName(pai.getCreateOperatorId()));
+				pai.setUpdateOperatorName(UserUtils.getUserName(pai.getUpdateOperatorId()));
 			}
 		}
 
@@ -118,18 +118,24 @@ public class PublicAccountInfoController extends BaseController {
 		logger.info("公户信息编辑,publicAccountInfo为"+pai);
 		String message = "保存成功";
 		String messageType = "success";
-
 		try{
+			//检验公户账号是否存在
+			String str = checkPublicAccountNoExists(pai,redirectAttributes);
+			if(StringUtils.isNotBlank(str)){
+				return str;
+			}
 			if(StringUtils.isNotBlank(request.getParameter("publicAccountCode"))){
 				PublicAccountInfo publicAccountInfo = publicAccountInfoService.queryByKey(request.getParameter("publicAccountCode"));
 				BeanUtils.copyProperties(pai, publicAccountInfo);
-				pai.setUpdateTime(new Date());
-				pai.setUpdateOperatorId(UserUtils.getUser().getId());
+				publicAccountInfo.setUpdateTime(new Date());
+				publicAccountInfo.setUpdateOperatorId(UserUtils.getUser().getId());
 				publicAccountInfoService.saveByKey(publicAccountInfo);
 			}else{
 				pai.setPublicAccountCode(IdUtil.createCaCommonId("0"));
 				pai.setCreateTime(new Date());
 				pai.setCreateOperatorId(UserUtils.getUser().getId());
+				pai.setUpdateTime(new Date());
+				pai.setUpdateOperatorId(UserUtils.getUser().getId());
 				publicAccountInfoService.create(pai);
 			}
 
@@ -140,7 +146,26 @@ public class PublicAccountInfoController extends BaseController {
 		}
 		redirectAttributes.addFlashAttribute("messageType", messageType);
 		redirectAttributes.addFlashAttribute("message", message);
-		return "redirect:"+ GlobalConfig.getAdminPath()+"/publicaccountinfo/publicAccountList";
+		return "redirect:"+ GlobalConfig.getAdminPath()+"/publicaccountinfo/list";
+	}
+
+	public String checkPublicAccountNoExists(PublicAccountInfo pai,RedirectAttributes redirectAttributes){
+		if(StringUtils.isNotBlank(pai.getPublicAccountCode())) {
+			PublicAccountInfo publicAccountInfo = publicAccountInfoService.queryByKey(pai.getPublicAccountCode());
+			if(publicAccountInfo==null||publicAccountInfo.getPublicAccountNo().equals(pai.getPublicAccountNo())){
+				return null;
+			}
+		}
+		PublicAccountInfo publicAccountInfo = new PublicAccountInfo();
+		publicAccountInfo.setPublicAccountNo(pai.getPublicAccountNo());
+		publicAccountInfo.setStatus("1,2");
+		int count = publicAccountInfoService.publicAccountInfoCount(publicAccountInfo);
+		if(count>0){
+			redirectAttributes.addFlashAttribute("messageType", "error");
+			redirectAttributes.addFlashAttribute("message", "公户账号已存在");
+			return "modules/publicaccountinfo/edit";
+		}
+		return null;
 	}
 
 	private PublicAccountInfo getPublicAccountInfo(HttpServletRequest request){
@@ -154,5 +179,27 @@ public class PublicAccountInfoController extends BaseController {
 		pai.setStatus(request.getParameter("status"));
 		pai.setBindPhones(request.getParameter("bindPhones"));
 		return pai;
+	}
+
+	/**
+	 * 公户信息数据删除
+	 */
+	@RequestMapping(value = {"delete", ""})
+	public String delete(HttpServletRequest request, HttpServletResponse response,Model model, @RequestParam Map<String, String> paramMap) {
+		try{
+			String publicAccountCode  = paramMap.get("publicAccountCode");
+			logger.info("公户信息数据删除,publicAccountCode="+publicAccountCode);
+			if(StringUtils.isNotBlank(publicAccountCode)){
+				PublicAccountInfo publicAccountInfo = publicAccountInfoService.queryByKey(publicAccountCode);
+				publicAccountInfo.setUpdateTime(new Date());
+				publicAccountInfo.setUpdateOperatorId(UserUtils.getUser().getId());
+				publicAccountInfo.setStatus("3");
+				publicAccountInfoService.saveByKey(publicAccountInfo);
+			}
+			model.addAttribute("paramMap",paramMap);
+		}catch (Exception e){
+			logger.error("公户信息删除异常",e);
+		}
+		return "redirect:"+ GlobalConfig.getAdminPath()+"/publicaccountinfo/list";
 	}
 }
