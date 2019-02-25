@@ -325,13 +325,22 @@ public class GwDFController {
         Map<String, ChanInfo> chanInfoMap = queryChanInfoMap();
 
         for(ChanMchtPaytype cmp: chanMchtPaytypeList){
+            if(StringUtils.isEmpty(cmp.getChanCode())){
+                logger.info("定时器查询生效的通道余额大于20W发送信息到公众号,通道编号是空");
+                continue;
+            }
+            if(cmp.getChanCode().equals("gfb") || cmp.getChanCode().equals("yinyingtongnew") ||
+                    cmp.getChanCode().equals("hangzhoucityzencard") ||cmp.getChanCode().equals("xianfeng")){
+                logger.info("定时器查询生效的通道余额大于20W发送信息到公众号,通道编号是:" + cmp.getChanCode() + ",不校验.");
+                continue;
+            }
             queryChanMchtPaytypeBalance(cmp, chanInfoMap);
         }
         CommonResult result = new CommonResult();
         result.setRespMsg("SUCCESS");
         result.setRespCode("000000");
         taskLogService.recordLog(logId, result);
-        logger.info("代付API，【定时任务代付查单】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
+        logger.info("定时器查询生效的通道余额大于20W发送信息到公众号："+logId+" "+JSON.toJSONString(result));
         return "ok";
 
 
@@ -398,7 +407,7 @@ public class GwDFController {
                         chanName = chanInfo.getName();
                     }
                     String content = "时间:" + DateUtils.getDateTime() + ",通道名称:" + chanMchtPaytype.getName() + ",通道余额为:" + balance;
-                    if(new BigDecimal(balance).compareTo(new BigDecimal(200000))  >= 0 ){
+                    if(new BigDecimal(balance).compareTo(new BigDecimal(150000))  >= 0 ){
                         logger.info("告警内容为:" + content);
                         Map<String, String> contentMap = new HashMap<>();
                         contentMap.put("content", content);
