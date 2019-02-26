@@ -1,19 +1,24 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+import com.sys.common.enums.PayStatusEnum;
 import com.sys.core.dao.common.PageInfo;
-import com.sys.core.dao.dmo.CaAccountAudit;
-import com.sys.core.dao.dmo.CaElectronicAccount;
-import com.sys.core.service.CaAccountAuditService;
+import com.sys.core.dao.dmo.*;
+import com.sys.core.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 
 import javax.servlet.http.HttpServletRequest;
@@ -29,6 +34,14 @@ public class CaAccountAuditController extends BaseController {
 
     @Autowired
     private CaAccountAuditService caAccountAuditService;
+    @Autowired
+    private MchtGwOrderService mchtGwOrderService;
+    @Autowired
+    private ProxyDetailService proxyDetailService;
+    @Autowired
+    private ChanMchtPaytypeService chanMchtPaytypeService;
+    @Autowired
+    private
 
     /**
      * 查询上游对账审批详情
@@ -165,6 +178,77 @@ public class CaAccountAuditController extends BaseController {
         return andView;
     }
 
+    /**
+     * 查询投诉订单list
+     * 2019-02-21 11:09:08
+     * @param caAccountAudit
+     * @return
+     */
+    @RequestMapping("/queryRepeatAudits")
+    public ModelAndView queryRepeatAudits(CaAccountAudit caAccountAudit){
+        ModelAndView andView = new ModelAndView();
+        andView.setViewName("/modules/upstreamaudit/repeatOrderComplainList.jsp");
+        int count =caAccountAuditService.count(caAccountAudit);
+        if(count ==0){
+            return andView;
+        }
+        if(caAccountAudit.getPageInfo()==null){
+            PageInfo pageInfo = new PageInfo();
+            pageInfo.setPageNo(1);
+            caAccountAudit.setPageInfo(pageInfo);
+        }
+        List <CaAccountAuditEx>  caAccountAudits =  caAccountAuditService.queryCaAccountAuditEx(caAccountAudit);
+
+        Page page = new Page(caAccountAudit.getPageInfo().getPageNo(),caAccountAudit.getPageInfo().getPageSize(),count,caAccountAudits,true);
+        andView.addObject("caAccountAudits", caAccountAudits);
+        andView.addObject("page",page);
+        return andView;
+    }
+
+    /**
+     * 新增投诉订单
+     * 2019-02-21 11:09:08
+     * @param caAccountAudit
+     * @return
+     */
+    @RequestMapping("/toAddRepeatAudits")
+    public ModelAndView toAddRepeatAudits(CaAccountAudit caAccountAudit){
+        ModelAndView andView = new ModelAndView();
+        andView.setViewName("/modules/upstreamaudit/repeatOrderComplainAdd.jsp");
+        return andView;
+    }
 
 
+    /**
+     * 新增投诉订单
+     * 2019-02-21 11:09:08
+     * @param caAccountAuditEx
+     * @return
+     */
+    @RequestMapping("/doAddRepeatAudits")
+    public String doAddRepeatAudits(CaAccountAuditEx caAccountAuditEx){
+        ModelAndView andView = new ModelAndView();
+        if("P".equals(caAccountAuditEx.getComplainType())){
+            MchtGatewayOrder mchtGatewayOrder = new MchtGatewayOrder();
+            mchtGatewayOrder.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+            mchtGatewayOrder.setPlatOrderId(caAccountAuditEx.getSourceDataId());
+            mchtGatewayOrder.setSuffix("20"+caAccountAuditEx.getSourceDataId().substring(1,5));
+            List<MchtGatewayOrder> mchtGatewayOrderList =mchtGwOrderService.list(mchtGatewayOrder);
+            if(mchtGatewayOrderList==null || mchtGatewayOrderList.size()==0){
+                return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+            }
+            //
+            MchtGatewayOrder mchtGatewayOrder1 =mchtGatewayOrderList.get(0);
+            //查询通道商户支付方式
+            ChanMchtPaytype chanMchtPaytype =chanMchtPaytypeService.queryByKey(mchtGatewayOrder1.getChanMchtPaytypeId());
+
+            CaAccountAudit caAccountAudit =new CaAccountAudit();
+            //caAccountAudit.
+
+
+        }else{
+
+        }
+        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+    }
 }

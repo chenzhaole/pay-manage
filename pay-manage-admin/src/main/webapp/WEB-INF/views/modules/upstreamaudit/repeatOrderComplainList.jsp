@@ -45,16 +45,16 @@
 
 <tags:message content="${message}" type="${messageType}"/>
 
-<form:form id="searchForm" modelAttribute="platAccountAdjust" action="${ctx}/platform/adjust" method="post" class="breadcrumb form-search">
-    <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
-    <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
-    <input id="type" name ="type" value="1">
+<form:form id="searchForm" action="${ctx}/caAccountAudit/queryRepeatAudits" method="post" class="breadcrumb form-search">
+    <input id="pageNo" name="pageInfo.pageNo" type="hidden" value="${1}"/>
+    <input id="pageSize" name="pageInfo.pageSize" type="hidden" value="${pageInfo.pageSize}"/>
+    <input id="type" name ="type" value="1" type="hidden">
 
     <table>
         <tr>
             <td>
                 <label>电子账户：</label>
-                <select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
+                <select name="accountId" class="selectpicker bla bla bli" data-live-search="true">
                     <option value="">--请选择--</option>
                     <c:forEach items="${electronicAccounts}" var="account">
                         <option value="${account.id}"
@@ -74,24 +74,6 @@
                        value="${auditTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
             </td>
         </tr>
-        <tr>
-            <%--<td>
-                <label>审核状态：</label>
-                <form:select path="auditStatus">
-                    <form:option value=""/>
-                    <form:options items="${fns:getDictList('account_adjust_status')}" itemLabel="label" itemValue="value"/>
-                </form:select>
-            </td>
-            <td>
-                <label>调账订单号：</label>
-                <input value="${adjustInfo.id}" name="idKey" type="text" maxlength="64" class="input-medium"/>
-            </td>
-            <td>
-                <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;">
-                <input id="btnExport" class="btn btn-primary" type="button" value="导出"/>
-            </td>--%>
-
-        </tr>
     </table>
 </form:form>
 
@@ -103,8 +85,10 @@
         <th>原有上游订单号</th>
         <th>重复支付的上游订单号</th>
         <th>电子账户</th>
+        <th>电子账户名称</th>
         <th>账户类型</th>
         <th>订单金额</th>
+        <th>手续费金额</th>
         <th>申请人</th>
         <th>审批日期</th>
         <th>审批人</th>
@@ -117,39 +101,44 @@
     <c:forEach items="${caAccountAudits}" var="adjust">
         <tr>
             </td>
-            <td>${adjust.id}</td>
+            <td>${sourceDataId}</td>
+            <td>${sourceChanDataId}</td>
+            <td>${sourceChanRepeatDataId}</td>
             <td>${adjust.accountId}</td>
-            <td>${adjust.electronicAccount.electronicAccountName}</td>
+            <td>${adjust.electronicAccountName}</td>
             <td>
                 <c:if test="${adjust.accountType=='1'}">电子账户</c:if>
                 <c:if test="${adjust.accountType=='2'}">公户账户</c:if>
             </td>
             <td>
-                <c:if test="${adjust.adjustType=='1'}">增加</c:if>
-                <c:if test="${adjust.adjustType=='2'}">减少</c:if>
+                <fmt:formatNumber type="number" value="${adjust.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>
             </td>
             <td>
-                <fmt:formatNumber type="number" value="${adjust.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                <fmt:formatNumber type="number" value="${adjust.feeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>
             </td>
             <td>
                 <fmt:formatDate value="${adjust.createdTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
             <td>
-                ${adjust.customerAuditUserid}
+                ${adjust.customerAuditUserName}
             </td>
             <td>
                 <fmt:formatDate value="${adjust.operateAuditTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
             <td>
-                ${adjust.operateAuditUserid}
+                ${adjust.operateAuditUserName}
             </td>
             <td>
-                ${adjust.auditStatus}
-            </td>
-            <td>
-                <div class="wrap" style="width: 100px; word-break: break-all; word-wrap: break-word;">
-                        ${adjust.customerMsg}
-                </div>
+                <c:if test="${adjust.auditStatus eq '1'}">
+                    未审核
+                </c:if>
+                <c:if test="${adjust.auditStatus eq '4'}">
+                    运营审核通过
+                </c:if>
+                <c:if test="${adjust.auditStatus eq '5'}">
+                    运营审核未通过
+                </c:if>
+
             </td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
