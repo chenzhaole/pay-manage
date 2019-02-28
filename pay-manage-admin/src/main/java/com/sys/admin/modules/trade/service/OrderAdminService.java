@@ -1,5 +1,6 @@
 package com.sys.admin.modules.trade.service;
 
+import com.alibaba.fastjson.JSONObject;
 import com.sys.core.dao.dmo.MchtGatewayOrder;
 
 import java.util.List;
@@ -31,4 +32,10 @@ public interface OrderAdminService {
 	 * @return
 	 */
 	long amount(MchtGatewayOrder order);
+
+
+	JSONObject orderCountSum(MchtGatewayOrder order);
+
+
+	JSONObject sucOrderCountSum(MchtGatewayOrder order);
 }

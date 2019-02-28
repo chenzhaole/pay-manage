@@ -154,13 +154,17 @@ public class MchtOrderController extends BaseController {
         pageInfo.setPageNo(pageNo);
         order.setPageInfo(pageInfo);
 
-
+        //总支付数和总金额
+        JSONObject countSumJson = orderAdminService.orderCountSum(order);
         if (StringUtils.isNotBlank(isSelectInfo)) {
-            orderCount = orderAdminService.ordeCount(order);
+            if(countSumJson!= null && countSumJson.containsKey("num")){
+                orderCount = countSumJson.getInteger("num");
+            }
             if (orderCount == 0) {
                 model.addAttribute("paramMap", paramMap);
                 return "modules/order/mchtOrderList";
             }
+
         }
         model.addAttribute("paramMap", paramMap);
         logger.info("查询订单信息：" + JSON.toJSONString(order));
@@ -192,14 +196,20 @@ public class MchtOrderController extends BaseController {
                 String value = getFromRedis(key);
                 if (value == null || "".equals(value)) {
                     //金额总数
-                    amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
-
+                    if(countSumJson.containsKey("amount")){
+                        amount = new BigDecimal(countSumJson.getString("amount")).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+                    }
                     //支付成功
                     order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
                     //支付成功总数
-                    successCount = orderAdminService.ordeCount(order);
+                    JSONObject sucCountSumJson = orderAdminService.sucOrderCountSum(order);
+                    if(sucCountSumJson!= null && sucCountSumJson.containsKey("num")){
+                        successCount = sucCountSumJson.getLongValue("num");
+                    }
                     //支付成功金额总数
-                    successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+                    if(sucCountSumJson!= null && sucCountSumJson.containsKey("amount")){
+                        successAmount = new BigDecimal(sucCountSumJson.getString("amount")).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+                    }
                     insert2Redis(key, amount.toString() + "," + successCount + "," + successAmount.toString(), Integer.parseInt(payOrderListExpireSecond));
                 } else {
                     String[] values = value.split(",");
