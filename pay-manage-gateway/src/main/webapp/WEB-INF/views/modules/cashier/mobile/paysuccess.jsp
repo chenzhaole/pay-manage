@@ -54,9 +54,6 @@
 			<c:if test="${ !empty mobile}">
 				<p><span class="tag">客服热线 </span><span> ${mobile}</span></p>
 			</c:if>
-			<c:if test="${ !empty qq}">
-				<p><span class="tag">客服QQ </span><span> ${qq}</span></p>
-			</c:if>
 	    </div>
 	</body>
     <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
