@@ -406,11 +406,6 @@ public class GwDFController {
                 String balance = (String) processResult.getData();
                 if (StringUtils.isNotBlank(balance)){
                     balance = NumberUtils.changeF2Y(balance);
-                    String chanName = null;
-                    ChanInfo chanInfo = chanInfoMap.get(chanMchtPaytype.getChanCode());
-                    if(chanInfo!= null){
-                        chanName = chanInfo.getName();
-                    }
                     String content = "时间:" + DateUtils.getDateTime() + ",通道名称:" + chanMchtPaytype.getName() + ",通道余额为:" + balance;
                     if(new BigDecimal(balance).compareTo(new BigDecimal(alarmBalance))  >= 0 ){
                         logger.info("通道余额告警,内容为:" + content);
