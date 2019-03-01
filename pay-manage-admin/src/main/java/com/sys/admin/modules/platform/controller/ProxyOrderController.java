@@ -286,6 +286,14 @@ public class ProxyOrderController extends BaseController {
 				return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
 			}
 
+			if(StringUtils.isNotBlank(mchtInfo.getSupportPageProxy()) && SupportEnum.N.getCode().equals(mchtInfo.getSupportPageProxy())){
+				messageType = "error";
+				message = ErrorCodeEnum.E1125.getDesc();
+				redirectAttributes.addFlashAttribute("messageType", messageType);
+				redirectAttributes.addFlashAttribute("message", message);
+				return "redirect:" + GlobalConfig.getAdminPath() + "/proxy/toCommitBatch";
+			}
+
 			//检查代付产品及其状态
 			PlatProduct platProduct = queryProduct(mchtId, "");
 			if (platProduct == null){

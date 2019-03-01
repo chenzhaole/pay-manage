@@ -36,6 +36,32 @@
                     },
                     'caBankElectronicAccount.mchtCode':{
                         required:true
+                    },
+                    'platFeerate.feeRate':{
+                        required:function(){
+                            var value =$('#feeType').val();
+                            var flag =false;
+                            if(value =='1'){
+                                flag= true;
+                            }
+                            if(value =='3'){
+                                flag= true;
+                            }
+                            return flag;
+                        }
+                    },
+                    'platFeerate.feeAmount':{
+                        required:function() {
+                            var value =$('#feeType').val();
+                            var flag =false;
+                            if(value =='2'){
+                                flag= true;
+                            }
+                            if(value =='3'){
+                                flag= true;
+                            }
+                            return flag;
+                        }
                     }
                 }
             });
@@ -114,6 +140,7 @@
         function delBank(img){
            $(img).parent().parent().remove();
         }
+
             
     </script>
 
@@ -149,7 +176,7 @@
                         <select name="caElectronicAccount.mchtCode" id="mchtCode"  class="selectpicker" data-live-search="true" onchange="selectMcht(this);">
                             <option value="">--请选择--</option>
                             <c:forEach var="mcht" items="${mchtList}">
-                                <option value="${mcht.mchtCode}" <c:if test="${paramMap.mchtCode eq mcht.mchtCode}">selected</c:if> >${mcht.name}</option>
+                                <option value="${mcht.mchtCode}" >${mcht.name}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -164,7 +191,6 @@
                             <option value="">--请选择--</option>
                             <c:forEach items="${chanInfos}" var="chanInfo">
                                 <option data-chanCode="${chanInfo.chanCode }"
-                                        <c:if test="${paramMap.chanCode eq chanInfo.chanCode}">selected</c:if>
                                         value="${chanInfo.chanCode}">${chanInfo.name}</option>
                             </c:forEach>
                         </select>
@@ -202,6 +228,46 @@
                     <label class="control-label">绑定手机号:</label>
                     <div class="controls">
                         <textarea name="caElectronicAccount.bindPhones" placeholder="" style="width:500px;" id="bindPhones" rows="3"></textarea>
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="breadcrumb">
+        <label>汇款费率信息</label>
+    </div>
+
+    <table class="table">
+        <tr>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">收费类型</label>
+                    <div class="controls">
+                        <select name="platFeerate.feeType" class="input-xlarge" id="feeType">
+                            <option value="">--请选择--</option>
+                            <option value="1">按笔收费</option>
+                            <option value="2">按比例收费</option>
+                            <option value="3">混合</option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label" for="feeRate">收费比率(‰)</label>
+                    <div class="controls">
+                        <input name="platFeerate.feeRate"  placeholder=""
+                               class="input-xlarge" type="text" id="feeRate">
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label" for="feeAmount">收费金额(/笔(分))</label>
+                    <div class="controls">
+                        <input name="platFeerate.feeAmount"  placeholder="" class="input-xlarge"
+                               type="text" id="feeAmount">
                     </div>
                 </div>
             </td>
