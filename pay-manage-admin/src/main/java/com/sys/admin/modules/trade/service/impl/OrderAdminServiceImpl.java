@@ -1,6 +1,7 @@
 package com.sys.admin.modules.trade.service.impl;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.modules.trade.service.OrderAdminService;
 import com.sys.common.util.HttpUtil;
@@ -128,4 +129,42 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		return resultInt;
 	}
 
+
+	@Override
+	public JSONObject orderCountSum(MchtGatewayOrder order) {
+		JSONObject orderCountSum = new JSONObject();
+		String url = CONFIG_URL + "countSumOrderByExample";
+		Map<String, String> params = new HashMap<>();
+		params.put("order", JSON.toJSONString(order));
+		try {
+			String result = HttpUtil.postConnManager(url, params);
+			if (StringUtils.isNotBlank(result)) {
+				orderCountSum = JSONObject.parseObject(result);
+			}
+		} catch (Exception e) {
+			log.error("查询 Order 模块出错：", e);
+			return orderCountSum;
+		}
+		return orderCountSum;
+	}
+
+
+
+	@Override
+	public JSONObject sucOrderCountSum(MchtGatewayOrder order) {
+		JSONObject sucOrderCountSum = new JSONObject();
+		String url = CONFIG_URL + "countSumSuccOrderByExample";
+		Map<String, String> params = new HashMap<>();
+		params.put("order", JSON.toJSONString(order));
+		try {
+			String result = HttpUtil.postConnManager(url, params);
+			if (StringUtils.isNotBlank(result)) {
+				sucOrderCountSum = JSONObject.parseObject(result);
+			}
+		} catch (Exception e) {
+			log.error("查询 Order 模块出错：", e);
+			return sucOrderCountSum;
+		}
+		return sucOrderCountSum;
+	}
 }

@@ -177,13 +177,16 @@ public class AgentMchtOrderController extends BaseController {
         pageInfo.setPageNo(pageNo);
         order.setPageInfo(pageInfo);
 
+        //交易总数
+        JSONObject countSumJson = new JSONObject();
         int orderCount = 0;
         if (StringUtils.isNotBlank(isSelectInfo)) {
-            orderCount = orderAdminService.ordeCount(order);
-            if (orderCount == 0) {
+            countSumJson = orderAdminService.orderCountSum(order);
+            if (countSumJson == null || !countSumJson.containsKey("num")) {
                 model.addAttribute("paramMap", paramMap);
                 return "modules/order/agentMchtOrderList";
             }
+            orderCount =  countSumJson.getInteger("num");
         }
         model.addAttribute("paramMap", paramMap);
         logger.info("查询订单信息：" + JSON.toJSONString(order));
@@ -205,16 +208,23 @@ public class AgentMchtOrderController extends BaseController {
                     }
                 }
             }
-
             //金额总数
-            BigDecimal amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
-
-            //支付成功
+            BigDecimal amount = new BigDecimal("0");
+            if(countSumJson.containsKey("amount")){
+                amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+            }
             order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+            JSONObject successCountJson = orderAdminService.sucOrderCountSum(order);
             //支付成功总数
-            long successCount = orderAdminService.ordeCount(order);
+            String successCount = "0";
+            if(successCountJson.containsKey("num")){
+                successCount = successCountJson.getString("num");
+            }
             //支付成功金额总数
-            BigDecimal successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+            BigDecimal successAmount = new BigDecimal("0");
+            if(successCountJson.containsKey("amount")){
+                successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+            }
             model.addAttribute("successCount", successCount);
             model.addAttribute("amount", amount.toString());
             model.addAttribute("successAmount", successAmount.toString());
