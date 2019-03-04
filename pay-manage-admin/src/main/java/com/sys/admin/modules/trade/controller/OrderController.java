@@ -187,13 +187,15 @@ public class OrderController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		order.setPageInfo(pageInfo);
 
-		orderCount = orderAdminService.ordeCount(order);
+		JSONObject orderCountSumJson = orderAdminService.orderCountSum(order);
 
 		model.addAttribute("paramMap", paramMap);
 
-		if (orderCount == 0) {
+		if (orderCountSumJson == null || !orderCountSumJson.containsKey("num")) {
 			return "modules/order/orderList";
 		}
+		//记录总数
+		orderCount = orderCountSumJson.getInteger("num");
 
 		List<MchtGatewayOrder> orderList = orderAdminService.list(order);
 
@@ -209,7 +211,6 @@ public class OrderController extends BaseController {
 		}
 		Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
 		model.addAttribute("page", page);
-
 		//是否统计汇总
 		if("1".equals(paramMap.get("isstat"))){
 			//交易开始时间:交易结束时间:商户:上游通道:支付产品:支付方式:官方订单号:商户订单号:平台订单号:上游订单号:通道商户支付方式:订单状态:补单状态
@@ -219,14 +220,24 @@ public class OrderController extends BaseController {
 			String value = getFromRedis(key);
 			if(value==null||"".equals(value)){
 				//金额总数
-				amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				if(!orderCountSumJson.containsKey("amount")){
+					amount = new BigDecimal("0");
+				}else{
+					amount = new BigDecimal(orderCountSumJson.getString("amount")).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				}
+                //支付成功
+                order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+				//成功信息
+				JSONObject sucOrderCountSumJson = orderAdminService.sucOrderCountSum(order);
 
-				//支付成功
-				order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
 				//支付成功总数
-				successCount = orderAdminService.ordeCount(order);
+				if(sucOrderCountSumJson!= null && sucOrderCountSumJson.containsKey("num")){
+					successCount = sucOrderCountSumJson.getLongValue("num");
+				}
 				//支付成功金额总数
-				successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				if(sucOrderCountSumJson!= null && sucOrderCountSumJson.containsKey("amount")){
+					successAmount = new BigDecimal(sucOrderCountSumJson.getString("amount")).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				}
 				insert2Redis(key,amount.toString()+","+successCount+","+successAmount.toString(),Integer.parseInt(payOrderListExpireSecond));
 			}else{
 				String[] values = value.split(",");
