@@ -157,6 +157,16 @@
                     tradeMaxMoney: {
                         max: 9999999,
                         digits:true
+                    },
+                    limitAmount:{
+                        required:function(){
+                            if($('#settleCycle').val()!='D0'){
+                                return true;
+                            }
+                            return false;
+                        },
+                        number:true,
+                        digits:true
                     }
 
                 }
@@ -610,7 +620,7 @@
                 <div class="control-group">
                     <label class="control-label">结算周期</label>
                     <div class="controls">
-                        <select name="settleCycle" class="input-xlarge" id="settleCycle">
+                        <select id ="settleCycle" name="settleCycle" class="input-xlarge" id="settleCycle">
                             <option value="">--请选择--</option>
                             <option
                                     <c:if test="${chanMchPaytye.settleCycle == 'D0'}">selected</c:if> value="D0">D0
@@ -705,6 +715,14 @@
                                value="${chanMchPaytye.activeTime}"
                                onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true,readOnly:true,isShowOK:true,isShowToday:true, minDate:'%y-%M-%d'});"/>
 
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label" >告警限额</label>
+                    <div class="controls">
+                        <input name="limitAmount"  value="${chanMchPaytye.limitAmount}"  placeholder="" class="input-xlarge" type="text" required maxlength="64">
                     </div>
                 </div>
             </td>

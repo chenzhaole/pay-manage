@@ -72,4 +72,7 @@
 
 	<!--	报表		-->
 	<dubbo:reference id="reportService" interface="com.sys.boss.api.service.order.ReportService" timeout="30000"/>
+
+	<dubbo:reference id="chanRecordService" interface="com.sys.core.service.ChanRecordService" timeout="30000"/>
+	<dubbo:reference id="chanLimitService" interface="com.sys.core.service.ChanLimitService" timeout="30000"/>
 </beans>

@@ -173,6 +173,8 @@ public class ChanMchtFormInfo {
 
 	private BigDecimal dayMaxAmount;
 
+	private BigDecimal limitAmount;
+
 	private static final long serialVersionUID = 1L;
 
 	public String getTradeRangeMoney() {
@@ -796,6 +798,14 @@ public class ChanMchtFormInfo {
 		this.dayMaxAmount = dayMaxAmount;
 	}
 
+	public BigDecimal getLimitAmount() {
+		return limitAmount;
+	}
+
+	public void setLimitAmount(BigDecimal limitAmount) {
+		this.limitAmount = limitAmount;
+	}
+
 	//空的构造方法
 	public ChanMchtFormInfo() {
 
@@ -900,6 +910,9 @@ public class ChanMchtFormInfo {
 			this.tradeRangeMoney = requestMap.get("tradeRangeMoney") == null ? "" : requestMap.get("tradeRangeMoney");
 			this.accType = requestMap.get("accType") == null ? "" : requestMap.get("accType");
 			this.dayMaxAmount = new BigDecimal(StringUtils.isBlank(requestMap.get("dayMaxAmount")) ? "0" : requestMap.get("dayMaxAmount"));
+			if(StringUtils.isNotBlank(requestMap.get("limitAmount"))){
+				this.limitAmount = new BigDecimal( requestMap.get("dayMaxAmount"));
+			}
 		}
 	}
 
