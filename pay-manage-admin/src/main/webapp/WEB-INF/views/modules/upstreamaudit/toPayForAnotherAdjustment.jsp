@@ -109,7 +109,7 @@
 
 
 <ul class="nav nav-tabs">
-    <li><a href="${ctx}/platform/adjust">调账列表</a></li>
+    <li><a href="${ctx}/caAccountAudit/queryCaAccountAudits?type=5">调账列表</a></li>
     <li class="active"><a href="${ctx}/caAccountAudit/insertCaAccountAudit">调账添加</a></li>
 </ul>
 <form:form id="inputForm" modelAttribute="" action="${ctx}/caAccountAudit/insertCaAccountAudit" method="post"
@@ -117,17 +117,6 @@
     <tags:message content="${message}"/>
     <table class="table">
         <tr>
-            <td >
-                <div class="control-group">
-                    <label class="control-label">调账方向</label>
-                    <div class="controls">
-                        <select name="adjustType" class="input-xlarge" id="accountType" onchange="changeAmount();">
-                            <option value="2">增加</option>
-                            <option value="1">减少</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
             <td >
                 <div class="control-group">
                     <label class="control-label">支付方式</label>
@@ -139,6 +128,18 @@
                     </div>
                 </div>
             </td>
+            <td >
+                <div class="control-group">
+                    <label class="control-label">调账方向</label>
+                    <div class="controls">
+                        <select name="adjustType" class="input-xlarge" id="accountType" onchange="changeAmount();">
+                            <option value="2">增加</option>
+                            <option value="1">减少</option>
+                        </select>
+                    </div>
+                </div>
+            </td>
+
         </tr>
         <tr>
             <td>

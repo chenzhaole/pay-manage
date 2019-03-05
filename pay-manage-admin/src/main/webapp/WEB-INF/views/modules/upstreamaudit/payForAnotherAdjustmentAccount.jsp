@@ -128,7 +128,7 @@
                 <c:if test="${adjust.adjustType=='2'}">减少</c:if>
             </td>
             <td>
-                <fmt:formatNumber type="number" value="${adjust.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>
+                <fmt:formatNumber type="number" value="${adjust.amount}" pattern="0.00" maxFractionDigits="2"/>
             </td>
             <td>
                 <fmt:formatDate value="${adjust.createdTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
@@ -153,7 +153,7 @@
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
                     <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
-                        <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
+                        <a href="${ctx}/caAccountAudit/findCaAccountAuditDetail?id=${adjust.id}">审批</a>
                     </c:if>
                 </td>
             </shiro:hasPermission>

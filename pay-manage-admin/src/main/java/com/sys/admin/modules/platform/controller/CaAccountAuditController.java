@@ -3,6 +3,8 @@ package com.sys.admin.modules.platform.controller;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.web.BaseController;
+import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.CaAccountAudit;
 import com.sys.core.dao.dmo.CaElectronicAccount;
@@ -15,6 +17,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -30,23 +34,28 @@ public class CaAccountAuditController extends BaseController {
     @Autowired
     private CaAccountAuditService caAccountAuditService;
 
+
+    @Autowired
+    private JedisPool jedisPool;
+
     /**
      * 查询上游对账审批详情
      * 2019-02-21 11:01:51
      * @return
      */
     @RequestMapping("/findCaAccountAuditDetail")
-    public ModelAndView findCaAccountAuditDetail(String keyId){
+    public ModelAndView findCaAccountAuditDetail(String id){
         ModelAndView andView = new ModelAndView();
-        andView.setViewName("modules/upstreamaudit/auditOperateDzOrder");
+        andView.setViewName("modules/upstreamaudit/auditOperateElectronicAccountDzOrder");
 
         CaAccountAudit accountAudit = null;
-        logger.info("查询上游对账审批详情, 请求参数keyId为:" + keyId);
-        if(StringUtils.isEmpty(keyId)){
+        logger.info("查询上游对账审批详情, 请求参数keyId为:" + id);
+        if(StringUtils.isEmpty(id)){
             logger.info("查询上游对账审批详情, 请求参数keyId为空.");
              return andView;
         }
-        accountAudit = caAccountAuditService.findAccountAudit(keyId);
+        accountAudit = caAccountAuditService.findAccountAudit(id);
+        andView.addObject("queryFlag", "audit");
         andView.addObject("accountAudit", accountAudit);
         return andView;
     }
@@ -101,9 +110,6 @@ public class CaAccountAuditController extends BaseController {
      */
     @RequestMapping("/insertCaAccountAudit")
     public String insertCaAccountAudit(HttpServletRequest request,  @RequestParam Map<String, String> paramMap){
-        ModelAndView andView = new ModelAndView();
-        andView.setViewName("");
-
         if(StringUtils.isEmpty(paramMap.get("type"))){
             logger.info("添加审批信息类型为空,参数为:" + JSONObject.toJSONString(paramMap));
             return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
@@ -119,6 +125,9 @@ public class CaAccountAuditController extends BaseController {
         caAccountAudit.setAmount(new BigDecimal(paramMap.get("amount")));
         caAccountAudit.setCustomerMsg(paramMap.get("customerMsg"));
         caAccountAudit.setAccountType(paramMap.get("accountType"));
+
+        caAccountAudit.setCustomerAuditUserid(UserUtils.getUser().getId().toString());
+
         boolean backFlag = caAccountAuditService.insertAccountAudit(caAccountAudit);
 
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
@@ -131,21 +140,33 @@ public class CaAccountAuditController extends BaseController {
      * @return
      */
     @RequestMapping("/updateCaAccountAuditById")
-    public ModelAndView updateCaAccountAuditById(Map<String, String> paramMap){
-        ModelAndView andView = new ModelAndView();
-        andView.setViewName("");
-
-        if(StringUtils.isEmpty(paramMap.get("type"))){
+    public String updateCaAccountAuditById(@RequestParam Map<String, String> paramMap){
+        if(StringUtils.isEmpty(paramMap.get("type")) || StringUtils.isEmpty(paramMap.get("id"))){
             logger.info("添加审批信息类型为空,参数为:" + JSONObject.toJSONString(paramMap));
-            return andView;
+            return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
         }
         CaAccountAudit caAccountAudit  = new CaAccountAudit();
         caAccountAudit.setType(paramMap.get("type"));
         caAccountAudit.setId(paramMap.get("id"));
         caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
+        caAccountAudit.setOperateMsg(paramMap.get("operateMsg"));
+
+        String keyLock = IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER + caAccountAudit.getId();
+
+        caAccountAudit.setOperateAuditUserid(UserUtils.getUser().getId().toString());
+
+        //添加redis 分布式 解决代付查单重复入账的问题
+        if (haveGetRedisLock(keyLock)) {
+            logger.info("已经在处理该订单！" + caAccountAudit.getId() + "添加审批信息类型为空,参数为:" + JSONObject.toJSONString(paramMap));
+            return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
+        }
 
         boolean backFlag = caAccountAuditService.updateAccountAudit(caAccountAudit);
-        return andView;
+
+        setGetRedisLock(keyLock, IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER_TIME);
+
+        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
+
     }
 
 
@@ -164,6 +185,62 @@ public class CaAccountAuditController extends BaseController {
         andView.setViewName("modules/upstreamaudit/toPayForAnotherAdjustment");
         return andView;
     }
+
+
+
+
+    /**
+     * 获取redis的乐观锁
+     * @param redisKey
+     * @return
+     */
+    public boolean haveGetRedisLock(String redisKey){
+        Jedis jedis = null;
+        try {
+            jedis = jedisPool.getResource();
+            // 判断key在缓存中是否存在
+            if(jedis.exists(redisKey)) {
+                logger.info("redisKey存在:" + redisKey);
+                return true;
+            }
+            logger.info("redisKey:不存在" + redisKey);
+            return false;
+        } catch (Exception e) {
+            logger.error(redisKey+" is redis exists error: {}", e.getMessage(),e);
+            return false;
+        } finally {
+            if (jedis != null) {
+                jedisPool.returnResource(jedis);
+            }
+        }
+    }
+
+
+
+
+    /**
+     * 获取redis的乐观锁
+     * @param redisKey
+     * @param seconds
+     * @return
+     */
+    public boolean setGetRedisLock(String redisKey, int seconds){
+        boolean backFlag = false;
+        logger.info("设置key :" + redisKey + ",时间:" + seconds);
+        Jedis jedis = jedisPool.getResource();
+        try{
+            jedis.set(redisKey, redisKey);
+            jedis.expire(redisKey, seconds);
+            backFlag = true;
+        } catch (Exception e) {
+            logger.error("删除缓异常！",e.getMessage(), e);
+            backFlag = false;
+        }finally {
+            jedisPool.returnResource(jedis);
+            return backFlag;
+        }
+    }
+
 
 
 
