@@ -38,12 +38,6 @@
             });
         });
 
-        function queryOrder(orderId){
-           $.ajax({
-               url:'${ctx}/caAccountAudit/queryOrder'
-           });
-        }
-
             
     </script>
 
@@ -51,17 +45,20 @@
 <body>
 
 <div class="breadcrumb">
-    <label><a href="#"><b>重复订单投诉新增</b></a></label>
+    <ul class="nav nav-tabs">
+        <li class="active"><a href="${ctx}/caAccountAudit/toAddRepeatAudits">重复订单投诉添加</a></li>
+        <li><a href="${ctx}/caAccountAudit/queryRepeatAudits">重复订单投诉列表</a></li>
+    </ul>
 </div>
 
-<form id="electronicAccountForm" action="${ctx}/electronic/doAddAccount" method="post">
+<form id="electronicAccountForm" action="${ctx}/caAccountAudit/doAddRepeatAudits" method="post">
     <!-- ********************************************************************** -->
     <table class="table">
         <tr>
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">投诉订单类型:</label>
+                    <label class="control-label">投诉订单类型</label>
                     <div class="controls">
                         <select name="complainType" id="mchtCode"  class="selectpicker" data-live-search="true">
                             <option value="B">代付订单</option>
@@ -73,19 +70,29 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">原平台交易订单号:</label><span style="color: red;"><span style="color: red;">*</span></span>
+                    <label class="control-label">原平台交易订单号</label><span style="color: red;"><span style="color: red;">*</span></span>
                     <div class="controls">
                     <input name="sourceDataId" placeholder="" class="input-xlarge" type="text" id="sourceDataId"
                            maxlength="64">
                     </div>
                 </div>
             </td>
-
+        </tr>
+        <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">原上游交易订单号:</label>
+                    <label class="control-label">原上游交易订单号</label>
                     <div class="controls">
                         <input name="sourceChanDataId" placeholder="" class="input-xlarge" type="text" id="sourceChanDataId"
+                               maxlength="64">
+                    </div>
+                </div>
+            </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">上游重复交易订单号</label><span style="color: red;"><span style="color: red;">*</span></span>
+                    <div class="controls">
+                        <input name="sourceChanRepeatDataId" placeholder="" class="input-xlarge" type="text" id="sourceChanRepeatDataId"
                                maxlength="64">
                     </div>
                 </div>
@@ -94,10 +101,9 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label">上游重复交易订单号:</label>
+                    <label class="control-label">备注</label>
                     <div class="controls">
-                        <input name="sourceChanRepeatDataId" placeholder="" class="input-xlarge" type="text" id="sourceChanRepeatDataId"
-                               maxlength="64">
+                        <textarea name="customerMsg"></textarea>
                     </div>
                 </div>
             </td>

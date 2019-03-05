@@ -38,8 +38,8 @@
 
 <shiro:hasPermission name="platform:adjust:apply">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="${ctx}/platform/adjust">重复订单投诉列表</a></li>
-        <li><a href="${ctx}/caAccountAudit/toPayForAnotherAdjustment">重复订单投诉添加</a></li>
+        <li class="active"><a href="${ctx}/caAccountAudit/queryRepeatAudits">重复订单投诉列表</a></li>
+        <li><a href="${ctx}/caAccountAudit/toAddRepeatAudits">重复订单投诉添加</a></li>
     </ul>
 </shiro:hasPermission>
 
@@ -101,9 +101,9 @@
     <c:forEach items="${caAccountAudits}" var="adjust">
         <tr>
             </td>
-            <td>${sourceDataId}</td>
-            <td>${sourceChanDataId}</td>
-            <td>${sourceChanRepeatDataId}</td>
+            <td>${adjust.sourceDataId}</td>
+            <td>${adjust.sourceChanDataId}</td>
+            <td>${adjust.sourceChanRepeatDataId}</td>
             <td>${adjust.accountId}</td>
             <td>${adjust.electronicAccountName}</td>
             <td>
@@ -117,11 +117,9 @@
                 <fmt:formatNumber type="number" value="${adjust.feeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/>
             </td>
             <td>
-                <fmt:formatDate value="${adjust.createdTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                    ${adjust.customerAuditUserName}
             </td>
-            <td>
-                ${adjust.customerAuditUserName}
-            </td>
+
             <td>
                 <fmt:formatDate value="${adjust.operateAuditTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
@@ -140,10 +138,13 @@
                 </c:if>
 
             </td>
+            <td>
+                ${adjust.customerMsg}
+            </td>
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
                     <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
-                        <a href="${ctx}/platform/adjust/viewAudit?id=${adjust.id}">审批</a>
+                        <a href="${ctx}/caAccountAudit/toApproveRepeatAudits?id=${adjust.id}">审批</a>
                     </c:if>
                 </td>
             </shiro:hasPermission>
