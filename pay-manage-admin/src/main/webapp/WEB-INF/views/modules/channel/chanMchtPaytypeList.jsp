@@ -33,7 +33,7 @@
 
         function queryBalance(chanId) {
             alert(chanId);
-            var checkUrl = "/admin/channel/queryBalance?chanId"+chanId;
+            var checkUrl = "/admin/channel/queryBalance?chanId="+chanId;
             $.ajax({
                 url: checkUrl, //服务器端请求地址
                 dataType: 'json', //返回值类型 一般设置为json

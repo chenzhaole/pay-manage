@@ -468,10 +468,9 @@ public class ChannelController extends BaseController {
 	 */
 	@RequestMapping(value = {"queryBalance"})
 	@ResponseBody
-	public String queryBalance(HttpServletRequest request, HttpServletResponse response, Model model,
-							   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
-
-		ChanMchtFormInfo chanMchtPaytype = chanMchtAdminService.getChanMchtPaytypeById(paramMap.get("chanId"));
+	public String queryBalance(HttpServletRequest reques) throws UnsupportedEncodingException {
+		logger.info("请求参数"+reques.getParameter("chanId"));
+		ChanMchtFormInfo chanMchtPaytype = chanMchtAdminService.getChanMchtPaytypeById(reques.getParameter("chanId"));
 
 		Config config = new Config();
 		ChanMchtPaytypeTO chanMchtPaytypeTO = new ChanMchtPaytypeTO();
