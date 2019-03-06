@@ -7,6 +7,19 @@
 
     <script type="text/javascript">
         $(function(){
+            jQuery.validator.addMethod("minNumber",function(value, element){
+                var returnVal = true;
+                inputZ=value;
+                var ArrMen= inputZ.split(".");    //截取字符串
+                if(ArrMen.length==2){
+                    if(ArrMen[1].length>2){    //判断小数点后面的字符串长度
+                        returnVal = false;
+                        return false;
+                    }
+                }
+                return returnVal;
+            },"小数点后最多为两位");
+
             $("#form").validate({
                 debug: false, //调试模式取消submit的默认提交功能
                 focusInvalid: false, //当为false时，验证无效时，没有焦点响应
@@ -24,13 +37,14 @@
                     amount:{
                         required:true,
                         number:true,
-                        digits:true
+                        minNumber:$('#amount').val()
                     }
                 },
                 messages:{
                     amount:{
-                        number:'数字格式不对',
-                        digits:'数字格式不对'
+                        required: "请填写金额",
+                        number: "请正确输入金额",
+                        minNumber: "输入数字最多小数点后两位"
                     }
 
                 }
@@ -96,9 +110,9 @@
         <tr>
             <td>
                 <div class="control-group">
-                    <label class="control-label" >金额<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <label class="control-label" >金额(元)<span style="color: red;"><span style="color: red;">*</span></span></label>
                     <div class="controls">
-                        <input name="amount" value="" placeholder="请输入字母或数字" class="input-small" type="text"/>
+                        <input id ="amount" name="amount" value="" placeholder="请输入字母或数字" class="input-small" type="text"/>
                     </div>
                 </div>
             </td>

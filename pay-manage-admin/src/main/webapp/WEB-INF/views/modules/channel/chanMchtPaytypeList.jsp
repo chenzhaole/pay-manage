@@ -24,6 +24,12 @@
             $("#searchForm").submit();
             return false;
         }
+        var dataMap = {};
+        <c:forEach items="${page.list}" var="chanInfo">
+			<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
+				dataMap[${chanInfo.id}]=${chanInfo.id};
+			</c:if>
+		</c:forEach>
 
         function queryBalance(chanId) {
             var dataMap = {};
@@ -47,6 +53,7 @@
         //下拉搜索框初始化
         $(window).on('load', function () {
             $('.selectpicker').selectpicker({});
+
         });
 
 	</script>
@@ -133,6 +140,7 @@
 		<th>结算方式</th>
 		<th>结算周期</th>
 		<th>状态</th>
+		<th>待结算金额(元)</th>
 		<th>操作</th>
 	</tr>
 	</thead>
@@ -161,6 +169,9 @@
 
 			<c:choose><c:when test="${chanInfo.status == 1}"><td>启用</td></c:when>
 				<c:when test="${chanInfo.status == 2}"><td>停用</td></c:when><c:otherwise><td></td></c:otherwise></c:choose>
+			<td>
+				<fmt:formatNumber value="${chanInfo.limitAmount * 0.01}" type="number" maxFractionDigits="2" />
+			</td>
 			<td>
 				<shiro:hasPermission name="channel:editChanMchtPayTypePage">
 					<a href="${ctx}/channel/addChanMchtPayTypePage?id=${chanInfo.id}">修改</a>

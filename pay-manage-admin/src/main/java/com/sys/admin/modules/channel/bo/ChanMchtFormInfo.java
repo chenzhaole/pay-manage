@@ -911,7 +911,7 @@ public class ChanMchtFormInfo {
 			this.accType = requestMap.get("accType") == null ? "" : requestMap.get("accType");
 			this.dayMaxAmount = new BigDecimal(StringUtils.isBlank(requestMap.get("dayMaxAmount")) ? "0" : requestMap.get("dayMaxAmount"));
 			if(StringUtils.isNotBlank(requestMap.get("limitAmount"))){
-				this.limitAmount = new BigDecimal( requestMap.get("dayMaxAmount"));
+				this.limitAmount = new BigDecimal( requestMap.get("limitAmount"));
 			}
 		}
 	}

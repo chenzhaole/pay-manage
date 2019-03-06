@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -48,6 +49,8 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 
 	@Autowired
 	private ChanMchtPaytypeAccConfigService chanMchtPaytypeAccConfigService;
+	@Autowired
+	private ChanLimitService chanLimitService;
 
 	@Override
 	public List<ChanMchtFormInfo> getChannelList(ChanMchtFormInfo chanMchtFormInfo) {
@@ -63,10 +66,13 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
 		//上游通道列表
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
+		//通道支付方式待结算金额
+		List<ChanMchtPaytypeSettleAmount> chanMchtPaytypeSettleAmountList =chanLimitService.list(new ChanMchtPaytypeSettleAmount());
 		//所有支付方式
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
 		Map<String, String> mchtCodeMap = Collections3.extractToMap(mchtList, "id", "mchtCode");
+		Map<String,BigDecimal> settleAmountMap =Collections3.extractToMap(chanMchtPaytypeSettleAmountList==null?new ArrayList(1):chanMchtPaytypeSettleAmountList,"code","amount");
 
 		for (ChanMchtPaytype mchtPaytype : chanMchtPaytypes) {
 
@@ -79,6 +85,7 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 			//商户名称
 			chanMchtFormInfoTemp.setMchtName(mchtMap.get(mchtPaytype.getMchtId()));
 			chanMchtFormInfoTemp.setMchtCode(mchtCodeMap.get(mchtPaytype.getMchtId()));
+			chanMchtFormInfoTemp.setLimitAmount(settleAmountMap.get(mchtPaytype.getId()));
 
 //			//支付类型
 //			if (StringUtils.isNotBlank(mchtPaytype.getPayType())) {

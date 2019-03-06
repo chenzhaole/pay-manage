@@ -19,12 +19,15 @@ import com.sys.boss.api.entry.CommonResult;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.SignTypeEnum;
 import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.Collections3;
 import com.sys.common.util.HttpUtil;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.ChanMchtPaytypeSettleAmount;
 import com.sys.core.dao.dmo.MchtInfo;
+import com.sys.core.service.ChanLimitService;
 import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
 import com.sys.trans.api.entry.ChanMchtPaytypeTO;
@@ -39,11 +42,13 @@ import org.springframework.ui.Model;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -77,6 +82,9 @@ public class ChannelController extends BaseController {
 	@Autowired
 	private MerchantService merchantService;
 
+	@Autowired
+	private ChanLimitService chanLimitService;
+
 	/**
 	 * 通道列表
 	 */
@@ -99,8 +107,20 @@ public class ChannelController extends BaseController {
 		searchInfo.setPageInfo(pageInfo);
 		//调用channelService获取支付通道列表
 		List<ChanInfo> chanInfoList = channelAdminService.getChannelList(searchInfo);
+		//通道支付方式待结算金额
+		List<ChanMchtPaytypeSettleAmount> chanMchtPaytypeSettleAmountList =chanLimitService.list(new ChanMchtPaytypeSettleAmount());
+		Map<String,BigDecimal> settleAmountMap =Collections3.extractToMap(chanMchtPaytypeSettleAmountList==null?new ArrayList(1):chanMchtPaytypeSettleAmountList,"code","amount");
+		List<ChanInfo> newChanInfoList=null;
+		if(chanInfoList!=null && chanInfoList.size()>0){
+			newChanInfoList=new ArrayList<>();
+			for(ChanInfo info:chanInfoList){
+				info.setLimitAmount(settleAmountMap.get(info.getId()));
+				newChanInfoList.add(info);
+			}
+		}
+
 		int chanCount = channelAdminService.chanCount(searchInfo);
-		Page page = new Page(pageNo, pageInfo.getPageSize(), chanCount, chanInfoList, true);
+		Page page = new Page(pageNo, pageInfo.getPageSize(), chanCount, newChanInfoList, true);
 		model.addAttribute("page", page);
 //		model.addAttribute("list", chanInfoList);
 		model.addAttribute("paramMap", paramMap);
@@ -447,6 +467,7 @@ public class ChannelController extends BaseController {
 	 * 商户支付通道余额查询
 	 */
 	@RequestMapping(value = {"queryBalance"})
+	@ResponseBody
 	public String queryBalance(HttpServletRequest request, HttpServletResponse response, Model model,
 							   @RequestParam Map<String, String> paramMap, RedirectAttributes redirectAttributes) throws UnsupportedEncodingException {
 
@@ -484,6 +505,7 @@ public class ChannelController extends BaseController {
 		Trade trade = new Trade();
 		trade.setConfig(config);
 		trade.setSingleDF(df);
+		String result="查询余额失败";
 
 		try {
 
@@ -502,13 +524,13 @@ public class ChannelController extends BaseController {
 				String balance = (String) processResult.getData();
 				if (StringUtils.isNotBlank(balance)){
 					balance = NumberUtils.changeF2Y(balance);
+					result =balance;
 				}
-				model.addAttribute("balance", balance);
 			}
 		} catch (Exception e) {
  			logger.error("查询余额失败", e);
 		}
-		return "modules/channel/chanBalance";
+		return  result;
 	}
 }
 

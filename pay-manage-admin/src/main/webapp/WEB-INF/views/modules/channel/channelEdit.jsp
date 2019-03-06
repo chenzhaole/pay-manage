@@ -175,9 +175,9 @@
 	</td>
 	<td>
 		<div class="control-group">
-			<label class="control-label" >告警限额</label>
+			<label class="control-label" >告警限额(分)</label>
 			<div class="controls">
-				<input name="limitAmount"  value="${channel.limitAmount}"  placeholder="" class="input-xlarge" type="text" required maxlength="64">
+				<input  name="limitAmount" value="<fmt:formatNumber value='${channel.limitAmount}' groupingUsed="false" type='number' maxFractionDigits='0'/>" placeholder="" class="input-xlarge" type="text"/>
 			</div>
 		</div>
 	</td>

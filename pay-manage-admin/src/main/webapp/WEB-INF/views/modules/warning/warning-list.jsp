@@ -59,7 +59,7 @@
                         <select name="code_0" id="chanId"  class="selectpicker bla bla bli" data-live-search="true" onchange="change('chanId','chanMchtPaytypeId')">
                             <option value="">---请选择---</option>
                             <c:forEach var="chanInfo" items="${chanInfoList}">
-                                <option value="${chanInfo.chanCode}" <c:if test="${vo.code_0 eq chanInfo.id}">selected</c:if> >${chanInfo.name}</option>
+                                <option value="${chanInfo.chanCode}" <c:if test="${vo.code_0 eq chanInfo.id}">selected</c:if> <c:if test="${vo.code_0 ==null && vo.code_1 !=null}">disabled</c:if>>${chanInfo.name}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -72,7 +72,7 @@
                         <select name="code_1" id="chanMchtPaytypeId" class="selectpicker bla bla bli" data-live-search="true" onchange="change('chanMchtPaytypeId','chanId')">
                             <option value="">---请选择---</option>
                             <c:forEach var="chanMchtPayType" items="${chanMchtPaytypeList}">
-                                <option value="${chanMchtPayType.id}" <c:if test="${vo.code_1 eq chanMchtPayType.id}">selected</c:if> >${chanMchtPayType.name}</option>
+                                <option value="${chanMchtPayType.id}" <c:if test="${vo.code_1 eq chanMchtPayType.id}">selected</c:if> <c:if test="${vo.code_1 == null && vo.code_0 !=null}">disabled</c:if>>${chanMchtPayType.name}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -129,7 +129,7 @@
         <tr>
             <td>${item.code}</td>
             <td>${item.name}</td>
-            <td>${item.amount}</td>
+            <td><fmt:formatNumber value="${item.amount * 0.01}" type="number" maxFractionDigits="2"/></td>
             <td><fmt:formatDate value="${item.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>${item.operateAuditUserid}</td>
             <td>${item.operateMsg}</td>
