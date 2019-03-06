@@ -71,7 +71,7 @@
 						},
                         "取消":function(){$(this).dialog('close');}
                     },
-					title:"请输入平台订单号",
+					title:"请输入商户订单号",
                     width : 600,   //弹出框宽度
                     height : 500,
                     position : { using:function(pos){

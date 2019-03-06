@@ -334,7 +334,12 @@ public class GwDFController {
                 logger.info("定时器查询生效的通道余额大于20W发送信息到公众号,通道编号是:" + cmp.getChanCode() + ",不校验.");
                 continue;
             }
-            queryChanMchtPaytypeBalance(cmp, chanInfoMap);
+            String alarmBalance = "150000";
+            if("yiqian".equals(cmp.getChanCode())||"zhiliantong".equals(cmp.getChanCode())||"yijiafu".equals(cmp.getChanCode())){
+                //一钱，智联通（苏莲呐，恬果实），壹加付  通道余额大于5万,则告警
+                alarmBalance = "50000";
+            }
+            queryChanMchtPaytypeBalance(cmp, chanInfoMap,alarmBalance);
         }
         CommonResult result = new CommonResult();
         result.setRespMsg("SUCCESS");
@@ -349,7 +354,7 @@ public class GwDFController {
 
 
 
-    public String queryChanMchtPaytypeBalance(ChanMchtPaytype chanMchtPaytype, Map<String, ChanInfo> chanInfoMap){
+    public String queryChanMchtPaytypeBalance(ChanMchtPaytype chanMchtPaytype, Map<String, ChanInfo> chanInfoMap,String alarmBalance){
         String reportAnEmergencyUrl = ConfigUtil.getValue("report_an_emergency_url");
 
         Config config = new Config();
@@ -401,23 +406,18 @@ public class GwDFController {
                 String balance = (String) processResult.getData();
                 if (StringUtils.isNotBlank(balance)){
                     balance = NumberUtils.changeF2Y(balance);
-                    String chanName = null;
-                    ChanInfo chanInfo = chanInfoMap.get(chanMchtPaytype.getChanCode());
-                    if(chanInfo!= null){
-                        chanName = chanInfo.getName();
-                    }
                     String content = "时间:" + DateUtils.getDateTime() + ",通道名称:" + chanMchtPaytype.getName() + ",通道余额为:" + balance;
-                    if(new BigDecimal(balance).compareTo(new BigDecimal(150000))  >= 0 ){
-                        logger.info("告警内容为:" + content);
+                    if(new BigDecimal(balance).compareTo(new BigDecimal(alarmBalance))  >= 0 ){
+                        logger.info("通道余额告警,内容为:" + content);
                         Map<String, String> contentMap = new HashMap<>();
                         contentMap.put("content", content);
                         String currentTime = DateUtils.getDateTime();
                         currentTime = currentTime.replaceAll(" ", "%20");
                         reportAnEmergencyUrl = String.format("%s%s", reportAnEmergencyUrl, "&datetime=" + currentTime);
                         String responseDate = execPost(reportAnEmergencyUrl, contentMap);
-                        logger.info("告警返回信息为:" + responseDate);
+                        logger.info("通道余额告警,返回信息为:" + responseDate);
                     }else{
-                        logger.info("内容为:" + content + "不告警");
+                        logger.info("通道余额告警,内容为:" + content + "不告警");
                     }
                 }
             }

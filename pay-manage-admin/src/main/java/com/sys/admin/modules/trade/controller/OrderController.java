@@ -187,13 +187,15 @@ public class OrderController extends BaseController {
 		pageInfo.setPageNo(pageNo);
 		order.setPageInfo(pageInfo);
 
-		orderCount = orderAdminService.ordeCount(order);
+		JSONObject orderCountSumJson = orderAdminService.orderCountSum(order);
 
 		model.addAttribute("paramMap", paramMap);
 
-		if (orderCount == 0) {
+		if (orderCountSumJson == null || !orderCountSumJson.containsKey("num")) {
 			return "modules/order/orderList";
 		}
+		//记录总数
+		orderCount = orderCountSumJson.getInteger("num");
 
 		List<MchtGatewayOrder> orderList = orderAdminService.list(order);
 
@@ -209,7 +211,6 @@ public class OrderController extends BaseController {
 		}
 		Page page = new Page(pageNo, pageInfo.getPageSize(), orderCount, orderList, true);
 		model.addAttribute("page", page);
-
 		//是否统计汇总
 		if("1".equals(paramMap.get("isstat"))){
 			//交易开始时间:交易结束时间:商户:上游通道:支付产品:支付方式:官方订单号:商户订单号:平台订单号:上游订单号:通道商户支付方式:订单状态:补单状态
@@ -219,14 +220,24 @@ public class OrderController extends BaseController {
 			String value = getFromRedis(key);
 			if(value==null||"".equals(value)){
 				//金额总数
-				amount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				if(!orderCountSumJson.containsKey("amount")){
+					amount = new BigDecimal("0");
+				}else{
+					amount = new BigDecimal(orderCountSumJson.getString("amount")).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				}
+                //支付成功
+                order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
+				//成功信息
+				JSONObject sucOrderCountSumJson = orderAdminService.sucOrderCountSum(order);
 
-				//支付成功
-				order.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
 				//支付成功总数
-				successCount = orderAdminService.ordeCount(order);
+				if(sucOrderCountSumJson!= null && sucOrderCountSumJson.containsKey("num")){
+					successCount = sucOrderCountSumJson.getLongValue("num");
+				}
 				//支付成功金额总数
-				successAmount = new BigDecimal(orderAdminService.amount(order)).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				if(sucOrderCountSumJson!= null && sucOrderCountSumJson.containsKey("amount")){
+					successAmount = new BigDecimal(sucOrderCountSumJson.getString("amount")).divide(new BigDecimal(100), 2, BigDecimal.ROUND_HALF_UP);
+				}
 				insert2Redis(key,amount.toString()+","+successCount+","+successAmount.toString(),Integer.parseInt(payOrderListExpireSecond));
 			}else{
 				String[] values = value.split(",");
@@ -1281,18 +1292,18 @@ public class OrderController extends BaseController {
 	public String batchReissueMchtNotifyByOrderId(HttpServletRequest request){
 		String[] array=request.getParameterValues("platOrderNo");
 		if(array ==null || array.length==0){
-			return "平台订单号为空";
+			return "商户订单号为空";
 		}
 		logger.info("array:"+array.length);
 
 		Set<String> set = new HashSet<>(Arrays.asList(array));
 
-		for(String platOrderNo:set){
-			logger.info("开始补发通知"+platOrderNo);
-			if(StringUtils.isBlank(platOrderNo)){
+		for(String mchtOrderNo:set){
+			logger.info("开始补发通知"+mchtOrderNo);
+			if(StringUtils.isBlank(mchtOrderNo)){
 				continue;
 			}
-			sendNotifyMsg(platOrderNo);
+			sendNotifyMsg(mchtOrderNo);
 
 		}
 		return "success";
@@ -1340,15 +1351,27 @@ public class OrderController extends BaseController {
 		return "success";
 	}
 
-	private void sendNotifyMsg(String platOrderNo){
+	private void sendNotifyMsg(String mchtOrderNo){
 		try{
 			MchtGatewayOrder order = new MchtGatewayOrder();
-			String suffix= "20" + platOrderNo.substring(1, 5);
-			order.setPlatOrderId(platOrderNo);
+			order.setMchtOrderId(mchtOrderNo);
+			String suffix= DateUtils.formatDate(new Date(),"yyyyMM");
 			order.setSuffix(suffix);
+			logger.info(mchtOrderNo+"从支付流水"+suffix+"表中查询");
 			List<MchtGatewayOrder> list=mchtGwOrderService.list(order);
-
 			if(list ==null || list.size()==0){
+				logger.info("补发异步通知,商户订单号:"+mchtOrderNo+"在支付流水"+suffix+"表中未找到订单数据");
+				//上个月流水中查询
+				Calendar c = Calendar.getInstance();
+				c.add(Calendar.MONTH, -1);
+				SimpleDateFormat format = new SimpleDateFormat("yyyyMM");
+				suffix = format.format(c.getTime());
+				order.setSuffix(suffix);
+				logger.info(mchtOrderNo+"从支付流水"+suffix+"表中查询");
+				list=mchtGwOrderService.list(order);
+			}
+			if(list ==null || list.size()==0){
+				logger.info("补发异步通知,商户订单号:"+mchtOrderNo+"在支付流水"+suffix+"表中未找到订单数据");
 				return;
 			}
 			MchtGatewayOrder result =list.get(0);
@@ -1364,14 +1387,14 @@ public class OrderController extends BaseController {
 			data.put("suffix", suffix);
 			String respStr = null;
 			respStr = HttpUtil.post(supplyUrl, data);
-			logger.info("gateway补发通知返回：" + respStr);
+			logger.info("gateway补发异步通知通知,商户订单号:"+mchtOrderNo+",返回结果：" + respStr);
 			if ("SUCCESS".equalsIgnoreCase(respStr)) {
-				logger.info("订单号:"+ result.getPlatOrderId() + ",商户响应:"+ respStr);
+				logger.info("补发异步通知,商户订单号:"+result.getMchtOrderId()+",平台订单号:"+ result.getPlatOrderId() + ",商户响应:"+ respStr);
 			} else {
-				logger.info("订单号:"+ result.getPlatOrderId() + ",商户响应:"+ respStr);
+				logger.info("补发异步通知,商户订单号:"+result.getMchtOrderId()+",平台订单号:"+ result.getPlatOrderId() + ",商户响应:"+ respStr);
 			}
 		}catch (Exception e) {
-			logger.info("批量补单异常:"+platOrderNo,e);
+			logger.info("批量补单异常:"+mchtOrderNo,e);
 		}
 	}
 
@@ -1421,4 +1444,5 @@ public class OrderController extends BaseController {
 
 		return resultData;
 	}
+
 }
