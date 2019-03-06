@@ -354,11 +354,25 @@ public class CaAccountAuditController extends BaseController {
         andView.setViewName("/modules/upstreamaudit/repeatOrderComplainApprove");
         //查询对应审批信息
         CaAccountAudit caAccountAudit1=caAccountAuditService.findAccountAudit(caAccountAudit.getId());
-        MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
-        mchtGatewayOrderReq.setSuffix("20"+caAccountAudit1.getSourceDataId().substring(1,5));
-        mchtGatewayOrderReq.setPlatOrderId(caAccountAudit1.getSourceDataId());
-        //查询对应订单信息
-        MchtGatewayOrder mchtGatewayOrder = mchtGwOrderService.list(mchtGatewayOrderReq).get(0);
+        MchtGatewayOrder mchtGatewayOrder =null;
+        if(caAccountAudit1.getSourceDataId().startsWith("P")){
+            MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
+            mchtGatewayOrderReq.setSuffix("20"+caAccountAudit1.getSourceDataId().substring(1,5));
+            mchtGatewayOrderReq.setPlatOrderId(caAccountAudit1.getSourceDataId());
+            //查询对应订单信息
+            mchtGatewayOrder= mchtGwOrderService.list(mchtGatewayOrderReq).get(0);
+        }else{
+            PlatProxyDetail platProxyDetail=proxyDetailService.queryByKey(caAccountAudit1.getSourceDataId());
+            mchtGatewayOrder = new MchtGatewayOrder();
+            mchtGatewayOrder.setPlatOrderId(platProxyDetail.getId());
+            mchtGatewayOrder.setMchtCode(platProxyDetail.getMchtId());
+            mchtGatewayOrder.setChanOrderId(platProxyDetail.getChannelTradeId());
+            mchtGatewayOrder.setChanCode(platProxyDetail.getChanId());
+            mchtGatewayOrder.setStatus(platProxyDetail.getPayStatus());
+            mchtGatewayOrder.setCreateTime(platProxyDetail.getCreateDate());
+            mchtGatewayOrder.setUpdateTime(platProxyDetail.getUpdateDate());
+        }
+
         //查询商户名称
         MchtInfo mchtInfo = merchantService.queryByKey(mchtGatewayOrder.getMchtCode());
         //查询通道名称
@@ -380,15 +394,16 @@ public class CaAccountAuditController extends BaseController {
     public String doApproveRepeatAudits(CaAccountAudit caAccountAudit){
         //查询对应审批信息
         CaAccountAudit caAccountAudit1=caAccountAuditService.findAccountAudit(caAccountAudit.getId());
-        MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
-        mchtGatewayOrderReq.setSuffix("20"+caAccountAudit1.getSourceDataId().substring(1,5));
-        mchtGatewayOrderReq.setPlatOrderId(caAccountAudit1.getSourceDataId());
-        //查询对应订单信息
-        MchtGatewayOrder mchtGatewayOrder = mchtGwOrderService.list(mchtGatewayOrderReq).get(0);
-        //查询商户名称
-        MchtInfo mchtInfo = merchantService.queryByKey(mchtGatewayOrder.getMchtCode());
-        //查询通道名称
-        ChanInfo chanInfo =channelService.queryByKey(mchtGatewayOrder.getChanCode());
+        if(caAccountAudit1.getSourceDataId().startsWith("P")){
+            MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
+            mchtGatewayOrderReq.setSuffix("20"+caAccountAudit1.getSourceDataId().substring(1,5));
+            mchtGatewayOrderReq.setPlatOrderId(caAccountAudit1.getSourceDataId());
+            //查询对应订单信息
+            MchtGatewayOrder mchtGatewayOrder = mchtGwOrderService.list(mchtGatewayOrderReq).get(0);
+
+            //构建入账
+        }
+
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
     }
 
