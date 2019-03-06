@@ -24,13 +24,6 @@
             $("#searchForm").submit();
             return false;
         }
-        var dataMap = new Map();
-        <c:forEach items="${page.list}" var="chanInfo">
-			<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
-				dataMap.set('${chanInfo.id}','${chanInfo.id}');
-			</c:if>
-		</c:forEach>
-
         function queryBalance(chanId) {
             var checkUrl = "/admin/channel/queryBalance?chanId="+chanId;
             $.ajax({
@@ -52,7 +45,13 @@
 
         });
         $(function(){
-            alert(dataMap.);
+            var dataMap = new Map();
+            <c:forEach items="${page.list}" var="chanInfo">
+            <c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
+            dataMap.set('${chanInfo.id}','${chanInfo.id}');
+            </c:if>
+            </c:forEach>
+            dataMap.forEach()
             for(var key in dataMap){
                 alert(key);
                 queryBalance(key);
