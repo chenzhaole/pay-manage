@@ -24,28 +24,24 @@
             $("#searchForm").submit();
             return false;
         }
-        var dataMap = {};
+        var dataMap = new Map();
         <c:forEach items="${page.list}" var="chanInfo">
 			<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
-				dataMap[${chanInfo.id}]=${chanInfo.id};
+				dataMap.set(${chanInfo.id},${chanInfo.id});
 			</c:if>
 		</c:forEach>
 
         function queryBalance(chanId) {
-            var dataMap = {};
-            dataMap.chanId = chanId;
-            var checkUrl = "/admin/channel/queryBalance";
+            alert(chanId);
+            var checkUrl = "/admin/channel/queryBalance?chanId"+chanId;
             $.ajax({
                 url: checkUrl, //服务器端请求地址
-                data: dataMap,
                 dataType: 'json', //返回值类型 一般设置为json
-                type: "post",
-                contentType: "application/x-www-form-urlencoded; charset=utf-8",
                 success: function (data) {  //服务器成功响应处理函数
-                    alert(data.massage);
+                   $('#'+chanId).text(data);
                 },
                 error: function (data, e) {//服务器响应失败处理函数
-                    console.log(data);
+                    $('#'+chanId).text("ajax请求异常");
                 }
             })
         }
@@ -53,6 +49,10 @@
         //下拉搜索框初始化
         $(window).on('load', function () {
             $('.selectpicker').selectpicker({});
+            //
+            for(var key in map){
+                queryBalance(key);
+			}
 
         });
 
@@ -180,7 +180,7 @@
 					|<a href="${ctx}/channel/deleteChanMchPayType?id=${chanInfo.id}" onclick="return confirmx('是否确认删除“${chanInfo.name}”？', this.href)">删除</a>
 				</shiro:hasPermission>
 				<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
-					|<a href="${ctx}/channel/queryBalance?chanId=${chanInfo.id}">查询余额</a> </c:if>
+					|<a href="#" onclick="queryBalance('${chanInfo.id}')">查询余额</a><span id="${chanInfo.id}"></span> </c:if>
 			</td>
 		</tr>
 	</c:forEach>
