@@ -27,21 +27,20 @@
         var dataMap = new Map();
         <c:forEach items="${page.list}" var="chanInfo">
 			<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
-				dataMap.set(${chanInfo.id},${chanInfo.id});
+				dataMap.set('${chanInfo.id}','${chanInfo.id}');
 			</c:if>
 		</c:forEach>
 
         function queryBalance(chanId) {
-            alert(chanId);
             var checkUrl = "/admin/channel/queryBalance?chanId="+chanId;
             $.ajax({
                 url: checkUrl, //服务器端请求地址
-                dataType: 'json', //返回值类型 一般设置为json
+                dataType: 'text', //返回值类型 一般设置为json
                 success: function (data) {  //服务器成功响应处理函数
-                   $('#'+chanId).text(data);
+                   $('#'+chanId).text("("+data+")");
                 },
                 error: function (data, e) {//服务器响应失败处理函数
-                    $('#'+chanId).text("ajax请求异常");
+                    $('#'+chanId).text("("+data+")");
                 }
             })
         }
@@ -49,12 +48,16 @@
         //下拉搜索框初始化
         $(window).on('load', function () {
             $('.selectpicker').selectpicker({});
-            //
-            for(var key in map){
-                queryBalance(key);
-			}
+
 
         });
+        $(function(){
+            alert(dataMap.);
+            for(var key in dataMap){
+                alert(key);
+                queryBalance(key);
+            }
+		});
 
 	</script>
 </head>
