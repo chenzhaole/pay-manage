@@ -389,7 +389,7 @@ public class CaAccountAuditController extends BaseController {
         MchtInfo mchtInfo = merchantService.queryByKey(mchtGatewayOrder.getMchtCode());
         //查询通道名称
         ChanInfo chanInfo =channelService.queryByKey(mchtGatewayOrder.getChanCode());
-        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";;
+        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
     }
 
 }
