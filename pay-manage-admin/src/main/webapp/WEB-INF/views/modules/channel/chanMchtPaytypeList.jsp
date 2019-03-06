@@ -45,17 +45,21 @@
 
         });
         $(function(){
-            var dataMap = new Map();
+            var i=0;
+            var array ={};
             <c:forEach items="${page.list}" var="chanInfo">
             <c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
-            dataMap.set('${chanInfo.id}','${chanInfo.id}');
+            array[i]='${chanInfo.id}';
+            i++;
             </c:if>
             </c:forEach>
-            dataMap.forEach()
-            for(var key in dataMap){
-                alert(key);
-                queryBalance(key);
-            }
+			window.setTimeout(function () {
+                for(var j=0;j<i;j++){
+                    queryBalance(array[j]);
+				}
+
+            },1000);
+
 		});
 
 	</script>

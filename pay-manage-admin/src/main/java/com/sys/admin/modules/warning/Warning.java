@@ -21,6 +21,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.RequestMapping;
 
+import java.math.BigDecimal;
 import java.util.Date;
 import java.util.List;
 
@@ -79,6 +80,7 @@ public class Warning{
     public String doAdd(ChanMchtPaytypeSettleRecord chanMchtPaytypeSettleRecord,Model model){
         logger.info("请求参数:"+JSON.toJSONString(chanMchtPaytypeSettleRecord));
         String name =UserUtils.getUser().getLoginName();
+        chanMchtPaytypeSettleRecord.setAmount(chanMchtPaytypeSettleRecord.getAmount().multiply(new BigDecimal("100")));
         chanMchtPaytypeSettleRecord.setOperateAuditUserid(name);
         chanMchtPaytypeSettleRecord.setCreateTime(new Date());
         chanRecordService.insert(chanMchtPaytypeSettleRecord);
