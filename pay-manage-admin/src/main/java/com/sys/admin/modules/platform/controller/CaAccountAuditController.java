@@ -6,7 +6,12 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.merchant.service.MerchantAdminService;
+import com.sys.admin.modules.platform.service.CaAccountAuditAdminService;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.boss.api.entry.cache.CacheMcht;
+import com.sys.boss.api.entry.cache.CacheMchtAccount;
+import com.sys.boss.api.entry.cache.CacheOrder;
+import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.common.enums.AdjustTypeEnum;
 import com.sys.common.enums.CaAuditEnum;
 import com.sys.common.enums.CaAuditTypeEnum;
@@ -27,6 +32,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
@@ -54,6 +60,8 @@ public class CaAccountAuditController extends BaseController {
     private MerchantService merchantService;
     @Autowired
     private ChannelService channelService;
+    @Autowired
+    private CaAccountAuditAdminService caAccountAuditAdminService;
 
     /**
      * 查询上游对账审批详情
@@ -239,8 +247,8 @@ public class CaAccountAuditController extends BaseController {
      * @return
      */
     @RequestMapping("/doAddRepeatAudits")
-    public String doAddRepeatAudits(CaAccountAuditEx caAccountAuditEx){
-        ModelAndView andView = new ModelAndView();
+    public String doAddRepeatAudits(CaAccountAuditEx caAccountAuditEx,RedirectAttributes redirectAttributes){
+        String message, messageType;
         //组装投诉订单参数
         CaAccountAudit caAccountAudit =new CaAccountAudit();
         //重复支付
@@ -251,6 +259,10 @@ public class CaAccountAuditController extends BaseController {
             mchtGatewayOrder.setSuffix("20"+caAccountAuditEx.getSourceDataId().substring(1,5));
             List<MchtGatewayOrder> mchtGatewayOrderList =mchtGwOrderService.list(mchtGatewayOrder);
             if(mchtGatewayOrderList==null || mchtGatewayOrderList.size()==0){
+                message = "原始订单不存在";
+                messageType = "error";
+                redirectAttributes.addFlashAttribute("messageType", messageType);
+                redirectAttributes.addFlashAttribute("message", message);
                 return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
             }
             //
@@ -280,6 +292,7 @@ public class CaAccountAuditController extends BaseController {
             caAccountAudit.setId(IdUtil.createCaCommonId("0"));
             caAccountAudit.setAccountId(vo.getCaElectronicAccount().getId());
             caAccountAudit.setSourceDataId(caAccountAuditEx.getSourceDataId());
+            caAccountAudit.setNewDataId(IdUtil.createPlatOrderId("0"));
             caAccountAudit.setSourceChanDataId(caAccountAuditEx.getSourceChanDataId());
             caAccountAudit.setSourceChanRepeatDataId(caAccountAuditEx.getSourceChanRepeatDataId());
             caAccountAudit.setType(CaAuditTypeEnum.COMPLAINT_MANAGER.getCode());
@@ -297,6 +310,10 @@ public class CaAccountAuditController extends BaseController {
         }else{
             PlatProxyDetail platProxyDetail =proxyDetailService.queryByKey(caAccountAuditEx.getSourceDataId());
             if(platProxyDetail==null){
+                message = "原始订单不存在";
+                messageType = "error";
+                redirectAttributes.addFlashAttribute("messageType", messageType);
+                redirectAttributes.addFlashAttribute("message", message);
                 return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
             }
             BigDecimal realChanFee =BigDecimal.ZERO ;
@@ -338,6 +355,10 @@ public class CaAccountAuditController extends BaseController {
             caAccountAudit.setCreatedTime(new Date());
             caAccountAuditService.insertAccountAudit(caAccountAudit);
         }
+        message = "保存成功";
+        messageType = "success";
+        redirectAttributes.addFlashAttribute("messageType", messageType);
+        redirectAttributes.addFlashAttribute("message", message);
 
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
     }
@@ -391,8 +412,12 @@ public class CaAccountAuditController extends BaseController {
      * @return
      */
     @RequestMapping("/doApproveRepeatAudits")
-    public String doApproveRepeatAudits(CaAccountAudit caAccountAudit){
-        //查询对应审批信息
+    public String doApproveRepeatAudits(CaAccountAudit caAccountAudit,RedirectAttributes redirectAttributes){
+        caAccountAudit.setOperateAuditUserid(String.valueOf(UserUtils.getUser().getId()));
+        caAccountAudit.setOperateAuditTime(new Date());
+        boolean result =false;
+        String message, messageType;
+        //查询对应审批信息及上游入账信息
         CaAccountAudit caAccountAudit1=caAccountAuditService.findAccountAudit(caAccountAudit.getId());
         if(caAccountAudit1.getSourceDataId().startsWith("P")){
             MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
@@ -400,9 +425,36 @@ public class CaAccountAuditController extends BaseController {
             mchtGatewayOrderReq.setPlatOrderId(caAccountAudit1.getSourceDataId());
             //查询对应订单信息
             MchtGatewayOrder mchtGatewayOrder = mchtGwOrderService.list(mchtGatewayOrderReq).get(0);
+            MchtInfo mchtInfo = merchantService.queryByKey(mchtGatewayOrder.getMchtCode());
+            CacheMchtAccount cacheMchtAccount =caAccountAuditAdminService.bulidRedisPayTaskObject(mchtGatewayOrder,mchtInfo,caAccountAudit);
+            //商户调账队列
+            result =caAccountAuditAdminService.insert2redisAccTask(cacheMchtAccount);
 
-            //构建入账
+        }else{
+            PlatProxyDetail platProxyDetail=proxyDetailService.queryByKey(caAccountAudit1.getSourceDataId());
+            MchtInfo mchtInfo = merchantService.queryByKey(platProxyDetail.getMchtId());
+            CacheMchtAccount cacheMchtAccount =caAccountAuditAdminService.bulidRedisProxyTaskObject(platProxyDetail,mchtInfo,caAccountAudit);
+            //商户调账队列
+            result =caAccountAuditAdminService.insert2redisAccTask(cacheMchtAccount);
+
         }
+        //上游账务入mq
+        if(result){
+
+        }
+        //上游入账信息
+        if(result){
+            result =caAccountAuditService.updateAccountAudit(caAccountAudit);
+        }
+        if(result){
+            message = "保存成功";
+            messageType = "success";
+        }else{
+            message = "保存失败";
+            messageType = "error";
+        }
+        redirectAttributes.addFlashAttribute("messageType", messageType);
+        redirectAttributes.addFlashAttribute("message", message);
 
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
     }
