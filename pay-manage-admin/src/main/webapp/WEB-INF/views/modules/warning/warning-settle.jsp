@@ -39,8 +39,8 @@
     <li ><a href="${ctx}/warning/list">已结算列表</a></li>
 </ul>
 <form id="searchForm" action="${ctx}/warning/settleList" method="post" class="breadcrumb form-search">
-    <input id="pageInfo.pageNo" name="pageInfo.pageNo" type="hidden" value="${1}"/>
-    <input id="pageInfo.pageSize" name="pageInfo.pageSize" type="hidden" value="${page.pageSize}"/>
+    <input id="pageNo" name="pageInfo.pageNo" type="hidden" value="${1}"/>
+    <input id="pageSize" name="pageInfo.pageSize" type="hidden" value="${page.pageSize}"/>
     <table>
         <tr>
             <td>
