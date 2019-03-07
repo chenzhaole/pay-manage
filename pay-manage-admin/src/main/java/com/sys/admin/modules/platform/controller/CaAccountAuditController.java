@@ -1,16 +1,12 @@
 package com.sys.admin.modules.platform.controller;
-
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
-<<<<<<< HEAD
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
-=======
 import com.sys.common.enums.PayStatusEnum;
->>>>>>> 1410ee77807ef6b52dda3207aabe14f962076e85
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
@@ -19,20 +15,20 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
+import sun.misc.BASE64Decoder;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.OutputStream;
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Controller
 @RequestMapping("${adminPath}/caAccountAudit")
@@ -47,10 +43,6 @@ public class CaAccountAuditController extends BaseController {
     private ProxyDetailService proxyDetailService;
     @Autowired
     private ChanMchtPaytypeService chanMchtPaytypeService;
-    @Autowired
-    private
-
-
     @Autowired
     private JedisPool jedisPool;
 
@@ -95,7 +87,33 @@ public class CaAccountAuditController extends BaseController {
             andView.addObject("caAccountAudits", caAccountAudits);
             return andView;
         }
+
         CaAccountAudit caAccountAudit  = new CaAccountAudit();
+        caAccountAudit.setType(paramMap.get("type"));
+        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
+        caAccountAudit.setApprovalCreateTime(paramMap.get("approvalCreateTime"));
+        caAccountAudit.setApprovalEndTime(paramMap.get("approvalEndTime"));
+        caAccountAudit.setAccountId(paramMap.get("accountId"));
+        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
+        if(StringUtils.isEmpty(paramMap.get("applyCreateTime")) || StringUtils.isEmpty(paramMap.get("applyEndTime"))){
+            String currentDateStr = DateUtils.formatDate(new Date());
+            caAccountAudit.setApplyCreateTime(currentDateStr + " 00:00:00");
+            caAccountAudit.setApplyEndTime(currentDateStr + " 23:59:59");
+            paramMap.put("applyCreateTime", caAccountAudit.getApplyCreateTime());
+            paramMap.put("applyEndTime", caAccountAudit.getApplyEndTime());
+        }else{
+            caAccountAudit.setApplyCreateTime(paramMap.get("applyCreateTime"));
+            caAccountAudit.setApplyEndTime(paramMap.get("applyEndTime"));
+        }
+        //电子账户信息
+        List<CaElectronicAccount>  electronicAccounts = caAccountAuditService.queryCaElectronicAccountByExample(new CaElectronicAccount());
+        andView.addObject("electronicAccounts", electronicAccounts);
+
+        int count =caAccountAuditService.count(caAccountAudit);
+        if(count ==0){
+            andView.addObject("paramMap",paramMap);
+            return andView;
+        }
         //分页
         String pageNoString = paramMap.get("pageNo");
         int pageNo = 1;
@@ -106,15 +124,15 @@ public class CaAccountAuditController extends BaseController {
         pageInfo.setPageNo(pageNo);
         caAccountAudit.setPageInfo(pageInfo);
 
-
-        caAccountAudit.setType(paramMap.get("type"));
-        caAccountAudit.setCustomerStartAuditTime(paramMap.get("customerStartAuditTime"));
-        caAccountAudit.setCustomerStartAuditTime(paramMap.get("customerEndAuditTime"));
-
         caAccountAudits =  caAccountAuditService.queryCaAccountAudit(caAccountAudit);
 
 
+
         andView.addObject("caAccountAudits", caAccountAudits);
+        Page page = new Page(pageNo, pageInfo.getPageSize(), count, electronicAccounts, true);
+        andView.addObject("page", page);
+        andView.addObject("orderCount", count);
+        andView.addObject("paramMap",paramMap);
         return andView;
     }
 
@@ -125,11 +143,13 @@ public class CaAccountAuditController extends BaseController {
      * @return
      */
     @RequestMapping("/insertCaAccountAudit")
-    public String insertCaAccountAudit(HttpServletRequest request,  @RequestParam Map<String, String> paramMap){
+    public String insertCaAccountAudit(HttpServletRequest request, @RequestParam Map<String, String> paramMap,
+                                       @RequestParam(value = "proofImage", required = false) String proofImage){
         if(StringUtils.isEmpty(paramMap.get("type"))){
             logger.info("添加审批信息类型为空,参数为:" + JSONObject.toJSONString(paramMap));
             return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
         }
+        String imgUrl = convertImageFromBase64(proofImage,request);
         CaAccountAudit caAccountAudit  = new CaAccountAudit();
         caAccountAudit.setAccountId(paramMap.get("accountId"));
         caAccountAudit.setType(paramMap.get("type"));
@@ -141,6 +161,7 @@ public class CaAccountAuditController extends BaseController {
         caAccountAudit.setAmount(new BigDecimal(paramMap.get("amount")));
         caAccountAudit.setCustomerMsg(paramMap.get("customerMsg"));
         caAccountAudit.setAccountType(paramMap.get("accountType"));
+        caAccountAudit.setPicUrl(imgUrl);
 
         caAccountAudit.setCustomerAuditUserid(UserUtils.getUser().getId().toString());
 
@@ -176,13 +197,11 @@ public class CaAccountAuditController extends BaseController {
             logger.info("已经在处理该订单！" + caAccountAudit.getId() + "添加审批信息类型为空,参数为:" + JSONObject.toJSONString(paramMap));
             return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
         }
-
-        boolean backFlag = caAccountAuditService.updateAccountAudit(caAccountAudit);
-
-        setGetRedisLock(keyLock, IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER_TIME);
-
+        boolean backFlag = setGetRedisLock(keyLock, IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER_TIME);
+        if(backFlag){
+            caAccountAuditService.updateAccountAudit(caAccountAudit);
+        }
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
-
     }
 
 
@@ -266,13 +285,18 @@ public class CaAccountAuditController extends BaseController {
             //查询通道商户支付方式
             ChanMchtPaytype chanMchtPaytype =chanMchtPaytypeService.queryByKey(mchtGatewayOrder1.getChanMchtPaytypeId());
 
-            CaAccountAudit caAccountAudit =new CaAccountAudit();
+            CaAccountAudit caAccountAudit = new CaAccountAudit();
             //caAccountAudit.
 
 
         }else{
 
-<<<<<<< HEAD
+
+
+        }
+        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+    }
+
 
     /**
      * 获取redis的乐观锁
@@ -314,9 +338,14 @@ public class CaAccountAuditController extends BaseController {
         logger.info("设置key :" + redisKey + ",时间:" + seconds);
         Jedis jedis = jedisPool.getResource();
         try{
-            jedis.set(redisKey, redisKey);
-            jedis.expire(redisKey, seconds);
-            backFlag = true;
+            if(jedis.setnx(redisKey, redisKey)== 1){
+                jedis.expire(redisKey, seconds);
+                backFlag = true;
+                logger.info("设置key :" + redisKey + ",时间:" + seconds + ", 设置成功");
+            }else{
+                logger.info("设置key :" + redisKey + ",时间:" + seconds + ", 设置失败");
+                backFlag = false;
+            }
         } catch (Exception e) {
             logger.error("删除缓异常！",e.getMessage(), e);
             backFlag = false;
@@ -328,10 +357,64 @@ public class CaAccountAuditController extends BaseController {
 
 
 
+    /**
+     * base64编码转为图片
+     * @param base64Image
+     * @return
+     */
+    public String convertImageFromBase64(String base64Image, HttpServletRequest request){
+        if (base64Image == null||StringUtils.isBlank(base64Image)) return null;
+        String base64Image1 = base64Image.substring(base64Image.indexOf("base64,")+"base64,".length());
+        BASE64Decoder decoder = new BASE64Decoder();
+        try {
+            // 解密
+            byte[] b = decoder.decodeBuffer(base64Image1);
+            // 处理数据
+            for (int i = 0; i < b.length; ++i) {
+                if (b[i] < 0) {
+                    b[i] += 256;
+                }
+            }
+            String mchtId = UserUtils.getUser().getLoginName();
+            SimpleDateFormat fileFormatter = new SimpleDateFormat("yyyyMMddHHmmssSSS");
+            SimpleDateFormat fileDir = new SimpleDateFormat("yyyyMMddHH");
+            String ext = base64Image.substring(base64Image.indexOf("data:image/")+"data:image/".length(),base64Image.indexOf(";"));
+            String fileName = fileFormatter.format(new Date()) + new Random().nextInt(1000) + "." + ext;
+            String tempFileDir = fileDir.format(new Date());
+            String dir = getImageFileStorePath(request);
+            String path = dir  + tempFileDir ;
+            File file = new File(path);
+            if (!file.exists()) {
+                file.mkdirs();
+            }
+            OutputStream out = new FileOutputStream(path+ "/" + mchtId +"-"+ fileName);
+            out.write(b);
+            out.flush();
+            out.close();
+            String servletPath = CA_IMAGES_PATH  + tempFileDir + "/" + mchtId +"-"+ fileName;
 
-=======
+            return servletPath;
+        } catch (Exception e) {
+            logger.error("base64编码转图片失败",e);
         }
-        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+        return null;
     }
->>>>>>> 1410ee77807ef6b52dda3207aabe14f962076e85
+
+
+
+    /**
+     * 跳转公户充值
+     * 2019-02-22 17:10:25
+     * @return
+     */
+    @RequestMapping("/toPubAccRechargeAdd")
+    public ModelAndView toPubAccRechargeAdd(){
+        ModelAndView andView = new ModelAndView();
+
+        List<CaElectronicAccount>  electronicAccounts = caAccountAuditService.queryCaElectronicAccountByExample(new CaElectronicAccount());
+        andView.addObject("electronicAccounts", electronicAccounts);
+
+        andView.setViewName("modules/upstreamaudit/toPubAccRechargeAdd");
+        return andView;
+    }
 }

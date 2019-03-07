@@ -45,50 +45,68 @@
 
 <tags:message content="${message}" type="${messageType}"/>
 
-<form:form id="searchForm" modelAttribute="platAccountAdjust" action="${ctx}/platform/adjust" method="post" class="breadcrumb form-search">
+<form:form id="searchForm" modelAttribute="platAccountAdjust" action="${ctx}/caAccountAudit/queryCaAccountAudits?type=5" method="post" class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
     <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
     <table>
         <tr>
             <td>
                 <label>电子账户：</label>
-                <select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
-                    <option value="">--请选择--</option>
-                    <c:forEach items="${electronicAccounts}" var="account">
-                        <option value="${account.id}"
-                                <c:if test="${account.id == account.id}">selected</c:if>
-                        >${account.electronicAccountName}</option>
-                    </c:forEach>
-                </select>
+                <div class="controls">
+                    <select name="accountId" class="selectpicker bla bla bli" data-live-search="true">
+                        <option value="">--请选择--</option>
+                        <c:forEach items="${electronicAccounts}" var="account">
+                            <option value="${account.id}"
+                                    <c:if test="${paramMap.accountId == account.id}">selected</c:if>
+                            >${account.electronicAccountName}</option>
+                        </c:forEach>
+                    </select>
+                </div>
             </td>
             <td>
-                <label>申请日期：</label>
-                <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                <label class="control-label">订单时间：</label>
+                <div class="controls">
+                    <input id="applyCreateTime" name="applyCreateTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                           value="${paramMap.applyCreateTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
+                    至
+                    <input id="applyEndTime" name="applyEndTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                           value="${paramMap.applyEndTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
+                </div>
             </td>
             <td>
-                <label>审批日期：</label>
-                <input id="auditTime" name="auditTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${auditTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                <label class="control-label">订单时间：</label>
+                <div class="controls">
+                    <input id="approvalCreateTime" name="approvalCreateTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                           value="${paramMap.approvalCreateTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
+                    至
+                    <input id="approvalEndTime" name="approvalEndTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                           value="${paramMap.approvalEndTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
+                </div>
             </td>
         </tr>
         <tr>
-            <%--<td>
-                <label>审核状态：</label>
-                <form:select path="auditStatus">
-                    <form:option value=""/>
-                    <form:options items="${fns:getDictList('account_adjust_status')}" itemLabel="label" itemValue="value"/>
-                </form:select>
-            </td>
             <td>
-                <label>调账订单号：</label>
-                <input value="${adjustInfo.id}" name="idKey" type="text" maxlength="64" class="input-medium"/>
+                <label>审批状态: </label>
+                <div class="controls">
+                    <select name="auditStatus" class="selectpicker bla bla bli" data-live-search="true">
+                        <option value="">--请选择--</option>
+                        <option value="1" <c:if test="${paramMap.auditStatus == 1}">selected</c:if> >创建未审核</option>
+                        <option value="4" <c:if test="${paramMap.auditStatus == 4}">selected</c:if> >运营审核通过</option>
+                        <option value="5" <c:if test="${paramMap.auditStatus == 5}">selected</c:if> >运营审核拒绝</option>
+                    </select>
+                </div>
             </td>
+        </tr>
+        <tr>
             <td>
-                <input id="btnSubmit" class="btn btn-primary" type="submit" value="查询" onclick="return page();" style="margin-left: 5px;">
-                <input id="btnExport" class="btn btn-primary" type="button" value="导出"/>
-            </td>--%>
-
+                <div class="controls">
+                    <label class="control-label">
+                        <div class="btn-group">
+                            <input id="btnSubmit" class="btn btn-primary pull-right" type="submit" value="查询">
+                        </div>
+                    </label>
+                </div>
+            </td>
         </tr>
     </table>
 </form:form>
@@ -143,7 +161,15 @@
                 ${adjust.operateAuditUserid}
             </td>
             <td>
-                ${adjust.auditStatus}
+                <c:if test="${adjust.auditStatus eq '1'}">
+                    未审核
+                </c:if>
+                <c:if test="${adjust.auditStatus eq '4'}">
+                    运营审核通过
+                </c:if>
+                <c:if test="${adjust.auditStatus eq '5'}">
+                    运营审核未通过
+                </c:if>
             </td>
             <td>
                 <div class="wrap" style="width: 100px; word-break: break-all; word-wrap: break-word;">

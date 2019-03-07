@@ -58,37 +58,12 @@
     <tags:message content="${message}"/>
     <table class="table">
         <tr>
-            <td >
-                <div class="control-group">
-                    <label class="control-label">支付方式</label>
-                    <div class="controls">
-                        <select name="type" class="input-xlarge" id="payType" onchange="changeAmount();">
-                            <option value="5">支付</option>
-                            <option value="4">代付</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-            <td >
-                <div class="control-group">
-                    <label class="control-label">调账方向</label>
-                    <div class="controls">
-                        <select name="adjustType" class="input-xlarge" id="accountType" onchange="changeAmount();">
-                            <option value="2">增加</option>
-                            <option value="1">减少</option>
-                        </select>
-                    </div>
-                </div>
-            </td>
-
-        </tr>
-        <tr>
             <td>
                 <div class="control-group">
                     <label class="control-label">电子账户名称：</label>
                     <div class="controls">
                         <label>
-                            <select id="accountId" name="accountId" class="required" data-live-search="true">
+                            <select id="sourceDataId" name="sourceDataId" class="required" data-live-search="true">
                                 <option value="">--请选择--</option>
                                 <c:forEach items="${electronicAccounts}" var="account">
                                     <option value="${account.id}">${account.electronicAccountName}</option>
@@ -97,6 +72,30 @@
                         </label>
                     </div>
                 </div>
+
+
+                <div class="control-group">
+                    <label class="control-label">电子账户名称：</label>
+                    <div class="controls">
+                        <label>
+                            <select id="newDataId" name="newDataId" class="required" data-live-search="true">
+                                <option value="">--请选择--</option>
+                                <c:forEach items="${electronicAccounts}" var="account">
+                                    <option value="${account.id}">${account.electronicAccountName}</option>
+                                </c:forEach>
+                            </select>
+                        </label>
+                    </div>
+                </div>
+            </td>
+            <td>
+
+            </td>
+
+        </tr>
+        <tr>
+            <td>
+
             </td>
 
             <td>

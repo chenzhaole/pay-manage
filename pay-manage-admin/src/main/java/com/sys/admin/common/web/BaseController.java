@@ -42,6 +42,7 @@ public abstract class BaseController {
      * 图片文件存放路径（相对于应用根目录）
      */
     public static final String IMAGES_PATH = "/images/";
+    public static final String CA_IMAGES_PATH = "/caimages/";
 
     /**
      * 验证Bean实例对象
