@@ -3,13 +3,23 @@ import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
+<<<<<<< HEAD
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
+=======
+import com.sys.admin.modules.merchant.service.MerchantAdminService;
+import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.common.enums.AdjustTypeEnum;
+import com.sys.common.enums.CaAuditEnum;
+import com.sys.common.enums.CaAuditTypeEnum;
+>>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
 import com.sys.common.enums.PayStatusEnum;
+import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
+import com.sys.core.vo.ElectronicAccountVo;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,8 +37,15 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+<<<<<<< HEAD
 import java.text.SimpleDateFormat;
 import java.util.*;
+=======
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+>>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
 
 @Controller
 @RequestMapping("${adminPath}/caAccountAudit")
@@ -44,7 +61,15 @@ public class CaAccountAuditController extends BaseController {
     @Autowired
     private ChanMchtPaytypeService chanMchtPaytypeService;
     @Autowired
+<<<<<<< HEAD
     private JedisPool jedisPool;
+=======
+    private ElectronicAccountInfoService electronicAccountInfoService;
+    @Autowired
+    private MerchantService merchantService;
+    @Autowired
+    private ChannelService channelService;
+>>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
 
     /**
      * 查询上游对账审批详情
@@ -230,7 +255,8 @@ public class CaAccountAuditController extends BaseController {
     @RequestMapping("/queryRepeatAudits")
     public ModelAndView queryRepeatAudits(CaAccountAudit caAccountAudit){
         ModelAndView andView = new ModelAndView();
-        andView.setViewName("/modules/upstreamaudit/repeatOrderComplainList.jsp");
+        andView.setViewName("/modules/upstreamaudit/repeatOrderComplainList");
+        caAccountAudit.setType(CaAuditTypeEnum.COMPLAINT_MANAGER.getCode());
         int count =caAccountAuditService.count(caAccountAudit);
         if(count ==0){
             return andView;
@@ -257,7 +283,7 @@ public class CaAccountAuditController extends BaseController {
     @RequestMapping("/toAddRepeatAudits")
     public ModelAndView toAddRepeatAudits(CaAccountAudit caAccountAudit){
         ModelAndView andView = new ModelAndView();
-        andView.setViewName("/modules/upstreamaudit/repeatOrderComplainAdd.jsp");
+        andView.setViewName("/modules/upstreamaudit/repeatOrderComplainAdd");
         return andView;
     }
 
@@ -271,6 +297,9 @@ public class CaAccountAuditController extends BaseController {
     @RequestMapping("/doAddRepeatAudits")
     public String doAddRepeatAudits(CaAccountAuditEx caAccountAuditEx){
         ModelAndView andView = new ModelAndView();
+        //组装投诉订单参数
+        CaAccountAudit caAccountAudit =new CaAccountAudit();
+        //重复支付
         if("P".equals(caAccountAuditEx.getComplainType())){
             MchtGatewayOrder mchtGatewayOrder = new MchtGatewayOrder();
             mchtGatewayOrder.setStatus(PayStatusEnum.PAY_SUCCESS.getCode());
@@ -282,15 +311,128 @@ public class CaAccountAuditController extends BaseController {
             }
             //
             MchtGatewayOrder mchtGatewayOrder1 =mchtGatewayOrderList.get(0);
+            BigDecimal realChanFee =BigDecimal.ZERO ;
+            if(mchtGatewayOrder1.getChanRealFeeAmount()!=null && mchtGatewayOrder1.getChanRealFeeRate() !=null){
+                //混合
+                realChanFee=BigDecimal.valueOf(mchtGatewayOrder1.getAmount())
+                        .multiply(mchtGatewayOrder1.getChanRealFeeRate())
+                        .add(mchtGatewayOrder1.getChanRealFeeAmount());
+            }else if(mchtGatewayOrder1.getChanRealFeeRate()!=null){
+                realChanFee =BigDecimal.valueOf(mchtGatewayOrder1.getAmount())
+                        .multiply(mchtGatewayOrder1.getChanRealFeeRate());
+            }else if(mchtGatewayOrder1.getChanRealFeeAmount()!=null){
+                realChanFee =mchtGatewayOrder1.getChanRealFeeAmount();
+            }
             //查询通道商户支付方式
             ChanMchtPaytype chanMchtPaytype =chanMchtPaytypeService.queryByKey(mchtGatewayOrder1.getChanMchtPaytypeId());
+            //查询电子账户信息
+            CaElectronicAccount caElectronicAccount = new CaElectronicAccount();
+            caElectronicAccount.setChanCode(chanMchtPaytype.getChanCode());
+            caElectronicAccount.setMchtCode(chanMchtPaytype.getMchtCode());
+            ElectronicAccountVo reqVo = new ElectronicAccountVo();
+            reqVo.setCaElectronicAccount(caElectronicAccount);
+            ElectronicAccountVo vo =electronicAccountInfoService.queryBykey(reqVo);
 
+            caAccountAudit.setId(IdUtil.createCaCommonId("0"));
+            caAccountAudit.setAccountId(vo.getCaElectronicAccount().getId());
+            caAccountAudit.setSourceDataId(caAccountAuditEx.getSourceDataId());
+            caAccountAudit.setSourceChanDataId(caAccountAuditEx.getSourceChanDataId());
+            caAccountAudit.setSourceChanRepeatDataId(caAccountAuditEx.getSourceChanRepeatDataId());
+            caAccountAudit.setType(CaAuditTypeEnum.COMPLAINT_MANAGER.getCode());
+            caAccountAudit.setAccountType("1");
+            caAccountAudit.setAdjustType(AdjustTypeEnum.ADJUST_ADD.getCode());
+            caAccountAudit.setAmount(BigDecimal.valueOf(mchtGatewayOrder1.getAmount()));
+            caAccountAudit.setFeeAmount(realChanFee);
+            caAccountAudit.setAuditStatus(CaAuditEnum.CREATED_NO_AUDIT.getCode());
+            caAccountAudit.setCustomerAuditUserid(String.valueOf(UserUtils.getUser().getId()));
+            caAccountAudit.setCustomerMsg(caAccountAuditEx.getCustomerMsg());
+            caAccountAudit.setComplainTime(new Date());
+            caAccountAudit.setCreatedTime(new Date());
+            caAccountAuditService.insertAccountAudit(caAccountAudit);
+            //代付成功，上游口头通知失败了
+        }else{
+            PlatProxyDetail platProxyDetail =proxyDetailService.queryByKey(caAccountAuditEx.getSourceDataId());
+            if(platProxyDetail==null){
+                return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+            }
+            BigDecimal realChanFee =BigDecimal.ZERO ;
+            if(platProxyDetail.getChanRealFeeAmount()!=null && platProxyDetail.getChanRealFeeRate() !=null){
+                //混合
+                realChanFee=platProxyDetail.getAmount()
+                        .multiply(platProxyDetail.getChanRealFeeRate())
+                        .add(platProxyDetail.getChanRealFeeAmount());
+            }else if(platProxyDetail.getChanRealFeeRate()!=null){
+                realChanFee =platProxyDetail.getAmount()
+                        .multiply(platProxyDetail.getChanRealFeeRate());
+            }else if(platProxyDetail.getChanRealFeeAmount()!=null){
+                realChanFee =platProxyDetail.getChanRealFeeAmount();
+            }
+            //查询通道商户支付方式
+            ChanMchtPaytype chanMchtPaytype =chanMchtPaytypeService.queryByKey(platProxyDetail.getChanMchtPaytypeId());
+            //查询电子账户信息
+            CaElectronicAccount caElectronicAccount = new CaElectronicAccount();
+            caElectronicAccount.setChanCode(chanMchtPaytype.getChanCode());
+            caElectronicAccount.setMchtCode(chanMchtPaytype.getMchtCode());
+            ElectronicAccountVo reqVo = new ElectronicAccountVo();
+            reqVo.setCaElectronicAccount(caElectronicAccount);
+            ElectronicAccountVo vo =electronicAccountInfoService.queryBykey(reqVo);
+            //组装投诉订单参数
+            caAccountAudit.setId(IdUtil.createCaCommonId("0"));
+            caAccountAudit.setAccountId(vo.getCaElectronicAccount().getId());
+            caAccountAudit.setSourceDataId(caAccountAuditEx.getSourceDataId());
+            caAccountAudit.setSourceChanDataId(caAccountAuditEx.getSourceChanDataId());
+            caAccountAudit.setSourceChanRepeatDataId(caAccountAuditEx.getSourceChanRepeatDataId());
+            caAccountAudit.setType(CaAuditTypeEnum.COMPLAINT_MANAGER.getCode());
+            caAccountAudit.setAccountType("1");
+            caAccountAudit.setAdjustType(AdjustTypeEnum.ADJUST_ADD.getCode());
+            caAccountAudit.setAmount(platProxyDetail.getAmount());
+            caAccountAudit.setFeeAmount(realChanFee);
+            caAccountAudit.setAuditStatus(CaAuditEnum.CREATED_NO_AUDIT.getCode());
+            caAccountAudit.setCustomerAuditUserid(String.valueOf(UserUtils.getUser().getId()));
+            caAccountAudit.setCustomerMsg(caAccountAuditEx.getCustomerMsg());
+            caAccountAudit.setComplainTime(new Date());
+            caAccountAudit.setCreatedTime(new Date());
+            caAccountAuditService.insertAccountAudit(caAccountAudit);
+        }
+
+<<<<<<< HEAD
             CaAccountAudit caAccountAudit = new CaAccountAudit();
             //caAccountAudit.
 
+=======
+        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+    }
+>>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
 
-        }else{
+    /**
+     * 审批详情
+     * 2019-02-21 11:09:08
+     * @param caAccountAudit
+     * @return
+     */
+    @RequestMapping("/toApproveRepeatAudits")
+    public ModelAndView toApproveRepeatAudits(CaAccountAudit caAccountAudit){
+        ModelAndView andView = new ModelAndView();
+        andView.setViewName("/modules/upstreamaudit/repeatOrderComplainApprove");
+        //查询对应审批信息
+        CaAccountAudit caAccountAudit1=caAccountAuditService.findAccountAudit(caAccountAudit.getId());
+        MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
+        mchtGatewayOrderReq.setSuffix("20"+caAccountAudit1.getSourceDataId().substring(1,5));
+        mchtGatewayOrderReq.setPlatOrderId(caAccountAudit1.getSourceDataId());
+        //查询对应订单信息
+        MchtGatewayOrder mchtGatewayOrder = mchtGwOrderService.list(mchtGatewayOrderReq).get(0);
+        //查询商户名称
+        MchtInfo mchtInfo = merchantService.queryByKey(mchtGatewayOrder.getMchtCode());
+        //查询通道名称
+        ChanInfo chanInfo =channelService.queryByKey(mchtGatewayOrder.getChanCode());
+        andView.addObject("mertName",mchtInfo.getName());
+        andView.addObject("chanName",chanInfo.getName());
+        andView.addObject("mchtGatewayOrder",mchtGatewayOrder);
+        andView.addObject("caAccountAudit",caAccountAudit1);
+        return andView;
+    }
 
+<<<<<<< HEAD
 
 
         }
@@ -417,4 +559,28 @@ public class CaAccountAuditController extends BaseController {
         andView.setViewName("modules/upstreamaudit/toPubAccRechargeAdd");
         return andView;
     }
+=======
+    /**
+     * 审批通过/拒绝
+     * 2019-02-21 11:09:08
+     * @param caAccountAudit
+     * @return
+     */
+    @RequestMapping("/doApproveRepeatAudits")
+    public String doApproveRepeatAudits(CaAccountAudit caAccountAudit){
+        //查询对应审批信息
+        CaAccountAudit caAccountAudit1=caAccountAuditService.findAccountAudit(caAccountAudit.getId());
+        MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
+        mchtGatewayOrderReq.setSuffix("20"+caAccountAudit1.getSourceDataId().substring(1,5));
+        mchtGatewayOrderReq.setPlatOrderId(caAccountAudit1.getSourceDataId());
+        //查询对应订单信息
+        MchtGatewayOrder mchtGatewayOrder = mchtGwOrderService.list(mchtGatewayOrderReq).get(0);
+        //查询商户名称
+        MchtInfo mchtInfo = merchantService.queryByKey(mchtGatewayOrder.getMchtCode());
+        //查询通道名称
+        ChanInfo chanInfo =channelService.queryByKey(mchtGatewayOrder.getChanCode());
+        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+    }
+
+>>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
 }

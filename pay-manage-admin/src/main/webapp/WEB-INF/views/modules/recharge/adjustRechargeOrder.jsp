@@ -191,6 +191,14 @@
                     <c:if test="${queryFlag eq 'true'}">
                         <td style="width: 30%">
                             <div class="control-group">
+                                <label class="control-label">电子账户</label>
+                                <div class="controls">
+                                        ${electronicAccountMap[auditRechargeOrder.electronicAccountId].electronicAccountName}
+                                </div>
+                            </div>
+                        </td>
+                        <td style="width: 30%">
+                            <div class="control-group">
                                 <label class="control-label">客服留言</label>
                                 <div class="controls">
                                         ${auditRechargeOrder.extend1}
@@ -241,6 +249,19 @@
         <shiro:hasPermission name="mcht:proxy:customer">
             <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
                 <c:if test="${queryFlag ne 'true'}">
+                    <td>
+                        <div class="control-group">
+                            <label class="control-label">电子账户：</label>
+                            <div class="controls">
+                                <select name="electronicAccountId" id="electronicAccountId"  class="selectpicker bla bla bli" data-live-search="true">
+                                    <option value="">---请选择---</option>
+                                    <c:forEach var="ea" items="${electronicAccounts}">
+                                        <option value="${ea.id}" <c:if test="${ea.id eq auditRechargeOrder.electronicAccountId}">selected</c:if> >${ea.electronicAccountName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+                        </div>
+                    </td>
                     <td>
                         <div class="control-group">
                             <label class="control-label">客服留言</label>
