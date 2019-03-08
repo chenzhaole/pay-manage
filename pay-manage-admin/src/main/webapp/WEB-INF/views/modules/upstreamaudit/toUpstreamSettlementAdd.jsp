@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
 <head>
-    <title>代付电子账户调账添加</title>
+    <title>上游结算充值</title>
     <meta name="decorator" content="default"/>
 
     <style type="text/css">
@@ -119,13 +119,13 @@
             <td>
                     <label>
                         <div class="control-group">
-                            <label class="control-label">出款->公户账户名称：</label>
+                            <label class="control-label">出款->电子账户名称：</label>
                             <div class="controls">
                                 <label>
                                     <select id="sourceDataId" name="sourceDataId" class="required" data-live-search="true">
                                         <option value="">--请选择--</option>
-                                        <c:forEach items="${publicAccountInfos}" var="account">
-                                            <option value="${account.publicAccountCode}">${account.publicAccountName}</option>
+                                        <c:forEach items="${electronicAccounts}" var="account">
+                                            <option value="${account.id}">${account.electronicAccountName}</option>
                                         </c:forEach>
                                     </select>
                                 </label>
@@ -228,7 +228,7 @@
     </table>
     <input id="accountTypeId" type="hidden" name="accountType" value="1"/>
     <input type="hidden" name="adjustType" value="1"/>
-    <input type="hidden" name="type" value="2"/>
+    <input type="hidden" name="type" value="3"/>
     <input type="hidden" id="newDataId" name="newDataId" value=""/>
 </form:form>
 <script src="${ctxStatic}/js/paste.js"></script>
