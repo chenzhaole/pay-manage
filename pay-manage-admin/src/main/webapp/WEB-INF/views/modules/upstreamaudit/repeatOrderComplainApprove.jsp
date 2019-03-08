@@ -131,14 +131,14 @@
                 <div class="control-group">
                     <label class="control-label">审批状态</label><span style="color: red;"><span style="color: red;">*</span></span>
                     <div class="controls">
-                        <select name="status" id="approveType"  class="selectpicker" data-live-search="true">
+                        <select name="auditStatus" id="approveType"  class="selectpicker" data-live-search="true">
                             <option value="">请选择</option>
                             <option value="5">拒绝</option>
                             <option value="4">同意</option>
                         </select>
                     </div>
                 </div>
-                <input value="${caAccountAudit.id}" name="id">
+                <input value="${caAccountAudit.id}" name="id" type="hidden">
             </td>
         </tr>
         <tr>

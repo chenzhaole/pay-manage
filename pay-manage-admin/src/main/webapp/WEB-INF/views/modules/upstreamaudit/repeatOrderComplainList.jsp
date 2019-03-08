@@ -46,8 +46,8 @@
 <tags:message content="${message}" type="${messageType}"/>
 
 <form:form id="searchForm" action="${ctx}/caAccountAudit/queryRepeatAudits" method="post" class="breadcrumb form-search">
-    <input id="pageNo" name="pageInfo.pageNo" type="hidden" value="${1}"/>
-    <input id="pageSize" name="pageInfo.pageSize" type="hidden" value="${pageInfo.pageSize}"/>
+    <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
+    <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
     <input id="type" name ="type" value="1" type="hidden">
 
     <table>
@@ -58,20 +58,20 @@
                     <option value="">--请选择--</option>
                     <c:forEach items="${electronicAccounts}" var="account">
                         <option value="${account.id}"
-                                <c:if test="${account.id == account.id}">selected</c:if>
+                                <c:if test="${account.id == vo.accountId}">selected</c:if>
                         >${account.electronicAccountName}</option>
                     </c:forEach>
                 </select>
             </td>
             <td>
-                <label>申请日期：</label>
-                <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                <label>日期：</label>
+                <input id="beginTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                       value="${vo.createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>-
+                <input id="endTime" name="updateTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                       value="${vo.updateTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
             </td>
             <td>
-                <label>审批日期：</label>
-                <input id="auditTime" name="auditTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${auditTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                <input name="btnSubmit" class="btn btn-primary" type="submit" value="查询"  style="margin-left: 5px;">
             </td>
         </tr>
     </table>
