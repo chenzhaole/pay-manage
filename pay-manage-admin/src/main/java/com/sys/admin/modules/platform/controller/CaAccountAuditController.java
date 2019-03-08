@@ -8,13 +8,14 @@ import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.platform.service.CaAccountAuditAdminService;
 import com.sys.admin.modules.reconciliation.service.ElectronicAdminAccountInfoService;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.boss.api.entry.cache.CacheChanAccount;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.common.enums.AdjustTypeEnum;
-import com.sys.common.enums.CaAuditEnum;
-import com.sys.common.enums.CaAuditTypeEnum;
-import com.sys.common.enums.PayStatusEnum;
+import com.sys.boss.api.entry.cache.CacheOrder;
+import com.sys.boss.api.service.trade.service.IDfProducerService;
+import com.sys.common.enums.*;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
+import com.sys.common.util.QueueUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
@@ -63,6 +64,8 @@ public class CaAccountAuditController extends BaseController {
     private CaAccountAuditAdminService caAccountAuditAdminService;
     @Autowired
     private ElectronicAdminAccountInfoService electronicAdminAccountInfoService;
+    @Autowired
+    private IDfProducerService iDfProducerService;
 
     /**
      * 查询上游对账审批详情
@@ -449,6 +452,11 @@ public class CaAccountAuditController extends BaseController {
             CacheMchtAccount cacheMchtAccount =caAccountAuditAdminService.bulidRedisPayTaskObject(mchtGatewayOrder,mchtInfo,caAccountAudit);
             //商户调账队列
             result =caAccountAuditAdminService.insert2redisAccTask(cacheMchtAccount);
+            if(result){
+                CacheChanAccount  cacheChanAccount =caAccountAuditAdminService.bulidMqPayTaskObject(mchtGatewayOrder,mchtInfo,caAccountAudit1);
+                logger.info("投诉订单调账ID:"+caAccountAudit1.getId()+"入mq");
+                iDfProducerService.sendInfo(JSON.toJSONString(cacheChanAccount),QueueUtil.CA_QUEUE);
+            }
 
         }else{
             PlatProxyDetail platProxyDetail=proxyDetailService.queryByKey(caAccountAudit1.getSourceDataId());
@@ -456,10 +464,12 @@ public class CaAccountAuditController extends BaseController {
             CacheMchtAccount cacheMchtAccount =caAccountAuditAdminService.bulidRedisProxyTaskObject(platProxyDetail,mchtInfo,caAccountAudit);
             //商户调账队列
             result =caAccountAuditAdminService.insert2redisAccTask(cacheMchtAccount);
+            if(result){
+                CacheChanAccount  cacheChanAccount =caAccountAuditAdminService.bulidMqProxyObject(platProxyDetail,mchtInfo,caAccountAudit1);
+                logger.info("投诉订单调账ID:"+caAccountAudit1.getId()+"入mq");
+                iDfProducerService.sendInfo(JSON.toJSONString(cacheChanAccount),QueueUtil.CA_QUEUE);
+            }
 
-        }
-        //上游账务入mq
-        if(result){
 
         }
         //上游入账信息

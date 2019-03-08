@@ -2,6 +2,7 @@ package com.sys.admin.modules.platform.service.impl;
 
 import com.alibaba.fastjson.JSON;
 import com.sys.admin.modules.platform.service.CaAccountAuditAdminService;
+import com.sys.boss.api.entry.cache.CacheChanAccount;
 import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.boss.api.entry.cache.CacheOrder;
@@ -83,5 +84,32 @@ public class CaAccountAuditAdminServiceImpl implements CaAccountAuditAdminServic
         } finally {
             JedisConnPool.returnResource(pool, jedis, "");
         }
+    }
+
+    @Override
+    public CacheChanAccount bulidMqPayTaskObject(MchtGatewayOrder mchtGatewayOrder, MchtInfo mchtInfo, CaAccountAudit caAccountAudit) {
+        CacheChanAccount cacheChanAccount = new CacheChanAccount();
+        PlatAccountAdjust platAccountAdjust = new PlatAccountAdjust();
+        platAccountAdjust.setId(caAccountAudit.getId());
+        cacheChanAccount.setType(ChanStatAccountTypeEnum.REPEAT_PAY_ADJUST.getCode());
+        cacheChanAccount.setPlatAccountAdjust(platAccountAdjust);
+        CacheOrder cacheOrder = new CacheOrder();
+        cacheOrder.setPlatOrderId(mchtGatewayOrder.getPlatOrderId());
+        cacheOrder.setMchtOrderId(mchtGatewayOrder.getMchtOrderId());
+        cacheOrder.setChanOrderId(mchtGatewayOrder.getChanOrderId());
+        cacheOrder.setChanRealFeeRate(mchtGatewayOrder.getChanRealFeeRate());
+        cacheOrder.setChanRealFeeAmount(mchtGatewayOrder.getChanRealFeeAmount());
+        cacheChanAccount.setCacheOrder(cacheOrder);
+        return cacheChanAccount;
+    }
+
+    @Override
+    public CacheChanAccount bulidMqProxyObject(PlatProxyDetail platProxyDetail, MchtInfo mchtInfo, CaAccountAudit caAccountAudit) {
+        CacheChanAccount cacheChanAccount = new CacheChanAccount();
+        PlatAccountAdjust platAccountAdjust = new PlatAccountAdjust();
+        platAccountAdjust.setId(caAccountAudit.getId());
+        cacheChanAccount.setType(ChanStatAccountTypeEnum.REPEAT_PROXY_ADJUST.getCode());
+        cacheChanAccount.setPlatProxyDetail(platProxyDetail);
+        return cacheChanAccount;
     }
 }
