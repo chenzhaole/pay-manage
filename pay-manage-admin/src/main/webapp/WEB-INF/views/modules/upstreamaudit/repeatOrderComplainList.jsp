@@ -46,8 +46,8 @@
 <tags:message content="${message}" type="${messageType}"/>
 
 <form:form id="searchForm" action="${ctx}/caAccountAudit/queryRepeatAudits" method="post" class="breadcrumb form-search">
-    <input id="pageNo" name="pageInfo.pageNo" type="hidden" value="${1}"/>
-    <input id="pageSize" name="pageInfo.pageSize" type="hidden" value="${pageInfo.pageSize}"/>
+    <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
+    <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
     <input id="type" name ="type" value="1" type="hidden">
 
     <table>
@@ -66,9 +66,9 @@
             <td>
                 <label>日期：</label>
                 <input id="beginTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${vo.beginTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>-
+                       value="${vo.createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>-
                 <input id="endTime" name="updateTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${vo.endTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
+                       value="${vo.updateTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
             </td>
             <td>
                 <input name="btnSubmit" class="btn btn-primary" type="submit" value="查询"  style="margin-left: 5px;">

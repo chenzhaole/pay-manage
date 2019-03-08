@@ -1,5 +1,6 @@
 package com.sys.admin.modules.platform.controller;
 
+import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
@@ -12,6 +13,7 @@ import com.sys.common.enums.AdjustTypeEnum;
 import com.sys.common.enums.CaAuditEnum;
 import com.sys.common.enums.CaAuditTypeEnum;
 import com.sys.common.enums.PayStatusEnum;
+import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
@@ -200,33 +202,47 @@ public class CaAccountAuditController extends BaseController {
     /**
      * 查询投诉订单list
      * 2019-02-21 11:09:08
-     * @param caAccountAudit
+     * @param paramMap
      * @return
      */
     @RequestMapping("/queryRepeatAudits")
-    public ModelAndView queryRepeatAudits(CaAccountAuditEx caAccountAudit,HttpServletRequest request){
+    public ModelAndView queryRepeatAudits(@RequestParam Map<String, String> paramMap){
+        logger.info("请求参数:"+ JSON.toJSONString(paramMap));
         ModelAndView andView = new ModelAndView();
         andView.setViewName("/modules/upstreamaudit/repeatOrderComplainList");
-        andView.addObject("vo",caAccountAudit);
+        andView.addObject("vo",paramMap);
+        List<CaElectronicAccount> caElectronicAccountList =electronicAdminAccountInfoService.list(new ElectronicAccountVo());
+        andView.addObject("electronicAccounts",caElectronicAccountList);
+        CaAccountAudit caAccountAudit = new CaAccountAudit();
         caAccountAudit.setType(CaAuditTypeEnum.COMPLAINT_MANAGER.getCode());
+        caAccountAudit.setAccountId(paramMap.get("accountId"));
+        if(StringUtils.isNotBlank(paramMap.get("createTime")) && StringUtils.isNotBlank(paramMap.get("updateTime"))){
+            try {
+                caAccountAudit.setCreatedTime(DateUtils.parseDate(paramMap.get("createTime"),"yyyy-MM-dd HH:mm:ss"));
+                caAccountAudit.setUpdatedTime(DateUtils.parseDate(paramMap.get("updateTime"),"yyyy-MM-dd HH:mm:ss"));
+            }catch (Exception e){
+                logger.info("日期格式错误");
+            }
+        }
         int count =caAccountAuditService.count(caAccountAudit);
         if(count ==0){
             return andView;
         }
-        if(caAccountAudit.getPageInfo()==null){
-            PageInfo pageInfo = new PageInfo();
+        PageInfo pageInfo = new PageInfo();
+        if(paramMap.get("pageNo")==null){
             pageInfo.setPageNo(1);
-            caAccountAudit.setPageInfo(pageInfo);
+        }else{
+            pageInfo.setPageNo(Integer.valueOf(paramMap.get("pageNo")));
         }
+        caAccountAudit.setPageInfo(pageInfo);
         List <CaAccountAuditEx>  caAccountAudits =  caAccountAuditService.queryCaAccountAuditEx(caAccountAudit);
 
         Page page = new Page(caAccountAudit.getPageInfo().getPageNo(),caAccountAudit.getPageInfo().getPageSize(),count,caAccountAudits,true);
-        List<CaElectronicAccount> caElectronicAccountList =electronicAdminAccountInfoService.list(new ElectronicAccountVo());
-        andView.addObject("electronicAccounts",caElectronicAccountList);
+
         andView.addObject("caAccountAudits", caAccountAudits);
         andView.addObject("page",page);
-        andView.addObject("messageType",request.getParameter("messageType"));
-        andView.addObject("message",request.getParameter("message"));
+        andView.addObject("messageType",paramMap.get("messageType"));
+        andView.addObject("message",paramMap.get("message"));
         return andView;
     }
 
