@@ -85,6 +85,9 @@ public class MchtRechargeController extends BaseController {
     @Value("${mchtAccountDetailData.url}")
     private String mchtAccountDetailUrl;
 
+    @Autowired
+    private ElectronicAccountInfoService electronicAccountInfoService;
+
 
     public static final String IMAGES_PATH = "/images/";
 
@@ -415,8 +418,18 @@ public class MchtRechargeController extends BaseController {
             andView.addObject("rechargeConfig", rechargeConfig);
             andView.addObject("mchtInfo",mchtInfo);
         }
+        //电子账户列表
+        List<CaElectronicAccount> electronicAccounts =  electronicAccountInfoService.list(null);
+        Map<String,CaElectronicAccount> electronicAccountMap= new HashMap<>();
+        if(electronicAccounts!=null){
+            for(CaElectronicAccount ele:electronicAccounts){
+                electronicAccountMap.put(ele.getId(),ele);
+            }
+        }
         andView.addObject("queryFlag",queryFlag);
         andView.addObject("auditRechargeOrder", auditRechargeOrder);
+        andView.addObject("electronicAccounts", electronicAccounts);
+        andView.addObject("electronicAccountMap", electronicAccountMap);
         return andView;
     }
 
