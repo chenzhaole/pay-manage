@@ -58,20 +58,20 @@
                     <option value="">--请选择--</option>
                     <c:forEach items="${electronicAccounts}" var="account">
                         <option value="${account.id}"
-                                <c:if test="${account.id == account.id}">selected</c:if>
+                                <c:if test="${account.id == vo.accountId}">selected</c:if>
                         >${account.electronicAccountName}</option>
                     </c:forEach>
                 </select>
             </td>
             <td>
-                <label>申请日期：</label>
-                <input id="createTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${createTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                <label>日期：</label>
+                <input id="beginTime" name="createTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                       value="${vo.beginTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>-
+                <input id="endTime" name="updateTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
+                       value="${vo.endTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss',isShowClear:true});"/>
             </td>
             <td>
-                <label>审批日期：</label>
-                <input id="auditTime" name="auditTime" type="text" readonly="readonly" maxlength="20" class="input-medium Wdate"
-                       value="${auditTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd',isShowClear:true});"/>
+                <input name="btnSubmit" class="btn btn-primary" type="submit" value="查询"  style="margin-left: 5px;">
             </td>
         </tr>
     </table>

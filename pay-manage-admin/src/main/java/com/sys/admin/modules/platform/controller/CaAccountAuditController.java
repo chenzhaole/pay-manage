@@ -1,17 +1,13 @@
 package com.sys.admin.modules.platform.controller;
 
-import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
-import com.sys.admin.modules.merchant.service.MerchantAdminService;
 import com.sys.admin.modules.platform.service.CaAccountAuditAdminService;
+import com.sys.admin.modules.reconciliation.service.ElectronicAdminAccountInfoService;
 import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.boss.api.entry.cache.CacheOrder;
-import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.common.enums.AdjustTypeEnum;
 import com.sys.common.enums.CaAuditEnum;
 import com.sys.common.enums.CaAuditTypeEnum;
@@ -25,17 +21,18 @@ import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.ModelAndView;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -62,6 +59,8 @@ public class CaAccountAuditController extends BaseController {
     private ChannelService channelService;
     @Autowired
     private CaAccountAuditAdminService caAccountAuditAdminService;
+    @Autowired
+    private ElectronicAdminAccountInfoService electronicAdminAccountInfoService;
 
     /**
      * 查询上游对账审批详情
@@ -205,9 +204,10 @@ public class CaAccountAuditController extends BaseController {
      * @return
      */
     @RequestMapping("/queryRepeatAudits")
-    public ModelAndView queryRepeatAudits(CaAccountAudit caAccountAudit){
+    public ModelAndView queryRepeatAudits(CaAccountAuditEx caAccountAudit,HttpServletRequest request){
         ModelAndView andView = new ModelAndView();
         andView.setViewName("/modules/upstreamaudit/repeatOrderComplainList");
+        andView.addObject("vo",caAccountAudit);
         caAccountAudit.setType(CaAuditTypeEnum.COMPLAINT_MANAGER.getCode());
         int count =caAccountAuditService.count(caAccountAudit);
         if(count ==0){
@@ -221,8 +221,12 @@ public class CaAccountAuditController extends BaseController {
         List <CaAccountAuditEx>  caAccountAudits =  caAccountAuditService.queryCaAccountAuditEx(caAccountAudit);
 
         Page page = new Page(caAccountAudit.getPageInfo().getPageNo(),caAccountAudit.getPageInfo().getPageSize(),count,caAccountAudits,true);
+        List<CaElectronicAccount> caElectronicAccountList =electronicAdminAccountInfoService.list(new ElectronicAccountVo());
+        andView.addObject("electronicAccounts",caElectronicAccountList);
         andView.addObject("caAccountAudits", caAccountAudits);
         andView.addObject("page",page);
+        andView.addObject("messageType",request.getParameter("messageType"));
+        andView.addObject("message",request.getParameter("message"));
         return andView;
     }
 
@@ -458,5 +462,13 @@ public class CaAccountAuditController extends BaseController {
 
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
     }
+
+    @InitBinder
+    public void initDateFormate(WebDataBinder dataBinder) {
+        dataBinder.addCustomFormatter(new DateFormatter("yyyy-MM-dd HH:mm:ss"),"createTime");
+        dataBinder.addCustomFormatter(new DateFormatter("yyyy-MM-dd HH:mm:ss"),"updateTime");
+    }
+
+
 
 }
