@@ -10,6 +10,12 @@
         //下拉搜索框初始化
         $(window).on('load', function () {
             $('.selectpicker').selectpicker({});
+            <c:if test="${vo.code_0 ==null && vo.code_1 !=null}">
+            $('#chanId').attr("disabled",true);
+            </c:if>
+            <c:if test="${vo.code_1 ==null && vo.code_0 !=null}">
+            $('#chanMchtPaytypeId').attr("disabled",true);
+            </c:if>
         });
 
         function page(n,s){
@@ -56,10 +62,10 @@
                 <div class="control-group">
                     <label class="control-label">上游通道：</label>
                     <div class="controls">
-                        <select name="code_0" id="chanId"  class="selectpicker bla bla bli" data-live-search="true" onchange="change('chanId','chanMchtPaytypeId')">
+                        <select name="code_0" id="chanId"  class="selectpicker bla bla bli" data-live-search="true"  onchange="change('chanId','chanMchtPaytypeId')">
                             <option value="">---请选择---</option>
                             <c:forEach var="chanInfo" items="${chanInfoList}">
-                                <option value="${chanInfo.chanCode}" <c:if test="${vo.code_0 eq chanInfo.id}">selected</c:if> <c:if test="${vo.code_0 ==null && vo.code_1 !=null}">disabled</c:if>>${chanInfo.name}</option>
+                                <option value="${chanInfo.chanCode}" <c:if test="${vo.code_0 eq chanInfo.id}">selected</c:if> >${chanInfo.name}</option>
                             </c:forEach>
                         </select>
                     </div>
@@ -69,10 +75,10 @@
                 <div class="control-group">
                     <label class="control-label">通道商户支付方式：</label>
                     <div class="controls">
-                        <select name="code_1" id="chanMchtPaytypeId" class="selectpicker bla bla bli" data-live-search="true" onchange="change('chanMchtPaytypeId','chanId')">
+                        <select name="code_1" id="chanMchtPaytypeId" class="selectpicker bla bla bli" data-live-search="true"  onchange="change('chanMchtPaytypeId','chanId')">
                             <option value="">---请选择---</option>
                             <c:forEach var="chanMchtPayType" items="${chanMchtPaytypeList}">
-                                <option value="${chanMchtPayType.id}" <c:if test="${vo.code_1 eq chanMchtPayType.id}">selected</c:if> <c:if test="${vo.code_1 == null && vo.code_0 !=null}">disabled</c:if>>${chanMchtPayType.name}</option>
+                                <option value="${chanMchtPayType.id}" <c:if test="${vo.code_1 eq chanMchtPayType.id}">selected</c:if>>${chanMchtPayType.name}</option>
                             </c:forEach>
                         </select>
                     </div>
