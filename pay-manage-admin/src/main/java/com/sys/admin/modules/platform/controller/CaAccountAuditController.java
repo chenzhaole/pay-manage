@@ -3,19 +3,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
-<<<<<<< HEAD
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
-=======
-import com.sys.admin.modules.merchant.service.MerchantAdminService;
-import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.common.enums.AdjustTypeEnum;
 import com.sys.common.enums.CaAuditEnum;
 import com.sys.common.enums.CaAuditTypeEnum;
->>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
 import com.sys.common.enums.PayStatusEnum;
-import com.sys.common.util.IdUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
@@ -37,15 +31,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
-<<<<<<< HEAD
 import java.text.SimpleDateFormat;
 import java.util.*;
-=======
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
->>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
 
 @Controller
 @RequestMapping("${adminPath}/caAccountAudit")
@@ -61,15 +48,15 @@ public class CaAccountAuditController extends BaseController {
     @Autowired
     private ChanMchtPaytypeService chanMchtPaytypeService;
     @Autowired
-<<<<<<< HEAD
     private JedisPool jedisPool;
-=======
+    @Autowired
     private ElectronicAccountInfoService electronicAccountInfoService;
     @Autowired
     private MerchantService merchantService;
     @Autowired
     private ChannelService channelService;
->>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
+    @Autowired
+    private PublicAccountInfoService publicAccountInfoService;
 
     /**
      * 查询上游对账审批详情
@@ -88,6 +75,7 @@ public class CaAccountAuditController extends BaseController {
              return andView;
         }
         accountAudit = caAccountAuditService.findAccountAudit(id);
+
         andView.addObject("queryFlag", "audit");
         andView.addObject("accountAudit", accountAudit);
         return andView;
@@ -104,8 +92,6 @@ public class CaAccountAuditController extends BaseController {
     public ModelAndView queryCaAccountAudits(@RequestParam Map<String, String> paramMap){
         List<CaAccountAudit> caAccountAudits = new ArrayList<>();
         ModelAndView andView = new ModelAndView();
-        andView.setViewName("modules/upstreamaudit/payForAnotherAdjustmentAccount");
-
 
         if(StringUtils.isEmpty(paramMap.get("type"))){
             logger.info("查询上游对账集合信息按类型,类型信息为空.");
@@ -113,26 +99,26 @@ public class CaAccountAuditController extends BaseController {
             return andView;
         }
 
-        CaAccountAudit caAccountAudit  = new CaAccountAudit();
-        caAccountAudit.setType(paramMap.get("type"));
-        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
-        caAccountAudit.setApprovalCreateTime(paramMap.get("approvalCreateTime"));
-        caAccountAudit.setApprovalEndTime(paramMap.get("approvalEndTime"));
-        caAccountAudit.setAccountId(paramMap.get("accountId"));
-        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
-        if(StringUtils.isEmpty(paramMap.get("applyCreateTime")) || StringUtils.isEmpty(paramMap.get("applyEndTime"))){
-            String currentDateStr = DateUtils.formatDate(new Date());
-            caAccountAudit.setApplyCreateTime(currentDateStr + " 00:00:00");
-            caAccountAudit.setApplyEndTime(currentDateStr + " 23:59:59");
-            paramMap.put("applyCreateTime", caAccountAudit.getApplyCreateTime());
-            paramMap.put("applyEndTime", caAccountAudit.getApplyEndTime());
-        }else{
-            caAccountAudit.setApplyCreateTime(paramMap.get("applyCreateTime"));
-            caAccountAudit.setApplyEndTime(paramMap.get("applyEndTime"));
-        }
         //电子账户信息
         List<CaElectronicAccount>  electronicAccounts = caAccountAuditService.queryCaElectronicAccountByExample(new CaElectronicAccount());
         andView.addObject("electronicAccounts", electronicAccounts);
+
+        //对公账户
+        List<PublicAccountInfo> publicAccountInfos = getPublicAccountInfos();
+        andView.addObject("publicAccountInfos", publicAccountInfos);
+
+
+        CaAccountAudit caAccountAudit = new CaAccountAudit();
+        //1:投诉管理2:公户充值管理3:上游结算管理4:代付业务手动调账管理5:支付业务手动调账管理
+        if(paramMap.get("type").equals("2")){
+            andView.setViewName("modules/upstreamaudit/pubAccList");
+            caAccountAudit = buildAdjustDfAndZf(paramMap);
+        }else if(paramMap.get("type").equals("3")){
+
+        }else if(paramMap.get("type").equals("4") || paramMap.get("type").equals("5")){
+            andView.setViewName("modules/upstreamaudit/payForAnotherAdjustmentAccount");
+            caAccountAudit = buildAdjustPubRecharge(paramMap);
+        }
 
         int count =caAccountAuditService.count(caAccountAudit);
         if(count ==0){
@@ -149,15 +135,41 @@ public class CaAccountAuditController extends BaseController {
         pageInfo.setPageNo(pageNo);
         caAccountAudit.setPageInfo(pageInfo);
 
+
         caAccountAudits =  caAccountAuditService.queryCaAccountAudit(caAccountAudit);
 
 
+        Map<String, PublicAccountInfo> accountInfoMap = buildPublicAccountInfoMap();
+
+        Map<String, CaElectronicAccount> electronicAccountMap = buildElectronicsAccountInfoMap();
+        for(CaAccountAudit audit: caAccountAudits){
+            //如果是公户管理
+            if(CaAuditTypeEnum.PUB_ACC_RECHARGE_MANAGER.getCode().equals(audit.getType())){
+                if(accountInfoMap.get(audit.getSourceDataId()) != null){
+                    audit.setPubAccName(accountInfoMap.get(audit.getSourceDataId()).getPublicAccountName());
+                }
+                if("1".equals(audit.getAccountType())){
+                    if(electronicAccountMap.get(audit.getNewDataId()) != null){
+                        audit.setReceiptAccName(electronicAccountMap.get(audit.getNewDataId()).getElectronicAccountName());
+                    }
+                }else if("2".equals(audit.getAccountType())){
+                    if(accountInfoMap.get(audit.getNewDataId()) != null){
+                        audit.setReceiptAccName(accountInfoMap.get(audit.getNewDataId()).getPublicAccountName());
+                    }
+                }
+
+            }
+        }
 
         andView.addObject("caAccountAudits", caAccountAudits);
         Page page = new Page(pageNo, pageInfo.getPageSize(), count, electronicAccounts, true);
         andView.addObject("page", page);
         andView.addObject("orderCount", count);
         andView.addObject("paramMap",paramMap);
+
+
+
+
         return andView;
     }
 
@@ -189,9 +201,20 @@ public class CaAccountAuditController extends BaseController {
         caAccountAudit.setPicUrl(imgUrl);
 
         caAccountAudit.setCustomerAuditUserid(UserUtils.getUser().getId().toString());
+        //如果是公户充值  设置
+        if(caAccountAudit.getType()!= null && CaAuditTypeEnum.PUB_ACC_RECHARGE_MANAGER.getCode().equals(caAccountAudit.getType())){
+            if(StringUtils.isNotEmpty(paramMap.get("type")) && paramMap.get("type").equals("1")){
+                 if(StringUtils.isNotEmpty(paramMap.get("sourceDataId"))){
+                     caAccountAudit.setAccountId(paramMap.get("sourceDataId"));
+                 }
+            }else if(StringUtils.isNotEmpty(paramMap.get("type")) && paramMap.get("type").equals("2")){
+                if(StringUtils.isNotEmpty(paramMap.get("newDataId"))){
+                    caAccountAudit.setAccountId(paramMap.get("newDataId"));
+                }
+            }
 
+        }
         boolean backFlag = caAccountAuditService.insertAccountAudit(caAccountAudit);
-
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
     }
 
@@ -394,15 +417,8 @@ public class CaAccountAuditController extends BaseController {
             caAccountAudit.setCreatedTime(new Date());
             caAccountAuditService.insertAccountAudit(caAccountAudit);
         }
-
-<<<<<<< HEAD
-            CaAccountAudit caAccountAudit = new CaAccountAudit();
-            //caAccountAudit.
-
-=======
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
-    }
->>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
+}
 
     /**
      * 审批详情
@@ -432,12 +448,8 @@ public class CaAccountAuditController extends BaseController {
         return andView;
     }
 
-<<<<<<< HEAD
 
 
-        }
-        return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
-    }
 
 
     /**
@@ -552,14 +564,16 @@ public class CaAccountAuditController extends BaseController {
     @RequestMapping("/toPubAccRechargeAdd")
     public ModelAndView toPubAccRechargeAdd(){
         ModelAndView andView = new ModelAndView();
-
+        //电子账户
         List<CaElectronicAccount>  electronicAccounts = caAccountAuditService.queryCaElectronicAccountByExample(new CaElectronicAccount());
         andView.addObject("electronicAccounts", electronicAccounts);
+        //对公账户
+        List<PublicAccountInfo> publicAccountInfos = getPublicAccountInfos();
+        andView.addObject("publicAccountInfos", publicAccountInfos);
 
         andView.setViewName("modules/upstreamaudit/toPubAccRechargeAdd");
         return andView;
     }
-=======
     /**
      * 审批通过/拒绝
      * 2019-02-21 11:09:08
@@ -582,5 +596,140 @@ public class CaAccountAuditController extends BaseController {
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
     }
 
->>>>>>> 1ff1edf15700f0b7895a7101d9afd5f298e695a1
+
+    public CaAccountAudit buildAdjustDfAndZf(Map<String, String> paramMap){
+        CaAccountAudit caAccountAudit = new CaAccountAudit();
+        //公户充值  公户信息
+        caAccountAudit.setSourceDataId(paramMap.get("sourceDataId"));
+        //公户充值  入账类型 1 电子 2 公户
+        caAccountAudit.setNewDataId(paramMap.get("newDataId"));
+        caAccountAudit.setType(paramMap.get("type"));
+        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
+        caAccountAudit.setApprovalCreateTime(paramMap.get("approvalCreateTime"));
+        caAccountAudit.setApprovalEndTime(paramMap.get("approvalEndTime"));
+        caAccountAudit.setAccountId(paramMap.get("accountId"));
+        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
+        if(StringUtils.isEmpty(paramMap.get("applyCreateTime")) || StringUtils.isEmpty(paramMap.get("applyEndTime"))){
+            String currentDateStr = DateUtils.formatDate(new Date());
+            caAccountAudit.setApplyCreateTime(currentDateStr + " 00:00:00");
+            caAccountAudit.setApplyEndTime(currentDateStr + " 23:59:59");
+            paramMap.put("applyCreateTime", caAccountAudit.getApplyCreateTime());
+            paramMap.put("applyEndTime", caAccountAudit.getApplyEndTime());
+        }else{
+            caAccountAudit.setApplyCreateTime(paramMap.get("applyCreateTime"));
+            caAccountAudit.setApplyEndTime(paramMap.get("applyEndTime"));
+        }
+        return caAccountAudit;
+    }
+
+
+    public CaAccountAudit buildAdjustPubRecharge(Map<String, String> paramMap){
+        CaAccountAudit caAccountAudit = new CaAccountAudit();
+        //公户充值  公户信息
+        caAccountAudit.setSourceDataId(paramMap.get("sourceDataId"));
+        //公户充值  入账类型 1 电子 2 公户
+        caAccountAudit.setNewDataId(paramMap.get("newDataId"));
+        caAccountAudit.setType(paramMap.get("type"));
+        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
+        caAccountAudit.setApprovalCreateTime(paramMap.get("approvalCreateTime"));
+        caAccountAudit.setApprovalEndTime(paramMap.get("approvalEndTime"));
+        caAccountAudit.setAccountId(paramMap.get("accountId"));
+        caAccountAudit.setAuditStatus(paramMap.get("auditStatus"));
+        if(StringUtils.isEmpty(paramMap.get("applyCreateTime")) || StringUtils.isEmpty(paramMap.get("applyEndTime"))){
+            String currentDateStr = DateUtils.formatDate(new Date());
+            caAccountAudit.setApplyCreateTime(currentDateStr + " 00:00:00");
+            caAccountAudit.setApplyEndTime(currentDateStr + " 23:59:59");
+            paramMap.put("applyCreateTime", caAccountAudit.getApplyCreateTime());
+            paramMap.put("applyEndTime", caAccountAudit.getApplyEndTime());
+        }else{
+            caAccountAudit.setApplyCreateTime(paramMap.get("applyCreateTime"));
+            caAccountAudit.setApplyEndTime(paramMap.get("applyEndTime"));
+        }
+        return caAccountAudit;
+    }
+
+
+    /**
+     * 获得公户信息
+     * 2019-03-07 17:16:07
+     * @return
+     */
+    public List<PublicAccountInfo> getPublicAccountInfos(){
+        PublicAccountInfo publicAccountInfo = new PublicAccountInfo();
+        publicAccountInfo.setStatus("1,2");
+        List<PublicAccountInfo> publicAccountInfos =publicAccountInfoService.list(publicAccountInfo);
+        return publicAccountInfos;
+    }
+
+
+    public Map<String, PublicAccountInfo> buildPublicAccountInfoMap(){
+        Map<String, PublicAccountInfo> accountInfoMap = new HashMap<>();
+        List<PublicAccountInfo> accountInfos = getPublicAccountInfos();
+        for(PublicAccountInfo info: accountInfos){
+            accountInfoMap.put(info.getPublicAccountCode(), info);
+        }
+        return accountInfoMap;
+    }
+
+
+    public Map<String, CaElectronicAccount> buildElectronicsAccountInfoMap(){
+        Map<String, CaElectronicAccount> electronicAccountHashMap = new HashMap<>();
+        List<CaElectronicAccount>  electronicAccounts = caAccountAuditService.queryCaElectronicAccountByExample(new CaElectronicAccount());
+        if(electronicAccounts == null){
+            return electronicAccountHashMap;
+        }
+        for(CaElectronicAccount info: electronicAccounts){
+            electronicAccountHashMap.put(info.getId(), info);
+        }
+        return electronicAccountHashMap;
+    }
+
+
+    /**
+     * 调账审批公户充值页面
+     * 2019-03-08 10:29:19
+     * @param id
+     * @return
+     */
+    @RequestMapping("/auditOperatePubRecharge")
+    public ModelAndView auditOperatePubRecharge(String id){
+        ModelAndView andView = new ModelAndView();
+        andView.setViewName("modules/upstreamaudit/auditOperatePubRecharge");
+
+        CaAccountAudit accountAudit = null;
+        logger.info("查询上游对账审批详情, 请求参数keyId为:" + id);
+        if(StringUtils.isEmpty(id)){
+            logger.info("查询上游对账审批详情, 请求参数keyId为空.");
+            return andView;
+        }
+        accountAudit = caAccountAuditService.findAccountAudit(id);
+
+
+
+        Map<String, PublicAccountInfo> accountInfoMap = buildPublicAccountInfoMap();
+
+        Map<String, CaElectronicAccount> electronicAccountMap = buildElectronicsAccountInfoMap();
+        //如果是公户管理
+        if(CaAuditTypeEnum.PUB_ACC_RECHARGE_MANAGER.getCode().equals(accountAudit.getType())){
+            if(accountInfoMap.get(accountAudit.getSourceDataId()) != null){
+                accountAudit.setPubAccName(accountInfoMap.get(accountAudit.getSourceDataId()).getPublicAccountName());
+            }
+            if("1".equals(accountAudit.getAccountType())){
+                if(electronicAccountMap.get(accountAudit.getNewDataId()) != null){
+                    accountAudit.setReceiptAccName(electronicAccountMap.get(accountAudit.getNewDataId()).getElectronicAccountName());
+                }
+            }else if("2".equals(accountAudit.getAccountType())){
+                if(accountInfoMap.get(accountAudit.getNewDataId()) != null){
+                    accountAudit.setReceiptAccName(accountInfoMap.get(accountAudit.getNewDataId()).getPublicAccountName());
+                }
+            }
+
+        }
+
+
+        andView.addObject("queryFlag", "audit");
+        andView.addObject("accountAudit", accountAudit);
+        return andView;
+    }
+
 }
