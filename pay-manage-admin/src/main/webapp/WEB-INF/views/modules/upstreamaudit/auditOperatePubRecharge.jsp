@@ -3,85 +3,61 @@
 <html>
 <head>
     <c:if test="${queryFlag ne 'true'}">
-        <title>充值订单审批</title>
+        <title>公户充值审批</title>
     </c:if>
     <c:if test="${queryFlag eq 'true'}">
-        <title>充值订单详情</title>
+        <title>公户充值审批</title>
     </c:if>
-
     <meta name="decorator" content="default"/>
-
-
     <link href="${ctxStatic}/js/zoomify.css" type="text/css" rel="stylesheet" />
     <script src="${ctxStatic}/js/zoomify.js" type="text/javascript"></script>
-
-
-
-
-
 </head>
 <body>
 
 
 <ul class="nav nav-tabs">
     <c:if test="${queryFlag ne 'true'}">
-        <li><a href="#">充值订单审批</a></li>
+        <li><a href="#">公户充值审批</a></li>
     </c:if>
     <c:if test="${queryFlag eq 'true'}">
-        <li><a href="#">充值订单详情</a></li>
+        <li><a href="#">公户充值审批</a></li>
     </c:if>
 </ul>
 
 
-<form id="searchForm" action="${ctx}/mchtRecharge/commitAdjustRechargeOrder" method="post" class="breadcrumb form-search">
+<form id="searchForm" action="${ctx}/caAccountAudit/updateCaAccountAuditById" method="post" class="breadcrumb form-search">
     <table class="table">
     <tr>
+
         <td class="bottom_border_class">
             <div class="control-group">
-                <label class="">商户名称：</label>
-                <div class="">
-                    <label>
-                        ${mchtInfo.name}
-                    </label>
-                </div>
-            </div>
-        </td>
-        <td class="bottom_border_class">
-            <div class="control-group">
-                <label class="control-label">商户ID</label>
+                <label class="control-label">出款公户账户名称</label>
                 <div class="controls">
-                    ${mchtInfo.id}
+                    ${accountAudit.pubAccName}
                 </div>
             </div>
         </td>
+
+
         <td class="bottom_border_class">
             <div class="control-group">
-                <label class="control-label">订单号</label>
+                <label class="control-label">入款账户类型</label>
                 <div class="controls">
-                    ${auditRechargeOrder.platOrderId}
+                    <c:if test="${accountAudit.accountType=='1'}">电子账户</c:if>
+                    <c:if test="${accountAudit.accountType=='2'}">公户账户</c:if>
                 </div>
             </div>
         </td>
-    </tr>
-    <tr>
+
         <td class="bottom_border_class">
             <div class="control-group">
-                <label class="">订单金额</label>
-                <div class="">
-                    <label>
-                        <fmt:formatNumber type="number" value="${auditRechargeOrder.amount*0.01}" pattern="0.00" maxFractionDigits="2"/> (元)
-                    </label>
-                </div>
-            </div>
-        </td>
-        <td class="bottom_border_class">
-            <div class="control-group">
-                <label class="control-label">手续费金额</label>
+                <label class="control-label">入款账户名称</label>
                 <div class="controls">
-                    <fmt:formatNumber type="number" value="${auditRechargeOrder.mchtFeeAmount*0.01}" pattern="0.00" maxFractionDigits="2"/> (元)
+                    ${accountAudit.receiptAccName}
                 </div>
             </div>
         </td>
+
 
     </tr>
     <tr>
@@ -89,7 +65,7 @@
             <div class="control-group">
                 <label class="control-label">订单时间	</label>
                 <div class="controls">
-                    <fmt:formatDate value="${auditRechargeOrder.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
+                    <fmt:formatDate value="${accountAudit.createdTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
                 </div>
             </div>
         </td>
@@ -97,27 +73,7 @@
             <div class="control-group">
                 <label class="control-label">订单完成时间	</label>
                 <div class="controls">
-                    <fmt:formatDate value="${auditRechargeOrder.updateTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
-                </div>
-            </div>
-        </td>
-    </tr>
-    <tr>
-        <td class="bottom_border_class">
-            <div class="control-group">
-                <label class="">收款账户</label>
-                <div class="">
-                    <label style="width: 30%">
-                        ${rechargeConfig.compReceiptAcctNo}
-                    </label>
-                </div>
-            </div>
-        </td>
-        <td class="bottom_border_class">
-            <div class="control-group">
-                <label class="control-label">收款名称</label>
-                <div class="controls" style="width: 30%">
-                    ${rechargeConfig.compReceiptAcctName}
+                    <fmt:formatDate value="${accountAudit.updatedTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
                 </div>
             </div>
         </td>
@@ -125,23 +81,23 @@
             <div class="control-group">
                 <label class="control-label">审核状态</label>
                 <div class="controls">
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
-                        未审核
+                    <c:if test="${accountAudit.auditStatus eq '0'}">
+                        无需审核
                     </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
+                    <c:if test="${accountAudit.auditStatus eq '1'}">
+                        创建未审核
+                    </c:if>
+                    <c:if test="${accountAudit.auditStatus eq '2'}">
                         客服审核通过
                     </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq'operate_pass'}">
+                    <c:if test="${accountAudit.auditStatus eq'3'}">
+                        客服审核拒绝
+                    </c:if>
+                    <c:if test="${accountAudit.auditStatus eq '4'}">
                         运营审核通过
                     </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'customer_refuse'}">
-                        客服审核未通过
-                    </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'operate_refuse'}">
-                        运营审核未通过
-                    </c:if>
-                    <c:if test="${auditRechargeOrder.auditStatus eq 'no_need_audit'}">
-                        无需审核
+                    <c:if test="${accountAudit.auditStatus eq '5'}">
+                        运营审核拒绝
                     </c:if>
                 </div>
             </div>
@@ -153,21 +109,21 @@
             <div class="control-group">
                 <label class="control-label">商户留言</label>
                 <div class="controls">
-                    <span>${auditRechargeOrder.mchtMessage}</span>
+                    <span>${accountAudit.customerMsg}</span>
                 </div>
             </div>
         </td>
         <!--    不是客服审核通过的显示 客服留言 和 运营留言     -->
         <!--    客服审核通过      -->
-        <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass' ||
-                        auditRechargeOrder.auditStatus eq 'operate_pass' ||
-                        auditRechargeOrder.auditStatus eq 'customer_refuse' ||
-                        auditRechargeOrder.auditStatus eq 'operate_refuse'}">
+        <c:if test="${accountAudit.auditStatus eq 'customer_pass' ||
+                        accountAudit.auditStatus eq 'operate_pass' ||
+                        accountAudit.auditStatus eq 'customer_refuse' ||
+                        accountAudit.auditStatus eq 'operate_refuse'}">
                 <td width="30%">
                     <div class="control-group">
                         <label class="control-label">客服留言</label>
                         <div class="controls">
-                                ${auditRechargeOrder.extend1}
+                                ${accountAudit.customerMsg}
                         </div>
                     </div>
                 </td>
@@ -179,7 +135,7 @@
                 <div class="control-group">
                     <label class="control-label">运营留言</label>
                     <div class="controls">
-                            ${auditRechargeOrder.extend2}
+                            ${accountAudit.operateMsg}
                     </div>
                 </div>
             </td>
@@ -190,7 +146,7 @@
             <div class="control-group">
                 <label class="control-label">凭据</label>
                 <div id="img_enlarge_id" class="controls" onclick="enlargeImg()">
-                    <img src="${auditRechargeOrder.imgUrl}" width="200px" height="200px">
+                    <img src="${accountAudit.picUrl}" width="200px" height="200px">
                 </div>
             </div>
         </td>
@@ -200,7 +156,7 @@
                 <div class="control-group">
                     <label class="control-label">运营留言</label>
                     <div class="controls">
-                        <textarea id="operateMessage" name="operateMessage" maxlength="100"></textarea>
+                        <textarea id="operateMsg" name="operateMsg" maxlength="100"></textarea>
                         &nbsp;&nbsp;<label style="color: red">最多输入100个字符</label>
                     </div>
                 </div>
@@ -210,8 +166,8 @@
                     <label class="control-label">审核状态</label>
                     <div class="controls">
                         <select name="auditStatus">
-                            <option value="pass" selected>通过</option>
-                            <option value="refuse">拒绝</option>
+                            <option value="4" selected>通过</option>
+                            <option value="5">拒绝</option>
                         </select>
                     </div>
                 </div>
@@ -219,8 +175,8 @@
         </c:if>
 
         <td>
-            <input type="hidden" name="platOrderId" value="${auditRechargeOrder.platOrderId}">
-            <input type="hidden" name="auditType" value="operate"/>
+            <input type="hidden" name="id" value="${accountAudit.id}">
+            <input type="hidden" name="type" value="${accountAudit.type}"/>
         </td>
     </tr>
 
@@ -228,18 +184,10 @@
 </table>
     <div style="position: relative; left: 45%;">
         <c:if test="${queryFlag ne 'true'}">
-            <shiro:hasPermission name="mcht:proxy:customer">
-                <c:if test="${auditRechargeOrder.auditStatus eq 'created'}">
-                    <input id="customerButId" onclick="checkCustomerBut()" type="submit" value="提交审批"/>
-                </c:if>
-            </shiro:hasPermission>
-            <shiro:hasPermission name="mcht:proxy:operate">
-                <c:if test="${auditRechargeOrder.auditStatus eq 'customer_pass'}">
-                    <input id="operateButId" onclick="checkOperateBut()" type="submit" value="提交审批"/>
-                </c:if>
-            </shiro:hasPermission>
+            <c:if test="${accountAudit.auditStatus eq '1'}">
+                <input id="customerButId" onclick="checkCustomerBut()" type="submit" value="提交审批"/>
+            </c:if>
         </c:if>
-
     </div>
 </form>
 
