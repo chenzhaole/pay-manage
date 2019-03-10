@@ -14,5 +14,6 @@ public interface CaAccountAuditAdminService {
     public CacheMchtAccount bulidRedisProxyTaskObject(PlatProxyDetail platProxyDetail,MchtInfo mchtInfo,CaAccountAudit caAccountAudit);
     public CacheChanAccount bulidMqProxyObject(PlatProxyDetail platProxyDetail, MchtInfo mchtInfo, CaAccountAudit caAccountAudit);
     public boolean insert2redisAccTask(CacheMchtAccount cacheMchtAccount);
+    CacheChanAccount bulidMqCaAccountAudit(CaAccountAudit caAccountAudit);
 
 }

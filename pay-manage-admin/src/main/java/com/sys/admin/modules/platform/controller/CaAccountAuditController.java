@@ -5,26 +5,15 @@ import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.sys.utils.UserUtils;
+import com.sys.common.enums.*;
 import com.sys.common.util.DateUtils;
 import com.sys.common.util.IdUtil;
 import com.sys.admin.modules.platform.service.CaAccountAuditAdminService;
 import com.sys.admin.modules.reconciliation.service.ElectronicAdminAccountInfoService;
-
-import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheChanAccount;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.boss.api.entry.cache.CacheOrder;
 import com.sys.boss.api.service.trade.service.IDfProducerService;
-import com.sys.common.enums.*;
-import com.sys.common.util.DateUtils;
-import com.sys.common.util.IdUtil;
 import com.sys.common.util.QueueUtil;
-
-import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.common.enums.AdjustTypeEnum;
-import com.sys.common.enums.CaAuditEnum;
-import com.sys.common.enums.CaAuditTypeEnum;
-import com.sys.common.enums.PayStatusEnum;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
@@ -269,6 +258,24 @@ public class CaAccountAuditController extends BaseController {
         boolean backFlag = setGetRedisLock(keyLock, IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER_TIME);
         if (backFlag) {
             caAccountAuditService.updateAccountAudit(caAccountAudit);
+            //入账MQ
+            if(caAccountAudit.getAuditStatus().equals(CaAuditEnum.UNAUDITED.getCode())){
+                if(//公户充值管理
+                CaAuditTypeEnum.PUB_ACC_RECHARGE_MANAGER.getCode().equals(caAccountAudit.getType())||
+                    //上游结算管理
+                CaAuditTypeEnum.SETTLEMENT_MANAGER.getCode().equals(caAccountAudit.getType())||
+                    //代付业务手动调账管理
+                CaAuditTypeEnum.PAY_FOR_ANOTHER_ADJUSTMENT_MANAGER.getCode().equals(caAccountAudit.getType())||
+                    //支付业务手动调账管理
+                CaAuditTypeEnum.PAYMENT_ADJUSTMENT_MANAGER.getCode().equals(caAccountAudit.getType())
+                ){
+                    CacheChanAccount  cacheChanAccount =caAccountAuditAdminService.bulidMqCaAccountAudit(caAccountAudit);
+                    logger.info("投诉订单调账ID:"+caAccountAudit.getId()+"入mq");
+                    iDfProducerService.sendInfo(JSON.toJSONString(cacheChanAccount),QueueUtil.CA_QUEUE);
+                }
+
+            }
+
         }
         return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryCaAccountAudits?type=" + paramMap.get("type");
     }
