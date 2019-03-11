@@ -4,27 +4,19 @@ import com.alibaba.fastjson.JSONObject;
 import com.sys.admin.common.config.GlobalConfig;
 import com.sys.admin.common.persistence.Page;
 import com.sys.admin.common.web.BaseController;
-import com.sys.admin.modules.sys.utils.UserUtils;
-import com.sys.common.util.DateUtils;
-import com.sys.common.util.IdUtil;
 import com.sys.admin.modules.platform.service.CaAccountAuditAdminService;
 import com.sys.admin.modules.reconciliation.service.ElectronicAdminAccountInfoService;
-
 import com.sys.admin.modules.sys.utils.UserUtils;
 import com.sys.boss.api.entry.cache.CacheChanAccount;
 import com.sys.boss.api.entry.cache.CacheMchtAccount;
-import com.sys.boss.api.entry.cache.CacheOrder;
 import com.sys.boss.api.service.trade.service.IDfProducerService;
-import com.sys.common.enums.*;
-import com.sys.common.util.DateUtils;
-import com.sys.common.util.IdUtil;
-import com.sys.common.util.QueueUtil;
-
-import com.sys.boss.api.entry.cache.CacheMchtAccount;
 import com.sys.common.enums.AdjustTypeEnum;
 import com.sys.common.enums.CaAuditEnum;
 import com.sys.common.enums.CaAuditTypeEnum;
 import com.sys.common.enums.PayStatusEnum;
+import com.sys.common.util.DateUtils;
+import com.sys.common.util.IdUtil;
+import com.sys.common.util.QueueUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
@@ -35,15 +27,15 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.datetime.DateFormatter;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.WebDataBinder;
+import org.springframework.web.bind.annotation.InitBinder;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.servlet.ModelAndView;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import sun.misc.BASE64Decoder;
-import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
@@ -52,10 +44,6 @@ import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Map;
 
 @Controller
 @RequestMapping("${adminPath}/caAccountAudit")
@@ -344,8 +332,6 @@ public class CaAccountAuditController extends BaseController {
 
         andView.addObject("caAccountAudits", caAccountAudits);
         andView.addObject("page", page);
-        andView.addObject("messageType", paramMap.get("messageType"));
-        andView.addObject("message", paramMap.get("message"));
         return andView;
     }
 
@@ -374,6 +360,16 @@ public class CaAccountAuditController extends BaseController {
     @RequestMapping("/doAddRepeatAudits")
     public String doAddRepeatAudits(CaAccountAuditEx caAccountAuditEx, RedirectAttributes redirectAttributes) {
         String message, messageType;
+        String key =IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER+caAccountAuditEx.getSourceDataId();
+        boolean exist=setGetRedisLock(key,IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER_TIME);
+        if(!exist){
+            logger.info("已经在处理该订单！" + caAccountAuditEx.getSourceDataId() + ",参数为:" + JSONObject.toJSONString(caAccountAuditEx));
+            message = "订单已经存在,重复处理";
+            messageType = "error";
+            redirectAttributes.addFlashAttribute("messageType", messageType);
+            redirectAttributes.addFlashAttribute("message", message);
+            return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+        }
         //组装投诉订单参数
         CaAccountAudit caAccountAudit = new CaAccountAudit();
         //重复支付
@@ -585,8 +581,8 @@ public class CaAccountAuditController extends BaseController {
             backFlag = false;
         } finally {
             jedisPool.returnResource(jedis);
-            return backFlag;
         }
+        return backFlag;
     }
 
 
@@ -664,12 +660,33 @@ public class CaAccountAuditController extends BaseController {
      */
     @RequestMapping("/doApproveRepeatAudits")
     public String doApproveRepeatAudits(CaAccountAudit caAccountAudit, RedirectAttributes redirectAttributes) {
+        String message, messageType;
         caAccountAudit.setOperateAuditUserid(String.valueOf(UserUtils.getUser().getId()));
         caAccountAudit.setOperateAuditTime(new Date());
+        String key =IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER+caAccountAudit.getId();
+        boolean exist=setGetRedisLock(key,IdUtil.ELECTRONIC_ACCOUNT_ADJUST_ORDER_TIME);
+        if(!exist){
+            logger.info("已经在处理该订单！" + caAccountAudit.getId() + ",参数为:" + JSONObject.toJSONString(caAccountAudit));
+            message = "订单已经存在,重复处理";
+            messageType = "error";
+            redirectAttributes.addFlashAttribute("messageType", messageType);
+            redirectAttributes.addFlashAttribute("message", message);
+            return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+        }
         boolean result = false;
-        String message, messageType;
         //查询对应审批信息及上游入账信息
         CaAccountAudit caAccountAudit1 = caAccountAuditService.findAccountAudit(caAccountAudit.getId());
+        //拒绝直接修改
+        if(CaAuditEnum.FROZEN.getCode().equals(caAccountAudit.getAuditStatus())){
+            caAccountAuditService.updateAccountAudit(caAccountAudit);
+            message = "保存成功";
+            messageType = "success";
+            redirectAttributes.addFlashAttribute("messageType", messageType);
+            redirectAttributes.addFlashAttribute("message", message);
+            return "redirect:" + GlobalConfig.getAdminPath() + "/caAccountAudit/queryRepeatAudits";
+
+        }
+
         if (caAccountAudit1.getSourceDataId().startsWith("P")) {
             MchtGatewayOrder mchtGatewayOrderReq = new MchtGatewayOrder();
             mchtGatewayOrderReq.setSuffix("20" + caAccountAudit1.getSourceDataId().substring(1, 5));

@@ -33,6 +33,9 @@
                     },
                     'sourceChanRepeatDataId':{
                         required:true
+                    },
+                    'complainType':{
+                        required:true
                     }
                 }
             });
@@ -58,9 +61,10 @@
 
             <td>
                 <div class="control-group">
-                    <label class="control-label">投诉订单类型</label>
+                    <label class="control-label">投诉订单类型</label><span style="color: red;"><span style="color: red;">*</span></span>
                     <div class="controls">
                         <select name="complainType" id="mchtCode"  class="selectpicker" data-live-search="true">
+                            <option value="">请选择</option>
                             <option value="B">代付订单</option>
                             <option value="P">支付订单</option>
                         </select>
