@@ -72,7 +72,6 @@
 
 	<!--	报表		-->
 	<dubbo:reference id="reportService" interface="com.sys.boss.api.service.order.ReportService" timeout="30000"/>
-
 	<!--	上游对账审批	-->
 	<dubbo:reference id="caAccountAuditService" interface="com.sys.core.service.CaAccountAuditService" timeout="60000"/>
 
@@ -80,4 +79,6 @@
 	<dubbo:reference id="electronicAccountInfoService" interface="com.sys.core.service.ElectronicAccountInfoService" timeout="30000"/>
 	<!--	调账生产		-->
 	<dubbo:reference id="iDfProducerService" interface="com.sys.boss.api.service.trade.service.IDfProducerService" retries="0" timeout="30000"/>
+	<dubbo:reference id="chanRecordService" interface="com.sys.core.service.ChanRecordService" timeout="30000"/>
+	<dubbo:reference id="chanLimitService" interface="com.sys.core.service.ChanLimitService" timeout="30000"/>
 </beans>

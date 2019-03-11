@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import javax.servlet.http.HttpServletRequest;
+import java.math.BigDecimal;
 import java.util.Enumeration;
 import java.util.HashMap;
 import java.util.Map;
@@ -37,6 +38,7 @@ public class ChannelFormInfo {
 	private String remark; //备注
 	private Integer isSupplyQueryface;//是否支持面值库存查询
 	private Integer queryfaceFrequency;//面值库存查询频率
+	private BigDecimal limitAmount;
 
 	public String getId() {
 		return id;
@@ -100,6 +102,9 @@ public class ChannelFormInfo {
 			this.isSupplyQueryface = Integer.parseInt(requestMap.get("isSupplyQueryface"));
 			if(StringUtils.isNotBlank(requestMap.get("queryfaceFrequency"))){
 				this.queryfaceFrequency = Integer.parseInt(requestMap.get("queryfaceFrequency"));
+			}
+			if(StringUtils.isNotBlank(requestMap.get("limitAmount"))){
+				this.limitAmount = new BigDecimal(requestMap.get("limitAmount"));
 			}
 			logger.info("isSupplyQueryface="+isSupplyQueryface);
 			logger.info("queryfaceFrequency="+queryfaceFrequency);
@@ -197,4 +202,11 @@ public class ChannelFormInfo {
 		this.queryfaceFrequency = queryfaceFrequency;
 	}
 
+	public BigDecimal getLimitAmount() {
+		return limitAmount;
+	}
+
+	public void setLimitAmount(BigDecimal limitAmount) {
+		this.limitAmount = limitAmount;
+	}
 }

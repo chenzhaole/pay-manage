@@ -68,7 +68,11 @@
 		        	     digits:true,
 						 min:0,
                          max:60
-                     }
+                     },
+                     limitAmount:{
+                         number:true,
+                         digits:true
+					 }
 		         },
 		         messages:{
 		        	 name:{
@@ -79,7 +83,12 @@
 		             },
 		             techEmail:{
 		            	 email:'email格式不正确'
-		             }
+		             },
+                     limitAmount:{
+                         number:'数字格式不对',
+                         digits:'数字格式不对'
+					 }
+
 		         }
 	    	});  
 		});
@@ -161,6 +170,14 @@
 			<div class="controls">
                         <textarea name="remark" placeholder="" style="width:350px;" id="remark"
 								  rows="3">${channel.remark}</textarea>
+			</div>
+		</div>
+	</td>
+	<td>
+		<div class="control-group">
+			<label class="control-label" >告警限额(分)</label>
+			<div class="controls">
+				<input  name="limitAmount" value="<fmt:formatNumber value='${channel.limitAmount}' groupingUsed="false" type='number' maxFractionDigits='0'/>" placeholder="" class="input-xlarge" type="text"/>
 			</div>
 		</div>
 	</td>

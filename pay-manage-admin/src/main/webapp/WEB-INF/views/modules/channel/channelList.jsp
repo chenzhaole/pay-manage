@@ -59,6 +59,7 @@
 	        	<th>业务手机</th>
 	        	<th>业务邮箱</th>
 	        	<th>创建时间</th>
+				<th>通道待结算(元)</th>
 	        	<th>备注</th>
 	        	<th>操作</th>
 			</tr>
@@ -76,6 +77,9 @@
 				<td>${chanInfo.busiMobile}</td>
 				<td>${chanInfo.busiEmail}</td>
 				<td><fmt:formatDate value="${chanInfo.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+				<td>
+					<fmt:formatNumber value="${chanInfo.limitAmount * 0.01}" type="number" maxFractionDigits="2" />
+				</td>
 				<td>${chanInfo.remark}</td>
 				<td>
 					<shiro:hasPermission name="channel:edit">

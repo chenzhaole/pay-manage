@@ -24,22 +24,16 @@
             $("#searchForm").submit();
             return false;
         }
-
         function queryBalance(chanId) {
-            var dataMap = {};
-            dataMap.chanId = chanId;
-            var checkUrl = "/admin/channel/queryBalance";
+            var checkUrl = "/admin/channel/queryBalance?chanId="+chanId;
             $.ajax({
                 url: checkUrl, //服务器端请求地址
-                data: dataMap,
-                dataType: 'json', //返回值类型 一般设置为json
-                type: "post",
-                contentType: "application/x-www-form-urlencoded; charset=utf-8",
+                dataType: 'text', //返回值类型 一般设置为json
                 success: function (data) {  //服务器成功响应处理函数
-                    alert(data.massage);
+                   $('#'+chanId).text("("+data+")");
                 },
                 error: function (data, e) {//服务器响应失败处理函数
-                    console.log(data);
+                    $('#'+chanId).text("("+data+")");
                 }
             })
         }
@@ -47,7 +41,26 @@
         //下拉搜索框初始化
         $(window).on('load', function () {
             $('.selectpicker').selectpicker({});
+
+
         });
+        $(function(){
+            var i=0;
+            var array ={};
+            <c:forEach items="${page.list}" var="chanInfo">
+            <c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
+            array[i]='${chanInfo.id}';
+            i++;
+            </c:if>
+            </c:forEach>
+			window.setTimeout(function () {
+                for(var j=0;j<i;j++){
+                    queryBalance(array[j]);
+				}
+
+            },1000);
+
+		});
 
 	</script>
 </head>
@@ -133,6 +146,7 @@
 		<th>结算方式</th>
 		<th>结算周期</th>
 		<th>状态</th>
+		<th>待结算金额(元)</th>
 		<th>操作</th>
 	</tr>
 	</thead>
@@ -162,6 +176,9 @@
 			<c:choose><c:when test="${chanInfo.status == 1}"><td>启用</td></c:when>
 				<c:when test="${chanInfo.status == 2}"><td>停用</td></c:when><c:otherwise><td></td></c:otherwise></c:choose>
 			<td>
+				<fmt:formatNumber value="${chanInfo.limitAmount * 0.01}" type="number" maxFractionDigits="2" />
+			</td>
+			<td>
 				<shiro:hasPermission name="channel:editChanMchtPayTypePage">
 					<a href="${ctx}/channel/addChanMchtPayTypePage?id=${chanInfo.id}">修改</a>
 				</shiro:hasPermission>
@@ -169,7 +186,7 @@
 					|<a href="${ctx}/channel/deleteChanMchPayType?id=${chanInfo.id}" onclick="return confirmx('是否确认删除“${chanInfo.name}”？', this.href)">删除</a>
 				</shiro:hasPermission>
 				<c:if test="${chanInfo.payType == 'df101' || chanInfo.payType == 'df102'}">
-					|<a href="${ctx}/channel/queryBalance?chanId=${chanInfo.id}">查询余额</a> </c:if>
+					|<a href="#" onclick="queryBalance('${chanInfo.id}')">查询余额</a><span id="${chanInfo.id}"></span> </c:if>
 			</td>
 		</tr>
 	</c:forEach>

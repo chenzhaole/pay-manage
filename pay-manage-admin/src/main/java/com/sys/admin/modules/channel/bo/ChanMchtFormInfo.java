@@ -149,9 +149,9 @@ public class ChanMchtFormInfo {
 	private PageInfo pageInfo;
 
 	private Integer perdayPayMaxAmount;
-	
+
 	private Integer smsSendType;//短信发送方式：0-不发短信，1-平台发短信，2-通道发短信
-    private String smsContentTemplet;//短信内容模板
+	private String smsContentTemplet;//短信内容模板
 
 	private Integer combType; //组合类型： 1-（绑卡+支付）组合接口；2-标准接口'
 
@@ -176,6 +176,8 @@ public class ChanMchtFormInfo {
 	private String accType;
 
 	private BigDecimal dayMaxAmount;
+
+	private BigDecimal limitAmount;
 
 	private static final long serialVersionUID = 1L;
 
@@ -754,19 +756,22 @@ public class ChanMchtFormInfo {
 	public void setParentId(String parentId) {
 		this.parentId = parentId;
 	}
-	
+
 	public Integer getSmsSendType() {
-        return smsSendType;
-    }
-    public void setSmsSendType(Integer smsSendType) {
-        this.smsSendType = smsSendType;
-    }
-    public String getSmsContentTemplet() {
-        return smsContentTemplet;
-    }
-    public void setSmsContentTemplet(String smsContentTemplet) {
-        this.smsContentTemplet = smsContentTemplet;
-    }
+		return smsSendType;
+	}
+
+	public void setSmsSendType(Integer smsSendType) {
+		this.smsSendType = smsSendType;
+	}
+
+	public String getSmsContentTemplet() {
+		return smsContentTemplet;
+	}
+
+	public void setSmsContentTemplet(String smsContentTemplet) {
+		this.smsContentTemplet = smsContentTemplet;
+	}
 
 	public Integer getCombType() {
 		return combType;
@@ -816,160 +821,169 @@ public class ChanMchtFormInfo {
 		this.realFeeAmount = realFeeAmount;
 	}
 
-	//空的构造方法
+	public BigDecimal getLimitAmount () {
+		return limitAmount;
+	}
+
+	public void setLimitAmount (BigDecimal limitAmount){
+		this.limitAmount = limitAmount;
+	}
+
+		//空的构造方法
 	public ChanMchtFormInfo() {
+		}
 
-	}
-
-	//将页面请求参数转化成实体构造方法
+		//将页面请求参数转化成实体构造方法
 	public ChanMchtFormInfo(HttpServletRequest request) {
-		if (request != null) {
-			Enumeration<String> requestKeys = request.getParameterNames();
-			//请求页面表单map
-			Map<String, String> requestMap = new HashMap<>();
-			//遍历请求参数，封装请求对象
-			while (requestKeys.hasMoreElements()) {
-				String requestKey = requestKeys.nextElement();
-				requestMap.put(requestKey, request.getParameter(requestKey));
-			}
-			this.id = requestMap.get("id");
-			this.name = requestMap.get("name");
-			this.chanId = requestMap.get("chanId");
-			this.chanName = requestMap.get("chanName");
-			this.chanCode = requestMap.get("chanCode");
-			this.mchtId = requestMap.get("mchtId");
-			this.mchtName = requestMap.get("mchtName");
-			this.mchtCode = requestMap.get("mchtCode");
-			this.chanMchtNo = requestMap.get("chanMchtNo");
-			this.payType = requestMap.get("payType");
-			this.bizCode = requestMap.get("bizCode");
-			this.chanMchtPassword = requestMap.get("chanMchtPassword");
-			this.opAccount = requestMap.get("opAccount");
-			this.opPassword = requestMap.get("opPassword");
-			this.terminalNo = requestMap.get("terminalNo");
-			this.tranUrl = requestMap.get("tranUrl");
-			this.status = requestMap.get("status");
-			this.feeStatus = requestMap.get("feeStatus");
-			this.settleCategory = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleCategory")) ? "0" : requestMap.get("settleCategory"));
-			this.settleMode = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleMode")) ? "0" : requestMap.get("settleMode"));
-			this.settleCycle = requestMap.get("settleCycle");
-			this.feeType = requestMap.get("feeType");
-			this.feeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeRate")) ? "0" : requestMap.get("feeRate"));
-			this.feeAmount = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeAmount")) ? "0" : requestMap.get("feeAmount"));
-			this.realFeeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("realFeeRate")) ? "0" : requestMap.get("realFeeRate"));
-			this.realFeeAmount = Double.parseDouble(StringUtils.isBlank(requestMap.get("realFeeAmount")) ? "0" : requestMap.get("realFeeAmount"));
-			this.activeTime = requestMap.get("activeTime");
-			this.lowestFee = Double.parseDouble(StringUtils.isBlank(requestMap.get("lowestFee")) ? "0" : requestMap.get("lowestFee"));
-			this.highestFee = Double.parseDouble(StringUtils.isBlank(requestMap.get("highestFee")) ? "0" : requestMap.get("highestFee"));
-			this.payUrl = requestMap.get("payUrl");
-			this.cancelUrl = requestMap.get("cancelUrl");
-			this.synNotifyUrl = requestMap.get("synNotifyUrl");
-			this.asynNotifyUrl = requestMap.get("asynNotifyUrl");
-			this.refundUrl = requestMap.get("refundUrl");
-			this.synRefundNotifyUrl = requestMap.get("synRefundNotifyUrl");
-			this.asynRefundNotifyUrl = requestMap.get("asynRefundNotifyUrl");
-			this.queryUrl = requestMap.get("queryUrl");
-			this.queryBalanceUrl = requestMap.get("queryBalanceUrl");
-			this.queryRefundUrl = requestMap.get("queryRefundUrl");
-			this.checkUrl = requestMap.get("checkUrl");
-			this.checkRefundUrl = requestMap.get("checkRefundUrl");
-			this.depositLimit = new BigDecimal(StringUtils.isBlank(requestMap.get("depositLimit")) ? "0" : requestMap.get("depositLimit"));
-			this.debitcardMinMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("debitcardMinMoney")) ? "0" : requestMap.get("debitcardMinMoney"));
-			this.debitcardMaxMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("debitcardMaxMoney")) ? "0" : requestMap.get("debitcardMaxMoney"));
-			this.creditcardMinMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("creditcardMinMoney")) ? "0" : requestMap.get("creditcardMinMoney"));
-			this.creditcardMaxMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("creditcardMaxMoney")) ? "0" : requestMap.get("creditcardMaxMoney"));
-			this.bankbookMinMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("bankbookMinMoney")) ? "0" : requestMap.get("bankbookMinMoney"));
-			this.bankbookMaxMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("bankbookMaxMoney")) ? "0" : requestMap.get("bankbookMaxMoney"));
-			this.certPath1 = requestMap.get("certPath1");
-			this.certContent1 = requestMap.get("certContent1");
-			this.certPath2 = requestMap.get("certPath2");
-			this.certContent2 = requestMap.get("certContent2");
-			this.certPath3 = requestMap.get("certPath3");
-			this.certContent3 = requestMap.get("certContent3");
-			if (!StringUtils.isBlank(requestMap.get("operatorUserId"))) {
-				this.operatorUserId = Long.parseLong(requestMap.get("operatorUserId"));
-			}
-			this.extend1 = requestMap.get("extend1");
-			this.extend2 = requestMap.get("extend2");
-			this.extend3 = requestMap.get("extend3");
-			this.sdkType = Integer.parseInt(StringUtils.isBlank(requestMap.get("sdkType")) ? "0" : requestMap.get("sdkType"));
-
-			this.perdayPayMaxAmount = Integer.parseInt(StringUtils.isBlank(requestMap.get("perdayPayMaxAmount")) ? "0" : requestMap.get("perdayPayMaxAmount"));
-
-			this.contractType = requestMap.get("contractType");
-			this.parentId = requestMap.get("parentId");
-			this.smsSendType = Integer.parseInt(StringUtils.isBlank(requestMap.get("smsSendType")) ? "0" :requestMap.get("smsSendType"));
-            this.smsContentTemplet = requestMap.get("smsContentTemplet");
-            this.combType = Integer.parseInt(StringUtils.isBlank(requestMap.get("combType")) ? "0" :requestMap.get("combType"));
-
-			String[] deviceTypes = request.getParameterValues("deviceType");
-
-			if (deviceTypes != null && deviceTypes.length > 0){
-				StringBuffer signTypeTemp = new StringBuffer();
-				for (String signType : deviceTypes) {
-					signTypeTemp.append(signType);
-					signTypeTemp.append(",");
+			if (request != null) {
+				Enumeration<String> requestKeys = request.getParameterNames();
+				//请求页面表单map
+				Map<String, String> requestMap = new HashMap<>();
+				//遍历请求参数，封装请求对象
+				while (requestKeys.hasMoreElements()) {
+					String requestKey = requestKeys.nextElement();
+					requestMap.put(requestKey, request.getParameter(requestKey));
 				}
-				String signType = signTypeTemp.toString();
-				this.deviceType = signType.substring(0, signType.length() - 1);
+				this.id = requestMap.get("id");
+				this.name = requestMap.get("name");
+				this.chanId = requestMap.get("chanId");
+				this.chanName = requestMap.get("chanName");
+				this.chanCode = requestMap.get("chanCode");
+				this.mchtId = requestMap.get("mchtId");
+				this.mchtName = requestMap.get("mchtName");
+				this.mchtCode = requestMap.get("mchtCode");
+				this.chanMchtNo = requestMap.get("chanMchtNo");
+				this.payType = requestMap.get("payType");
+				this.bizCode = requestMap.get("bizCode");
+				this.chanMchtPassword = requestMap.get("chanMchtPassword");
+				this.opAccount = requestMap.get("opAccount");
+				this.opPassword = requestMap.get("opPassword");
+				this.terminalNo = requestMap.get("terminalNo");
+				this.tranUrl = requestMap.get("tranUrl");
+				this.status = requestMap.get("status");
+				this.feeStatus = requestMap.get("feeStatus");
+				this.settleCategory = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleCategory")) ? "0" : requestMap.get("settleCategory"));
+				this.settleMode = Integer.parseInt(StringUtils.isBlank(requestMap.get("settleMode")) ? "0" : requestMap.get("settleMode"));
+				this.settleCycle = requestMap.get("settleCycle");
+				this.feeType = requestMap.get("feeType");
+				this.feeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeRate")) ? "0" : requestMap.get("feeRate"));
+				this.feeAmount = Double.parseDouble(StringUtils.isBlank(requestMap.get("feeAmount")) ? "0" : requestMap.get("feeAmount"));
+				this.realFeeRate = Double.parseDouble(StringUtils.isBlank(requestMap.get("realFeeRate")) ? "0" : requestMap.get("realFeeRate"));
+				this.realFeeAmount = Double.parseDouble(StringUtils.isBlank(requestMap.get("realFeeAmount")) ? "0" : requestMap.get("realFeeAmount"));
+				this.activeTime = requestMap.get("activeTime");
+				this.lowestFee = Double.parseDouble(StringUtils.isBlank(requestMap.get("lowestFee")) ? "0" : requestMap.get("lowestFee"));
+				this.highestFee = Double.parseDouble(StringUtils.isBlank(requestMap.get("highestFee")) ? "0" : requestMap.get("highestFee"));
+				this.payUrl = requestMap.get("payUrl");
+				this.cancelUrl = requestMap.get("cancelUrl");
+				this.synNotifyUrl = requestMap.get("synNotifyUrl");
+				this.asynNotifyUrl = requestMap.get("asynNotifyUrl");
+				this.refundUrl = requestMap.get("refundUrl");
+				this.synRefundNotifyUrl = requestMap.get("synRefundNotifyUrl");
+				this.asynRefundNotifyUrl = requestMap.get("asynRefundNotifyUrl");
+				this.queryUrl = requestMap.get("queryUrl");
+				this.queryBalanceUrl = requestMap.get("queryBalanceUrl");
+				this.queryRefundUrl = requestMap.get("queryRefundUrl");
+				this.checkUrl = requestMap.get("checkUrl");
+				this.checkRefundUrl = requestMap.get("checkRefundUrl");
+				this.depositLimit = new BigDecimal(StringUtils.isBlank(requestMap.get("depositLimit")) ? "0" : requestMap.get("depositLimit"));
+				this.debitcardMinMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("debitcardMinMoney")) ? "0" : requestMap.get("debitcardMinMoney"));
+				this.debitcardMaxMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("debitcardMaxMoney")) ? "0" : requestMap.get("debitcardMaxMoney"));
+				this.creditcardMinMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("creditcardMinMoney")) ? "0" : requestMap.get("creditcardMinMoney"));
+				this.creditcardMaxMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("creditcardMaxMoney")) ? "0" : requestMap.get("creditcardMaxMoney"));
+				this.bankbookMinMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("bankbookMinMoney")) ? "0" : requestMap.get("bankbookMinMoney"));
+				this.bankbookMaxMoney = new BigDecimal(StringUtils.isBlank(requestMap.get("bankbookMaxMoney")) ? "0" : requestMap.get("bankbookMaxMoney"));
+				this.certPath1 = requestMap.get("certPath1");
+				this.certContent1 = requestMap.get("certContent1");
+				this.certPath2 = requestMap.get("certPath2");
+				this.certContent2 = requestMap.get("certContent2");
+				this.certPath3 = requestMap.get("certPath3");
+				this.certContent3 = requestMap.get("certContent3");
+				if (!StringUtils.isBlank(requestMap.get("operatorUserId"))) {
+					this.operatorUserId = Long.parseLong(requestMap.get("operatorUserId"));
+				}
+				this.extend1 = requestMap.get("extend1");
+				this.extend2 = requestMap.get("extend2");
+				this.extend3 = requestMap.get("extend3");
+				this.sdkType = Integer.parseInt(StringUtils.isBlank(requestMap.get("sdkType")) ? "0" : requestMap.get("sdkType"));
+
+				this.perdayPayMaxAmount = Integer.parseInt(StringUtils.isBlank(requestMap.get("perdayPayMaxAmount")) ? "0" : requestMap.get("perdayPayMaxAmount"));
+
+				this.contractType = requestMap.get("contractType");
+				this.parentId = requestMap.get("parentId");
+				this.smsSendType = Integer.parseInt(StringUtils.isBlank(requestMap.get("smsSendType")) ? "0" : requestMap.get("smsSendType"));
+				this.smsContentTemplet = requestMap.get("smsContentTemplet");
+				this.combType = Integer.parseInt(StringUtils.isBlank(requestMap.get("combType")) ? "0" : requestMap.get("combType"));
+
+				String[] deviceTypes = request.getParameterValues("deviceType");
+
+				if (deviceTypes != null && deviceTypes.length > 0) {
+					StringBuffer signTypeTemp = new StringBuffer();
+					for (String signType : deviceTypes) {
+						signTypeTemp.append(signType);
+						signTypeTemp.append(",");
+					}
+					String signType = signTypeTemp.toString();
+					this.deviceType = signType.substring(0, signType.length() - 1);
+				}
+
+				this.tradeStartTime = requestMap.get("tradeStartTimeH") + ":" + requestMap.get("tradeStartTimeS");
+				this.tradeEndTime = requestMap.get("tradeEndTimeH") + ":" + requestMap.get("tradeEndTimeS");
+
+				this.tradeMaxMoney = StringUtils.isBlank(requestMap.get("tradeMaxMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMaxMoney"));
+				this.tradeMinMoney = StringUtils.isBlank(requestMap.get("tradeMinMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMinMoney"));
+				this.tradeRangeMoney = requestMap.get("tradeRangeMoney") == null ? "" : requestMap.get("tradeRangeMoney");
+				this.accType = requestMap.get("accType") == null ? "" : requestMap.get("accType");
+				this.dayMaxAmount = new BigDecimal(StringUtils.isBlank(requestMap.get("dayMaxAmount")) ? "0" : requestMap.get("dayMaxAmount"));
+				if (StringUtils.isNotBlank(requestMap.get("limitAmount"))) {
+					this.limitAmount = new BigDecimal(requestMap.get("limitAmount"));
+				}
 			}
+		}
 
-			this.tradeStartTime = requestMap.get("tradeStartTimeH") + ":" + requestMap.get("tradeStartTimeS");
-			this.tradeEndTime = requestMap.get("tradeEndTimeH") + ":" + requestMap.get("tradeEndTimeS");
+		//获取费率对象
+		public void getFee (PlatFeerate platFeerate){
+			platFeerate.setFeeType(this.feeType);
+			platFeerate.setFeeRate(new BigDecimal(this.feeRate != null ? this.feeRate : 0));
+			platFeerate.setFeeAmount(new BigDecimal(this.feeAmount != null ? this.feeAmount : 0));
+			platFeerate.setRealFeeRate(new BigDecimal(this.realFeeRate != null ? this.realFeeRate : 0));
+			platFeerate.setRealFeeAmount(new BigDecimal(this.realFeeAmount != null ? this.realFeeAmount : 0));
+			platFeerate.setSettleType(this.settleCategory != null ? this.settleCategory + "" : "");
+			platFeerate.setSettleMode(this.settleMode != null ? this.settleMode + "" : "");
+			platFeerate.setSettleCycle(this.settleCycle);
+			platFeerate.setSettleLowestAmount(new BigDecimal(this.lowestFee != null ? this.lowestFee : 0));
 
-			this.tradeMaxMoney = StringUtils.isBlank(requestMap.get("tradeMaxMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMaxMoney"));
-			this.tradeMinMoney = StringUtils.isBlank(requestMap.get("tradeMinMoney")) ? new BigDecimal(0) : new BigDecimal(requestMap.get("tradeMinMoney"));
-			this.tradeRangeMoney = requestMap.get("tradeRangeMoney") == null ? "" : requestMap.get("tradeRangeMoney");
-			this.accType = requestMap.get("accType") == null ? "" : requestMap.get("accType");
-			this.dayMaxAmount = new BigDecimal(StringUtils.isBlank(requestMap.get("dayMaxAmount")) ? "0" : requestMap.get("dayMaxAmount"));
+			platFeerate.setPerdayPayMaxAmount(new BigDecimal(this.perdayPayMaxAmount != null ? this.perdayPayMaxAmount : 0));
+
+			if (StringUtils.isBlank(this.activeTime) || StatusEnum.VALID.getCode().equals(this.feeStatus)) {
+				platFeerate.setActiveTime(new Date());
+			} else {
+				platFeerate.setActiveTime(DateUtils.parseDate(this.activeTime));
+			}
+			platFeerate.setStatus(this.feeStatus != null ? this.feeStatus : StatusEnum.VALID.getCode());
+		}
+
+		//设置费率对象
+		public void setFee (PlatFeerate platFeerate){
+			if (platFeerate == null) {
+				return;
+			}
+			this.feeType = platFeerate.getFeeType() != null ? platFeerate.getFeeType() : "";
+			this.feeRate = platFeerate.getFeeRate() != null ? platFeerate.getFeeRate().doubleValue() : null;
+			this.feeAmount = platFeerate.getFeeAmount() != null ? platFeerate.getFeeAmount().doubleValue() : null;
+			this.realFeeRate = platFeerate.getRealFeeRate() != null ? platFeerate.getRealFeeRate().doubleValue() : null;
+			this.realFeeAmount = platFeerate.getRealFeeAmount() != null ? platFeerate.getRealFeeAmount().doubleValue() : null;
+			this.settleCategory = Integer.parseInt(platFeerate.getSettleType() != null ? platFeerate.getSettleType() : "0");
+			this.settleMode = Integer.parseInt(platFeerate.getSettleMode() != null ? platFeerate.getSettleMode() : "0");
+			this.settleCycle = platFeerate.getSettleCycle();
+			this.lowestFee = platFeerate.getSettleLowestAmount() != null ? platFeerate.getSettleLowestAmount().doubleValue() : null;
+			this.activeTime = DateUtils.formatDate(platFeerate.getActiveTime(), "yyyy-MM-dd HH:mm:ss");
+
+			this.perdayPayMaxAmount = platFeerate.getSettleLowestAmount() != null ? platFeerate.getSettleLowestAmount().intValue() : null;
+
+			if (platFeerate.getActiveTime().getTime() < System.currentTimeMillis()) {
+				this.feeStatus = StatusEnum.VALID.getCode();
+			} else {
+				this.feeStatus = StatusEnum.TOBEVALID.getCode();
+			}
 		}
 	}
-
-	//获取费率对象
-	public void getFee(PlatFeerate platFeerate) {
-		platFeerate.setFeeType(this.feeType);
-		platFeerate.setFeeRate(new BigDecimal(this.feeRate != null ? this.feeRate : 0));
-		platFeerate.setFeeAmount(new BigDecimal(this.feeAmount != null ? this.feeAmount : 0));
-		platFeerate.setRealFeeRate(new BigDecimal(this.realFeeRate != null ? this.realFeeRate : 0));
-		platFeerate.setRealFeeAmount(new BigDecimal(this.realFeeAmount != null ? this.realFeeAmount : 0));
-		platFeerate.setSettleType(this.settleCategory != null ? this.settleCategory + "" : "");
-		platFeerate.setSettleMode(this.settleMode != null ? this.settleMode + "" : "");
-		platFeerate.setSettleCycle(this.settleCycle);
-		platFeerate.setSettleLowestAmount(new BigDecimal(this.lowestFee != null ? this.lowestFee : 0));
-
-		platFeerate.setPerdayPayMaxAmount(new BigDecimal(this.perdayPayMaxAmount != null ? this.perdayPayMaxAmount : 0));
-
-		if (StringUtils.isBlank(this.activeTime) || StatusEnum.VALID.getCode().equals(this.feeStatus)) {
-			platFeerate.setActiveTime(new Date());
-		}else {
-			platFeerate.setActiveTime(DateUtils.parseDate(this.activeTime));
-		}
-		platFeerate.setStatus(this.feeStatus != null ? this.feeStatus : StatusEnum.VALID.getCode());
-	}
-
-	//设置费率对象
-	public void setFee(PlatFeerate platFeerate) {
-		if (platFeerate == null) {
-			return;
-		}
-		this.feeType = platFeerate.getFeeType() != null ? platFeerate.getFeeType() : "";
-		this.feeRate = platFeerate.getFeeRate() != null ? platFeerate.getFeeRate().doubleValue() : null;
-		this.feeAmount = platFeerate.getFeeAmount() != null ? platFeerate.getFeeAmount().doubleValue() : null;
-		this.realFeeRate = platFeerate.getRealFeeRate() != null ? platFeerate.getRealFeeRate().doubleValue() : null;
-		this.realFeeAmount = platFeerate.getRealFeeAmount() != null ? platFeerate.getRealFeeAmount().doubleValue() : null;
-		this.settleCategory = Integer.parseInt(platFeerate.getSettleType() != null ? platFeerate.getSettleType() : "0");
-		this.settleMode = Integer.parseInt(platFeerate.getSettleMode()  != null ? platFeerate.getSettleMode() : "0");
-		this.settleCycle = platFeerate.getSettleCycle();
-		this.lowestFee = platFeerate.getSettleLowestAmount() != null ? platFeerate.getSettleLowestAmount().doubleValue() : null;
-		this.activeTime = DateUtils.formatDate(platFeerate.getActiveTime(), "yyyy-MM-dd HH:mm:ss");
-
-		this.perdayPayMaxAmount = platFeerate.getSettleLowestAmount() != null ? platFeerate.getSettleLowestAmount().intValue() : null;
-
-		if (platFeerate.getActiveTime().getTime() < System.currentTimeMillis()){
-			this.feeStatus = StatusEnum.VALID.getCode();
-		}else {
-			this.feeStatus = StatusEnum.TOBEVALID.getCode();
-		}
-	}
-
-}
