@@ -30,6 +30,9 @@
                 rules:{
                     'approveType':{
                         required:true
+                    },
+                    'auditStatus':{
+                        required:true
                     }
                 }
             });
