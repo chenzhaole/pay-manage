@@ -3,10 +3,10 @@
 <html>
 <head>
     <c:if test="${queryFlag ne 'true'}">
-        <title>公户充值审批</title>
+        <title>上游结算审批</title>
     </c:if>
     <c:if test="${queryFlag eq 'true'}">
-        <title>公户充值审批</title>
+        <title>上游结算审批</title>
     </c:if>
     <meta name="decorator" content="default"/>
     <link href="${ctxStatic}/js/zoomify.css" type="text/css" rel="stylesheet" />
@@ -17,10 +17,10 @@
 
 <ul class="nav nav-tabs">
     <c:if test="${queryFlag ne 'true'}">
-        <li><a href="#">公户充值审批</a></li>
+        <li><a href="#">上游结算审批</a></li>
     </c:if>
     <c:if test="${queryFlag eq 'true'}">
-        <li><a href="#">公户充值审批</a></li>
+        <li><a href="#">上游结算审批</a></li>
     </c:if>
 </ul>
 
@@ -31,9 +31,9 @@
 
         <td class="bottom_border_class">
             <div class="control-group">
-                <label class="control-label">出款公户账户名称</label>
+                <label class="control-label">出款电子账户名称</label>
                 <div class="controls">
-                    ${accountAudit.pubAccName}
+                    ${accountAudit.electronicAccountName}
                 </div>
             </div>
         </td>

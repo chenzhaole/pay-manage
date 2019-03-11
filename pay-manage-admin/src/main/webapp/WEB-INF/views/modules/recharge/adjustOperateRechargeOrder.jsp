@@ -194,6 +194,14 @@
                 </div>
             </div>
         </td>
+        <td>
+            <div class="control-group">
+                <label class="control-label">电子账户</label>
+                <div class="controls">
+                    ${electronicAccount.electronicAccountName}
+                </div>
+            </div>
+        </td>
         <c:if test="${queryFlag ne 'true'}">
 
             <td width="30%">

@@ -112,4 +112,25 @@ public class CaAccountAuditAdminServiceImpl implements CaAccountAuditAdminServic
         cacheChanAccount.setPlatProxyDetail(platProxyDetail);
         return cacheChanAccount;
     }
+
+
+    public CacheChanAccount bulidMqCaAccountAudit(CaAccountAudit caAccountAudit) {
+        CacheChanAccount cacheChanAccount = new CacheChanAccount();
+
+        //公户充值管理
+        if(CaAuditTypeEnum.PUB_ACC_RECHARGE_MANAGER.getCode().equals(caAccountAudit.getType())){
+            cacheChanAccount.setType(ChanStatAccountTypeEnum.PUB_RECHARGE_MANAGER.getCode());
+            //上游结算管理
+        }else if(CaAuditTypeEnum.SETTLEMENT_MANAGER.getCode().equals(caAccountAudit.getType())){
+            cacheChanAccount.setType(ChanStatAccountTypeEnum.UPSTREAM_SETTLEMENT_MANAGER.getCode());
+            //代付业务手动调账管理
+        }else if(CaAuditTypeEnum.PAY_FOR_ANOTHER_ADJUSTMENT_MANAGER.getCode().equals(caAccountAudit.getType())){
+            cacheChanAccount.setType(ChanStatAccountTypeEnum.DF_ADJUST_MANAGERS.getCode());
+            //支付业务手动调账管理
+        }else if(CaAuditTypeEnum.PAYMENT_ADJUSTMENT_MANAGER.getCode().equals(caAccountAudit.getType())){
+            cacheChanAccount.setType(ChanStatAccountTypeEnum.ZF_ADJUST_MANAGERS.getCode());
+        }
+        cacheChanAccount.setCaAccountAudit(caAccountAudit);
+        return cacheChanAccount;
+    }
 }

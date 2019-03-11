@@ -120,14 +120,14 @@
 
 <shiro:hasPermission name="platform:adjust:apply">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="${ctx}/caAccountAudit/queryCaAccountAudits">调账列表</a></li>
-        <li><a href="${ctx}/caAccountAudit/toPubAccRechargeAdd">调账添加</a></li>
+        <li class="active"><a href="${ctx}/caAccountAudit/queryCaAccountAudits?type=2">调账列表</a></li>
+        <li><a href="${ctx}/caAccountAudit/toUpstreamSettlementAdd">调账添加</a></li>
     </ul>
 </shiro:hasPermission>
 
 <tags:message content="${message}" type="${messageType}"/>
 
-<form:form id="searchForm" modelAttribute="platAccountAdjust" action="${ctx}/caAccountAudit/queryCaAccountAudits?type=2" method="post" class="breadcrumb form-search">
+<form:form id="searchForm" modelAttribute="platAccountAdjust" action="${ctx}/caAccountAudit/queryCaAccountAudits?type=3" method="post" class="breadcrumb form-search">
     <input id="pageNo" name="pageNo" type="hidden" value="${1}"/>
     <input type="hidden" id="newDataId" name="newDataId" value=""/>
     <input id="pageSize" name="pageSize" type="hidden" value="${pageInfo.pageSize}"/>
@@ -135,7 +135,7 @@
     <table>
         <tr>
             <td>
-                <label>出款对公账户：</label>
+                <label>出款电子账户：</label>
                 <div class="controls">
                     <select name="sourceDataId" class="selectpicker bla bla bli" data-live-search="true">
                         <option value="">--请选择--</option>
@@ -239,7 +239,7 @@
     <thead>
     <tr>
         <th>公户充值订单号</th>
-        <th>出款公户账户名称</th>
+        <th>出款电子账户名称</th>
         <th>入款账户类型</th>
         <th>入款账户名称</th>
         <th>调账方向</th>
@@ -258,7 +258,7 @@
         <tr>
             </td>
             <td>${adjust.id}</td>
-            <td>${adjust.pubAccName}</td>
+            <td>${adjust.electronicAccountName}</td>
             <td>
                 <c:if test="${adjust.accountType=='1'}">电子账户</c:if>
                 <c:if test="${adjust.accountType=='2'}">公户账户</c:if>
@@ -304,7 +304,7 @@
             <shiro:hasPermission name="platform:adjust:audit">
                 <td>
                     <c:if test="${adjust.auditStatus!='4' and adjust.auditStatus!='5'}">
-                        <a href="${ctx}/caAccountAudit/auditOperatePubRecharge?id=${adjust.id}">审批</a>
+                        <a href="${ctx}/caAccountAudit/auditOperateUpstreamSettlement?id=${adjust.id}">审批</a>
                     </c:if>
                 </td>
             </shiro:hasPermission>

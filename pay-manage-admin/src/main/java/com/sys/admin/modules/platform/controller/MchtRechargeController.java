@@ -20,6 +20,7 @@ import com.sys.common.util.NumberUtils;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
+import com.sys.core.vo.ElectronicAccountVo;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -419,7 +420,7 @@ public class MchtRechargeController extends BaseController {
             andView.addObject("mchtInfo",mchtInfo);
         }
         //电子账户列表
-        List<CaElectronicAccount> electronicAccounts =  electronicAccountInfoService.list(null);
+        List<CaElectronicAccount> electronicAccounts =  electronicAccountInfoService.list(new ElectronicAccountVo());
         Map<String,CaElectronicAccount> electronicAccountMap= new HashMap<>();
         if(electronicAccounts!=null){
             for(CaElectronicAccount ele:electronicAccounts){
@@ -452,6 +453,17 @@ public class MchtRechargeController extends BaseController {
         }
         andView.addObject("queryFlag",queryFlag);
         andView.addObject("auditRechargeOrder", auditRechargeOrder);
+        //电子账户信息
+        ElectronicAccountVo electronicAccountVo = new ElectronicAccountVo();
+        CaElectronicAccount caElectronicAccount = new CaElectronicAccount();
+        caElectronicAccount.setId(auditRechargeOrder.getElectronicAccountId());
+        electronicAccountVo.setCaElectronicAccount(caElectronicAccount);
+        List<CaElectronicAccount> electronicAccounts = electronicAccountInfoService.list(electronicAccountVo);
+        CaElectronicAccount electronicAccount = new CaElectronicAccount();
+        if(electronicAccounts!=null&&electronicAccounts.size()>0){
+            electronicAccount = electronicAccounts.get(0);
+        }
+        andView.addObject("electronicAccount", electronicAccount);
         return andView;
     }
 
@@ -474,6 +486,8 @@ public class MchtRechargeController extends BaseController {
         String customerMessage = request.getParameter("customerMessage");
         //运营留言
         String operateMessage = request.getParameter("operateMessage");
+        //电子账户id
+        String electronicAccountId = request.getParameter("electronicAccountId");
 
         MchtGatewayRechargeOrder rechargeOrder = new MchtGatewayRechargeOrder();
         if("customer".equalsIgnoreCase(auditType)){
@@ -501,6 +515,7 @@ public class MchtRechargeController extends BaseController {
             }
         }
         rechargeOrder.setPlatOrderId(platOrderId);
+        rechargeOrder.setElectronicAccountId(electronicAccountId);
         logger.info("提交审批结果:"+ JSONObject.toJSONString(rechargeOrder));
         Integer backFlag =  tradeApiRechargePayHandler.modifyRechargeOrder(rechargeOrder);
         if(backFlag == 0){
