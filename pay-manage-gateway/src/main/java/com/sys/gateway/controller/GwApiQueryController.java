@@ -3,12 +3,16 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
+import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.apipay.TradeApiQueryRequest;
 import com.sys.boss.api.entry.trade.request.apipay.TradeQueryFaceRequest;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderQueryResponse;
 import com.sys.boss.api.entry.trade.response.apipay.QueryFaceResponse;
+import com.sys.boss.api.service.trade.handler.ITradeApiQueryHandler;
+import com.sys.boss.api.service.trade.handler.ITradeQueryFaceHandler;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.core.service.TaskLogService;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwApiPayService;
 import com.sys.gateway.service.GwApiQueryService;
@@ -19,6 +23,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -40,6 +45,14 @@ public class GwApiQueryController {
 
 	@Autowired
 	GwQueryFaceService gwQueryFaceService;
+
+	@Autowired
+	private TaskLogService taskLogService;
+
+
+	@Autowired
+	private ITradeQueryFaceHandler tradeQueryFaceHandler;
+
 	/**
 	 * api支付查询支付订单
      */
@@ -114,5 +127,27 @@ public class GwApiQueryController {
 		}
 		logger.info("queryFace面值库存查询接口，返回下游商户值："+JSON.toJSONString(queryFaceResponse));
 		return JSON.toJSONString(queryFaceResponse);
+	}
+
+	/**
+	 * 检查库存信息
+	 * 2019-01-30 12:00:01
+	 * @param request
+	 * @return
+	 */
+	@RequestMapping("/gateway/api/checkStockAndFace")
+	@ResponseBody
+	public String checkStockAndFace(@RequestParam(required = false,value = "id") Integer logId, HttpServletRequest request){
+		boolean checkFalg = tradeQueryFaceHandler.checkStockAndFace();
+		CommonResult result = new CommonResult();
+		result.setRespMsg("SUCCESS");
+		result.setRespCode("000000");
+		taskLogService.recordLog(logId, result);
+		logger.info("代付API，【定时任务代付查单】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
+		if(checkFalg){
+			return "库存请求数正常";
+		}else{
+			return "库存请求数不正常";
+		}
 	}
 }

@@ -214,6 +214,9 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		}
 		ChanMchtFormInfo chanMchtFormInfo = new ChanMchtFormInfo();
 		ChanMchtPaytype chanMchtPaytype = chanMchtPaytypeService.queryByKey(id);
+		if(chanMchtPaytype == null){
+			return null;
+		}
 		BeanUtils.copyProperties(chanMchtPaytype, chanMchtFormInfo);
 
 		if (StringUtils.isNotBlank(chanMchtPaytype.getTradeStartTime())){

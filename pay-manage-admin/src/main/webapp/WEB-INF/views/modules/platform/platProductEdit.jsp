@@ -246,8 +246,15 @@
                     <label class="control-label">执行方式</label>
                     <div class="controls">
                         <select name="routeType" class="input-medium" id="routeType">
-                            <option <c:if test="${productInfo.routeType == '1' }"> selected</c:if> value="1">顺序</option>
-                            <option <c:if test="${productInfo.routeType == '2' }"> selected</c:if> value="2">轮询</option>
+                            <c:choose>
+                                <c:when test="${fn:contains(paymentType, '000')}">
+                                    <option <c:if test="${productInfo.routeType == '1' }"> selected</c:if> value="1">顺序</option>
+                                </c:when>
+                                <c:otherwise>
+                                    <option <c:if test="${productInfo.routeType == '1' }"> selected</c:if> value="1">顺序</option>
+                                    <option <c:if test="${productInfo.routeType == '2' }"> selected</c:if> value="2">轮询</option>
+                                </c:otherwise>
+                            </c:choose>
                         </select>
                     </div>
                 </div>

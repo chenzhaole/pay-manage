@@ -17,10 +17,18 @@ import com.sys.boss.api.service.trade.handler.ITradeDFCreateHandler;
 import com.sys.boss.api.service.trade.handler.ITradeDFQueryChanHandler;
 import com.sys.boss.api.service.trade.handler.ITradeDFQueryPlatHandler;
 import com.sys.common.enums.ErrorCodeEnum;
-import com.sys.common.util.PostUtil;
+import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.StatusEnum;
+import com.sys.common.util.*;
+import com.sys.core.dao.dmo.ChanInfo;
+import com.sys.core.dao.dmo.ChanMchtPaytype;
 import com.sys.core.service.TaskLogService;
 import com.sys.gateway.common.ConfigUtil;
 import com.sys.gateway.common.IpUtil;
+import com.sys.gateway.service.impl.GwPublicAccountServiceImpl;
+import com.sys.trans.api.entry.ChanMchtPaytypeTO;
+import com.sys.trans.api.entry.Config;
+import com.sys.trans.api.entry.SingleDF;
 import com.sys.trans.api.entry.Trade;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -33,7 +41,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import javax.servlet.http.HttpServletRequest;
+import java.io.UnsupportedEncodingException;
+import java.math.BigDecimal;
 import java.net.URLDecoder;
+import java.net.URLEncoder;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Controller
 @RequestMapping("df/gateway")
@@ -54,6 +68,9 @@ public class GwDFController {
     private ITradeDFBatchHandler tradeDFBatchHandler;
     @Autowired
     private TaskLogService taskLogService;
+
+    @Autowired
+    private GwPublicAccountServiceImpl gwPublicAccountService;
 
 
 
@@ -290,6 +307,150 @@ public class GwDFController {
         taskLogService.recordLog(logId,result);
         logger.info("代付API，【定时任务代付查单】任务执行logId结束："+logId+" "+JSON.toJSONString(result));
         return "ok";
+    }
+
+
+    /**
+     * 定时器查询生效的通道余额大于20W发送信息到公众号
+     * @return
+     */
+    @RequestMapping("taskProxyQueryBalance")
+    @ResponseBody
+    public String taskProxyQueryBalance(@RequestParam(required = false,value = "id") Integer logId){
+        ChanMchtPaytype chanMchtPaytype = new ChanMchtPaytype();
+        chanMchtPaytype.setPayType(PayTypeEnum.SINGLE_DF.getCode());
+        chanMchtPaytype.setStatus(StatusEnum.VALID.getCode());
+        List<ChanMchtPaytype> chanMchtPaytypeList = tradeDFBalancePlatHandler.queryChanMchtPaytypesByExample(chanMchtPaytype);
+
+        Map<String, ChanInfo> chanInfoMap = queryChanInfoMap();
+
+        for(ChanMchtPaytype cmp: chanMchtPaytypeList){
+            if(StringUtils.isEmpty(cmp.getChanCode())){
+                logger.info("定时器查询生效的通道余额大于20W发送信息到公众号,通道编号是空");
+                continue;
+            }
+            if(cmp.getChanCode().equals("gfb") || cmp.getChanCode().equals("yinyingtongnew") ||
+                    cmp.getChanCode().equals("hangzhoucityzencard") ||cmp.getChanCode().equals("xianfeng")){
+                logger.info("定时器查询生效的通道余额大于20W发送信息到公众号,通道编号是:" + cmp.getChanCode() + ",不校验.");
+                continue;
+            }
+            String alarmBalance = "150000";
+            if("yiqian".equals(cmp.getChanCode())||"zhiliantong".equals(cmp.getChanCode())||"yijiafu".equals(cmp.getChanCode())){
+                //一钱，智联通（苏莲呐，恬果实），壹加付  通道余额大于5万,则告警
+                alarmBalance = "50000";
+            }
+            queryChanMchtPaytypeBalance(cmp, chanInfoMap,alarmBalance);
+        }
+        CommonResult result = new CommonResult();
+        result.setRespMsg("SUCCESS");
+        result.setRespCode("000000");
+        taskLogService.recordLog(logId, result);
+        logger.info("定时器查询生效的通道余额大于20W发送信息到公众号："+logId+" "+JSON.toJSONString(result));
+        return "ok";
+
+
+
+    }
+
+
+
+    public String queryChanMchtPaytypeBalance(ChanMchtPaytype chanMchtPaytype, Map<String, ChanInfo> chanInfoMap,String alarmBalance){
+        String reportAnEmergencyUrl = ConfigUtil.getValue("report_an_emergency_url");
+
+        Config config = new Config();
+        ChanMchtPaytypeTO chanMchtPaytypeTO = new ChanMchtPaytypeTO();
+        org.springframework.beans.BeanUtils.copyProperties(chanMchtPaytype, chanMchtPaytypeTO);
+        config.setChanMchtPaytype(chanMchtPaytypeTO);
+        config.setPayUrl(chanMchtPaytype.getPayUrl());
+        config.setQueryUrl(chanMchtPaytype.getQueryBalanceUrl());
+        config.setTranUrl(chanMchtPaytype.getTranUrl());
+        config.setChannelCode(chanMchtPaytype.getChanCode());
+        config.setCancelUrl(chanMchtPaytype.getCancelUrl());
+        config.setNotifyUrl(chanMchtPaytype.getAsynNotifyUrl());
+        config.setPayType(chanMchtPaytype.getPayType());
+        config.setMchtId(chanMchtPaytype.getChanMchtNo());
+        config.setMchtKey(chanMchtPaytype.getChanMchtPassword());
+        config.setCertPath1(chanMchtPaytype.getCertPath1());
+        config.setCertPath2(chanMchtPaytype.getCertPath2());
+        config.setPlatId(chanMchtPaytype.getTerminalNo());
+        config.setPubKey(chanMchtPaytype.getCertContent1());
+        config.setPriKey(chanMchtPaytype.getCertContent2());
+        config.setMerchantName(chanMchtPaytype.getOpAccount());
+        try {
+            config.setExtend(URLEncoder.encode(chanMchtPaytype.getCertContent3(),"utf-8"));
+        } catch (UnsupportedEncodingException e) {
+            logger.error("平台公钥编码错误", e);
+        }
+
+        SingleDF df = new SingleDF();
+        df.setOrderNo("ADMIN0" + IdUtil.createCode());
+        df.setAmount("1");
+
+        Trade trade = new Trade();
+        trade.setConfig(config);
+        trade.setSingleDF(df);
+
+        try {
+            String topUrl = ConfigUtil.getValue("gateway.url");
+            if (topUrl.endsWith("/")) {
+                topUrl = topUrl.substring(0, topUrl.length() - 1);
+            }
+            String gatewayUrl = topUrl + "/df/gateway/chanBalanceForAdmin";
+            Map<String, String> params = new HashMap<>();
+            params.put("tradeString", JSON.toJSONString(trade));
+            logger.info(trade + " 查询上游商户余额,请求URL: " + gatewayUrl + " 请求参数: " + JSON.toJSONString(params));
+            String balanceString = HttpUtil.postConnManager(gatewayUrl, params, true);
+            logger.info(balanceString);
+            CommonResult processResult = JSON.parseObject(balanceString, CommonResult.class);
+            if (processResult != null) {
+                String balance = (String) processResult.getData();
+                if (StringUtils.isNotBlank(balance)){
+                    balance = NumberUtils.changeF2Y(balance);
+                    String content = "时间:" + DateUtils.getDateTime() + ",通道名称:" + chanMchtPaytype.getName() + ",通道余额为:" + balance;
+                    if(new BigDecimal(balance).compareTo(new BigDecimal(alarmBalance))  >= 0 ){
+                        logger.info("通道余额告警,内容为:" + content);
+                        Map<String, String> contentMap = new HashMap<>();
+                        contentMap.put("content", content);
+                        String currentTime = DateUtils.getDateTime();
+                        currentTime = currentTime.replaceAll(" ", "%20");
+                        reportAnEmergencyUrl = String.format("%s%s", reportAnEmergencyUrl, "&datetime=" + currentTime);
+                        String responseDate = execPost(reportAnEmergencyUrl, contentMap);
+                        logger.info("通道余额告警,返回信息为:" + responseDate);
+                    }else{
+                        logger.info("通道余额告警,内容为:" + content + "不告警");
+                    }
+                }
+            }
+        } catch (Exception e) {
+            logger.error("查询余额失败", e);
+        }
+        return "modules/channel/chanBalance";
+
+    }
+
+
+    public String execPost(String url, Map<String, String> contentMap){
+        String responseDate = null;
+        try {
+            responseDate =  HttpUtil.postConnManager(url, contentMap);
+        } catch (Exception e) {
+            logger.error(e.getMessage(), e);
+        }
+        return responseDate;
+    }
+
+    public Map<String, ChanInfo> queryChanInfoMap(){
+        Map<String, ChanInfo> chanInfoMap = new HashMap<>();
+        ChanInfo chanInfo = new ChanInfo();
+        List<ChanInfo> chanInfos = tradeDFBalancePlatHandler.queryChanInfos(chanInfo);
+        if(chanInfos== null || chanInfos.size() == 0){
+            return chanInfoMap;
+        }
+        for(ChanInfo ci: chanInfos){
+            chanInfoMap.put(ci.getId(), ci);
+        }
+        return chanInfoMap;
+
     }
 
 }

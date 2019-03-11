@@ -268,6 +268,7 @@ public class GwRecNotifyController {
 
     /**
      * 上游配置异步通知地址-接受统一异步通知结果
+     * 异步通知固定链接.不会按订单号动态生成对应的异步通知地址
      * data数据
      */
     @RequestMapping("/recNotify/data")
@@ -278,6 +279,7 @@ public class GwRecNotifyController {
         String sign =httpServletRequest.getHeader("X-QF-SIGN");
         try {
             data = URLDecoder.decode(data, "utf-8");
+            logger.info("接收到固定异步通知链接信息,参数为:" + data);
             //解析并校验签名上游通道异步通知的数据
             CommonResult tradeResult = recNotifyService.reciveNotify(data,sign);
             if (ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode()) || ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())) {
