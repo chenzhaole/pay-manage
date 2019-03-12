@@ -9,6 +9,15 @@
 			white-space: normal;
 			align:center
 		}
+		.control-label{
+			display: inline-block;
+			width:100px;
+			text-align: right;
+		}
+		.controls{
+			float:right;
+			width:200px;
+		}
 	</style>
 	<script type="text/javascript">
 	$(document).ready(function() {
@@ -51,15 +60,21 @@
 			<tr>
 				<td>
 					<label class="control-label">公户编号：</label>
-					<input value="${paramMap.publicAccountCode}" id="publicAccountCode" name="publicAccountCode" type="text" maxlength="64" class="input-large"/>
+					<div class="controls">
+						<input value="${paramMap.publicAccountCode}" id="publicAccountCode" name="publicAccountCode" type="text" maxlength="64" class="input-large"/>
+					</div>
 				</td>
 				<td>
 					<label class="control-label">公户账号：</label>
-					<input value="${paramMap.publicAccountNo}" id="publicAccountNo" name="publicAccountNo" type="text" maxlength="64" class="input-large"/>
+					<div class="controls">
+						<input value="${paramMap.publicAccountNo}" id="publicAccountNo" name="publicAccountNo" type="text" maxlength="64" class="input-large"/>
+					</div>
 				</td>
 				<td>
 					<label class="control-label">公户名称：</label>
-					<input value="${paramMap.publicAccountName}" id="publicAccountName" name="publicAccountName" type="text" maxlength="64" class="input-large"/>
+					<div class="controls">
+						<input value="${paramMap.publicAccountName}" id="publicAccountName" name="publicAccountName" type="text" maxlength="64" class="input-large"/>
+					</div>
 				</td>
 				<td align="right">
 					<input id="btnSubmit" class="btn btn-primary" type="button" value="查询"/>

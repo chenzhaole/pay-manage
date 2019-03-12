@@ -891,10 +891,8 @@ public class CaAccountAuditController extends BaseController {
         Map<String, PublicAccountInfo> accountInfoMap = buildPublicAccountInfoMap();
         Map<String, CaElectronicAccount> electronicAccountMap = buildElectronicsAccountInfoMap();
         for (CaAccountAudit audit : caAccountAuditList) {
-
-            //audit.setCustomerAuditUserName();
-
-
+            audit.setCustomerAuditUserName(UserUtils.getUserName(Long.parseLong(audit.getCustomerAuditUserid())));
+            audit.setOperateAuditUserName(UserUtils.getUserName(Long.parseLong(audit.getOperateAuditUserid())));
             //如果是公户管理
             if (CaAuditTypeEnum.PUB_ACC_RECHARGE_MANAGER.getCode().equals(audit.getType())) {
                 if (accountInfoMap.get(audit.getSourceDataId()) != null) {

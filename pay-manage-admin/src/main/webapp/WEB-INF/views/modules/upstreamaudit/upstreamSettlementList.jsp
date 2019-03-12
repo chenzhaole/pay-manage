@@ -277,13 +277,13 @@
                 <fmt:formatDate value="${adjust.createdTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
             <td>
-                ${adjust.customerAuditUserid}
+                ${adjust.customerAuditUserName}
             </td>
             <td>
                 <fmt:formatDate value="${adjust.operateAuditTime}" pattern="yyyy-MM-dd HH:mm:ss"/>
             </td>
             <td>
-                ${adjust.operateAuditUserid}
+                ${adjust.operateAuditUserName}
             </td>
             <td>
                 <c:if test="${adjust.auditStatus eq '1'}">
