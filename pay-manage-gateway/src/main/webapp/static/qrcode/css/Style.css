@@ -1,0 +1,229 @@
+@media (min-width: 320px) {
+    html {
+        font-size: 42.6667px;
+    }
+}
+
+@media (min-width: 360px) {
+    html {
+        font-size: 48px;
+    }
+}
+
+@media (min-width: 375px) {
+    html {
+        font-size: 50px;
+    }
+}
+
+@media (min-width: 384px) {
+    html {
+        font-size: 51.2px;
+    }
+}
+
+@media (min-width: 414px) {
+    html {
+        font-size: 55.2px;
+    }
+}
+
+@media (min-width: 448px) {
+    html {
+        font-size: 59.7333px;
+    }
+}
+
+@media (min-width: 480px) {
+    html {
+        font-size: 48px;
+    }
+}
+
+@media (min-width: 512px) {
+    html {
+        font-size: 68.2667px;
+    }
+}
+
+@media (min-width: 544px) {
+    html {
+        font-size: 72.5333px;
+    }
+}
+
+@media (min-width: 576px) {
+    html {
+        font-size: 76.8px;
+    }
+}
+
+@media (min-width: 608px) {
+    html {
+        font-size: 81.0667px;
+    }
+}
+
+@media (min-width: 640px) {
+    html {
+        font-size: 85.3333px;
+    }
+}
+
+@media (min-width: 750px) {
+    html {
+        font-size: 100px;
+    }
+}
+
+body, h1, h2, h3, h4, h5, h6, hr, p, blockquote, dl, dt, ul, ol, li, pre, form,
+fieldset, legend, button, input, textarea, th, td {
+    margin: 0;
+    padding: 0;
+}
+
+body, button, input, select, textarea {
+    font: 0.12rem/1 "PingFangSC-Regular", arial, tahoma, \5b8b\4f5a, Verdana, Simsun;
+}
+
+address, cite, dfn, em, var, i {
+    font-style: normal;
+}
+
+ul, ol {
+    list-style: none;
+}
+
+a {
+    text-decoration: none;
+    color: #000;
+}
+
+fieldset, img {
+    border: 0;
+}
+
+button, input, select, textarea {
+    font-size: 100%;
+}
+
+table {
+    border-collapse: collapse;
+    border-spacing: 0;
+}
+
+input, button, select, textarea {
+    outline: none;
+}
+
+p {
+    text-align: justify;
+    text-justify: distribute;
+}
+
+.header {
+    width: 3.75rem;
+    height: 0.48rem;
+    border-top: 1px solid transparent;
+    border-bottom: 1px solid #ccc;
+}
+
+.header div {
+    width: 0.57rem;
+    height: 0.36rem;
+    margin: 0 auto;
+    margin-top: 0.06rem;
+}
+
+.header div img {
+    width: 100%;
+    height: 100%;
+}
+
+/*商家logo*/
+.shopImg {
+    width: 0.6rem;
+    height: 0.6rem;
+    margin: 0 auto;
+    margin-top: 0.2rem;
+}
+
+.shopImg > img {
+    width: 100%;
+    height: 100%;
+}
+
+
+.shopOwner {
+    width: 3.75rem;
+    font-family: "PingFangSC-Regular";
+    font-size: 0.17rem;
+    color: #333333;
+    letter-spacing: -0.19px;
+    text-align: center;
+    margin-top: 0.15rem;
+}
+
+.sum {
+    height: 0.56rem;
+    margin-top: 0.2rem;
+    font-family: "PingFangSC-Medium";
+    font-size: 0.4rem;
+    color: #333333;
+    letter-spacing: -0.96px;
+    text-align: center;
+}
+
+.sum > span {
+    display: inline-block;
+    vertical-align: middle;
+    font-family: "PingFangSC-Medium";
+    color: #333333;
+    letter-spacing: -0.3px;
+    margin-left: 10px;
+}
+
+.tag {
+    font-size: 0.28rem;
+    margin-right: -12px;
+    font-family: "PingFangSC-Regular";
+    color: #333333;
+    letter-spacing: -0.31px;
+}
+
+/*背景色*/
+.bgColor {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: #000000;
+    opacity: 0.3;
+    z-index: 100;
+}
+
+.hint {
+    background: rgba(0, 0, 0, .7);
+    display: table;
+    color: #fff;
+    font-size: 16px;
+    padding: 10px 20px;
+    border-radius: 5px;
+    margin: auto
+}
+
+.hint-wrapper {
+    position: absolute;
+    width: 100%;
+    bottom: 38%;
+    left: 0;
+    display: none
+}
+
+.txt-msg {
+    padding-top: 0.6rem;
+    color: #888888;
+    text-align: center;
+    margin-top: 0.8rem;
+}

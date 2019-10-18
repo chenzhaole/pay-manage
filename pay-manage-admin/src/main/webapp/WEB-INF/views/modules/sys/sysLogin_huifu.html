@@ -1,0 +1,294 @@
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
+    <title>智·汇管家</title>
+    <meta name="keywords" content="">
+    <meta name="description" content="">
+    <!--     <link rel="icon" th:href="@{${baseContentUrl}+'/favicon.ico'}">
+        <link th:href="@{${baseContentUrl}+'/vendor/bootstrap/bootstrap.min.css'}" rel="stylesheet">
+        <link th:href="@{${baseContentUrl}+'/vendor/bootstrap/bootstrap-datepicker.min.css'}" rel="stylesheet">
+        <link th:href="@{${baseContentUrl}+'/css/matrix.css'}" rel="stylesheet">
+        <link th:href="@{${baseContentUrl}+'/css/login.css'}"  rel="stylesheet" >
+        <link th:href="@{${baseContentUrl}+'/css/drag.css'}"  rel="stylesheet" > -->
+    <link rel="icon" href="https://nspos.chinapnr.com/nsposomweb/favicon.ico?version=v1">
+    <link href="https://nspos.chinapnr.com/nsposomweb/vendor/bootstrap/bootstrap.min.css?version=v1" rel="stylesheet">
+    <link href="https://nspos.chinapnr.com/nsposomweb/vendor/bootstrap/bootstrap-datepicker.min.css?version=v1"
+          rel="stylesheet">
+    <link href="https://nspos.chinapnr.com/nsposomweb/css/matrix.css?version=v1" rel="stylesheet">
+    <link href="https://nspos.chinapnr.com/nsposomweb/css/login.css?version=v1" rel="stylesheet">
+    <link href="https://nspos.chinapnr.com/nsposomweb/css/drag.css?version=v1" rel="stylesheet">
+    <style>
+        .msg-tip {
+            display: inline-block;
+            line-height: 35px;
+            padding-left: 20px;
+            margin-left: 20px;
+            color: #649af9;
+            cursor: pointer;
+            position: relative;
+            background: url("../img/prompt.png") no-repeat left center;
+        }
+
+        .phoneCode {
+            height: 35px;
+            -webkit-box-shadow: none;
+            box-shadow: none;
+            border-color: #eee;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            width: 140px;
+            height: 34px;
+            margin-top: 20px;
+            margin-right: 30px;
+        }
+
+        .phoneCode:focus {
+            border-color: #649af9;
+            -webkit-box-shadow: 0 0 8px rgba(100, 154, 249, .25);
+            box-shadow: 0 0 8px rgba(100, 154, 249, .25);
+        }
+
+        .ocx_style {
+            width: 192px;
+            height: 25px;
+            line-height: 25px;
+            padding-left: 20px
+        }
+    </style>
+    <style>
+    </style>
+</head>
+<body style="margin: 0px; overflow-x: hidden; min-width: 100%;">
+<div class="login-wrap">
+    <div class="login-header">
+        <img src="https://cloudcdn.cloudpnr.com/logo/logo_zhihuiguanjia.png" alt="" height="30">
+        <div class="login-header">
+            <img src="https://cloudcdn.cloudpnr.com/logo/logo_zhihuiguanjia.png" alt="" height="30">
+            <div class="phone-wrap">
+                <img src="img/tel.png">联系我们
+				<span class="code">
+					在线客服：扫描关注
+					<img src="img/code.png" alt="">
+					客服热线：400-820-2819
+				</span>
+            </div>
+        </div>
+    </div>
+    <div class="banner">
+        <div class="b-main">
+            <!-- <div class="b-img">
+             <a href=" " style="background:url(img/banner3.jpg) no-repeat center center;-webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;"></a >
+			 <a href="#" style="background:url(img/banner1.jpg) no-repeat center center;-webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;"></a >
+			 <a href="#" style="background:url(img/banner4.jpg) no-repeat center center;-webkit-background-size: cover;-moz-background-size: cover;-o-background-size: cover;"></a >
+            </div> -->
+            <div class="main-w1200">
+                <div class="login-box">
+                    <form action="https://nspos.chinapnr.com/nsposomweb/menu" id="form1">
+                        <input name="sessionId" type="hidden" id="sessionId">
+                        <input name="bizSwitch0001" type="hidden" id="bizSwitch0001" value="0">
+                        <input name="bizSwitch0002" type="hidden" id="bizSwitch0002" value="0">
+                        <div class="gradient-border login-user error">
+                            <div class="login-item">
+                                <label class="login-icon"></label>
+                                <div class="sep-line"></div>
+                                <input name="operatorId" class="userName" type="text" placeholder="请输入您的账号"
+                                       required="required" oninvalid="setCustomValidity('请输入合法的账号');"
+                                       oninput="setCustomValidity('');" pattern="[a-zA-Z0-9_]{6,32}" maxlength="32"
+                                       autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="gradient-border login-key">
+
+                            <div class="login-item">
+                                <label class="login-icon"></label>
+                                <div class="sep-line"></div>
+                                <input type="password" name="operatorPass" class="userPassword" placeholder="请输入您的密码"
+                                       required="required" oninvalid="setCustomValidity('请正确输入您的密码');"
+                                       oninput="setCustomValidity('');" autocomplete="off">
+                            </div>
+                        </div>
+                        <div id="drag">
+                            <div class="drag_bg"></div>
+                            <div class="drag_text" onselectstart="return false;" unselectable="on">拖动滑块验证</div>
+                            <div class="handler handler_bg"></div>
+                        </div>
+
+                        <div class="gradient-border login-btn">
+                            <button type="button" name="login" id="login" onclick="toLogin()">登录</button>
+                        </div>
+                        <div class="gradient-border forget-password">
+                            <div class="forget-password"><a href="javascript:void(0)" onclick="findPwd()">忘记密码？</a>
+                            </div>
+                        </div>
+
+
+                    </form>
+                    <input type="hidden" id="context" value="https://nspos.chinapnr.com/nsposomweb">
+                    <form action="https://nspos.chinapnr.com/nsposomweb/webB1504" id="fd" method="post">
+                        <input type="hidden" name="step" id="step">
+                    </form>
+                </div>
+            </div>
+            <ins data-revive-zoneid="27" data-revive-id="9badcf905e785a4a38bf62965daea94e" data-revive-seq="0"
+                 id="revive-0-0" data-revive-loaded="1" style="text-decoration: none;">
+                <div class="slipping-area" style="position: relative; overflow: hidden;">
+                    <ul style="width: 1456px; display: block; overflow: hidden; padding: 0px; margin: 0px; transform: translate3d(-364px, 0px, 0px); transition: transform 0s ease-out 0s;">
+                        <li style="float: left; list-style: none; width: 364px; height: 147.117px;"
+                            data-log="https://ad.cloudpnr.com/ad/www/delivery/lg.php?bannerid=45&amp;campaignid=4&amp;zoneid=27&amp;loc=https%3A%2F%2Fnspos.chinapnr.com%2F&amp;cb=496b74bc1b">
+                            <img src="https://cloudcdn.cloudpnr.com/lesley/login_201805_bg.png" width="1920"
+                                 height="776" alt="" title="" border="0" style="height: 147.117px; width: 364px;"></li>
+                        <li style="float: left; list-style: none; width: 364px; height: 147.117px;"
+                            data-log="https://ad.cloudpnr.com/ad/www/delivery/lg.php?bannerid=70&amp;campaignid=4&amp;zoneid=27&amp;loc=https%3A%2F%2Fnspos.chinapnr.com%2F&amp;cb=216b5c0ce5">
+                            <img src="https://cloudcdn.cloudpnr.com/lesley/login_20180703.png" width="1920" height="776"
+                                 alt="" title="" border="0" style="height: 147.117px; width: 364px;"></li>
+                        <li style="float: left; list-style: none; width: 364px; height: 147.117px;"
+                            data-log="https://ad.cloudpnr.com/ad/www/delivery/lg.php?bannerid=45&amp;campaignid=4&amp;zoneid=27&amp;loc=https%3A%2F%2Fnspos.chinapnr.com%2F&amp;cb=496b74bc1b">
+                            <img src="https://cloudcdn.cloudpnr.com/lesley/login_201805_bg.png" width="1920"
+                                 height="776" alt="" title="" border="0" style="height: 147.117px; width: 364px;"></li>
+                        <li style="float: left; list-style: none; width: 364px; height: 147.117px;"
+                            data-log="https://ad.cloudpnr.com/ad/www/delivery/lg.php?bannerid=70&amp;campaignid=4&amp;zoneid=27&amp;loc=https%3A%2F%2Fnspos.chinapnr.com%2F&amp;cb=216b5c0ce5">
+                            <img src="https://cloudcdn.cloudpnr.com/lesley/login_20180703.png" width="1920" height="776"
+                                 alt="" title="" border="0" style="height: 147.117px; width: 364px;"></li>
+                    </ul>
+                    <ul style="position: absolute; right: 50%; bottom: 5%; padding: 0px; margin: 0px;">
+                        <li data-i="0"
+                            style="display: inline-block; width: 8px; height: 8px; background-clip: padding-box; border-radius: 50%; background-color: rgb(64, 151, 235); position: relative; box-sizing: border-box; float: left; margin-left: 10px; cursor: pointer;"></li>
+                        <li data-i="1"
+                            style="display: inline-block; width: 8px; height: 8px; background-clip: padding-box; border-radius: 50%; background-color: rgb(153, 153, 153); position: relative; box-sizing: border-box; float: left; margin-left: 10px; cursor: pointer;"></li>
+                    </ul>
+                </div>
+            </ins>
+        </div>
+    </div>
+    <div class="login-footer">
+        <p>汇付天下有限公司版权所有 Copyright2017 © ChinaPnR All Right</p>
+    </div>
+</div>
+
+
+<a href="javascript:void(0)" data-toggle="modal" data-target="#modalStyle-2" style="display: none" class="btn-tip"></a>
+<div class="modal fade" id="modalStyle-2" data-backdrop="static">
+    <div class="modal-dialog modal-alert">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body">
+                <p></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary tip-cancel">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<a href="javascript:void(0)" data-toggle="modal" data-target="#modalStyle-3" style="display: none" class="btn-tip3"></a>
+<div class="modal fade" id="modalStyle-3" data-backdrop="static">
+    <div class="modal-dialog modal-alert">
+        <div class="modal-content">
+            <div class="modal-header"></div>
+            <div class="modal-body" id="yuliuText1">
+                <p>您的预留签名是：<span id="yuliu"></span></p><span class="msg-tip" id="yuliuSet">设置</span>
+            </div>
+            <div class="modal-body" id="yuliuText2" style="display:none">
+                设置预留签名：<input type="text" class="form-control" id="reservedMsg" name="reservedMsg" required="required"
+                              maxlength="20">
+                <input type="hidden" name="showReservedMsgFlag" id="showReservedMsgFlag">
+            </div>
+            <div class="modal-footer" id="button1">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="setp1">确定</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="cancle1">取消</button>
+            </div>
+            <div class="modal-footer" id="button2" style="display:none">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="setp2">确定</button>
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="cancle2">取消</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<a href="javascript:void(0)" data-toggle="modal" data-target="#modalStyle-4" style="display: none" class="btn-tip4"></a>
+<div class="modal fade" id="modalStyle-4" data-backdrop="static">
+    <div class="modal-dialog modal-alert">
+        <div class="modal-content">
+            <div class="modal-header"><p>请修改登录密码</p></div>
+            <div class="modal-body" id="changePwd">
+                <p>为了确保您的信息安全，请尽快修改登录密码</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-dismiss="modal" id="remindMsg">确定</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script async="" src="//ad.cloudpnr.com/ad/www/delivery/asyncjs.php"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/vendor/jquery-1.12.3.min.js?version=v1"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/vendor/bootstrap/bootstrap.min.js?version=v1"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/vendor/bootstrap/bootstrap-datepicker.min.js?version=v1"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/js/matrix.js?version=v1"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/js/main.js?version=v1"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/js/login.js?version=v1"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/js/drag.js?version=v1"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/js/crypto-js.js"></script>
+<script src="https://nspos.chinapnr.com/nsposomweb/js/PassGuardCtrl_pro.js"></script>
+
+<script type="text/javascript">
+    window.onload = function () {
+        var random, datab;
+        //请求通讯加密两个参数(随机数pgeRZRandNum和数据B pgeRZDataB)
+        $.ajax({
+            url: $('#context').val() + "/skey_enstr?" + new Date().getTime(),
+            type: "GET",
+            async: false,
+            success: function (xhr) {
+                // var skey_enstr = pgeCtrl.trim(xhr.responseText);
+                var o = xhr.split(",");
+                random = o[0];
+                datab = o[1];
+            }
+        });
+        //new 控件对象
+        window.pgeditor = new pge({
+            // pgePath : $('#baseContentUrl').val()+"/static/ocx/",//控件下载目录，可以指定绝对路径，如"http://www.baidu.com/download/"
+            pgePath: "https://cloudcdn.cloudpnr.com/passguard/",//控件下载目录，可以指定绝对路径，如"http://www.baidu.com/download/"
+            pgeId: "_ocx_password",//控件id
+            pgeEditType: 0,//控件显示类型,0(星号),1(明文)
+            pgeEreg1: "[A-Za-z0-9]*",//输入过程中字符类型限制，如"[0-9]*"表示只能输入数字
+            pgeEreg2: "[A-Za-z0-9]{8,16}",//输入完毕后字符类型判断条件，与pgeditor.pwdValid()方法对应
+            pgeMaxLength: 16,//允许最大输入长度
+            pgeTabIndex: 2,//tab键顺序
+            pgeClass: "ocx_style",//控件css样式
+            pgeInstallClass: "ocx_style",//针对安装或升级的css样式
+            pgeOnKeyDown: "toLogin()",//回车键响应函数，需焦点在控件中才能响应
+            tabCallBack: "input2",//火狐tab键回调函数,设置要跳转到的对象ID
+            // pgeOnFocus : "pgeFocus()",//监控光标切入密码控件框
+            //pgeOnBlur : "pgeBlur()",//监控光标切出密码控件框
+            pgeOnFocus: "",//监控光标切入密码控件框
+            pgeOnBlur: "",//监控光标切出密码控件框
+            pgeWindowID: "operatorPass" + new Date().getTime() + 1,
+            pgeRZRandNum: random,
+            pgeRZDataB: datab
+
+        });
+
+
+        //定义公共对象
+
+        window.pgeCtrl = pgeditor;
+        //绘制控件标签
+        pgeCtrl.pwdhtml("_ocx_password_str", pgeditor.load());
+
+        //初始化
+        pgeInit();
+    }
+
+</script>
+
+
+</body>
+</html>

@@ -1,0 +1,149 @@
+.header{
+	background-color: #fff;
+}
+.payment{
+	width: 3.45rem;
+	margin: 0 auto;
+	margin-top: 0.3rem;
+	background-color: #fff;
+	border-bottom: 1px solid #ccc;
+}
+.payment>div{
+	width: 3.45rem;
+	margin-top: 0.10rem;
+	box-shadow: inset 0 0 0 0 #CCCCCC;
+}
+.payment>div>p{
+	font-family: "PingFangSC-Regular";
+	font-size: 0.15rem;
+	color: #333333;
+}
+.payment .im-monery{
+	display: inline-block;
+	width: auto;
+	height: 0.4rem;
+	font-family: "PingFangSC-Regular";
+	font-size: 0.28rem;
+	color: #333333;
+
+}
+.payment .payNum{
+	height: 0.4rem;
+	margin-left: 2%;
+	width: 2.7rem;
+	font-size: 0.4rem;
+	vertical-align: middle;
+	font-family: "PingFangSC-Regular";
+	color: #333;
+	border:none;
+}
+/*键盘*/
+.keyboard{
+	width: 3.75rem;
+	position: absolute;
+	bottom: 0;
+	left: 0;
+	background-color: #FCFCFC ;
+}
+.keyboard .keyNum{
+	width: 2.79rem;
+	float: left;
+}
+.keyboard .keyNum>div{
+	width: 0.93rem;
+	height: 0.6rem;
+	float: left;
+	font-size: 0.22rem;
+	text-align: center;
+	line-height: 0.6rem;
+	color: #333333;
+	box-shadow: inset 1px 1px 0 0 #DDDDDD;
+	font-family: "PingFangSC-Regular";
+}
+.keyNum .zero{ width: 1.86rem !important; }
+.keyNum>div:nth-child(1){
+	box-shadow: inset 0 1px 0 0 #DDDDDD !important;
+}
+.keyNum>div:nth-child(3n+1){
+	box-shadow: inset 0 1px 0 0 #DDDDDD !important;
+}
+.keyText{
+	float: right;
+}
+.keyboard .keyText>div{
+	width: 0.96rem;
+	height: 1.2rem;
+	text-align: center;
+	line-height: 1.2rem;
+	font-size: 0.17rem;
+	box-shadow: inset 1px 1px 0 0 #DDDDDD;
+}
+.keyText>div:nth-child(1)>div{
+	width: 0.23rem;
+	height: 0.17rem;
+	margin: 0 auto;
+}
+.keyText>div:nth-child(1)>div>img{
+	width: 100%;
+	height: 100%;
+}
+.keyText>div:nth-child(2){
+	background-color: #999999;  /* 确定按钮默认灰色  98b8e5*/
+	color: #fff;
+}
+.active {
+	background-color: #DCDCDC;
+	alpha: 0.1
+}
+.loading {
+	width: 100%;
+	height: 100%;
+	position: absolute;
+	z-index: 999;
+	left: 0;
+	top: 0;
+	display: none
+}
+.loading-logo {
+	background: rgba(0, 0, 0, .7);
+	width: 200px;
+	height: 200px;
+	text-align: center;
+	line-height: 200px;
+	font-size: 32px;
+	border-radius: 10px;
+	color: #fff;
+	margin: auto;
+	position: absolute;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0
+}
+@keyframes keyboard-cursor {
+	0% {
+		opacity: 1
+	}
+	50% {
+		opacity: 0
+	}
+	100% {
+		opacity: 1
+	}
+}
+.im-input {
+	height: 0.6rem;
+	width: 100%;
+	font-size: 54px;
+	color: #f6a623;
+	position: relative
+}
+.im-input:after {
+	content: "";
+	position: absolute;
+	top: 24%;
+	height: 60%;
+	border-right: 3px solid #e72327;
+	-webkit-animation: keyboard-cursor infinite 1s step-start;
+	animation: keyboard-cursor infinite 1s step-start
+}
