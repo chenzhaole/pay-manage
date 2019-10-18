@@ -268,9 +268,7 @@ public class MerchantForm {
 		this.certContent1 = requestMap.get("certContent1");
 
 		this.status = requestMap.get("status");
-
 		this.mchtType = requestMap.get("mchtType");
-
 		this.clientIp = requestMap.get("clientIp");
 		this.mchtKey = requestMap.get("mchtKey");
 
@@ -281,8 +279,8 @@ public class MerchantForm {
 		//商户标签
 		this.mchtPropertyTag = requestMap.get("mchtPropertyTag");
 
-
 		this.isProductControl = Integer.valueOf(requestMap.get("isProductControl"));
+		this.financeMobile = requestMap.get("financeMobile");
 
 		String[] signTypes = request.getParameterValues("signType");
 

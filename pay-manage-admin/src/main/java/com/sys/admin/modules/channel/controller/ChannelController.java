@@ -310,7 +310,7 @@ public class ChannelController extends BaseController {
 
 
 	/**
-	 * 商户支付通道新增或修改的页面
+	 * 通道商户支付方式-新增页面
 	 */
 	@RequestMapping(value = {"addChanMchtPayTypePage"})
 	public String addChanMchtPayTypePage(HttpServletRequest request, HttpServletResponse response, Model model,
@@ -330,34 +330,18 @@ public class ChannelController extends BaseController {
 			model.addAttribute("op", "add");
 		}
 
+		//查询所有通道
 		List<ChanInfo> chanInfos = channelAdminService.getChannelList(new ChanInfo());
 		model.addAttribute("chanInfos", chanInfos);
 
-		//商户列表 只展示申报商户及服务商`
-		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
-		List<MerchantForm> mchtInfosResult = new ArrayList<>();
-		for (MerchantForm mchtInfo : mchtInfos) {
-			if (StringUtils.isBlank(mchtInfo.getSignType())) {
-				continue;
-			}
-			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
-				if (mchtInfo.getSignType().contains(SignTypeEnum.SIGN_MCHT.getCode())
-						|| mchtInfo.getSignType().contains(SignTypeEnum.SERVER_MCHT.getCode())) {
-					mchtInfosResult.add(mchtInfo);
-				}
-			}
-		}
-		model.addAttribute("mchtInfos", mchtInfosResult);
 
-		//签了服务商合同的通道商户支付方式列表，选上级用
-		List<ChanMchtFormInfo> chanInfoList = chanMchtAdminService.getAllChannel(searchInfo);
-		model.addAttribute("chanMchts", chanInfoList);
-
-		//支付方式
-		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
-		model.addAttribute("paymentTypeInfos", payTypeList);
-//		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();
-//		model.addAttribute("paymentTypeInfos", paymentTypeInfos);
+		//modify by chenzl 20191013,因商户数据量变大,修改读取商户列表方式, 只展示申报商户
+		MchtInfo selMcht = new MchtInfo();
+		selMcht.setSignType(SignTypeEnum.SIGN_MCHT.getCode());
+		List<MchtInfo> registeMchtList = merchantService.list(selMcht);
+		model.addAttribute("mchtInfos", registeMchtList);
+		model.addAttribute("paymentTypeInfos", AdminPayTypeEnum.values());//支付方式
+		model.addAttribute("chanMchts", null);//上级商户默认为空(因为没实用性) modify
 
 		return "modules/channel/chanMchtPayTypeEdit";
 	}

@@ -8,7 +8,7 @@
 	        http://code.alibabatech.com/schema/dubbo
 	        http://code.alibabatech.com/schema/dubbo/dubbo.xsd">
 
-	<dubbo:application name="myepay-boss-gateway-consumer" />
+	<dubbo:application name="manage-gateway-consumer" />
 	
 	<dubbo:registry address="zookeeper://127.0.0.1:2181" />
 
@@ -42,8 +42,11 @@
  	<!-- [boss-trade] 银行卡归属地，卡BIN查询 -->
  	<dubbo:reference id="tradeBankCardOwnershipHandler" interface="com.sys.boss.api.service.trade.handler.ITradeBankCardOwnershipHandler" timeout="30000"/>
 
-	<!-- [boss-trade] TX一户一报商户入驻 -->
-	<dubbo:reference id="tradeMchtRegisteHandler" interface="com.sys.boss.api.service.trade.handler.ITradeMchtRegisteHandler" timeout="30000"/>
+	<!-- [boss-trade] 商户入驻 -->
+	<dubbo:reference id="tradeRegisteMchtHandler" interface="com.sys.boss.api.service.trade.handler.ITradeRegisteMchtHandler" timeout="30000"/>
+
+	<!-- [boss-trade] 商户入驻查询 -->
+	<dubbo:reference id="tradeRegisteQueryHandler" interface="com.sys.boss.api.service.trade.handler.ITradeRegisteQueryHandler" timeout="30000"/>
 
 	<!-- [boss-trade] TX一户一报商户快捷预消费接口 -->
 	<dubbo:reference id="tradeTxQuickPrePayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeTxQuickPrePayHandler" timeout="30000"/>
@@ -56,6 +59,7 @@
 
 	<!-- [boss-trade] 统一扫码，下单支付处理句柄 -->
 	<dubbo:reference id="tradeApiPayHandler" interface="com.sys.boss.api.service.trade.handler.ITradeApiPayHandler" timeout="30000"/>
+
 	<!-- [boss-trade] 统一扫码，查询支付处理句柄 -->
 	<dubbo:reference id="tradeApiQueryHandler" interface="com.sys.boss.api.service.trade.handler.ITradeApiQueryHandler" timeout="30000"/>
 
@@ -86,10 +90,25 @@
 	<dubbo:reference id="tradeDFBatchHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFBatchHandler" timeout="30000"/>
 	<dubbo:reference id="tradeDFSingleHandler" interface="com.sys.boss.api.service.trade.handler.ITradeDFSingleHandler" timeout="30000"/>
 
+	<!-- [boss-trade] 四要素鉴权-->
+	<dubbo:reference id="tradeAuthCardElementHandler" interface="com.sys.boss.api.service.trade.handler.ITradeAuthCardElementHandler" timeout="30000"/>
+
 	<!--面值库存-->
 	<dubbo:reference id="tradeQueryFaceHandler" interface="com.sys.boss.api.service.trade.handler.ITradeQueryFaceHandler" timeout="30000"/>
 	<!--公户账务金额-->
 	<dubbo:reference id="accountAmountService" interface="com.sys.core.service.AccountAmountService" timeout="30000"/>
 	<!--公户信息-->
 	<dubbo:reference id="publicAccountInfoService" interface="com.sys.core.service.PublicAccountInfoService" timeout="30000"/>
+
+	<!-- [boss-trade] 固码，下单支付处理句柄 -->
+	<dubbo:reference id="tradeApiPayQRHandler" interface="com.sys.boss.api.service.trade.handler.ITradeApiQRPayHandler" timeout="30000"/>
+
+	<!-- 退单接口 -->
+	<dubbo:reference id="tradeRefundCreateHandler" interface="com.sys.boss.api.service.trade.handler.ITradeRefundCreateHandler" timeout="30000"/>
+	<!-- 退单查询接口 -->
+	<dubbo:reference id="tradeRefundQueryHandler" interface="com.sys.boss.api.service.trade.handler.ITradeRefundQueryHandler" timeout="30000"/>
+
+
+
+
 </beans>

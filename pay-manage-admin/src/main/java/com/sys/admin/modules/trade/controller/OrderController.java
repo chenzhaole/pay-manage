@@ -132,13 +132,69 @@ public class OrderController extends BaseController {
 	private MchtAccAmountService mchtAccAmountService;
 
 
+	/**
+	 * 从菜单进入页面,默认不访问数据库
+     */
+	@RequiresPermissions("process:question:view")
+	@RequestMapping(value = {"preList", ""})
+	public String preList(HttpServletRequest request, HttpServletResponse response, HttpSession session,
+					   Model model, @RequestParam Map<String, String> paramMap) {
 
+		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+
+		//查询用商户List,只保留支付商户和代理商
+		List<MchtInfo> mchtList4Sel = new ArrayList();
+		for(MchtInfo mchtInfo : mchtList){
+			if(mchtInfo.getSignType().contains("1") || mchtInfo.getSignType().contains("4")){
+				mchtList4Sel.add(mchtInfo);
+			}
+		}
+		//支付产品列表
+		List<PlatProduct> productList = productService.list(new PlatProduct());
+		//通道商户支付方式列表
+		List<ChanMchtPaytype> chanMchtPaytypeList = chanMchtPaytypeService.list(new ChanMchtPaytype());
+		//  上游通道列表
+		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
+
+		//支付方式
+		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
+		model.addAttribute("paymentTypeInfos", payTypeList);
+		model.addAttribute("chanInfoList", chanInfoList);
+		model.addAttribute("mchtList", mchtList4Sel);
+		model.addAttribute("productList", productList);
+		model.addAttribute("chanMchtPaytypeList", chanMchtPaytypeList);
+
+		BigDecimal amount 		 = new BigDecimal(0);
+		long 	   successCount  = 0;
+		BigDecimal successAmount = new BigDecimal(0);
+		int 	   orderCount = 0;
+		model.addAttribute("orderCount", orderCount);
+		model.addAttribute("successCount", successCount);
+		model.addAttribute("amount", amount.toString());
+		model.addAttribute("successAmount", successAmount.toString());
+		model.addAttribute("isstat",paramMap.get("isstat"));
+
+		return "modules/order/orderList";
+	}
+
+
+	/**
+	 * 页面点击查询,操作数据库
+     */
 	@RequiresPermissions("process:question:view")
 	@RequestMapping(value = {"list", ""})
 	public String list(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 					   Model model, @RequestParam Map<String, String> paramMap) {
 
 		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+
+		//查询用商户List,只保留支付商户和代理商
+		List<MchtInfo> mchtList4Sel = new ArrayList();
+		for(MchtInfo mchtInfo : mchtList){
+			if(mchtInfo.getSignType().contains("1") || mchtInfo.getSignType().contains("4")){
+				mchtList4Sel.add(mchtInfo);
+			}
+		}
 		//支付产品列表
 		List<PlatProduct> productList = productService.list(new PlatProduct());
 		//通道商户支付方式列表
@@ -156,7 +212,7 @@ public class OrderController extends BaseController {
 		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
 		model.addAttribute("paymentTypeInfos", payTypeList);
 		model.addAttribute("chanInfoList", chanInfoList);
-		model.addAttribute("mchtList", mchtList);
+		model.addAttribute("mchtList", mchtList4Sel);
 		model.addAttribute("productList", productList);
 		model.addAttribute("chanMchtPaytypeList", chanMchtPaytypeList);
 

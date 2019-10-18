@@ -54,7 +54,7 @@ public class GwRecNotifyController {
      */
     @RequestMapping("/recNotify/data/{chanCode}/{platOrderId}/{payType}")
     @ResponseBody
-    public String recNotifyData(@RequestBody String data, @PathVariable String chanCode, @PathVariable String platOrderId, @PathVariable String payType) throws TransException {
+    public String recNotifyData(@RequestBody String data, @PathVariable String chanCode, @PathVariable String platOrderId, @PathVariable String payType) throws Exception {
         logger.info(BIZ+" data数据 [START] chanCode=" + chanCode + " platOrderId=" + platOrderId + " 异步通知原始报文data="+ data + "");
 
         String resp2chan = "FAILURE";
@@ -159,7 +159,7 @@ public class GwRecNotifyController {
      */
     @RequestMapping("/recNotify/param/{chanCode}/{platOrderId}/{payType}")
     @ResponseBody
-    public String recNotifyParam(HttpServletRequest request, HttpServletResponse response, @PathVariable String chanCode, @PathVariable String platOrderId, @PathVariable String payType) throws TransException {
+    public String recNotifyParam(HttpServletRequest request, HttpServletResponse response, @PathVariable String chanCode, @PathVariable String platOrderId, @PathVariable String payType) throws Exception {
         String resp2chan = "FAILURE";
         try {
             TreeMap<String, String> dataMap = new TreeMap<String, String>();
@@ -234,7 +234,7 @@ public class GwRecNotifyController {
      */
     @RequestMapping("/testNotify/{mchtKey}")
     @ResponseBody
-    public String testNotify(@RequestBody String data, @PathVariable String mchtKey, HttpServletRequest request, HttpServletResponse response) throws TransException {
+    public String testNotify(@RequestBody String data, @PathVariable String mchtKey, HttpServletRequest request, HttpServletResponse response) throws Exception {
         logger.info("模拟商户接收异步通知，收到的data="+ data);
         String ret = "FAIL";
         String mchtOrdertId = "";
@@ -267,25 +267,50 @@ public class GwRecNotifyController {
 
 
     /**
+     * for钱方好近
+     *
      * 上游配置异步通知地址-接受统一异步通知结果
      * 异步通知固定链接.不会按订单号动态生成对应的异步通知地址
      * data数据
      */
     @RequestMapping("/recNotify/data")
     @ResponseBody
-    public String recNotify(@RequestBody String data,HttpServletRequest httpServletRequest) throws TransException {
+    public String recNotify(@RequestBody String data,HttpServletRequest httpServletRequest) throws Exception {
         String resp2chan = "FAILURE";
         String platOrderNo =null;
         String sign =httpServletRequest.getHeader("X-QF-SIGN");
         try {
             data = URLDecoder.decode(data, "utf-8");
-            logger.info("接收到固定异步通知链接信息,参数为:" + data);
+            logger.info("钱方接收异步通知固定地址收到数据:" + data);
+
+            JSONObject json  = JSON.parseObject(data);
+            String out_trade_no = json.getString("out_trade_no");
+
+            if(StringUtils.isBlank(out_trade_no)){
+                logger.info("钱方接收异步通知固定地址收到数据,out_trade_no值为空,直接返回:SUCCESS" );
+                return "SUCCESS";
+            }
+            if(!out_trade_no.startsWith("P")){
+                logger.info("钱方接收异步通知固定地址收到数据,out_trade_no不是P开头,直接返回:SUCCESS" );
+                return "SUCCESS";
+            }
+
             //解析并校验签名上游通道异步通知的数据
             CommonResult tradeResult = recNotifyService.reciveNotify(data,sign);
+
+            //add by 3310 20190517
+            String respCode = tradeResult.getRespCode();
+            logger.info("钱方接收异步通知固定地址 service层处理结果respCode:"+respCode);
+            if(ErrorCodeEnum.E8003.getCode().equalsIgnoreCase(respCode)){
+                //支付流水已成功,重复通知,直接返回
+                logger.info("钱方接收异步通知固定地址,平台判断订单已成功,直接返回:SUCCESS");
+                return "SUCCESS";
+            }
+
             if (ErrorCodeEnum.SUCCESS.getCode().equals(tradeResult.getRespCode()) || ErrorCodeEnum.E8003.getCode().equals(tradeResult.getRespCode())) {
                 //解析通道数据成功,更新数据库订单状态成功
                 //响应给上游通道的信息--不论是否通知下游商户成功，这里都会响应上游通道接收异步通知成功，因为能执行到此处，说明数据库已经是成功状态，不允许通道方补抛
-                resp2chan = tradeResult.getRespMsg();
+                resp2chan = "SUCCESS";//tradeResult.getRespMsg();
                 //数据不为空，才会给商户通知
                 if (null != tradeResult.getData()) {
                     //通知商户信息源
@@ -322,5 +347,7 @@ public class GwRecNotifyController {
         logger.info(BIZ+platOrderNo+"，接收上游通道异步通知接口data数据 [END],返回通道响应信息为: "+resp2chan);
         return resp2chan;
     }
+
+
 
 }

@@ -109,10 +109,13 @@ public class ProxyChangeStatusController extends BaseController {
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 		//审批列表
 		List<PlatProxyDetailAudit> proxyDetailAudits = proxyDetailAuditService.list(new PlatProxyDetailAudit());
+		// 代付审批
+		List<PlatProxyDetailAudit> PlatProxyDetailAuditList = proxyDetailAuditService.list(new PlatProxyDetailAudit());
 
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
 		Map<String, String> auditMap = Collections3.extractToMap(proxyDetailAudits, "platDetailId", "platDetailId");
+		Map<String, String> detailAuditMap = Collections3.extractToMap(PlatProxyDetailAuditList, "platDetailId", "auditStatus");
 
 		model.addAttribute("chanInfos", chanInfoList);
 		model.addAttribute("mchtInfos", mchtInfos);
@@ -125,7 +128,7 @@ public class ProxyChangeStatusController extends BaseController {
 		for (PlatProxyDetail detail : proxyInfoList) {
 			detail.setMchtId(mchtMap.get(detail.getMchtId()));
 			detail.setChanId(channelMap.get(detail.getChanId()));
-
+			detail.setExtend1(detailAuditMap.get(detail.getId()));
 			//判断是否已发起审批
 			/*if (StringUtils.isNotBlank(auditMap.get(detail.getId()))) {
 				detail.setExtend3("777");

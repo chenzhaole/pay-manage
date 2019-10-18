@@ -41,6 +41,7 @@
                 ${adminPath}/logout = logout
                 ${adminPath}/** = user
                 ${adminPath}/accountAmount/** = anon
+                ${adminPath}/reNotify2MchtByTask/start = anon
             </value>
         </property>
     </bean>

@@ -387,6 +387,15 @@
                     </div>
                 </div>
             </td>
+            <td>
+                <div class="control-group">
+                    <label class="control-label">代付手机<span style="color: red;"></span></label>
+                    <div class="controls">
+                        <input name="financeMobile" value="${merchant.financeMobile}" placeholder=""
+                               class="input-xlarge" type="text">
+                    </div>
+                </div>
+            </td>
         </tr>
         <tr>
 

@@ -9,14 +9,19 @@ import com.sys.boss.api.entry.trade.request.TradeBaseRequest;
 import com.sys.boss.api.entry.trade.request.TradeReqHead;
 import com.sys.boss.api.entry.trade.request.apipay.ApiPayRequestBody;
 import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
+import com.sys.boss.api.entry.trade.request.refund.RefundRequestBody;
+import com.sys.boss.api.entry.trade.request.refund.TradeRefundRequest;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
+import com.sys.boss.api.entry.trade.response.refund.RefundResponse;
 import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
 import com.sys.boss.api.service.trade.handler.ITradeApiQRPayHandler;
+import com.sys.boss.api.service.trade.handler.ITradeRefundCreateHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.util.IdUtil;
 import com.sys.common.util.SignUtil;
-
 import com.sys.gateway.service.GwApiPayService;
+import com.sys.gateway.service.GwApiRefundService;
 import com.sys.trans.api.entry.Result;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
@@ -27,20 +32,17 @@ import org.springframework.stereotype.Service;
 import java.util.Map;
 
 /**
- * @Description:通用支付业务处理实现类
+ * @Description:退款业务处理实现类
  * @author: ChenZL
- * @time: 2017年11月28日
+ * @time: 2019年10月18日
  */
 @Service
-public class GwApiPayServiceImpl implements GwApiPayService {
+public class GwApiRefundServiceImpl implements GwApiRefundService {
 
     protected final Logger logger = LoggerFactory.getLogger(GwApiPayService.class);
 
     @Autowired
-    private ITradeApiPayHandler tradeApiPayHandler;
-
-    @Autowired
-    private ITradeApiQRPayHandler tradeApiQrPayHandler;
+    private ITradeRefundCreateHandler tradeRefundCreateHandler;
 
 
     /**
@@ -54,7 +56,7 @@ public class GwApiPayServiceImpl implements GwApiPayService {
                 paramStr = paramStr.substring(0, paramStr.length() - 1);
             }
             //解析请求参数
-            TradeApiPayRequest tradeRequest = JSON.parseObject(paramStr, TradeApiPayRequest.class);
+            TradeRefundRequest tradeRequest = JSON.parseObject(paramStr, TradeRefundRequest.class);
             checkResp.setData(tradeRequest);
 
             if (tradeRequest.getHead() == null) {
@@ -63,7 +65,6 @@ public class GwApiPayServiceImpl implements GwApiPayService {
                 logger.error("[head]请求参数值不能为空，即TradeCommRequest=：" + JSONObject.toJSONString(tradeRequest));
                 return checkResp;
             }
-            tradeApiPayHandler.insertRedisRequestData(tradeRequest.getHead().getMchtId(), tradeRequest.getBody() == null ? "0" : tradeRequest.getBody().getAmount(), 1);
 
             if (tradeRequest.getBody() == null) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
@@ -87,15 +88,14 @@ public class GwApiPayServiceImpl implements GwApiPayService {
                 return checkResp;
             }
 
-            ApiPayRequestBody body = tradeRequest.getBody();
+            RefundRequestBody body = tradeRequest.getBody();
             if (StringUtils.isBlank(body.getOrderId())
                     || StringUtils.isBlank(body.getAmount())
-                    || StringUtils.isBlank(body.getGoods())
-                    || StringUtils.isBlank(body.getNotifyUrl())
-                    || StringUtils.isBlank(body.getOrderTime())) {
+                    || StringUtils.isBlank(body.getOriTradeId())
+                    || StringUtils.isBlank(body.getOriOrderTime())) {
                 checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
-                checkResp.setRespCode("[orderId],[orderTime],[amount],[goods],[notifyUrl]请求参数值不能为空");
-                logger.error("[orderId],[orderTime],[amount],[goods],[notifyUrl]请求参数值不能为空，即CommRequestBody=：" + JSONObject.toJSONString(body));
+                checkResp.setRespCode("[orderId],[oriOrderTime],[amount],[oriTradeId]必填参数值不能为空");
+                logger.error("[orderId],[oriOrderTime],[amount],[oriTradeId]必填参数值不能为空，即CommRequestBody=：" + JSONObject.toJSONString(body));
                 return checkResp;
             }
 
@@ -104,7 +104,7 @@ public class GwApiPayServiceImpl implements GwApiPayService {
             checkResp.setData(tradeRequest);
         } catch (Exception e) {
             e.printStackTrace();
-            logger.error("API订单校验参数异常：" + e.getMessage());
+            logger.error("退单单校验参数异常：" + e.getMessage());
             checkResp.setRespCode(ErrorCodeEnum.E1012.getCode());
             checkResp.setRespMsg(ErrorCodeEnum.E1012.getDesc());
         }
@@ -116,33 +116,32 @@ public class GwApiPayServiceImpl implements GwApiPayService {
      * API订单接口
      */
     @Override
-    public ApiPayOrderCreateResponse pay(TradeBaseRequest tradeRequest, String ip) {
+    public RefundResponse refund(TradeBaseRequest tradeRequest, String ip) {
 
-        ApiPayOrderCreateResponse.ApiPayOrderCreateResponseHead head = new ApiPayOrderCreateResponse.ApiPayOrderCreateResponseHead();
-        ApiPayOrderCreateResponse.ApiPayOrderCreateResponseBody body = new ApiPayOrderCreateResponse.ApiPayOrderCreateResponseBody();
+        RefundResponse.RefundResponseHead head = new RefundResponse.RefundResponseHead();
+        RefundResponse.RefundResponseBody body = new RefundResponse.RefundResponseBody();
         String sign = "";
         try {
-            logger.info("调用boss-trade创建API支付订单，参数值tradeRequest：" + JSON.toJSONString(tradeRequest));
-            CommonResult commonResult = tradeApiPayHandler.process(tradeRequest, ip);
-            logger.info("调用boss-trade创建API支付订单，返回值commonResult：" + JSON.toJSONString(commonResult));
+            logger.info("调用boss-trade创建退款订单，参数值tradeRequest：" + JSON.toJSONString(tradeRequest));
+            CommonResult commonResult = tradeRefundCreateHandler.process(tradeRequest, ip);
+            logger.info("调用boss-trade创建退款订单，返回值commonResult：" + JSON.toJSONString(commonResult));
             if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
-                Result mchtResult = (Result) commonResult.getData();
+                Result result = (Result) commonResult.getData();
                 head.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
                 head.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
-                body.setMchtId(mchtResult.getMchtId());
-                body.setOrderId(mchtResult.getMchtOrderNo());//商户订单号
-                if (tradeRequest.getHead() != null && PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(tradeRequest.getHead().getBiz())) {
-                    body.setPayInfo(mchtResult.getPayInfo());
-                } else {
-                    body.setPayUrl(mchtResult.getPayInfo());
-                }
-                body.setTradeId(mchtResult.getOrderNo());//平台订单号
+                body.setMchtId(result.getMchtId());
+                body.setOrderId(result.getMchtOrderNo());//商户订单号
+                body.setTradeId(result.getOrderNo());//平台订单号
+                body.setOriTradeId(result.getOriOrderNo());
+                body.setStatus(result.getStatus());
+                body.setSeq(IdUtil.getUUID());
+
                 // 签名
                 Map<String, String> params = JSONObject.parseObject(
                         JSON.toJSONString(body), new TypeReference<Map<String, String>>() {
                         });
-                String log_moid = mchtResult.getMchtId() + "-->" + mchtResult.getMchtOrderNo();
-                sign = SignUtil.md5Sign(params, mchtResult.getMchtKey(), log_moid);
+                String moid = result.getMchtId() + "-" + result.getMchtOrderNo();
+                sign = SignUtil.md5Sign(params, result.getMchtKey(), moid);
             } else {
                 String respCode = StringUtils.isBlank(commonResult.getRespCode()) ? ErrorCodeEnum.FAILURE.getCode() : commonResult.getRespCode();
                 String respMsg = StringUtils.isBlank(commonResult.getRespMsg()) ? ErrorCodeEnum.FAILURE.getDesc() : commonResult.getRespMsg();
@@ -153,22 +152,11 @@ public class GwApiPayServiceImpl implements GwApiPayService {
             head.setRespCode(ErrorCodeEnum.E8001.getCode());
             head.setRespMsg(ErrorCodeEnum.E8001.getDesc());
             e.printStackTrace();
-            logger.error("创建API支付订单订单异常 e=" + e.getMessage());
+            logger.error("创建退款订单订单异常 e:" + e.getMessage());
         }
-        ApiPayOrderCreateResponse apiOrderCreateResponse = new ApiPayOrderCreateResponse(head, body, sign);
-        logger.info("返回gateway客户端CommOrderCreateResponse=" + JSON.toJSONString(apiOrderCreateResponse));
-        return apiOrderCreateResponse;
-    }
-
-    @Override
-    public CommonResult qrPay(String platOrderNo, String ip) {
-        TradeApiPayRequest request = new TradeApiPayRequest();
-        ApiPayRequestBody body = new ApiPayRequestBody();
-        body.setOrderId(platOrderNo);
-        request.setBody(body);
-        CommonResult commonResult = tradeApiQrPayHandler.processAuth(request, ip);
-
-        return commonResult;
+        RefundResponse refundResponse = new RefundResponse(head, body, sign);
+        logger.info("返回gateway客户端RefundResponse:" + JSON.toJSONString(refundResponse));
+        return refundResponse;
     }
 
 

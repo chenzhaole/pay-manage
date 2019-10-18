@@ -6,11 +6,12 @@
     <title>代付明细列表</title>
     <meta name="decorator" content="default"/>
     <style type="text/css">
-        .wrap{
-            width: 100px; //设置需要固定的宽度
-        white-space: nowrap; //不换行
-        text-overflow: ellipsis; //超出部分用....代替
-        overflow: hidden; //超出隐藏
+        .wrap {
+            width: 100px;
+        / / 设置需要固定的宽度 white-space: nowrap;
+        / / 不换行 text-overflow: ellipsis;
+        / / 超出部分用 . . . . 代替 overflow: hidden;
+        / / 超出隐藏
         }
     </style>
     <script type="text/javascript">
@@ -33,11 +34,11 @@
             $("#searchForm").submit();
             return false;
         }
-        $(document).ready(function() {
-            $("#btnExport").click(function(){
-                $("#searchForm").attr("action","${ctx}/proxy/export");
+        $(document).ready(function () {
+            $("#btnExport").click(function () {
+                $("#searchForm").attr("action", "${ctx}/proxy/export");
                 $("#searchForm").submit();
-                $("#searchForm").attr("action","${ctx}/proxy/list");
+                $("#searchForm").attr("action", "${ctx}/proxy/list");
             });
         });
     </script>
@@ -65,11 +66,13 @@
 
             <td>
                 <label>商户订单号：</label>
-                <input value="${paramMap.mchtBatchId}" name="mchtBatchId" type="text" maxlength="64" class="input-medium"/>
+                <input value="${paramMap.mchtBatchId}" name="mchtBatchId" type="text" maxlength="64"
+                       class="input-medium"/>
             </td>
             <td>
                 <label>收款账号：</label>
-                <input value="${paramMap.bankCardNo}" name="bankCardNo" type="text" maxlength="64" class="input-medium"/>
+                <input value="${paramMap.bankCardNo}" name="bankCardNo" type="text" maxlength="64"
+                       class="input-medium"/>
             </td>
         </tr>
         <tr>
@@ -80,7 +83,7 @@
                     <c:forEach items="${mchtInfos}" var="mchtInfo">
                         <option value="${mchtInfo.id}"
                                 <c:if test="${paramMap.mchtId == mchtInfo.id}">selected</c:if>
-                                >${mchtInfo.name}</option>
+                        >${mchtInfo.name}</option>
                     </c:forEach>
                 </select>
             </td>
@@ -90,7 +93,8 @@
                 <select name="payStatus" class="input-medium" id="">
                     <option value="">--请选择--</option>
                     <c:forEach var="ps" items="${fns:getDictList('proxypay_detail_status')}">
-                        <option value="${ps.value}" <c:if test="${paramMap.payStatus == ps.value}">selected</c:if>>${ps.label}</option>
+                        <option value="${ps.value}"
+                                <c:if test="${paramMap.payStatus == ps.value}">selected</c:if>>${ps.label}</option>
                     </c:forEach>
                 </select>&nbsp;&nbsp;&nbsp;
             </td>
@@ -101,7 +105,7 @@
                     <c:forEach items="${chanInfos}" var="chanInfo">
                         <option value="${chanInfo.id}"
                                 <c:if test="${paramMap.chanId == chanInfo.id}">selected</c:if>
-                                >${chanInfo.name}</option>
+                        >${chanInfo.name}</option>
                     </c:forEach>
                 </select>
             </td>
@@ -124,12 +128,13 @@
             <td>
                 <label>结束时间：</label>
                 <input id="endTime" name="endTime" type="text" readonly="readonly" class="input-medium Wdate"
-                       value="${paramMap.endTime}"  onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'
+                       value="${paramMap.endTime}" onclick="WdatePicker({dateFmt:'yyyy-MM-dd HH:mm:ss'
                        ,isShowClear:false,readOnly:true,minDate:$dp.$('startTime').value,isShowOK:false,isShowToday:false});"/>
             </td>
             <td>
                 <label>收款户名：</label>
-                <input value="${paramMap.bankCardName}" name="bankCardName" type="text" maxlength="64" class="input-medium"/>
+                <input value="${paramMap.bankCardName}" name="bankCardName" type="text" maxlength="64"
+                       class="input-medium"/>
             </td>
         </tr>
         <tr>
@@ -142,7 +147,7 @@
                 <input id="btnExport" class="btn btn-primary" type="button" value="导出"/></td>
             </td>
         </tr>
-</table>
+    </table>
 </form>
 
 <c:if test="${proxyBatch != null}">
@@ -168,17 +173,20 @@
             <td width="25%">成功笔数：</td>
             <td width="25%">${proxyBatch.successNum}</td>
             <td width="25%">成功金额：</td>
-            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.successAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/> </td>
+            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.successAmount*0.01}" pattern="0.0000"
+                                              maxFractionDigits="4"/></td>
         </tr>
         <tr>
             <td width="25%">失败笔数：</td>
             <td width="25%">${proxyBatch.failNum}</td>
             <td width="25%">失败金额：</td>
-            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.failAmount*0.01}" pattern="0.0000" maxFractionDigits="4"/> </td>
+            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.failAmount*0.01}" pattern="0.0000"
+                                              maxFractionDigits="4"/></td>
         </tr>
         <tr>
             <td width="25%">商户费用：</td>
-            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.totalFee*0.01}" pattern="0.00" maxFractionDigits="2"/></td>
+            <td width="25%"><fmt:formatNumber type="number" value="${proxyBatch.totalFee*0.01}" pattern="0.00"
+                                              maxFractionDigits="2"/></td>
             <td width="25%">代付状态：</td>
             <td width="25%">
                 <c:if test="${proxyBatch.payStatus == 10}">审核中</c:if>
@@ -201,22 +209,20 @@
     <thead>
     <tr>
         <%--<th>NO</th>--%>
-        <th>商户名称</th>
+        <th>商户名称<br>商户订单号</th>
         <th>平台批次订单号<br>平台明细订单号</th>
-        <th>商户订单号</th>
         <th>批次内序号</th>
-        <th>收款户名</th>
+        <th>收款户名<br>收款账号</th>
         <th>平台银行名称<br>平台银行编码</th>
-        <th>收款账号</th>
-        <%--<th>收款银行名称</th>--%>
         <th>金额（元）</th>
         <th>手续费（元）</th>
-        <th>状态</th>
+        <th>代付状态</th>
+        <th>审批状态</th>
         <th>补单状态</th>
         <th>通道名称</th>
         <th width="100px">上游响应</th>
         <th>创建时间<br>更新时间</th>
-        <th >操作</th>
+        <th>操作</th>
     </tr>
     </thead>
     <tbody>
@@ -224,29 +230,41 @@
     <c:forEach items="${page.list}" var="proxyDetail">
         <%--<%i++; %>--%>
         <tr>
-            <%--<td><%=i%>--%>
-            <td>${proxyDetail.extend2}</td>
+                <%--<td><%=i%>--%>
+            <td>${proxyDetail.extend2}<br>${proxyDetail.mchtBatchId}</td>
             <td>${proxyDetail.platBatchId}<br>${proxyDetail.id}</td>
-            <td>${proxyDetail.mchtBatchId}</td>
             <td>${proxyDetail.mchtSeq}</td>
-            <td>${proxyDetail.bankCardName}</td>
+            <td>${proxyDetail.bankCardName}<br>${proxyDetail.bankCardNo}</td>
             <td>${proxyDetail.bankName}<br>${proxyDetail.bankCode}</td>
-            <td>${proxyDetail.bankCardNo}</td>
-            <%--<td>${proxyDetail.bankName}</td>--%>
-            <td><fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
-            <td><fmt:formatNumber type="number" value="${proxyDetail.mchtFee*0.01}" pattern="0.0000" maxFractionDigits="4"/></td>
+                <%--<td>${proxyDetail.bankName}</td>--%>
+            <td><fmt:formatNumber type="number" value="${proxyDetail.amount*0.01}" pattern="0.0000"
+                                  maxFractionDigits="4"/></td>
+            <td><fmt:formatNumber type="number" value="${proxyDetail.mchtFee*0.01}" pattern="0.0000"
+                                  maxFractionDigits="4"/></td>
             <td>
-                ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
+                    ${fns:getDictLabel(proxyDetail.payStatus,'proxypay_detail_status' ,'' )}
             </td>
-                <td>${fns:getDictLabel(proxyDetail.supplyStatus,'supply_status' ,'' )}</td>
-                <td>${proxyDetail.extend3}</td>
+            <td>
+                <c:if test="${proxyDetail.extend1 == 1}">有效</c:if>
+                <c:if test="${proxyDetail.extend1 == 2}">无效</c:if>
+                <c:if test="${proxyDetail.extend1 == 3}">待审核</c:if>
+                <c:if test="${proxyDetail.extend1 == 4}">审核通过</c:if>
+                <c:if test="${proxyDetail.extend1 == 5}">审核不通过</c:if>
+            </td>
+            <td>${fns:getDictLabel(proxyDetail.supplyStatus,'supply_status' ,'' )}</td>
+            <td>${proxyDetail.extend3}</td>
 
-                <td><div  title="${proxyDetail.returnMessage2}" class="wrap">${fn:substring(proxyDetail.returnMessage2,0,50)} </div></td>
-                <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
+            <td>
+                <div title="${proxyDetail.returnMessage2}"
+                     class="wrap">${fn:substring(proxyDetail.returnMessage2,0,50)} </div>
+            </td>
+            <td><fmt:formatDate value="${proxyDetail.createDate}" pattern="yyyy-MM-dd HH:mm:ss"/><br><fmt:formatDate
+                    value="${proxyDetail.updateDate}" pattern="yyyy-MM-dd HH:mm:ss"/></td>
             <td>
                 <a href="${ctx}/proxy/proxyDetail?detailId=${proxyDetail.id}">详情</a>
                 <c:if test="${proxyDetail.payStatus == '21'||proxyDetail.payStatus == '22'}">
-                    <a href="${ctx}/proxy/supplyNotify?detailId=${proxyDetail.id}&batchId=${proxyDetail.platBatchId}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>" onclick="return confirmx('是否确认向下游补发通知？', this.href)">| 补发通知</a>
+                    <a href="${ctx}/proxy/supplyNotify?detailId=${proxyDetail.id}&batchId=${proxyDetail.platBatchId}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>"
+                       onclick="return confirmx('是否确认向下游补发通知？', this.href)">| 补发通知</a>
                 </c:if>
                     <%--|<a href="${ctx}/platform/deleteCardBin?id=${proxyDetail.id}" onclick="return confirmx('是否确认删除此记录？', this.href)">删除</a>--%>
             </td>

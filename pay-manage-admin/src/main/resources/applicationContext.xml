@@ -20,6 +20,7 @@
             ignore-unresolvable="true"
             location="classpath*:/properties/application.properties,
             classpath*:/properties/database.properties,
+            classpath*:/properties/proxy.properties,
             classpath*:/properties/common.properties"/>
 
     <!-- 获取bean工具注入 -->

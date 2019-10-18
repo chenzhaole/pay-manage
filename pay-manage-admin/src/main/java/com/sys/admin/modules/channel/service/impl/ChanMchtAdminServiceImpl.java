@@ -62,16 +62,17 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 		List<ChanMchtFormInfo> result = new ArrayList<>();
 		ChanMchtFormInfo chanMchtFormInfoTemp;
 
+		//20191013 by chenzl,注销查询商户列表代码,商户数量多影响性能
 		//查询商户列表
-		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+//		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
 		//上游通道列表
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 		//通道支付方式待结算金额
 		List<ChanMchtPaytypeSettleAmount> chanMchtPaytypeSettleAmountList =chanLimitService.list(new ChanMchtPaytypeSettleAmount());
 		//所有支付方式
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
-		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
-		Map<String, String> mchtCodeMap = Collections3.extractToMap(mchtList, "id", "mchtCode");
+//		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
+//		Map<String, String> mchtCodeMap = Collections3.extractToMap(mchtList, "id", "mchtCode");
 		Map<String,BigDecimal> settleAmountMap =Collections3.extractToMap(chanMchtPaytypeSettleAmountList==null?new ArrayList(1):chanMchtPaytypeSettleAmountList,"code","amount");
 
 		for (ChanMchtPaytype mchtPaytype : chanMchtPaytypes) {
@@ -83,8 +84,8 @@ public class ChanMchtAdminServiceImpl extends BaseService implements ChanMchtAdm
 			chanMchtFormInfoTemp.setChanName(channelMap.get(chanMchtFormInfoTemp.getChanId()));
 
 			//商户名称
-			chanMchtFormInfoTemp.setMchtName(mchtMap.get(mchtPaytype.getMchtId()));
-			chanMchtFormInfoTemp.setMchtCode(mchtCodeMap.get(mchtPaytype.getMchtId()));
+//			chanMchtFormInfoTemp.setMchtName(mchtMap.get(mchtPaytype.getMchtId()));
+//			chanMchtFormInfoTemp.setMchtCode(mchtCodeMap.get(mchtPaytype.getMchtId()));
 			chanMchtFormInfoTemp.setLimitAmount(settleAmountMap.get(mchtPaytype.getId()));
 
 //			//支付类型

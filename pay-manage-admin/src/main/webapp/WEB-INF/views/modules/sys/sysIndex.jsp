@@ -2,7 +2,8 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>${fns:getConfig('productName')}</title>
+	<title>xxxxxx</title>
+	<%--<title>${fns:getConfig('productName')}</title>--%>
 	<%@include file="/WEB-INF/views/include/dialog.jsp" %>
 	<meta name="decorator" content="default"/>
 	<style type="text/css">
@@ -10,7 +11,7 @@
 		#header {margin:0 0 10px;position:static;} #header li {font-size:14px;_font-size:12px;}
 		#header .brand {font-family:Helvetica, Georgia, Arial, sans-serif, 黑体;font-size:26px;padding-left:33px;}
 		#footer {margin:8px 0 0 0;padding:3px 0 0 0;font-size:11px;text-align:center;border-top:2px solid #0663A2;}
-		#footer, #footer a {color:#999;} 
+		#footer, #footer a {color:#999;}
 	</style>
 	<script type="text/javascript">
 		$(document).ready(function() {
@@ -29,7 +30,10 @@
 	<div id="main">
 		<div id="header" class="navbar navbar-fixed-top">
 	      <div class="navbar-inner">
-	      	 <div class="brand">${fns:getConfig('productName')}</div>
+	      	 <div class="brand">
+	      	 	<%--${fns:getConfig('productName')}--%>
+				 本地开发
+			 </div>
 	         <div class="nav-collapse">
 	           <ul id="menu" class="nav">
 				 <c:set var="firstMenu" value="true"/>
@@ -46,13 +50,13 @@
 				 </shiro:hasPermission>
 	           </ul>
 	           <ul class="nav pull-right">
-<!-- 			  	 <li id="themeSwitch" class="dropdown"> -->
-<!-- 			       	<a class="dropdown-toggle" data-toggle="dropdown" href="#" title="主题切换"><i class="icon-th-large"></i></a> -->
-<!-- 				    <ul class="dropdown-menu"> -->
-<%-- 				      <c:forEach items="${fns:getDictList('theme')}" var="dict"><li><a href="#" onclick="location='${pageContext.request.contextPath}/theme/${dict.value}?url='+location.href">${dict.label}</a></li></c:forEach> --%>
-<!-- 				    </ul> -->
-<!-- 				    [if lte IE 6]><script type="text/javascript">$('#themeSwitch').hide();</script><![endif] -->
-<!-- 			     </li> -->
+ 			  	 <li id="themeSwitch" class="dropdown">
+ 			       	<a class="dropdown-toggle" data-toggle="dropdown" href="#" title="主题切换"><i class="icon-th-large"></i></a>
+ 				    <ul class="dropdown-menu">
+ 				      <c:forEach items="${fns:getDictList('theme')}" var="dict"><li><a href="#" onclick="location='${pageContext.request.contextPath}/theme/${dict.value}?url='+location.href">${dict.label}</a></li></c:forEach>
+ 				    </ul>
+ 				    [if lte IE 6]><script type="text/javascript">$('#themeSwitch').hide();</script><![endif]
+ 			     </li>
 			  	 <li class="dropdown">
 				    <a class="dropdown-toggle" data-toggle="dropdown" href="#" title="个人信息">您好, <shiro:principal property="name"/></a>
 				    <ul class="dropdown-menu">
@@ -86,7 +90,7 @@
 			</div>
 		</div>
 	</div>
-	<script type="text/javascript"> 
+	<script type="text/javascript">
 		var leftWidth = "200"; // 左侧窗口大小
 		function wSize(){
 			var minHeight = 500, minWidth = 980;

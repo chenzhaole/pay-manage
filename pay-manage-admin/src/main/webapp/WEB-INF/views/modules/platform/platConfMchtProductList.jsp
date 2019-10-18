@@ -38,26 +38,47 @@
  		<table>
  		<tr>
 			<td>
-				<label>商户名称：</label>
-				<select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">
-					<option value="">--请选择--</option>
-					<c:forEach items="${mchtInfos}" var="mchtInfo">
-						<option value="${mchtInfo.id}"
-								<c:if test="${paramMap.mchtId == mchtInfo.id}">selected</c:if>
-						>${mchtInfo.name}</option>
-					</c:forEach>
-				</select>
+				<%--<label>商户名称：</label>--%>
+				<%--<select name="mchtId" class="selectpicker bla bla bli" data-live-search="true">--%>
+					<%--<option value="">--请选择--</option>--%>
+					<%--<c:forEach items="${mchtInfos}" var="mchtInfo">--%>
+						<%--<option value="${mchtInfo.id}"--%>
+								<%--<c:if test="${paramMap.mchtId == mchtInfo.id}">selected</c:if>--%>
+						<%-->${mchtInfo.name}</option>--%>
+					<%--</c:forEach>--%>
+				<%--</select>--%>
+
+					<div class="control-group">
+						<label class="control-label">商户名称：</label>
+						<div class="controls">
+							<input value="${paramMap.mchtName}" id="mchtName" name="mchtName" type="text" maxlength="64" class="input-large"/>
+						</div>
+					</div>
+			</td>
+
+			<td>
+				<div class="control-group">
+					<label class="control-label">商户编号：</label>
+					<div class="controls">
+						<input value="${paramMap.mchtId}" id="mchtId" name="mchtId" type="text" maxlength="64" class="input-large"/>
+					</div>
+				</div>
 			</td>
 			<td>
-				<label>产品名称：</label>
-				<select name="productId" class="selectpicker bla bla bli" data-live-search="true">
-					<option value="">--请选择--</option>
-					<c:forEach items="${productInfos}" var="productInfo">
-						<option value="${productInfo.id}"
-								<c:if test="${paramMap.productId == productInfo.id}">selected</c:if>
-						>${productInfo.name}</option>
-					</c:forEach>
-				</select>
+				<div class="control-group">
+					<label class="control-label">产品名称：</label>
+					<div class="controls">
+						<select name="productId" class="selectpicker bla bla bli" data-live-search="true">
+							<option value="">--请选择--</option>
+							<c:forEach items="${productInfos}" var="productInfo">
+								<option value="${productInfo.id}"
+										<c:if test="${paramMap.productId == productInfo.id}">selected</c:if>
+								>${productInfo.name}</option>
+							</c:forEach>
+						</select>
+					</div>
+				</div>
+
 			</td>
 	 		<td>
 				<input id="pageNo" name="pageNo" type="hidden" value="${1}"/>

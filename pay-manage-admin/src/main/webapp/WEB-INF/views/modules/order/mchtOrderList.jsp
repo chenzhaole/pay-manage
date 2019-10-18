@@ -227,7 +227,7 @@
 <label>| 总笔数：${orderCount} | </label>
 <label>总金额：${amount} 元| </label>
 <label>成功笔数：${successCount} | </label>
-<label>成功金额：${successAmount} 元| </label>
+<label>成功金额：${successAmount} 元 </label>
 <tags:message content="${message}" type="${messageType}"/>
 
 <table id="contentTable" class="table table-striped table-bordered table-condensed table-hover"

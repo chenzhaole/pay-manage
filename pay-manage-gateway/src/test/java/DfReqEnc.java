@@ -15,7 +15,7 @@ import com.sys.common.util.SignUtil;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.core.dao.dmo.PlatProxyBatch;
-import com.sys.gateway.common.IpUtil;
+//import com.sys.gateway.common.IpUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestBody;
 

@@ -16,7 +16,7 @@
                 top.$.jBox.confirm("确认要导出订单问题反馈数据吗？","系统提示",function(v,h,f){
                     if(v=="ok"){
                         $("#searchForm").attr("action","${ctx}/process/question/export/");
-                        $("#searchForm").submit();
+//                        $("#searchForm").submit();
                         $("#searchForm").attr("action","${ctx}/process/question/list/");
                     }
                 },{buttonsFocus:1});
@@ -406,7 +406,7 @@
 	<label>| 总笔数：${orderCount} | </label>
 	<label>总金额：${amount} 元| </label>
 	<label>成功笔数：${successCount} | </label>
-	<label>成功金额：${successAmount} 元| </label>
+	<label>成功金额：${successAmount} 元 </label>
 	<tags:message content="${message}"/>
 
 	<table id="contentTable" class="table table-striped table-bordered table-condensed table-hover" style="word-wrap:break-word; word-break:break-all;">
@@ -415,8 +415,7 @@
 				<th>商户名称</th>
 				<th>支付产品名称<br>通道商户支付方式</th>
 				<th>平台订单号<br>商户订单号</th>
-				<th>上游通道订单号</th>
-				<th>官方订单号</th>
+				<th>通道订单号<br>官方订单号</th>
 				<th>交易金额</th>
 				<th>订单状态</th>
 				<th>补单状态</th>
@@ -435,8 +434,7 @@
 				<td><a href="${ctx}/order/detail?id=${orderInfo.id}
 				&beginDate=<fmt:formatDate value="${orderInfo.createTime}" pattern="yyyy-MM-dd HH:mm:ss"/>">
 						${orderInfo.platOrderId}</a><br>${orderInfo.mchtOrderId}</td>
-				<td>${orderInfo.chanOrderId}</td>
-				<td>${orderInfo.officialOrderId}</td>
+				<td>${orderInfo.chanOrderId}<br>${orderInfo.officialOrderId}</td>
 				<td><fmt:formatNumber type="number" value="${orderInfo.amount*0.01}" pattern="0.00" maxFractionDigits="2"/>元</td>
 				<td>
 					${fns:getDictLabel(orderInfo.status,'pay_status' ,'' )}

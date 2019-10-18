@@ -107,7 +107,7 @@
 <div class="loginbg">
 
     <div class="loginmainbg">
-	  	  <font style="width: 60px; font-size: 20px;">买壹贝定时任务管理系统</font>
+	  	  <font style="width: 60px; font-size: 20px;">华讯支付定时任务系统</font>
 	  	  <br><br>
         <div class="loginul">
             <ul>
@@ -135,7 +135,7 @@
     <div id='browseMsg' style='text-align: center;color:red;display:none;'>
         为了保证界面的布局整齐，请使用IE6.0以上浏览器
     </div>
-    <div class="loginbottom">Copyright © 2017 myepay All rights reserved.</div>
+    <div class="loginbottom">Copyright © 2019 huaxunpay All rights reserved.</div>
 </div>
 </body>
 </html>

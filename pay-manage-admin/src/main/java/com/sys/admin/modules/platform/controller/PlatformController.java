@@ -30,12 +30,7 @@ import com.sys.core.dao.dmo.MchtProduct;
 import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.core.dao.dmo.PlatProductRela;
 import com.sys.core.dao.dmo.PlatSdkConfig;
-import com.sys.core.service.ChanMchtPaytypeService;
-import com.sys.core.service.MchtProductService;
-import com.sys.core.service.PlatFeerateService;
-import com.sys.core.service.PlatSDKService;
-import com.sys.core.service.ProductRelaService;
-import com.sys.core.service.ProductService;
+import com.sys.core.service.*;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
@@ -103,6 +98,9 @@ public class PlatformController extends BaseController {
 
 	@Autowired
 	MchtProductService mchtProductService;
+
+	@Autowired
+	private MerchantService merchantService;
 
 	/**
 	 * @param request
@@ -566,27 +564,28 @@ public class PlatformController extends BaseController {
 
 		model.addAttribute("page", page);
 
+		//注销by chenzl 20191015 影响性能
 		//所有可配商户
-		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
-		List<MerchantForm> mchtInfosResult = new ArrayList<>();
-		if(!CollectionUtils.isEmpty(mchtInfos)){
-			for (MerchantForm mchtInfo : mchtInfos) {
-				if (StringUtils.isBlank(mchtInfo.getSignType())) {
-					continue;
-				}
-				if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
-					if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
-							|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
-						mchtInfosResult.add(mchtInfo);
-					}
-				}
-			}
-
-		}
-
-		//根据名称排序
-		Collections3.sortByName(mchtInfosResult, "name");
-		model.addAttribute("mchtInfos", mchtInfosResult);
+//		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
+//		List<MerchantForm> mchtInfosResult = new ArrayList<>();
+//		if(!CollectionUtils.isEmpty(mchtInfos)){
+//			for (MerchantForm mchtInfo : mchtInfos) {
+//				if (StringUtils.isBlank(mchtInfo.getSignType())) {
+//					continue;
+//				}
+//				if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
+//					if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
+//							|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
+//						mchtInfosResult.add(mchtInfo);
+//					}
+//				}
+//			}
+//
+//		}
+//
+//		//根据名称排序
+//		Collections3.sortByName(mchtInfosResult, "name");
+//		model.addAttribute("mchtInfos", mchtInfosResult);
 
 		model.addAttribute("productInfos", productFormInfos);
 
@@ -616,22 +615,27 @@ public class PlatformController extends BaseController {
 			model.addAttribute("productInfo", mchtProductById);
 		}
 
-		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
-		List<MerchantForm> mchtInfosResult = new ArrayList<>();
-		for (MerchantForm mchtInfo : mchtInfos) {
-			if (StringUtils.isBlank(mchtInfo.getSignType())) {
-				continue;
-			}
-			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
-				if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
-						|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
-					mchtInfosResult.add(mchtInfo);
-				}
-			}
-		}
+//		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
+//		List<MerchantForm> mchtInfosResult = new ArrayList<>();
+//		for (MerchantForm mchtInfo : mchtInfos) {
+//			if (StringUtils.isBlank(mchtInfo.getSignType())) {
+//				continue;
+//			}
+//			if (!mchtInfo.getSignType().contains(SignTypeEnum.SINGLE_MCHT.getCode())) {
+//				if (mchtInfo.getSignType().contains(SignTypeEnum.COMMON_MCHT.getCode())
+//						|| mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())) {
+//					mchtInfosResult.add(mchtInfo);
+//				}
+//			}
+//		}
+
+		MchtInfo selMcht = new MchtInfo();
+		selMcht.setSignType(SignTypeEnum.COMMON_MCHT.getCode());
+		List<MchtInfo> payMchtList = merchantService.list(selMcht);
+
 		//根据名称排序
-		Collections3.sortByName(mchtInfosResult, "name");
-		model.addAttribute("mchtInfos", mchtInfosResult);
+		Collections3.sortByName(payMchtList, "name");
+		model.addAttribute("mchtInfos", payMchtList);
 
 //		List<PaymentTypeInfo> paymentTypeInfos = configSysService.listAllPaymentTypeInfo();
 		List paymentTypeInfos = new ArrayList<>();

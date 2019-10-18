@@ -27,7 +27,14 @@
 
     $(function(){
         var clientPayWay = $("#clientPayWay").val();
-        var payInfo = $("#payInfo").html();
+
+//        var payInfo = $("#payInfo").html();
+        var payInfo = <%=request.getAttribute("payInfo")%>
+        <%
+            System.out.println(request.getAttribute("payInfo"));
+        %>
+//        alert(request.getAttribute("pageInfo"));
+//        alert($("#payInfo").html());
         if("08" == clientPayWay){
             payInfo = document.getElementById("payInfo").innerText;
             //掉起上游收银台支付唤起支付--url方式

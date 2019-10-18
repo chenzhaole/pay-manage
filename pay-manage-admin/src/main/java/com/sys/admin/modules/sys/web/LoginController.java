@@ -1,6 +1,7 @@
 package com.sys.admin.modules.sys.web;
 
 import com.sys.admin.common.config.GlobalConfig;
+import com.sys.admin.common.utils.ClientUtil;
 import com.sys.admin.common.utils.CookieUtils;
 import com.sys.admin.common.web.BaseController;
 import com.sys.admin.modules.portal.dmo.PortalInfo;
@@ -9,6 +10,7 @@ import com.sys.admin.modules.sys.entity.User;
 import com.sys.admin.modules.sys.service.SystemService;
 import com.sys.admin.modules.sys.utils.UserUtils;
 
+import com.sys.common.enums.PayTypeEnum;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.shiro.authz.annotation.RequiresPermissions;
 import org.apache.shiro.authz.annotation.RequiresUser;
@@ -37,7 +39,7 @@ public class LoginController extends BaseController {
     private SystemService systemService;
 
     /**
-     * 管理登录，如果未登陆则到登陆界面；如果已登陆则打开首页
+     * (1)地址栏访问,如果未登录则跳转至sysLogin页面.  管理登录，如果未登陆则到登陆界面；如果已登陆则打开首页
      *
      * @param request  请求
      * @param response 响应
@@ -78,41 +80,10 @@ public class LoginController extends BaseController {
         return "modules/sys/sysLogin";
     }
 
-    /**
-     * 获取客户端IP
-     *
-     * @param request 请求对象
-     * @return 客户端IP
-     */
-    protected String getIpAddr(HttpServletRequest request) {
-        if (request == null) {
-            return null;
-        }
-        String ip = request.getHeader("x-forwarded-for");
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getRemoteAddr();
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("http_client_ip");
-        }
-        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        }
-        // 如果是多级代理，那么取第一个ip为客户ip
-        if (ip != null && ip.contains(",")) {
-            ip = ip.substring(ip.lastIndexOf(",") + 1, ip.length()).trim();
-        }
-        return ip;
-    }
+
 
     /**
-     * 登陆成功，进入管理首页
+     * (2)输入账号密码后,点击登陆按钮.  登陆成功，进入管理首页
      *
      * @param request  请求
      * @param response 响应
@@ -141,6 +112,13 @@ public class LoginController extends BaseController {
         UserUtils.isValidateCodeLogin(user.getLoginName(), false, true);
         // 登录成功后，获取上次登录的当前站点ID
 //        UserUtils.putCache("siteId",Long.parseLong(CookieUtils.getCookie(request, "siteId")));
+
+        int clientType = ClientUtil.getUserAgentType(request);
+        if (clientType == 1 || clientType == 2) {
+            //微信浏览器 or 支付宝浏览器
+            logger.info("用户 [" + user.getId() + "] 使用的微信浏览器,跳转至wap首页");
+            return "redirect:" +  GlobalConfig.getAdminPath()+"/wap/order/preList";
+        }
         return "modules/sys/sysIndex";
     }
 
@@ -173,6 +151,39 @@ public class LoginController extends BaseController {
         User user = UserUtils.getUser();
        
         return "modules/welcome";
+    }
+
+    /**
+     * 获取客户端IP
+     *
+     * @param request 请求对象
+     * @return 客户端IP
+     */
+    protected String getIpAddr(HttpServletRequest request) {
+        if (request == null) {
+            return null;
+        }
+        String ip = request.getHeader("x-forwarded-for");
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("WL-Proxy-Client-IP");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getRemoteAddr();
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("http_client_ip");
+        }
+        if (ip == null || ip.length() == 0 || "unknown".equalsIgnoreCase(ip)) {
+            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+        }
+        // 如果是多级代理，那么取第一个ip为客户ip
+        if (ip != null && ip.contains(",")) {
+            ip = ip.substring(ip.lastIndexOf(",") + 1, ip.length()).trim();
+        }
+        return ip;
     }
 
 }

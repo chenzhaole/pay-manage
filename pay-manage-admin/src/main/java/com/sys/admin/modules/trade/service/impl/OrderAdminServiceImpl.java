@@ -6,6 +6,7 @@ import com.sys.admin.common.utils.ConfigUtil;
 import com.sys.admin.modules.trade.service.OrderAdminService;
 import com.sys.common.util.HttpUtil;
 import com.sys.core.dao.dmo.MchtGatewayOrder;
+import org.apache.avro.data.Json;
 import org.apache.commons.lang3.StringUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,6 +40,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		String result;
 
 		try {
+			log.info("调用order模块 url:"+url+"  参数params:"+ JSON.toJSONString(params));
 			result = HttpUtil.postConnManager(url, params);
 		} catch (Exception e) {
 			log.error("查询 Order 模块出错：", e);
@@ -65,6 +67,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		String result;
 
 		try {
+			log.info("调用order模块 url:"+url+"  参数params:"+ JSON.toJSONString(params));
 			result = HttpUtil.postConnManager(url, params);
 		} catch (Exception e) {
 			log.error("查询 Order 模块出错：", e);
@@ -95,6 +98,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		int resultInt = 0;
 
 		try {
+			log.info("调用order模块 url:"+url+"  参数params:"+ JSON.toJSONString(params));
 			result = HttpUtil.postConnManager(url, params);
 			if (StringUtils.isNotBlank(result)) {
 				resultInt = Integer.parseInt(result);
@@ -118,6 +122,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		long resultInt = 0;
 
 		try {
+			log.info("调用order模块 url:"+url+"  参数params:"+ JSON.toJSONString(params));
 			result = HttpUtil.postConnManager(url, params);
 			if (StringUtils.isNotBlank(result)) {
 				resultInt = Long.parseLong(result);
@@ -137,6 +142,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		Map<String, String> params = new HashMap<>();
 		params.put("order", JSON.toJSONString(order));
 		try {
+			log.info("调用order模块 url:"+url+"  参数params:"+ JSON.toJSONString(params));
 			String result = HttpUtil.postConnManager(url, params);
 			if (StringUtils.isNotBlank(result)) {
 				orderCountSum = JSONObject.parseObject(result);
@@ -157,6 +163,7 @@ public class OrderAdminServiceImpl implements OrderAdminService {
 		Map<String, String> params = new HashMap<>();
 		params.put("order", JSON.toJSONString(order));
 		try {
+			log.info("调用order模块 url:"+url+"  参数params:"+ JSON.toJSONString(params));
 			String result = HttpUtil.postConnManager(url, params);
 			if (StringUtils.isNotBlank(result)) {
 				sucOrderCountSum = JSONObject.parseObject(result);

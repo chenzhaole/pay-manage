@@ -3,6 +3,10 @@ package com.sys.gateway.service;
 import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.trade.request.TradeBaseRequest;
 import com.sys.boss.api.entry.trade.response.TradeBaseResponse;
+import com.sys.core.dao.dmo.MchtGatewayOrder;
+
+import java.util.List;
+import java.util.Map;
 
 
 /**
@@ -12,10 +16,17 @@ import com.sys.boss.api.entry.trade.response.TradeBaseResponse;
 public interface GwApiQueryService {
 
 
-	/**wap支付校验参数**/
+	/** 校验参数 **/
 	CommonResponse checkParam(String paramStr);
 
-	/**wap支付接口*/
+	/** 数据集总数 **/
+	int amount(MchtGatewayOrder order);
+
+	/** 查询接口-单笔 */
 	TradeBaseResponse query(TradeBaseRequest tradeRequest, String ip);
+
+	/** 查询接口-列表 */
+	List<MchtGatewayOrder> list(MchtGatewayOrder mchtGatewayOrder);
+	List<MchtGatewayOrder> list(Map param);
 
 }

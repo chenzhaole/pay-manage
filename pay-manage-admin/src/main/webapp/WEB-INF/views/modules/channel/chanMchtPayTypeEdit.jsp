@@ -562,21 +562,34 @@
             <td>
                 <div class="control-group">
                     <label class="control-label">设备类型<span style="color: red;"><span style="color: red;">*</span></span></label>
+                    <%--//todo: 暂时屏蔽代码,默认全部选中 20190908 --%>
+                    <%--<div class="controls">--%>
+                        <%--<label><input name="deviceType" type="checkbox" value="1" id="requestMcht"--%>
+                                      <%--<c:if test="${fn:contains(chanMchPaytye.deviceType, '1')}">checked="checked"</c:if> />移动端--%>
+                        <%--</label>--%>
+                        <%--<label><input name="deviceType" type="checkbox" value="2" id="serverMcht"--%>
+                                      <%--<c:if test="${fn:contains(chanMchPaytye.deviceType, '2')}">checked="checked"</c:if> />PC端--%>
+                        <%--</label>--%>
+                        <%--<label><input name="deviceType" type="checkbox" value="3" onclick="checkType()"--%>
+                                      <%--<c:if test="${fn:contains(chanMchPaytye.deviceType, '3')}">checked="checked"</c:if> />微信内--%>
+                        <%--</label>--%>
+                        <%--<label><input name="deviceType" type="checkbox" value="4" onclick="checkType()"--%>
+                                      <%--<c:if test="${fn:contains(chanMchPaytye.deviceType, '4')}">checked="checked"</c:if> />支付宝--%>
+                        <%--</label>--%>
+                        <%--<label><input name="deviceType" type="checkbox" value="5" onclick="checkType()"--%>
+                                      <%--<c:if test="${fn:contains(chanMchPaytye.deviceType, '5')}">checked="checked"</c:if> />APP内--%>
+                        <%--</label>--%>
+                    <%--</div>--%>
                     <div class="controls">
-                        <label><input name="deviceType" type="checkbox" value="1" id="requestMcht"
-                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '1')}">checked="checked"</c:if> />移动端
+                        <label><input name="deviceType" type="checkbox" value="1" id="requestMcht" checked="checked" />移动端
                         </label>
-                        <label><input name="deviceType" type="checkbox" value="2" id="serverMcht"
-                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '2')}">checked="checked"</c:if> />PC端
+                        <label><input name="deviceType" type="checkbox" value="2" id="serverMcht" checked="checked" />PC端
                         </label>
-                        <label><input name="deviceType" type="checkbox" value="3" onclick="checkType()"
-                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '3')}">checked="checked"</c:if> />微信内
+                        <label><input name="deviceType" type="checkbox" value="3" onclick="checkType()" checked="checked" />微信内
                         </label>
-                        <label><input name="deviceType" type="checkbox" value="4" onclick="checkType()"
-                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '4')}">checked="checked"</c:if> />支付宝
+                        <label><input name="deviceType" type="checkbox" value="4" onclick="checkType()" checked="checked" />支付宝
                         </label>
-                        <label><input name="deviceType" type="checkbox" value="5" onclick="checkType()"
-                                      <c:if test="${fn:contains(chanMchPaytye.deviceType, '5')}">checked="checked"</c:if> />APP内
+                        <label><input name="deviceType" type="checkbox" value="5" onclick="checkType()" checked="checked" />APP内
                         </label>
                     </div>
 

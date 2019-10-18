@@ -94,8 +94,8 @@
             		return;
             	}
                 var payTypeNum = $("#payTypeTable tr").length;
-                if (payTypeNum > 9) {
-                    alert("最多添加10条！");
+                if (payTypeNum > 49) {
+                    alert("最多添加50条！");
                     return;
                 }
                 $("#payTypeTable").append('<tr>' +
@@ -155,8 +155,8 @@
                 return;
             }
             var productNum = $("#productTable tr").length;
-            if (productNum > 9) {
-                alert("最多添加10条！");
+            if (productNum > 49) {
+                alert("最多添加50条！");
                 return;
             }
             $("#productTable").append('<tr>' +

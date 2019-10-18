@@ -4,17 +4,17 @@
 <head>
 	<title>通道管理</title>
 	<meta name="decorator" content="default"/>
-	
+
 	<script type="text/javascript">
 		$(function(){
             jQuery.validator.addMethod("alnum", function(value, element){
                 return this.optional(element) ||/^[a-zA-Z0-9]+$/.test(value);
             }, "只能包括英文字母和数字");
 			$("#channelForm").validate({
-		         debug: false, //调试模式取消submit的默认提交功能   
-		         focusInvalid: false, //当为false时，验证无效时，没有焦点响应  
-		         onkeyup: false,   
-		         submitHandler: function(form){   //表单提交句柄,为一回调函数，带一个参数：form   
+		         debug: false, //调试模式取消submit的默认提交功能
+		         focusInvalid: false, //当为false时，验证无效时，没有焦点响应
+		         onkeyup: false,
+		         submitHandler: function(form){   //表单提交句柄,为一回调函数，带一个参数：form
 		        	var op = $("#op").val();
 		         	if(op == 'add'){
 			         	url = "${ctx}/channel/addSave";
@@ -39,7 +39,7 @@
                          maxlength:64
 		             },
                      chanCode:{
-                         alnum: true,
+//                         alnum: true,//只限英文和数字
                          required:true,
                          maxlength:32
                      },
@@ -90,9 +90,9 @@
 					 }
 
 		         }
-	    	});  
+	    	});
 		});
-		
+
 
         function del(id){
         	if(confirm("是否确认删除ID为“"+id+"”的记录？")){
@@ -100,8 +100,8 @@
         		document.forms[0].submit();
         	}
         }
-        
-	   
+
+
 	</script>
 </head>
 <body>

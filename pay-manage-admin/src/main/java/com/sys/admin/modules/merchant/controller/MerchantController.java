@@ -23,6 +23,7 @@ import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtAccountDetail;
 import com.sys.core.dao.dmo.MchtInfo;
 import com.sys.core.dao.dmo.PlatFeerate;
+import com.sys.core.service.MerchantService;
 import com.sys.core.service.PlatFeerateService;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -62,6 +63,9 @@ public class MerchantController extends BaseController {
 
 	@Autowired
 	private PlatFeerateService platFeerateService;
+
+	@Autowired
+	private MerchantService merchantService;
 
 	//商户基本信息接口地址
 	@Value("${mchtInfoData.url}")
@@ -314,17 +318,22 @@ public class MerchantController extends BaseController {
 		model.addAttribute("certTypeList", certTypeList);
 
 		//商户列表 只展示代理商
-		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
-		List<MerchantForm> mchtInfosResult = new ArrayList<>();
-		for (MerchantForm mchtInfo : mchtInfos) {
-			if(StringUtils.isBlank(mchtInfo.getSignType())){
-				continue;
-			}
-			if (mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
-				mchtInfosResult.add(mchtInfo);
-			}
-		}
-		model.addAttribute("mchts", mchtInfosResult);
+//		List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
+//		List<MerchantForm> mchtInfosResult = new ArrayList<>();
+//		for (MerchantForm mchtInfo : mchtInfos) {
+//			if(StringUtils.isBlank(mchtInfo.getSignType())){
+//				continue;
+//			}
+//			if (mchtInfo.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
+//				mchtInfosResult.add(mchtInfo);
+//			}
+//		}
+
+
+		MchtInfo selMcht = new MchtInfo();
+		selMcht.setSignType("4");//1=支付商户,2=身边商户,3=服务商,4=代理商,51=个人,52=个体商户,53=企业,54=事业单位'
+		List<MchtInfo> agentMchtList = merchantService.list(selMcht);
+		model.addAttribute("mchts", agentMchtList);
 
 		model.addAttribute("areas", areaService.getAllJson()); //获取所有地区
 		return "modules/merchant/merchantEdit";
@@ -368,17 +377,21 @@ public class MerchantController extends BaseController {
 			model.addAttribute("op", "edit");
 
 			//商户列表
-			List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
-			List<MerchantForm> mchtInfoResults = new ArrayList<>();
-			for (MerchantForm mchtInfoTemp : mchtInfos) {
-				if (mchtInfoTemp.getId().equals(id)) {
-					continue;
-				}
-				if (mchtInfoTemp.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
-					mchtInfoResults.add(mchtInfoTemp);
-				}
-			}
-			model.addAttribute("mchts", mchtInfoResults);
+//			List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(new MchtInfo());
+//			List<MerchantForm> mchtInfoResults = new ArrayList<>();
+//			for (MerchantForm mchtInfoTemp : mchtInfos) {
+//				if (mchtInfoTemp.getId().equals(id)) {
+//					continue;
+//				}
+//				if (mchtInfoTemp.getSignType().contains(SignTypeEnum.CLIENT_MCHT.getCode())){
+//					mchtInfoResults.add(mchtInfoTemp);
+//				}
+//			}
+
+			MchtInfo selMcht = new MchtInfo();
+			selMcht.setSignType("4");//1=支付商户,2=身边商户,3=服务商,4=代理商,51=个人,52=个体商户,53=企业,54=事业单位'
+			List<MchtInfo> agentMchtList = merchantService.list(selMcht);
+			model.addAttribute("mchts", agentMchtList);
 
 			model.addAttribute("areas", areaService.getAllJson()); //获取所有地区
 
@@ -457,15 +470,15 @@ public class MerchantController extends BaseController {
         		merchantForm.setMchtCode(mchtNo);
         		merchantForm.setOperatorId(operatorId);
 
-				//校验商户简称重复
-				MchtInfo mchtInfo = new MchtInfo();
-				mchtInfo.setShortName(merchantForm.getShortName());
-				List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(mchtInfo);
-				if (!CollectionUtils.isEmpty(mchtInfos)){
-					redirectAttributes.addFlashAttribute("message", "商户简称重复！");
-					redirectAttributes.addFlashAttribute("messageType", "error");
-					return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
-				}
+				//校验商户简称重复.20191015因性能，注销 by chenzl
+//				MchtInfo mchtInfo = new MchtInfo();
+//				mchtInfo.setShortName(merchantForm.getShortName());
+//				List<MerchantForm> mchtInfos = merchantAdminService.getMchtInfoList(mchtInfo);
+//				if (!CollectionUtils.isEmpty(mchtInfos)){
+//					redirectAttributes.addFlashAttribute("message", "商户简称重复！");
+//					redirectAttributes.addFlashAttribute("messageType", "error");
+//					return "redirect:"+ GlobalConfig.getAdminPath()+"/merchant/list";
+//				}
 				//将 是否显示支付结果页、商户标签 的信息，封装成json格式的数据。存入extend2字段中
 				JSONObject extend2Json = new JSONObject();
 				extend2Json.put("isShowPayResultPage", merchantForm.getIsShowPayResultPage());

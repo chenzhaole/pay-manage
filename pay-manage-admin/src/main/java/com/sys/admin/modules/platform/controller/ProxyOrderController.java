@@ -18,6 +18,7 @@ import com.sys.common.util.*;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.*;
 import com.sys.core.service.*;
+import com.sys.trans.api.entry.Config;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.poi.hssf.usermodel.HSSFCell;
@@ -47,6 +48,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.math.BigDecimal;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.util.*;
 
@@ -84,6 +86,9 @@ public class ProxyOrderController extends BaseController {
 	private AccountAdminService accountAdminService;
 	@Autowired
 	private IDfProducerService dfProducerService;
+
+	@Autowired
+	private ProxyDetailAuditService proxyDetailAuditService;
 
 	@Autowired
 	private JedisPool jedisPool;
@@ -173,11 +178,15 @@ public class ProxyOrderController extends BaseController {
 		List<ChanInfo> chanInfoList = channelService.list(new ChanInfo());
 		//  产品
 		List<PlatProduct> platProducts = productService.list(new PlatProduct());
+		// 代付审批
+		List<PlatProxyDetailAudit> PlatProxyDetailAuditList = proxyDetailAuditService.list(new PlatProxyDetailAudit());
 
 
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> mchtMap = Collections3.extractToMap(mchtInfos, "id", "name");
 		Map<String, String> productMap = Collections3.extractToMap(platProducts, "id", "name");
+		Map<String, String> detailAuditMap = Collections3.extractToMap(PlatProxyDetailAuditList, "platDetailId", "auditStatus");
+
 
 		if (proxyBatch != null) {
 			proxyBatch.setChanId(channelMap.get(proxyBatch.getChanId()));
@@ -196,6 +205,7 @@ public class ProxyOrderController extends BaseController {
 		List<PlatProxyDetail> newList = new ArrayList<>();
 		if (proxyInfoList != null && proxyInfoList.size() != 0) {
 			for (PlatProxyDetail info : proxyInfoList) {
+				info.setExtend1(detailAuditMap.get(info.getId()));
 				info.setExtend2(mchtMap.get(info.getMchtId()));
 				info.setExtend3(channelMap.get(info.getChanId()));
 				newList.add(info);
@@ -408,6 +418,7 @@ public class ProxyOrderController extends BaseController {
 		String mchtId = UserUtils.getUser().getLoginName();
 		String contentType = "text/plain";
 		String respMsg = "fail";
+		BigDecimal total = new BigDecimal(0);
 		try {
 			//校验代付批次
 			if (JedisUtil.get(IdUtil.REDIS_PROXYPAY_BATCH + platBatchId) != null) {
@@ -427,6 +438,7 @@ public class ProxyOrderController extends BaseController {
 				String postResp = PostUtil.postForm(url, paramsMap);
 				logger.info("商户代付校验短信验证码  url=" + url + " 参数=" + JSON.toJSONString(paramsMap) + " 响应=" + postResp);
 
+
 				//校验验证码
 				if (StringUtils.equals(postResp, "0000")) {
 					logger.info("商户代付校验短信验证码,代付批次ID=" + platBatchId + " 回填校验成功");
@@ -443,6 +455,8 @@ public class ProxyOrderController extends BaseController {
 
 						logger.info("代付批次开始入MQ ," + JSONObject.toJSONString(details));
 
+
+
 						/** xq.w 添加MQ生产者		商户号, 商户批次号, 平台批次ID, 平台批次详情ID**/
 						for (PlatProxyDetail detail : details) {
 							//代付下单后将代付明细id存入redis
@@ -455,6 +469,7 @@ public class ProxyOrderController extends BaseController {
 							}else{
 								logger.info("代付下单后将代付明细id存入redis失败,detailId="+detail.getId());
 							}
+							total = total.add(detail.getAmount());//总代付金额
 						}
 
 
@@ -472,6 +487,18 @@ public class ProxyOrderController extends BaseController {
 		} catch (Exception e) {
 			logger.error("代付入库异常");
 			e.printStackTrace();
+		}
+
+		//TODO:chenzl,商户上传代付模板文件成功,发送短信通知人工打款
+		if("ok".equalsIgnoreCase(respMsg)){
+			String userName = UserUtils.getUser().getName();
+			String content = URLEncoder.encode("[HX鲜花配送]您有一位商户名为'"+userName+"'的共计"+ NumberUtils.changeF2Y(total.toString())+"元订单需要处理");
+			String user = ConfigUtil.getValue("sms.interface.userName");// "yangtonyyang";
+			String pw = MD5Util.MD5Encode(ConfigUtil.getValue("sms.interface.password"));//   ("yanglove0");
+			String mobile = ConfigUtil.getValue("sms.interface.mobile");
+			String url = "http://api.smsbao.com/sms?u="+user+"&p="+pw+"&m="+mobile+"&c="+content;
+			String resp  = HttpUtil.get(url);
+			logger.info("代付提醒短信返回值:"+resp+" 发送短信原始字符串:"+url);
 		}
 		response.reset();
 		response.setContentType(contentType);
@@ -1124,4 +1151,7 @@ public class ProxyOrderController extends BaseController {
 			}
 		}
 	}
+
+
+
 }

@@ -1,75 +1,105 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ page import="org.apache.shiro.web.filter.authc.FormAuthenticationFilter"%>
-<%@ include file="/WEB-INF/views/include/taglib.jsp"%>
+<%@ page import="org.apache.shiro.web.filter.authc.FormAuthenticationFilter" %>
+<%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
 <head>
-	<title>${fns:getConfig('productName')} 登录</title>
-	<meta name="decorator" content="default"/>
-	<style type="text/css">
-      html,body,table{background-color:#f5f5f5;width:100%;height:500px;text-align:center;}.form-signin-heading{font-size:36px;margin-bottom:20px;color:#0663a2;}
-      .form-signin{position:relative;text-align:left;width:300px;padding:25px 29px 29px;margin:0 auto 20px;background-color:#fff;border:1px solid #e5e5e5;
-        	-webkit-border-radius:5px;-moz-border-radius:5px;border-radius:5px;-webkit-box-shadow:0 1px 2px rgba(0,0,0,.05);-moz-box-shadow:0 1px 2px rgba(0,0,0,.05);box-shadow:0 1px 2px rgba(0,0,0,.05);}
-      .form-signin .checkbox{margin-bottom:10px;color:#0663a2;} .form-signin .input-label{font-size:16px;line-height:23px;color:#999;}
-      .form-signin .input-block-level{font-size:16px;height:auto;margin-bottom:15px;padding:7px;*width:283px;*padding-bottom:0;_padding:7px 7px 9px 7px;}
-      .form-signin .btn.btn-large{font-size:16px;} .form-signin #themeSwitch{position:absolute;right:15px;bottom:10px;}
-      .form-signin div.validateCode {padding-bottom:15px;} .mid{vertical-align:middle;}
-      .header{height:60px;padding-top:30px;} .alert{position:relative;width:300px;margin:0 auto;*padding-bottom:0px;}
-      label.error{background:none;padding:2px;font-weight:normal;color:inherit;margin:0;}
-    </style>
-	<script type="text/javascript">
-		$(document).ready(function() {
+    <title>3</title>
 
-            $("#username").focus();
+    <meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 
-			$("#loginForm").validate({
-				rules: {
-					validateCode: {remote: "${pageContext.request.contextPath}/servlet/validateCodeServlet"}
-				},
-				messages: {
-					username: {required: "请填写用户名."},password: {required: "请填写密码."},
-					validateCode: {remote: "验证码不正确.", required: "请填写验证码."}
-				},
-				errorLabelContainer: "#messageBox",
-				errorPlacement: function(error, element) {
-					error.appendTo($("#loginError").parent());
-				} 
-			});
-		});
-		// 如果在框架中，则跳转刷新上级页面
-		if(self.frameElement && self.frameElement.tagName=="IFRAME"){
-			parent.location.reload();
-		}
-	</script>
+    <link href="/static/bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet">
+
+    <link href="/static/modules/sys/login/css/matrix.css?version=v1" rel="stylesheet">
+    <link href="/static/modules/sys/login/css/login.css?version=v1" rel="stylesheet">
+    <link href="/static/modules/sys/login/css/drag.css?version=v1" rel="stylesheet">
+
+
 </head>
-<body>
-	<!--[if lte IE 6]><br/><div class='alert alert-block' style="text-align:left;padding-bottom:10px;"><a class="close" data-dismiss="alert">x</a><h4>温馨提示：</h4><p>你使用的浏览器版本过低。为了获得更好的浏览体验，我们强烈建议您 <a href="http://browsehappy.com" target="_blank">升级</a> 到最新版本的IE浏览器，或者使用较新版本的 Chrome、Firefox、Safari 等。</p></div><![endif]-->
-	<div class="header"><%String error = (String) request.getAttribute(FormAuthenticationFilter.DEFAULT_ERROR_KEY_ATTRIBUTE_NAME);%>
-		<div id="messageBox" class="alert alert-error <%=error==null?"hide":""%>"><button data-dismiss="alert" class="close">×</button>
-			<label id="loginError" class="error"><%=error==null?"":
-					"com.sys.admin.modules.sys.security.CaptchaException".equals(error)?"验证码错误, 请重试.":
-							"com.sys.admin.modules.sys.security.AgencyException".equals(error)?"机构被冻结或尚未审核通过, 请联系管理员.":"用户或密码错误, 请重试." %></label>
-		</div>
-	</div>
-	<h1 class="form-signin-heading">${fns:getConfig('productName')}</h1>
-	<form id="loginForm" class="form-signin" action="${ctx}/login" method="post">
-		<label class="input-label" for="username">登录名</label>
-		<input type="text" id="username" name="username" class="input-block-level required" value="${username}">
-		<label class="input-label" for="password">密码</label>
-		<input type="password" id="password" name="password" class="input-block-level required">
-		<c:if test="${isValidateCodeLogin}"><div class="validateCode">
-			<label class="input-label mid" for="validateCode">验证码</label>
-			<tags:validateCode name="validateCode" inputCssStyle="margin-bottom:0;"/>
-		</div></c:if>
-		<input class="btn btn-large btn-primary" type="submit" value="登 录"/>&nbsp;&nbsp;
-		<%--<label for="rememberMe" title="下次不需要再登录"><input type="checkbox" id="rememberMe" name="rememberMe"/> 记住我（公共场所慎用）</label>--%>
-<!-- 		<div id="themeSwitch" class="dropdown"> -->
-<%-- 			<a class="dropdown-toggle" data-toggle="dropdown" href="#">${fns:getDictLabel(cookie.theme.value,'theme','默认主题')}<b class="caret"></b></a> --%>
-<!-- 			<ul class="dropdown-menu"> -->
-<%-- 			  <c:forEach items="${fns:getDictList('theme')}" var="dict"><li><a href="#" onclick="location='${pageContext.request.contextPath}/theme/${dict.value}?url='+location.href">${dict.label}</a></li></c:forEach> --%>
-<!-- 			</ul> -->
-			<!--[if lte IE 6]><script type="text/javascript">$('#themeSwitch').hide();</script><![endif] -->
-<!-- 		</div> -->
-	</form>
-	<%-- Copyright &copy; 20xx-${fns:getConfig('copyrightYear')} <a href="#">xxxxxxx</a> ${fns:getConfig('version')} --%>
+
+
+<body style="margin: 0px; overflow-x: hidden; min-width: 100%;">
+
+<div class="login-wrap">
+
+
+    <div class="login-header">
+        <img src="/static/modules/sys/login/img/logo_top_9b.png" alt="" height="30">
+        <div class="login-header">
+            <img src="/static/modules/sys/login/img/logo_top_9b.png" alt="" height="30">
+            <div class="phone-wrap">
+                <img src="/static/modules/sys/login/img/tel.png">联系我们
+                <span class="code">
+                    请联系商务
+                    <%--<img src="img/code.png" alt="">--%>
+                </span>
+            </div>
+        </div>
+    </div>
+
+    <div class="banner">
+
+        <div class="b-main">
+
+            <div class="main-w1200">
+                <div class="login-box">
+                    <form id="form1" action="${ctx}/login" method="post">
+                        <input name="sessionId" type="hidden" id="sessionId">
+                        <input name="bizSwitch0001" type="hidden" id="bizSwitch0001" value="0">
+                        <input name="bizSwitch0002" type="hidden" id="bizSwitch0002" value="0">
+                        <div class="gradient-border login-user error">
+                            <div class="login-item">
+                                <label class="login-icon"></label>
+                                <div class="sep-line"></div>
+                                <input name="username" id="username" class="userName" type="text" placeholder="请输入您的账号"
+                                       required="required" oninvalid="setCustomValidity('请输入合法的账号');"
+                                       oninput="setCustomValidity('');" pattern="[a-zA-Z0-9_]{6,32}" maxlength="32"
+                                       autocomplete="off">
+                            </div>
+                        </div>
+                        <div class="gradient-border login-key">
+
+                            <div class="login-item">
+                                <label class="login-icon"></label>
+                                <div class="sep-line"></div>
+                                <input type="password" id="password" name="password" class="userPassword"
+                                       placeholder="请输入您的密码" required="required"
+                                       oninvalid="setCustomValidity('请正确输入您的密码');"
+                                       oninput="setCustomValidity('');" autocomplete="off">
+                            </div>
+                        </div>
+                        <div id="drag"></div>
+
+                        <c:if test="${isValidateCodeLogin}">
+                            <div class="validateCode">
+                                <label class="input-label mid" for="validateCode">验证码</label>
+                                <tags:validateCode name="validateCode" inputCssStyle="margin-bottom:0;"/>
+                            </div>
+                        </c:if>
+
+                        <div class="gradient-border login-btn">
+
+                            <button class="btn-warning" type="button" name="login" id="login" onclick="toLogin()">登录</button>
+
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+
+<script src="/static/jquery/jquery-1.9.1.min.js"></script>
+<script src="/static/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+
+
+<script src="/static/modules/sys/login/js/matrix.js?version=v1"></script>
+<script src="/static/modules/sys/login/js/main.js?version=v1"></script>
+<script src="/static/modules/sys/login/js/login.js?version=v1"></script>
+<script src="/static/modules/sys/login/js/drag.js?version=v1"></script>
+
+
 </body>
 </html>

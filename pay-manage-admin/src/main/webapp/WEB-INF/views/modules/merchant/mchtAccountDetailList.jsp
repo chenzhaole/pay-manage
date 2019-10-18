@@ -102,11 +102,9 @@
 <table id="contentTable" class="table table-striped table-bordered table-condensed">
     <thead>
     <tr>
-        <th>账务明细号</th>
-        <th>商户名称</th>
-        <th>商户号</th>
+        <th>账务明细号<br>平台订单号</th>
+        <th>商户名称<br>商户编号</th>
         <th>商户订单号</th>
-        <th>平台订单号</th>
         <th>账户类型</th>
         <th>记账类型</th>
         <th>交易类型</th>
@@ -123,11 +121,9 @@
     <c:forEach items="${list}" var="accountDetail">
         <tr>
             </td>
-            <td>${accountDetail.id}</td>
-            <td>${accountDetail.mchtName}</td>
-            <td>${accountDetail.mchtId}</td>
+            <td>${accountDetail.id}<br>${accountDetail.platOrderId}</td>
+            <td>${accountDetail.mchtName}<br>${accountDetail.mchtId}</td>
             <td>${accountDetail.mchtOrderId}</td>
-            <td>${accountDetail.platOrderId}</td>
             <td><c:if test="${accountDetail.accountType=='2'}">现金账户</c:if>
                 <c:if test="${accountDetail.accountType=='1'}">结算账户</c:if></td>
             <td>${accountDetail.opType}</td>

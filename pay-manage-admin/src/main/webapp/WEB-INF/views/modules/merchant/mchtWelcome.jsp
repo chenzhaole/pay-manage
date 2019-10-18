@@ -29,7 +29,7 @@
 
     <!-- ********************************************************************** -->
     <div class="breadcrumb">
-        <label><h4>交易信息</h4></label>
+        <label><h4>今日交易信息</h4></label>
     </div>
     <table class="table" id="payInfo">
         <tr>
