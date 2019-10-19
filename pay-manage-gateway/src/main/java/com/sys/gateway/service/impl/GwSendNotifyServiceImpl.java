@@ -8,6 +8,9 @@ import com.sys.boss.api.entry.cache.CacheMcht;
 import com.sys.boss.api.entry.cache.CacheOrder;
 import com.sys.boss.api.entry.cache.CacheTrade;
 import com.sys.boss.api.entry.trade.TradeNotify;
+import com.sys.boss.api.entry.trade.request.TradeBaseRequest;
+import com.sys.boss.api.entry.trade.request.TradeReqHead;
+import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
 import com.sys.boss.api.entry.trade.request.cashier.TradeCashierRequest;
 import com.sys.boss.api.entry.trade.request.quickpay.TXQuickPrePayRequest;
 import com.sys.boss.api.entry.trade.response.TradeNotifyResponse;
@@ -70,9 +73,16 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         String contentType = "application/json";
         String content = JSON.toJSONString(tradeNotify.getResponse());
         try {
-            String mchtOrderId = ((TradeNotifyResponse) tradeNotify.getResponse()).getBody().getOrderId();
-            String platOrderId = ((TradeNotifyResponse) tradeNotify.getResponse()).getBody().getTradeId();
-            String mchtId = ((TradeNotifyResponse) tradeNotify.getResponse()).getBody().getMchtId();
+
+            CacheOrder cacheOrder = cacheTrade.getCacheOrder();
+            CacheMcht cacheMcht = cacheTrade.getCacheMcht();
+            String mchtOrderId = cacheOrder.getMchtOrderId();
+            String platOrderId = cacheOrder.getPlatOrderId();
+            String mchtId = cacheMcht.getMchtId();
+
+//            String mchtOrderId = ((TradeNotifyResponse) tradeNotify.getResponse()).getBody().getOrderId();
+//            String platOrderId = ((TradeNotifyResponse) tradeNotify.getResponse()).getBody().getTradeId();
+//            String mchtId = ((TradeNotifyResponse) tradeNotify.getResponse()).getBody().getMchtId();
             String moid = mchtId + "-" + mchtOrderId + "-" + platOrderId + "-";
             //HTTP异步通知商户交易结果
             logger.info(BIZ + moid + "[start] 发送地址:" + url + "  商户订单号:" + mchtOrderId + " 平台订单号:" + platOrderId + " 异步通知商户数据:" + content);
@@ -158,6 +168,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         String respCode = ErrorCodeEnum.SUCCESS.getCode();
         String respMsg = ErrorCodeEnum.SUCCESS.getDesc();
         try {
+
+
             //平台分配的下游商户号
             String mchtId = cacheMcht.getMchtId();
             //商户流水号
@@ -219,12 +231,16 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             head.setRespCode(respCode);
             head.setRespMsg(respMsg);
             TradeNotifyResponse.TradeNotifyBody body = new TradeNotifyResponse.TradeNotifyBody();
+
+            if (StringUtils.isNotBlank(bankCardNo)) {
+                body.setBankCardNo(bankCardNo);
+            }
+
             body.setMchtId(mchtId);
             body.setOrderId(mchtOrderId);
             body.setTradeId(platOrderId);
             body.setStatus(status);
             body.setAmount(amount);
-            body.setBankCardNo(bankCardNo);
             body.setSeq(IdUtil.getUUID());
             body.setChargeTime(DateUtils.getNoSpSysTimeString());
             if (StringUtils.isBlank(biz)) {
@@ -242,6 +258,31 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             tradeNotifyResponse.setSign(sign.toUpperCase());
 
             tradeNotify.setResponse(tradeNotifyResponse);
+
+
+            // version=22,则调账异步通知内容
+            if (payType.startsWith("al") || payType.startsWith("wx") || payType.startsWith("yl")) {
+                logger.info("verion=22,支付方式为wx或al或yl,异步通知内容优化为一层json且全部非空属性签名");
+                TradeApiPayRequest tradeApiPayRequest = JSON.parseObject(JSONObject.toJSONString(cacheTrade.getTradeBaseRequest()), TradeApiPayRequest.class);
+                TradeReqHead clientHead = tradeApiPayRequest.getHead();
+                String version = clientHead.getVersion();
+                logger.info(" version = " + version);
+                if ("22".equals(version)) {
+                    logger.info("version=22,则调账异步通知内容");
+                    TreeMap map = new TreeMap<>();
+                    map.put("respCode", ErrorCodeEnum.SUCCESS.getCode());
+                    map.put("respMsg", ErrorCodeEnum.SUCCESS.getDesc());
+                    map.put("mchtId", mchtId);
+                    map.put("orderId", mchtOrderId);
+                    map.put("tradeId", platOrderId);
+                    map.put("status", status);
+                    map.put("amount", amount);
+                    map.put("chargeTime", DateUtils.getNoSpSysTimeString());
+                    String sign2 = SignUtil.md5Sign(new HashMap<String, String>(treeMap), mchtKey, log_moid);
+                    map.put("sign", sign2);
+                    tradeNotify.setResponse(map);
+                }
+            }
             logger.info(BIZ + "商户订单号：" + mchtOrderId + "，平台订单号：" + platOrderId + ",tradeNotify：" + JSONObject.toJSONString(tradeNotify));
         } catch (Exception e) {
             e.printStackTrace();
@@ -251,6 +292,13 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         return tradeNotify;
     }
 
+    /**
+     * 管理后台补发通知
+     *
+     * @param platOrderId
+     * @param suffix
+     * @return
+     */
     @Override
     public CommonResult sendNotifyAgain(String platOrderId, String suffix) {
         String message = "";
@@ -274,6 +322,27 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                 TradeNotify tradeNotify = buildOrderNotify(order);
                 String requestUrl = tradeNotify.getUrl();
                 String requestMsg = JSON.toJSONString(tradeNotify.getResponse());
+
+
+                String moid2 = order.getMchtId() + "-" + order.getId();
+                logger.info(moid2 + "判断指定商户version=22,则生成新版异步补发通知内容");
+                if ("3310000000666666".equals(order.getMchtCode())) {
+                    String mchtKey2 = merchantService.queryByKey(order.getMchtCode()).getMchtKey();
+                    Map map = new HashMap<>();
+                    map.put("respCode", ErrorCodeEnum.SUCCESS.getCode());
+                    map.put("respMsg", ErrorCodeEnum.SUCCESS.getDesc());
+                    map.put("mchtId", order.getMchtCode());
+                    map.put("orderId", order.getMchtOrderId());
+                    map.put("tradeId", order.getId());
+                    map.put("status", PayStatusEnum.PAY_SUCCESS.getCode().equals(order.getStatus()) ? "SUCCESS" : "PROCESSING");
+                    map.put("amount", order.getAmount() + "");
+                    map.put("chargeTime", order.getUpdateTime() == null ? DateUtils.getNoSpSysTimeString() : DateUtils.formatDate(order.getUpdateTime(), "yyyyMMddHHmmss"));
+                    String sign2 = SignUtil.md5Sign(map, mchtKey2, moid2);
+                    map.put("sign", sign2);
+                    requestMsg = JSON.toJSONString(map);
+                    logger.info(moid2 + "version=22,补发异步通知内容:" + requestMsg);
+                }
+
                 logger.info("[start] 异步通知商户开始，请求地址：{} 请求内容：{}", requestUrl, requestMsg);
                 String result = HttpUtil.postConnManager(requestUrl, requestMsg, "application/json", "UTF-8", "UTF-8");
                 logger.info("[end] 异步通知商户结束，请求地址：{} 请求内容：{} 商户响应：{}", requestUrl, requestMsg, result);
@@ -334,6 +403,7 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
         tradeNotifyResponse.setHead(head);
         tradeNotifyResponse.setBody(body);
         tradeNotify.setResponse(tradeNotifyResponse);
+
         return tradeNotify;
     }
 
