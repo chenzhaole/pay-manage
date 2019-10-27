@@ -86,7 +86,13 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             String moid = mchtId + "-" + mchtOrderId + "-" + platOrderId + "-";
             //HTTP异步通知商户交易结果
             logger.info(BIZ + moid + "[start] 发送地址:" + url + "  商户订单号:" + mchtOrderId + " 平台订单号:" + platOrderId + " 异步通知商户数据:" + content);
-            String mchtRes = HttpUtil.postConnManager(url, content, contentType, "UTF-8", "UTF-8");
+
+            String mchtRes = "";
+            if (url.contains("https") || url.contains("HTTPS")) {
+                mchtRes = HttpsUtil.post(url, content);
+            } else {
+                mchtRes = HttpUtil.postConnManager(url, content, contentType, "UTF-8", "UTF-8");
+            }
             logger.info(BIZ + moid + "[end] 发送地址:" + url + "  商户订单号:" + mchtOrderId + " 平台订单号:" + platOrderId + ":异步通知商户数据:" + content + ",下游商户接收异步通知响应数据:" + mchtRes);
 
             //补发通知成功后，修改补发状态
@@ -320,8 +326,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
             //POST发送通知数据
             if (StringUtils.isNotBlank(notifyUrl)) {
                 TradeNotify tradeNotify = buildOrderNotify(order);
-                String requestUrl = tradeNotify.getUrl();
-                String requestMsg = JSON.toJSONString(tradeNotify.getResponse());
+                String url = tradeNotify.getUrl();
+                String content = JSON.toJSONString(tradeNotify.getResponse());
 
 
                 String moid2 = order.getMchtId() + "-" + order.getId();
@@ -339,13 +345,18 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                     map.put("chargeTime", order.getUpdateTime() == null ? DateUtils.getNoSpSysTimeString() : DateUtils.formatDate(order.getUpdateTime(), "yyyyMMddHHmmss"));
                     String sign2 = SignUtil.md5Sign(map, mchtKey2, moid2);
                     map.put("sign", sign2);
-                    requestMsg = JSON.toJSONString(map);
-                    logger.info(moid2 + "version=22,补发异步通知内容:" + requestMsg);
+                    content = JSON.toJSONString(map);
+                    logger.info(moid2 + "version=22,补发异步通知内容:" + content);
                 }
 
-                logger.info("[start] 异步通知商户开始，请求地址：{} 请求内容：{}", requestUrl, requestMsg);
-                String result = HttpUtil.postConnManager(requestUrl, requestMsg, "application/json", "UTF-8", "UTF-8");
-                logger.info("[end] 异步通知商户结束，请求地址：{} 请求内容：{} 商户响应：{}", requestUrl, requestMsg, result);
+                logger.info("[start] 异步通知商户开始，请求地址：{} 请求内容：{}", url, content);
+                String result = "";
+                if (url.contains("https") || url.contains("HTTPS")) {
+                    result = HttpsUtil.post(url, content);
+                } else {
+                    result = HttpUtil.postConnManager(url, content, "application/json", "UTF-8", "UTF-8");
+                }
+                logger.info("[end] 异步通知商户结束，请求地址：{} 请求内容：{} 商户响应：{}", url, content, result);
 
                 if ("SUCCESS".equalsIgnoreCase(result)) {
                     order.setSupplyStatus("0");

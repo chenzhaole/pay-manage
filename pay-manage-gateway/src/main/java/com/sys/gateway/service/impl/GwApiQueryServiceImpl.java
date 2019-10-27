@@ -18,6 +18,7 @@ import com.sys.boss.api.service.trade.handler.ITradeApiQueryHandler;
 import com.sys.common.enums.ErrorCodeEnum;
 import com.sys.common.util.DateUtils2;
 import com.sys.common.util.HttpUtil;
+import com.sys.common.util.JsonUtils;
 import com.sys.common.util.SignUtil;
 import com.sys.core.dao.common.PageInfo;
 import com.sys.core.dao.dmo.MchtGatewayOrder;
@@ -52,80 +53,6 @@ public class GwApiQueryServiceImpl implements GwApiQueryService {
 
 
     /**
-     * API支付查单检验参数
-     **/
-    @Override
-    public CommonResponse checkParam(String paramStr) {
-        CommonResponse checkResp = new CommonResponse();
-        try {
-            if (paramStr.endsWith("=")) {
-                paramStr = paramStr.substring(0, paramStr.length() - 1);
-            }
-            //解析请求参数
-            TradeApiQueryRequest tradeRequest = JSON.parseObject(paramStr, TradeApiQueryRequest.class);
-            if (tradeRequest.getHead() == null || tradeRequest.getBody() == null || tradeRequest.getSign() == null) {
-                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
-                checkResp.setRespCode("[head],[body],[sign]请求参数值不能为空");
-                logger.info("[head],[body],[sign]请求参数值不能为空，即TradeCommRequest=：" + JSONObject.toJSONString(tradeRequest));
-                return checkResp;
-            }
-
-            TradeReqHead head = tradeRequest.getHead();
-            if (head.getMchtId() == null || head.getVersion() == null || head.getBiz() == null) {
-                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
-                checkResp.setRespCode("[mchtId],[version],[biz]请求参数值不能为空");
-                logger.info("[mchtId],[version],[biz]请求参数值不能为空，即TradeReqHead=：" + JSONObject.toJSONString(head));
-                return checkResp;
-            }
-
-            ApiQueryRequestBody body = tradeRequest.getBody();
-            if (StringUtils.isBlank(body.getOrderId())
-                    || StringUtils.isBlank(body.getOrderTime())) {
-                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
-                checkResp.setRespCode("[orderId],[orderTime]请求参数值不能为空");
-                logger.info("[orderId],[orderTime]请求参数值不能为空，即CommRequestBody=：" + JSONObject.toJSONString(body));
-                return checkResp;
-            }
-
-
-            checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
-            checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
-            checkResp.setData(tradeRequest);
-        } catch (Exception e) {
-            e.printStackTrace();
-            logger.error("API支付查单接口校验参数异常：" + e.getMessage());
-            checkResp.setRespCode(ErrorCodeEnum.E1012.getCode());
-            checkResp.setRespMsg(ErrorCodeEnum.E1012.getDesc());
-        }
-        return checkResp;
-    }
-
-
-    @Override
-    public int amount(MchtGatewayOrder order) {
-
-        String url = ORDER_URL + "orderAmount";
-        Map<String, String> params = new HashMap<>();
-        params.put("order", JSON.toJSONString(order));
-
-        String result;
-        int resultInt = 0;
-
-        try {
-            logger.info("调用order模块 url:" + url + "  参数params:" + JSON.toJSONString(params));
-            result = HttpUtil.postConnManager(url, params);
-            if (StringUtils.isNotBlank(result)) {
-                resultInt = Integer.parseInt(result);
-            }
-        } catch (Exception e) {
-            logger.error("查询 Order 模块出错：", e);
-            return resultInt;
-        }
-        return resultInt;
-    }
-
-
-    /**
      * API支付查单接口(单笔)
      */
     @Override
@@ -138,15 +65,19 @@ public class GwApiQueryServiceImpl implements GwApiQueryService {
         try {
             logger.info("调用boss-trade查询支付订单，参数值tradeRequest：" + JSON.toJSONString(tradeRequest));
             CommonResult commonResult = tradeApiQueryHandler.process(tradeRequest, ip);
+            if (StringUtils.isBlank(commonResult.getRespCode())) {
+                head.setRespCode(ErrorCodeEnum.E1100.getCode());
+                head.setRespMsg("没有找到该订单");
+                return new ApiPayOrderQueryResponse(head, body, sign);
+            }
             logger.info("调用boss-trade查询支付订单，返回值commonResult：" + JSON.toJSONString(commonResult));
-
 
             if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
                 Map<String, String> retData = (Map<String, String>) commonResult.getData();
                 String data = retData.get("data");
                 String signKey = retData.get("signKey");
 
-                if(StringUtils.isBlank(data)){
+                if (StringUtils.isBlank(data)) {
                     head.setRespCode(ErrorCodeEnum.E6111.getCode());
                     head.setRespMsg("没有找到该订单");
                     return new ApiPayOrderQueryResponse(head, body, sign);
@@ -258,6 +189,79 @@ public class GwApiQueryServiceImpl implements GwApiQueryService {
         }
         return null;
 
+    }
+
+    /**
+     * API支付查单检验参数
+     **/
+    @Override
+    public CommonResponse checkParam(String paramStr) {
+        CommonResponse checkResp = new CommonResponse();
+        try {
+            if (paramStr.endsWith("=")) {
+                paramStr = paramStr.substring(0, paramStr.length() - 1);
+            }
+            //解析请求参数
+            TradeApiQueryRequest tradeRequest = JSON.parseObject(paramStr, TradeApiQueryRequest.class);
+            if (tradeRequest.getHead() == null || tradeRequest.getBody() == null || tradeRequest.getSign() == null) {
+                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
+                checkResp.setRespCode("[head],[body],[sign]请求参数值不能为空");
+                logger.info("[head],[body],[sign]请求参数值不能为空，即TradeCommRequest=：" + JSONObject.toJSONString(tradeRequest));
+                return checkResp;
+            }
+
+            TradeReqHead head = tradeRequest.getHead();
+            if (head.getMchtId() == null || head.getVersion() == null || head.getBiz() == null) {
+                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
+                checkResp.setRespCode("[mchtId],[version],[biz]请求参数值不能为空");
+                logger.info("[mchtId],[version],[biz]请求参数值不能为空，即TradeReqHead=：" + JSONObject.toJSONString(head));
+                return checkResp;
+            }
+
+            ApiQueryRequestBody body = tradeRequest.getBody();
+            if (StringUtils.isBlank(body.getOrderId())
+                    || StringUtils.isBlank(body.getOrderTime())) {
+                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
+                checkResp.setRespCode("[orderId],[orderTime]请求参数值不能为空");
+                logger.info("[orderId],[orderTime]请求参数值不能为空，即CommRequestBody=：" + JSONObject.toJSONString(body));
+                return checkResp;
+            }
+
+
+            checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
+            checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
+            checkResp.setData(tradeRequest);
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("API支付查单接口校验参数异常：" + e.getMessage());
+            checkResp.setRespCode(ErrorCodeEnum.E1012.getCode());
+            checkResp.setRespMsg(ErrorCodeEnum.E1012.getDesc());
+        }
+        return checkResp;
+    }
+
+
+    @Override
+    public int amount(MchtGatewayOrder order) {
+
+        String url = ORDER_URL + "orderAmount";
+        Map<String, String> params = new HashMap<>();
+        params.put("order", JSON.toJSONString(order));
+
+        String result;
+        int resultInt = 0;
+
+        try {
+            logger.info("调用order模块 url:" + url + "  参数params:" + JSON.toJSONString(params));
+            result = HttpUtil.postConnManager(url, params);
+            if (StringUtils.isNotBlank(result)) {
+                resultInt = Integer.parseInt(result);
+            }
+        } catch (Exception e) {
+            logger.error("查询 Order 模块出错：", e);
+            return resultInt;
+        }
+        return resultInt;
     }
 
 

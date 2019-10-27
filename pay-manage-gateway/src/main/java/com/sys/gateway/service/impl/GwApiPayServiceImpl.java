@@ -131,10 +131,15 @@ public class GwApiPayServiceImpl implements GwApiPayService {
                 head.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
                 body.setMchtId(mchtResult.getMchtId());
                 body.setOrderId(mchtResult.getMchtOrderNo());//商户订单号
-                if (tradeRequest.getHead() != null && PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(tradeRequest.getHead().getBiz())) {
+
+                if (tradeRequest.getHead() != null && PayTypeEnum.WX_PUBLIC_NATIVE.getCode().equals(tradeRequest.getHead().getBiz())
+                        || tradeRequest.getHead() != null && PayTypeEnum.ALIPAY_SERVICE_WINDOW.getCode().equals(tradeRequest.getHead().getBiz())) {
+                    //如果是原生微信公众号和支付宝服务窗,则设置payInfo值
+                    body.setPayUrl("");
                     body.setPayInfo(mchtResult.getPayInfo());
                 } else {
                     body.setPayUrl(mchtResult.getPayInfo());
+                    body.setPayInfo("");
                 }
                 body.setTradeId(mchtResult.getOrderNo());//平台订单号
                 // 签名

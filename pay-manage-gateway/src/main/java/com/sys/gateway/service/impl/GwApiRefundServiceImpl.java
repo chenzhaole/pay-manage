@@ -17,7 +17,9 @@ import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
 import com.sys.boss.api.service.trade.handler.ITradeApiQRPayHandler;
 import com.sys.boss.api.service.trade.handler.ITradeRefundCreateHandler;
 import com.sys.common.enums.ErrorCodeEnum;
+import com.sys.common.enums.PayStatusEnum;
 import com.sys.common.enums.PayTypeEnum;
+import com.sys.common.enums.StatusEnum;
 import com.sys.common.util.IdUtil;
 import com.sys.common.util.SignUtil;
 import com.sys.gateway.service.GwApiPayService;
@@ -126,15 +128,39 @@ public class GwApiRefundServiceImpl implements GwApiRefundService {
             CommonResult commonResult = tradeRefundCreateHandler.process(tradeRequest, ip);
             logger.info("调用boss-trade创建退款订单，返回值commonResult：" + JSON.toJSONString(commonResult));
             if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
-                Result result = (Result) commonResult.getData();
                 head.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
                 head.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
+
+            } else {
+                String respCode = StringUtils.isBlank(commonResult.getRespCode()) ? ErrorCodeEnum.FAILURE.getCode() : commonResult.getRespCode();
+                String respMsg = StringUtils.isBlank(commonResult.getRespMsg()) ? ErrorCodeEnum.FAILURE.getDesc() : commonResult.getRespMsg();
+                head.setRespCode(respCode);
+                head.setRespMsg(respMsg);
+            }
+
+            if (commonResult.getData() != null) {
+                Result result = (Result) commonResult.getData();
                 body.setMchtId(result.getMchtId());
                 body.setOrderId(result.getMchtOrderNo());//商户订单号
                 body.setTradeId(result.getOrderNo());//平台订单号
-                body.setOriTradeId(result.getOriOrderNo());
-                body.setStatus(result.getStatus());
                 body.setSeq(IdUtil.getUUID());
+
+                if (StringUtils.isNotBlank(result.getOriOrderNo())) {
+                    body.setOriTradeId(result.getOriOrderNo());
+                }
+                if (StringUtils.isNotBlank(result.getStatus())) {
+                    if (Result.STATUS_SUCCESS.equals(result.getStatus())) {
+                        body.setStatus("SUCCESS");// 000000->SUCCESS
+                    } else {
+                        body.setStatus("");
+                    }
+                }
+                if (StringUtils.isNotBlank(result.getOrderAmount())) {
+                    body.setAmount(result.getOrderAmount());
+                }
+                if (StringUtils.isNotBlank(result.getOriChanRespMsg())) {
+                    body.setParam(result.getOriChanRespMsg());
+                }
 
                 // 签名
                 Map<String, String> params = JSONObject.parseObject(
@@ -142,12 +168,9 @@ public class GwApiRefundServiceImpl implements GwApiRefundService {
                         });
                 String moid = result.getMchtId() + "-" + result.getMchtOrderNo();
                 sign = SignUtil.md5Sign(params, result.getMchtKey(), moid);
-            } else {
-                String respCode = StringUtils.isBlank(commonResult.getRespCode()) ? ErrorCodeEnum.FAILURE.getCode() : commonResult.getRespCode();
-                String respMsg = StringUtils.isBlank(commonResult.getRespMsg()) ? ErrorCodeEnum.FAILURE.getDesc() : commonResult.getRespMsg();
-                head.setRespCode(respCode);
-                head.setRespMsg(respMsg);
             }
+
+
         } catch (Exception e) {
             head.setRespCode(ErrorCodeEnum.E8001.getCode());
             head.setRespMsg(ErrorCodeEnum.E8001.getDesc());

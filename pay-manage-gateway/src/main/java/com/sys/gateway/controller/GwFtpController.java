@@ -3,9 +3,8 @@ package com.sys.gateway.controller;
 import com.alibaba.fastjson.JSON;
 import com.sys.boss.api.entry.CommonResult;
 import com.sys.boss.api.entry.trade.request.registe.TradeRegisteMchtRequest;
-import com.sys.boss.api.entry.trade.response.registe.RegisteQueryResponse;
+import com.sys.boss.api.entry.trade.response.registe.RegisteMchtResponse;
 import com.sys.boss.api.service.trade.handler.ITradeRegisteMchtInfoHandler;
-import com.sys.boss.api.service.trade.handler.ITradeRegisteQueryHandler;
 import com.sys.gateway.common.IpUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -26,31 +25,30 @@ import java.net.URLDecoder;
 
 @Controller
 @RequestMapping(value = "")
-public class GwRegisteQueryController {
+public class GwFtpController {
 
-    protected final Logger logger = LoggerFactory.getLogger(GwRegisteMchtInfoController.class);
+    protected final Logger logger = LoggerFactory.getLogger(GwFtpController.class);
 
     @Autowired
-    ITradeRegisteQueryHandler tradeRegisteQueryHandler;
+    ITradeRegisteMchtInfoHandler tradeRegisteMchtInfoHandler;
 
-    private final String BIZ = "入驻查询-";
+    private final String BIZ = "FTP服务-";
 
 
-
-    @RequestMapping(value = "/gateway/registeQuery")
+    @RequestMapping(value = "/gateway/ftp/test")
     @ResponseBody
-    public String registeQuery(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) throws java.io.IOException {
+    public String test(@RequestBody String data, HttpServletRequest request, HttpServletResponse response, RedirectAttributes redirectAttributes) throws java.io.IOException {
 
-        String respStr = "error";
+        String respStr ;
         if (data.endsWith("=")) {
             logger.info(BIZ + "收到客户端请求参数,最后一个字母为=，需要截取掉，截取之前的值为data=" + data);
             data = data.substring(0, data.length() - 1);
         }
         logger.info(BIZ + "收到客户端请求参数：data=" + data);
         String midoid = "";//商户ID+商户订单ID
-        RegisteQueryResponse registeQueryResponse = new RegisteQueryResponse();
-        RegisteQueryResponse.MchtQueryResponseHead head = new RegisteQueryResponse.MchtQueryResponseHead();
-        RegisteQueryResponse.MchtQueryResponseBody body = new RegisteQueryResponse.MchtQueryResponseBody();
+        RegisteMchtResponse registeMchtResponse = new RegisteMchtResponse();
+        RegisteMchtResponse.RegisteMchtResponseHead head = new RegisteMchtResponse.RegisteMchtResponseHead();
+        RegisteMchtResponse.RegisteMchtResponseBody body = new RegisteMchtResponse.RegisteMchtResponseBody();
         try {
             //请求ip
             String ip = IpUtil.getRemoteHost(request);
@@ -65,7 +63,7 @@ public class GwRegisteQueryController {
             TradeRegisteMchtRequest tradeMchtRegisteRequest = new TradeRegisteMchtRequest();
             tradeMchtRegisteRequest.setSign(data);
             logger.info(BIZ + midoid + "请求trade层【start】参数值tradeRequest：" );
-            CommonResult commonResult = tradeRegisteQueryHandler.process(tradeMchtRegisteRequest, ip);
+            CommonResult commonResult = tradeRegisteMchtInfoHandler.process(tradeMchtRegisteRequest, ip);
             logger.info(BIZ + midoid + "请求trade层【end】返回值commonResult：" + JSON.toJSONString(commonResult));
             respStr = (String) commonResult.getData();
 
@@ -73,11 +71,12 @@ public class GwRegisteQueryController {
         } catch (Exception e) {
             e.printStackTrace();
             logger.error(BIZ + midoid + " 系统异常 e.msg：" + e.getMessage());
-            respStr = "{\"head\":{\"respCode\":\"FT001\",\"respMsg\":\"查询处理异常\"}}";
+            respStr = "{\"head\":{\"respCode\":\"FT001\",\"respMsg\":\"入驻处理异常\"}}";
         }
         logger.info(BIZ + midoid + " 返回下游商户信息：" + respStr);
         return respStr;
     }
+
 
 
 }
