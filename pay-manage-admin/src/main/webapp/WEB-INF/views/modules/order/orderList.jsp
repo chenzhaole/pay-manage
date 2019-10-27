@@ -412,7 +412,7 @@
 	<table id="contentTable" class="table table-striped table-bordered table-condensed table-hover" style="word-wrap:break-word; word-break:break-all;">
 		<thead>
 			<tr >
-				<th>商户名称</th>
+				<th>商户名称<br>商户编号</th>
 				<th>支付产品名称<br>通道商户支付方式</th>
 				<th>平台订单号<br>商户订单号</th>
 				<th>通道订单号<br>官方订单号</th>
@@ -428,7 +428,7 @@
 		<tbody>
 		<c:forEach items="${page.list}" var="orderInfo">
 			<tr>
-				<td>${orderInfo.mchtCode}</td>
+				<td>${orderInfo.mchtName}<br>${orderInfo.mchtId}</td>
 				<td>${orderInfo.platProductId}<br>${orderInfo.chanMchtPaytypeId}</td>
 
 				<td><a href="${ctx}/order/detail?id=${orderInfo.id}

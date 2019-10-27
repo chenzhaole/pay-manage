@@ -140,15 +140,16 @@ public class OrderController extends BaseController {
 	public String preList(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 					   Model model, @RequestParam Map<String, String> paramMap) {
 
-		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+		//// TODO: 2019/10/27 by czl 商户数据量大影响性能,屏蔽全量查询.订单流水表内已经增加商户名称字段
+//		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
 
 		//查询用商户List,只保留支付商户和代理商
-		List<MchtInfo> mchtList4Sel = new ArrayList();
-		for(MchtInfo mchtInfo : mchtList){
-			if(mchtInfo.getSignType().contains("1") || mchtInfo.getSignType().contains("4")){
-				mchtList4Sel.add(mchtInfo);
-			}
-		}
+//		List<MchtInfo> mchtList4Sel = new ArrayList();
+//		for(MchtInfo mchtInfo : mchtList){
+//			if(mchtInfo.getSignType().contains("1") || mchtInfo.getSignType().contains("4")){
+//				mchtList4Sel.add(mchtInfo);
+//			}
+//		}
 		//支付产品列表
 		List<PlatProduct> productList = productService.list(new PlatProduct());
 		//通道商户支付方式列表
@@ -160,7 +161,7 @@ public class OrderController extends BaseController {
 		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
 		model.addAttribute("paymentTypeInfos", payTypeList);
 		model.addAttribute("chanInfoList", chanInfoList);
-		model.addAttribute("mchtList", mchtList4Sel);
+//		model.addAttribute("mchtList", mchtList4Sel);
 		model.addAttribute("productList", productList);
 		model.addAttribute("chanMchtPaytypeList", chanMchtPaytypeList);
 
@@ -186,15 +187,15 @@ public class OrderController extends BaseController {
 	public String list(HttpServletRequest request, HttpServletResponse response, HttpSession session,
 					   Model model, @RequestParam Map<String, String> paramMap) {
 
-		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
-
-		//查询用商户List,只保留支付商户和代理商
-		List<MchtInfo> mchtList4Sel = new ArrayList();
-		for(MchtInfo mchtInfo : mchtList){
-			if(mchtInfo.getSignType().contains("1") || mchtInfo.getSignType().contains("4")){
-				mchtList4Sel.add(mchtInfo);
-			}
-		}
+//		List<MchtInfo> mchtList = merchantService.list(new MchtInfo());
+//
+//		//查询用商户List,只保留支付商户和代理商
+//		List<MchtInfo> mchtList4Sel = new ArrayList();
+//		for(MchtInfo mchtInfo : mchtList){
+//			if(mchtInfo.getSignType().contains("1") || mchtInfo.getSignType().contains("4")){
+//				mchtList4Sel.add(mchtInfo);
+//			}
+//		}
 		//支付产品列表
 		List<PlatProduct> productList = productService.list(new PlatProduct());
 		//通道商户支付方式列表
@@ -204,7 +205,7 @@ public class OrderController extends BaseController {
 		//查询商户列表
 		Map<String, String> channelMap = Collections3.extractToMap(chanInfoList, "id", "name");
 		Map<String, String> chanMPMap = Collections3.extractToMap(chanMchtPaytypeList, "id", "name");
-		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
+//		Map<String, String> mchtMap = Collections3.extractToMap(mchtList, "id", "name");
 		Map<String, String> productMap = Collections3.extractToMap(productList, "id", "name");
 
 
@@ -212,7 +213,7 @@ public class OrderController extends BaseController {
 		AdminPayTypeEnum[] payTypeList = AdminPayTypeEnum.values();
 		model.addAttribute("paymentTypeInfos", payTypeList);
 		model.addAttribute("chanInfoList", chanInfoList);
-		model.addAttribute("mchtList", mchtList4Sel);
+//		model.addAttribute("mchtList", mchtList4Sel);
 		model.addAttribute("productList", productList);
 		model.addAttribute("chanMchtPaytypeList", chanMchtPaytypeList);
 
@@ -260,7 +261,7 @@ public class OrderController extends BaseController {
 		}
 
 		for (MchtGatewayOrder gwOrder : orderList) {
-			gwOrder.setMchtCode(mchtMap.get(gwOrder.getMchtCode()));
+//			gwOrder.setMchtCode(mchtMap.get(gwOrder.getMchtCode()));
 			gwOrder.setPlatProductId(productMap.get(gwOrder.getPlatProductId()));
 			gwOrder.setChanId(channelMap.get(gwOrder.getChanId()));
 			gwOrder.setChanMchtPaytypeId(chanMPMap.get(gwOrder.getChanMchtPaytypeId()));
