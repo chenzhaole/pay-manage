@@ -24,10 +24,16 @@ public class BathNotify2Mcht {
         String driver = "com.mysql.jdbc.Driver";
 
 
-        //九宝
+//        //九宝
         String url = "jdbc:mysql://47.244.112.234:52118/pay_pro";
         String username = "pay_user";
         String password = "wku#Fh6kkrD";
+
+
+        //南瓜
+//        String url = "jdbc:mysql://47.108.51.172:52118/pay_pro";
+//        String username = "root";
+//        String password = "Adong_pass_123";
 
 
 //        //华讯
@@ -57,15 +63,15 @@ public class BathNotify2Mcht {
         try {
 
               String mchtCode = "2001005000564399";
-            String startTime = "2019-10-18 15:35:00";
-            String endTime = "2019-10-18 16:00:00";
+            String startTime = "2019-10-19 00:00:00";
+            String endTime = "2019-10-19 02:00:00";
 
 //172.31.53.143
 //            /**  补发指定商户订单 **/
-//            String sql =
-//                    " select o.mcht_code,m.`name`,m.mcht_key,o.notify_url,o.amount ,o.mcht_order_id,o.plat_order_id,o.update_time " +
-//                    " from mcht_gateway_order_201905 o join mcht_info m on o.mcht_code = m.id " +
-//                    " where m.id='"+mchtCode+"' and o.`status`=2 and o.update_time BETWEEN '"+startTime+"' AND '"+endTime+"'";
+            String sql =
+                    " select o.mcht_code,m.`name`,m.mcht_key,o.notify_url,o.amount ,o.mcht_order_id,o.plat_order_id,o.update_time " +
+                    " from mcht_gateway_order_201905 o join mcht_info m on o.mcht_code = m.id " +
+                    " where m.id='"+mchtCode+"' and o.`status`=2 and o.update_time BETWEEN '"+startTime+"' AND '"+endTime+"'";
 
             /**  补发时间段内所有商户订单 **/
 //            String sql =
@@ -75,10 +81,10 @@ public class BathNotify2Mcht {
 
 
             /**  补发时间段内+指定有商户的订单 **/
-            String sql =
-                    " select o.mcht_code,m.`name`,m.mcht_key,o.notify_url,o.amount ,o.mcht_order_id,o.plat_order_id,o.update_time " +
-                            " from mcht_gateway_order_201910 o join mcht_info m on o.mcht_code = m.id " +
-                            " where m.id='"+mchtCode+"' and o.`status`=2 and o.update_time BETWEEN '"+startTime+"' AND '"+endTime+"'";
+//            String sql =
+//                    " select o.mcht_code,m.`name`,m.mcht_key,o.notify_url,o.amount ,o.mcht_order_id,o.plat_order_id,o.update_time " +
+//                            " from mcht_gateway_order_201910 o join mcht_info m on o.mcht_code = m.id " +
+//                            " where m.id='"+mchtCode+"' and o.`status`=2 and o.update_time BETWEEN '"+startTime+"' AND '"+endTime+"'";
 
 
 

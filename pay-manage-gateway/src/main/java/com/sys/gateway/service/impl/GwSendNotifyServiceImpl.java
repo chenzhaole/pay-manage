@@ -89,7 +89,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
 
             String mchtRes = "";
             if (url.contains("https") || url.contains("HTTPS")) {
-                mchtRes = HttpsUtil.post(url, content);
+//                mchtRes = HttpsUtil.post(url, content);//todo:钱方开发环境OK,线上NG,线上换回老方法
+                mchtRes = HttpUtil.postConnManager(url, content, "application/json", "UTF-8", "UTF-8");
             } else {
                 mchtRes = HttpUtil.postConnManager(url, content, contentType, "UTF-8", "UTF-8");
             }
@@ -352,7 +353,8 @@ public class GwSendNotifyServiceImpl implements GwSendNotifyService {
                 logger.info("[start] 异步通知商户开始，请求地址：{} 请求内容：{}", url, content);
                 String result = "";
                 if (url.contains("https") || url.contains("HTTPS")) {
-                    result = HttpsUtil.post(url, content);
+//                    result = HttpsUtil.post(url, content);//todo:钱方开发环境OK,线上NG,线上换回老方法
+                    result = HttpUtil.postConnManager(url, content, "application/json", "UTF-8", "UTF-8");
                 } else {
                     result = HttpUtil.postConnManager(url, content, "application/json", "UTF-8", "UTF-8");
                 }

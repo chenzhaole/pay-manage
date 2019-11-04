@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp"%>
 <html>
 <head>
-	<title>支付通道列表</title>
+	<title>通道商户支付方式列表</title>
 	<meta name="decorator" content="default"/>
 
 	<script type="text/javascript">
@@ -146,6 +146,7 @@
 		<th>结算方式</th>
 		<th>结算周期</th>
 		<th>状态</th>
+		<th>备注1</th>
 		<th>待结算金额(元)</th>
 		<th>操作</th>
 	</tr>
@@ -174,7 +175,10 @@
 			<td>${chanInfo.settleCycle}</td>
 
 			<c:choose><c:when test="${chanInfo.status == 1}"><td>启用</td></c:when>
-				<c:when test="${chanInfo.status == 2}"><td>停用</td></c:when><c:otherwise><td></td></c:otherwise></c:choose>
+				<c:when test="${chanInfo.status == 2}"><td>停用</td></c:when>
+				<c:when test="${chanInfo.status == 3}"><td>死号作废</td></c:when>
+				<c:otherwise><td>其它</td></c:otherwise></c:choose>
+			<td>${chanInfo.extend1}</td>
 			<td>
 				<fmt:formatNumber value="${chanInfo.limitAmount * 0.01}" type="number" maxFractionDigits="2" />
 			</td>

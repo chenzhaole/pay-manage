@@ -58,7 +58,8 @@ public class LogInterceptor extends BaseService implements HandlerInterceptor {
 
         if ((StringUtils.startsWith(requestRri, uriPrefix) && (StringUtils.endsWith(requestRri, "/save")
                 || StringUtils.endsWith(requestRri, "/delete") || StringUtils.endsWith(requestRri, "/import")
-                || StringUtils.endsWith(requestRri, "/updateSort"))) || ex != null) {
+                || StringUtils.endsWith(requestRri, "/updateSort")
+                || StringUtils.endsWith(requestRri,"/statAccFile"))) || ex != null) {
 
             User user = UserUtils.getUser();
             if (user != null && user.getId() != null) {

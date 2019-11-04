@@ -81,25 +81,25 @@ public class ReadMchtImportFile2db {
             r.setCityName(column[5]);
             r.setDistrictName(column[6]);
             r.setAddress(column[7]);
-            r.setBusinessLicenseCode(column[14]);//18位营业执照号不能重复
+//            r.setBusinessLicenseCode(column[14]);//18位营业执照号不能重复
 
 
             r.setLegalName(column[21]);//法人
             r.setLegalCertType("1");//法人证件类型：1-身份证；2-护照；3-军官证；4-士兵证；5-回乡证；6-临时身份证；7-户口簿；8-警官证；9-台胞证；11-其它
             r.setLegalCertNo(column[23]);//法人身份证
-            r.setLegalCerExpiryDate(column[24]);//1，非长期；2，长期
+//            r.setLegalCerExpiryDate(column[24]);//1，非长期；2，长期
             r.setLegalCerStartDate(column[25]);
             r.setLegalCerEndDate(column[26]);
 
 
-            r.setSettleAccountName(column[42]);//结算账户名
+//            r.setSettleAccountName(column[42]);//结算账户名
             r.setSettleBankAccountNo(column[43]);//结算账号
-            r.setSettleBankAcctType("1".equals(column[41]) ? "1" : "2");//账户类别, 1=对私,2=对公
-            r.setSettleBankProvince(column[44]);
-            r.setSettleBankCity(column[45]);
+//            r.setSettleBankAcctType("1".equals(column[41]) ? "1" : "2");//账户类别, 1=对私,2=对公
+//            r.setSettleBankProvince(column[44]);
+//            r.setSettleBankCity(column[45]);
             r.setSettleBankName(column[46]);
-            r.setBankSettleCycle("d1");//结算周期(d0,d1,t0,t1……)
-            r.setBankRate("0");//费率(百分比)
+//            r.setBankSettleCycle("d1");//结算周期(d0,d1,t0,t1……)
+//            r.setBankRate("0");//费率(百分比)
             r.setSettleSubBankName(column[90]);//支行名称
             r.setSettleLineCode(column[01]);//联行号
 
@@ -150,9 +150,9 @@ public class ReadMchtImportFile2db {
 
             String mchtType = r.getOrderId().substring(0, 2);
             String sql = "INSERT INTO mcht_info VALUES ('" + r.getOrderId() + "', 'syyfb', '" + r.getOperatorId() + "', '" + r.getOrderId() + "', '" + r.getName() + "', '" + r.getName() + "', '" + IdUtil.getUUID() + "', '" + mchtType + "', '0', '', '1', '', '', " +
-                    "'" + r.getLegalName() + "', '" + r.getLegalCertType() + "', '" + r.getLegalCertNo() + "', '" + r.getCityCode() + "', '" + r.getBusinessLicenseCode() + "', null, '2039-09-19 09:38:33', '" + r.getBusinessScope() + "', null, null, null, null, " +
+                    "'" + r.getLegalName() + "', '" + r.getLegalCertType() + "', '" + r.getLegalCertNo() + "', '" + r.getCityCode() + "', '" + r.getLicenseCode() + "', null, '2039-09-19 09:38:33', '" + r.getBusinessScope() + "', null, null, null, null, " +
                     "'" + r.getAddress() + "', '', '" + r.getTel() + "', '', '', null, null, null, null, null, '', '', '', '', '', null, '1,2', null, null, null, null, null, '', null, '9', '', null, null, '0.00', " +
-                    "'" + r.getSettleAccountName() + "', '" + r.getSettleBankAccountNo() + "', '" + r.getSettleBankName() + "', '', '" + r.getSettleBankCity() + "', null, null, null, null, null, '0.00', null, null, null, null, null, null, null, null, '3310', " +
+                    "'" + r.getSettleBankAccountType() + "', '" + r.getSettleBankAccountNo() + "', '" + r.getSettleBankName() + "', '', '" + r.getSettleBankCityName() + "', null, null, null, null, null, '0.00', null, null, null, null, null, null, null, null, '3310', " +
                     "'" + DateUtils2.getNowTimeStr() + "', '" + DateUtils2.getNowTimeStr() + "', null, null, null, null, '', null, null, '', '', '', '', '', '', '2', null, '', null, null, null, null, '1', '1', '0', '0', null, null, null, null, " +
                     "'" + r.getProvinceCode() + "', '" + r.getDistrictCode() + "', null, '" + r.getAuthCerStartTime() + "', '" + r.getAuthCerEndTime() + "', 'qf', '" + r.getSettleBankAccountMobile() + "', " +
                     "'" + r.getMchtFeeRateWxT0() + "', '" + r.getMchtFeeRateWxT1() + "', '" + r.getMchtFeeRateAlipayT0() + "', '" + r.getMchtFeeRateAlipayT1() + "', '" + r.getMchtFeeRateDebitT0() + "', '" + r.getMchtFeeRateDebitT1() + "', '" + r.getMchtFeeRateCreditT0() + "', '" + r.getMchtFeeRateCreditT1() + "', '" + r.getMchtFeeAmountDebitMax() + "', " +

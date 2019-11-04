@@ -1,29 +1,27 @@
 package com.sys.gateway.controller;
 
-import com.alibaba.dubbo.cache.Cache;
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONObject;
 import com.sys.boss.api.entry.CommonResponse;
 import com.sys.boss.api.entry.CommonResult;
-import com.sys.boss.api.entry.cache.CacheOrder;
+import com.sys.boss.api.entry.cache.CacheProduct;
 import com.sys.boss.api.entry.cache.CacheTrade;
-import com.sys.boss.api.entry.trade.request.TradeBaseRequest;
 import com.sys.boss.api.entry.trade.request.apipay.ApiPayRequestBody;
 import com.sys.boss.api.entry.trade.request.apipay.TradeApiPayRequest;
 import com.sys.boss.api.entry.trade.response.apipay.ApiPayOrderCreateResponse;
 import com.sys.boss.api.service.trade.handler.ITradeApiPayHandler;
+import com.sys.boss.api.service.trade.service.TradeRouteService;
 import com.sys.common.enums.ErrorCodeEnum;
-
-import com.sys.common.enums.PayStatusEnum;
-import com.sys.common.util.DateUtils2;
-import com.sys.common.util.DesUtil32;
-import com.sys.common.util.MD5Util;
+import com.sys.common.util.*;
+import com.sys.core.dao.dmo.PlatProduct;
 import com.sys.gateway.common.IpUtil;
 import com.sys.gateway.service.GwApiPayService;
 import com.sys.trans.api.entry.ChanMchtPaytypeTO;
 import com.sys.trans.api.entry.Config;
 import com.sys.trans.api.entry.Order;
 import com.sys.trans.api.entry.Trade;
+import org.apache.commons.beanutils.*;
+import org.apache.commons.beanutils.BeanUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -33,7 +31,6 @@ import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpGet;
 import org.apache.http.client.methods.HttpPost;
-import org.apache.http.client.utils.URLEncodedUtils;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.message.BasicNameValuePair;
@@ -73,6 +70,8 @@ public class GwApiPayController {
     GwApiPayService gwApiPayService;
     @Autowired
     ITradeApiPayHandler iTradeApiPayHandler;
+    @Autowired
+    TradeRouteService tradeRouteService;
 
     /**
      * 支付
@@ -185,6 +184,7 @@ public class GwApiPayController {
             String ip = IpUtil.getRemoteHost(request);//请求ip
             logger.info(moid + "qrPay固码支付接收oauthCode-获取到客户端请求ip：" + ip + " platOrderNo数据: " + platOrderId);
             CommonResult commonResult = gwApiPayService.qrPay(platOrderId, ip);
+//            logger.info(moid + "qrPay固码支付接收oauthCode-获取到客户端请求,gwApiPayService.qrPay(commonResult)：" + JSON.toJSONString(commonResult));
 
             if (!ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
                 return "订单错误2";
@@ -196,9 +196,9 @@ public class GwApiPayController {
 
             ChanMchtPaytypeTO cmp = config.getChanMchtPaytype();
             String appCode = cmp.getOpAccount();
-            String mchid = cmp.getChanMchtNo();
+            String chanMchtId = cmp.getChanMchtNo();
             String key = cmp.getChanMchtPassword();
-            moid = mchid + "-" + platOrderId + "-";
+            moid = chanMchtId + "-" + platOrderId + "-";
 
             TradeApiPayRequest tradeApiPayRequest = JSONObject.parseObject(JSON.toJSONString(cacheTrade.getTradeBaseRequest()), TradeApiPayRequest.class);
             ApiPayRequestBody apiPayRequestBody = tradeApiPayRequest.getBody();
@@ -207,13 +207,13 @@ public class GwApiPayController {
             logger.info(moid + "qrPay固码支付接收oauthCode-code返回值: " + code);
 
 
-            String signOrigin = "code=" + code + "&mchid=" + mchid + key;
+            String signOrigin = "code=" + code + "&mchid=" + chanMchtId + key;
             String sign = MD5Util.MD5Encode(signOrigin);
             logger.info(moid + "qrPay固码支付接收oauthCode-signOrigin: " + signOrigin);
             logger.info(moid + "qrPay固码支付接收oauthCode-sign: " + sign);
 
             // "https://openapi.qfpay.com/tool/v1/get_weixin_openid?code=" + code + "&mchid=" + mchid;
-            String url = cmp.getQueryBalanceUrl() + "?code=" + code + "&mchid=" + mchid;
+            String url = cmp.getQueryBalanceUrl() + "?code=" + code + "&mchid=" + chanMchtId;
             logger.info(moid + "qrPay固码支付接收oauthCode-获取openID的请求 url: " + url);
             String resp = this.httpGet(url, appCode, sign);
             //{"resperr": "", "respcd": "0000", "respmsg": "", "openid": "oS7Zr1FCVA7NHW8UpmR7Q69_8u-8"}
@@ -232,7 +232,7 @@ public class GwApiPayController {
             map.put("txdtm", DateUtils2.getNowTimeStr());
             map.put("sub_openid", openId);
             map.put("goods_name", order.getOrderName());
-            map.put("mchid", mchid);
+            map.put("mchid", chanMchtId);
 
             String sign2 = this.md5Sign(map, key);
             String param2 = JSON.toJSONString(map);
@@ -242,8 +242,16 @@ public class GwApiPayController {
             String resp2 = this.httpPost(url2, map, appCode, sign2);
             logger.info(moid + "qrPay固码支付接收oauthCode-resp2: " + resp2);
             JSONObject json2 = JSON.parseObject(resp2);
-            if (!json2.containsKey("pay_params")) {
-                model.addAttribute("msg", "支付异常,请重新尝试");
+            if (!"0000".equals(json2.getString("respcd"))) {
+                String resperr = json2.getString("resperr");
+                logger.info(moid + "qrPay固码支付接收oauthCode失败,原始返回信息: " + AsciiUtils.ascii2Native(resperr));
+                CacheProduct cacheProduct = cacheTrade.getCacheProduct();
+                PlatProduct platProduct = new PlatProduct();
+                BeanUtils.copyProperties(platProduct, cacheProduct);
+                logger.info(moid + "qrPay固码支付接收oauthCode失败,过滤连续失败钱方商户号[start],platProduct参数: " + JSON.toJSONString(platProduct) + ",cmpId:" + cmp.getId());
+                CommonResult filterContinuousFailureCmpResult = tradeRouteService.filterContinuousFailureCmp(platProduct, cmp.getId(), "4009", moid); // 处理连续失败cmp
+                logger.info(moid + "qrPay固码支付接收oauthCode失败,过滤连续失败钱方商户号[end],filterContinuousFailureCmpResult:" + JSON.toJSONString(filterContinuousFailureCmpResult));
+                model.addAttribute("msg", AsciiUtils.ascii2Native(resperr));
                 return "modules/qr/error-qf-wx-public-createOrder";
             }
             String pay_params = json2.getString("pay_params");

@@ -61,7 +61,7 @@ public class GwRegisteMchtInfoController {
 //            midoid = tradeMchtRegisteRequest.getHead().getMchtId() + "-" + tradeMchtRegisteRequest.getBody().getOrderId();
 
             TradeRegisteMchtRequest tradeMchtRegisteRequest = new TradeRegisteMchtRequest();
-            tradeMchtRegisteRequest.setSign(data);
+            tradeMchtRegisteRequest.setData(data);
             logger.info(BIZ + midoid + "请求trade层【start】参数值tradeRequest：" );
             CommonResult commonResult = tradeRegisteMchtInfoHandler.process(tradeMchtRegisteRequest, ip);
             logger.info(BIZ + midoid + "请求trade层【end】返回值commonResult：" + JSON.toJSONString(commonResult));

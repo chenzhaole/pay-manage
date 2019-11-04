@@ -2,7 +2,7 @@
 <%@ include file="/WEB-INF/views/include/taglib.jsp" %>
 <html>
 <head>
-    <title>渠道管理</title>
+    <title>通道商户支付方式编辑</title>
     <meta name="decorator" content="default"/>
     <style>
         .table th, .table td {
@@ -776,6 +776,9 @@
                             <option value="1">启用</option>
                             <option
                                     <c:if test="${chanMchPaytye.status == 2}">selected</c:if> value="2">停用
+                            </option>
+                            <option
+                                    <c:if test="${chanMchPaytye.status == 3}">selected</c:if> value="3">作废
                             </option>
                         </select>
                     </div>

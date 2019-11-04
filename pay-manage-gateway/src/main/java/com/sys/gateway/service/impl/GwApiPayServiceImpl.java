@@ -99,6 +99,13 @@ public class GwApiPayServiceImpl implements GwApiPayService {
                 return checkResp;
             }
 
+            if (body.getAmount().contains(".")) {
+                checkResp.setRespCode(ErrorCodeEnum.E1003.getCode());
+                checkResp.setRespCode("[amount]金额格式不正确");
+                logger.error("[amount]金额格式不正确,单位为分，amount=：" + body.getAmount());
+                return checkResp;
+            }
+
             checkResp.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
             checkResp.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
             checkResp.setData(tradeRequest);
@@ -125,7 +132,7 @@ public class GwApiPayServiceImpl implements GwApiPayService {
             logger.info("调用boss-trade创建API支付订单，参数值tradeRequest：" + JSON.toJSONString(tradeRequest));
             CommonResult commonResult = tradeApiPayHandler.process(tradeRequest, ip);
             logger.info("调用boss-trade创建API支付订单，返回值commonResult：" + JSON.toJSONString(commonResult));
-            if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode())) {
+            if (ErrorCodeEnum.SUCCESS.getCode().equals(commonResult.getRespCode()) && commonResult.getData() != null) {
                 Result mchtResult = (Result) commonResult.getData();
                 head.setRespCode(ErrorCodeEnum.SUCCESS.getCode());
                 head.setRespMsg(ErrorCodeEnum.SUCCESS.getDesc());
