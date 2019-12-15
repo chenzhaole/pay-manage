@@ -448,7 +448,10 @@
 					<td>
 						<c:if test="${orderInfo.status == '2'}">
 							<a href="${ctx}/order/supplyNotify?orderId=${orderInfo.id}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>" onclick="return confirmx('是否确认向下游补发通知？', this.href)">补发通知</a> | </c:if>
-						<c:if test="${orderInfo.status != '2'}"><a href="${ctx}/order/querySupply?orderId=${orderInfo.id}" onclick="return confirmx('是否确认重新向上游通道发起查单请求？', this.href)">查单</a> |</c:if>
+						<c:if test="${orderInfo.status != '2'}">
+							<a href="${ctx}/order/querySupply?orderId=${orderInfo.id}" onclick="return confirmx('是否确认重新向上游通道发起查单请求？', this.href)">查单</a> |
+							<a href="${ctx}/order/supplyNotify?orderId=${orderInfo.id}&suffix=<fmt:formatDate value="${orderInfo.createTime}"  pattern="yyyyMM"/>" onclick="return confirmx('非成功订单模拟回调(异步通知下游),注意平台和下游订单不一致问题!', this.href)">模拟回调</a> |
+						</c:if>
 						<shiro:hasPermission name="order:statPayOrderById">
 							<a href="${ctx}/order/statPayOrderById?orderId=${orderInfo.id}" onclick="return confirmx('是否确认将此记录重新入账？', this.href)">入账</a>
 						</shiro:hasPermission>
