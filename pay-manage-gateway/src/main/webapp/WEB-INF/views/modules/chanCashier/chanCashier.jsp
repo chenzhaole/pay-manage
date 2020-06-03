@@ -15,8 +15,8 @@
     </div>
 </div>
 
-    <input id="clientPayWay" type="hidden" value="${clientPayWay}">
-    <div id="payInfo" style="display: none;">${payInfo}</div>
+<input id="clientPayWay" type="hidden" value="${clientPayWay}">
+<div id="payInfo" style="display: none;">${payInfo}</div>
 </body>
 <script src="${ctxStatic}/js/jquery-3.2.1.min.js"></script>
 <script type="text/javascript">
@@ -27,18 +27,11 @@
 
     $(function(){
         var clientPayWay = $("#clientPayWay").val();
-
-//        var payInfo = $("#payInfo").html();
-        var payInfo = <%=request.getAttribute("payInfo")%>
-        <%
-            System.out.println(request.getAttribute("payInfo"));
-        %>
-//        alert(request.getAttribute("pageInfo"));
-//        alert($("#payInfo").html());
+        var payInfo = $("#payInfo").html();
         if("08" == clientPayWay){
             payInfo = document.getElementById("payInfo").innerText;
             //掉起上游收银台支付唤起支付--url方式
-            location.href = payInfo;
+            location.href = payInfo.replace(/¬/, '&not');
         }else if("09" == clientPayWay){
             //掉起上游收银台支付唤起支付--form表单方式
             $("form")[0].submit();
